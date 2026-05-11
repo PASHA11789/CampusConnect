@@ -1,3 +1,19 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Production build (often used in CRA or older React apps)
+build/
+
+# Local workspace settings
+.workspace
+
 # Logs
 logs
 *.log

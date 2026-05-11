@@ -21,8 +21,9 @@ if (process.env.NODE_ENV === " development") {
 }
 
 app.get("/", (req, res) => {
-  res.send("the app is is working");
+  res.send("The CampusConnect API is working");
 });
+
 
 app.use("/api/auth", authRoutes);
 
