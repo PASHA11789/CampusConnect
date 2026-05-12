@@ -17,6 +17,7 @@ export const loginUser = async (req, res) => {
           role: user.role,
           department: user.department,
           semester: user.semester,
+          avatar: user.avatar,
           token: generateToken(user._id),
         });
       } else {
@@ -55,10 +56,75 @@ export const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        avatar: user.avatar,
         token: generateToken(user._id),
       });
     }
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
+export const updateProfilePicture = async (req, res) => {
+  try {
+    if (!req.file) {
+      res.status(400).json({ message: "No image uploaded" });
+    }
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        avatar: req.file.path,
+      },
+      { new: true },
+    );
+
+    res.json({ message: "Profile Uploaded", avatar: user.avatar });
+  } catch (error) {
+    res.status(500).json({ message: "Upload failed", error: error.message });
+  }
+};
+
+export const getUserProfile = async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      avatar: user.avatar,
+      department: user.department,
+      semester: user.semester,
+    });
+  } else {
+    res.status(404).json({ message: "User not found" });
+  }
+};
+
+export const updateUserAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "Please upload an image" });
+    }
+
+    // req.file.path is the URL Cloudinary generated
+    const imageUrl = req.file.path;
+
+    // Find the user (from protect middleware) and update their avatar field
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { avatar: imageUrl },
+      { new: true }, // Returns the updated document
+    );
+
+    res.status(200).json({
+      message: "Profile picture updated successfully!",
+      avatar: user.avatar,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Server error during upload", error: error.message });
   }
 };

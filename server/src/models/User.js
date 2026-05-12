@@ -13,6 +13,11 @@ const userSchema = new mongoose.Schema(
     },
     department: { type: String, default: "" },
     semester: { type: Number, default: 0 },
+    avatar: {
+      type: String,
+      default: "https://ui-avatars.com/api/?name=User&background=random", // Nice fallback!
+    },
+    images: [String],
   },
   { timestamps: true },
 );
