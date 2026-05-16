@@ -1,38 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Dashboard.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Dashboard.css";
 
 // Layout Components
-import Sidebar from '../../components/layout/Sidebar';
-import Topbar from '../../components/layout/Topbar';
+import Sidebar from "../../components/layout/Sidebar";
+import Topbar from "../../components/layout/Topbar";
 
 // Dashboard Widgets
-import WelcomeBanner from '../../components/dashboard/WelcomeBanner';
-import CanteenWidget from '../../components/dashboard/CanteenWidget';
-import { ForumsWidget, PetitionsWidget, LostFoundWidget, BusRoutesWidget } from '../../components/dashboard/DashboardWidgets';
+import WelcomeBanner from "../../components/dashboard/WelcomeBanner";
+import CanteenWidget from "../../components/dashboard/CanteenWidget";
+import {
+  ForumsWidget,
+  PetitionsWidget,
+  LostFoundWidget,
+  BusRoutesWidget,
+} from "../../components/dashboard/DashboardWidgets";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [avatar, setAvatar] = useState(null);
-  const [greeting, setGreeting] = useState('');
+  const [greeting, setGreeting] = useState("");
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
     // Auth guard
-    const token = localStorage.getItem('token');
-    if (!token) { navigate('/login'); return; }
-
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try { setUser(JSON.parse(userStr)); } catch(e) {}
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
     }
-    const savedAvatar = localStorage.getItem('userAvatar');
+
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      try {
+        setUser(JSON.parse(userStr));
+      } catch (e) {}
+    }
+    const savedAvatar = localStorage.getItem("userAvatar");
     if (savedAvatar) setAvatar(savedAvatar);
 
     // Greeting
     const h = new Date().getHours();
-    setGreeting(h < 12 ? 'Good Morning' : h < 18 ? 'Good Afternoon' : 'Good Evening');
+    setGreeting(
+      h < 12 ? "Good Morning" : h < 18 ? "Good Afternoon" : "Good Evening",
+    );
 
     // Clock
     const tick = setInterval(() => setTime(new Date()), 1000);
@@ -45,7 +57,7 @@ export default function Dashboard() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatar(reader.result);
-        localStorage.setItem('userAvatar', reader.result);
+        localStorage.setItem("userAvatar", reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -58,22 +70,22 @@ export default function Dashboard() {
       <Sidebar />
 
       <main className="db-main">
-        <Topbar 
-          time={time} 
-          user={user} 
-          avatar={avatar} 
-          handleAvatarChange={handleAvatarChange} 
+        <Topbar
+          time={time}
+          user={user}
+          avatar={avatar}
+          handleAvatarChange={handleAvatarChange}
         />
 
         <div className="db-content">
           <WelcomeBanner user={user} avatar={avatar} />
           <CanteenWidget />
-          
+
           <div className="db-main-grid">
             <div className="db-left-col">
               <ForumsWidget />
             </div>
-            
+
             <div className="db-right-col">
               <PetitionsWidget />
               <div className="utility-container">
@@ -84,7 +96,10 @@ export default function Dashboard() {
           </div>
 
           <footer className="db-footer">
-            <p>© 2026 CampusConnect. Idea by <span>Mr. Sagheer Ahmad</span> & <span>Mr. Shujaat Ali Hashim</span></p>
+            <p>
+              © 2026 CampusConnect. An idea by <span>Mr. Sagheer Ahmad</span> &{" "}
+              <span>Mr. Shujaat Ali Hashim</span>
+            </p>
           </footer>
         </div>
       </main>
