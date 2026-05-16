@@ -80,6 +80,7 @@ This document tracks the completed features and milestones of the **CampusConnec
 ### 🔧 UI Bug Fixes (2026-05-16)
 - **Asset Resolution**: Fixed `Module not found` errors by migrating generated image assets into the `src/assets` directory.
 - **Build Integrity**: Resolved runtime `Undefined` errors by restoring accidentally cleared widget exports.
+- **Student Card Photo Integration**: Added a dynamic ID photo section to the student card with support for user avatars and stylized placeholders. Optimized the layout for right-side photo placement.
 - **Compact Styling**: Fine-tuned CSS gaps, margins, and line-heights in the Forum widget to achieve an ultra-sharp, professional aesthetic.
 
 ---

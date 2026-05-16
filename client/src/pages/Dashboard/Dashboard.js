@@ -66,7 +66,7 @@ export default function Dashboard() {
         />
 
         <div className="db-content">
-          <WelcomeBanner user={user} />
+          <WelcomeBanner user={user} avatar={avatar} />
           <CanteenWidget />
           
           <div className="db-main-grid">

@@ -40,14 +40,54 @@
 
 .card-main {
   background: linear-gradient(135deg, #00838F 0%, #00acc1 100%);
-  padding: 24px 32px;
+  padding: 24px 28px;
   flex: 1;
   display: flex;
   align-items: center;
+  gap: 24px;
   position: relative;
 }
 
-.card-details { display: flex; flex-direction: column; gap: 10px; width: 100%; z-index: 2; }
+.card-photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.photo-box {
+  width: 100px;
+  height: 120px;
+  background: #fff;
+  border: 3px solid #E0F2F1;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-placeholder {
+  font-size: 48px;
+  font-weight: 900;
+  color: #00838F;
+}
+
+.card-id-label {
+  font-size: 8px;
+  font-weight: 800;
+  color: #E0F2F1;
+  letter-spacing: 0.1em;
+}
+
+.card-details { display: flex; flex-direction: column; gap: 8px; width: 100%; z-index: 2; }
 .detail-row { display: flex; align-items: baseline; gap: 12px; }
 .detail-label { color: #E0F2F1; font-weight: 600; font-size: 13px; min-width: 60px; }
 .detail-value { color: #fff; font-weight: 700; font-size: 16px; }
