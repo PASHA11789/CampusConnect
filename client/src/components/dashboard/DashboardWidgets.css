@@ -1,0 +1,265 @@
+/* ── DASHBOARD WIDGETS CSS ── */
+
+.widget-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.widget-content.scrollable {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+/* Forum Widget */
+.forum-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.forum-item:last-child {
+  border-bottom: none;
+}
+
+.forum-avatar {
+  width: 36px;
+  height: 36px;
+  background: #00c2cb;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.forum-info {
+  flex: 1;
+}
+
+.forum-topic {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.forum-meta {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 0px;
+}
+
+/* Petition Widget */
+.petition-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.petition-info {
+  flex: 1;
+}
+
+.petition-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+
+.petition-progress-bar {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.petition-progress-bar .progress {
+  height: 100%;
+  background: linear-gradient(90deg, #00c2cb, #00d4ff);
+  border-radius: 10px;
+}
+
+.petition-meta {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.btn-sign {
+  background: #0a2342;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-sign:hover {
+  background: #00c2cb;
+  transform: translateY(-2px);
+}
+
+/* Utility Container */
+.utility-container {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.utility-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.utility-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.utility-icon {
+  font-size: 18px;
+}
+
+.utility-head h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0a2342;
+}
+
+.utility-body {
+  flex: 1;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Lost & Found Body */
+.lf-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #475569;
+}
+
+.lf-tag {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.lf-tag.lost {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.lf-tag.found {
+  background: #dcfce7;
+  color: #10b981;
+}
+
+/* Bus Routes Map & Details */
+.map-container {
+  padding: 0;
+  overflow: hidden;
+}
+
+.stylised-map {
+  position: relative;
+  background: #f1f5f9;
+  height: 100px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.map-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.map-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.live-badge {
+  background: #ef4444;
+  color: white;
+  font-size: 8px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 4px;
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.bus-details {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bus-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bus-row .route {
+  color: #0a2342;
+  width: 60px;
+}
+
+.bus-row .status {
+  color: #10b981;
+  font-size: 10px;
+  background: #dcfce7;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.bus-row .status.delayed {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.bus-row .time {
+  color: #64748b;
+  font-family: monospace;
+}

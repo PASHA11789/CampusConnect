@@ -1,0 +1,162 @@
+/* ═══════════════════════════════════════════════════════
+   CampusConnect – User Dashboard Main CSS
+   Dark Navy + Teal accent – matches premium portal theme
+   ═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── ANIMATIONS ── */
+@keyframes dbFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dbSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dbSlideRight {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ── ROOT LAYOUT ─────────────────────────────────────── */
+.db-root {
+  display: flex;
+  min-height: 100vh;
+  background: #f0f4f8;
+  font-family: 'Inter', sans-serif;
+  color: #1e293b;
+  animation: dbFadeIn 0.8s ease-out;
+}
+
+/* ── MAIN ────────────────────────────────────────────── */
+.db-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* ── CONTENT AREA ─────────────────────────────────────── */
+.db-content {
+  flex: 1;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+}
+
+/* Staggered animations for children */
+.db-content > * {
+  animation: dbSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.db-content > *:nth-child(1) { animation-delay: 0.1s; }
+.db-content > *:nth-child(2) { animation-delay: 0.2s; }
+.db-content > *:nth-child(3) { animation-delay: 0.3s; }
+.db-content > *:nth-child(4) { animation-delay: 0.4s; }
+
+/* ── SECTION HEADER ───────────────────────────────────── */
+.db-section-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0a2342;
+  letter-spacing: 0.02em;
+  margin-bottom: 14px;
+}
+
+/* ── MAIN GRID ───────────────────────────────────────── */
+.db-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.db-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.db-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.db-left-col .widget-forum {
+  flex: 1; /* Make it tall */
+  min-height: 400px;
+}
+
+/* ── GLASS CARD ───────────────────────────────────────── */
+.db-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s;
+}
+
+.db-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+.db-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.db-card-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0a2342;
+}
+
+.db-card-link {
+  font-size: 12px;
+  color: #00c2cb;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.db-card-link:hover { opacity: 0.7; transform: translateX(3px); }
+
+/* ── RESPONSIVE ───────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .db-main-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .db-content { padding: 16px; }
+}
+
+.db-footer {
+  margin-top: 20px;
+  padding: 12px 0;
+  border-top: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.db-footer p {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.db-footer span {
+  color: #0a2342;
+  font-weight: 700;
+}
