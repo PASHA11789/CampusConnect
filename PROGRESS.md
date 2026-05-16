@@ -60,4 +60,27 @@ This document tracks the completed features and milestones of the **CampusConnec
 - Verified server connects properly and successfully established Database connection without crash.
 
 ---
-*Last Updated: 2026-05-12*
+
+### **7. Dashboard Architecture & Widgets (2026-05-16)**
+- **Widget-Based System**: Developed a modular dashboard using independent React components for Forums, Petitions, Canteen, and Utilities.
+- **Student Card & Notifications**: Implemented a high-fidelity Student Card header integrated with a side-notification panel for immediate alerts.
+- **Campus Canteen Widget**: Created a 4-column restaurant grid featuring local eateries (Gourmet, Savour, etc.) with distance badges and image support.
+- **Forums Widget**: Designed a tall, scrollable discussion module with ultra-compact styling for high information density.
+- **Utility Center**:
+    - **Active Petitions**: Progress-tracked petition system with interactive "Sign" capability.
+    - **Lost & Found**: Real-time status list for campus items.
+    - **Bus Routes & Map**: Custom SVG-based animated map with live indicators for campus shuttles.
+
+### **8. UI Refinements & Global Layout**
+- **Topbar Overhaul**: Redesigned the header to include university branding (MINHAJ X CAMPUSCONNECT) and a dedicated student info section.
+- **Sidebar Streamlining**: Optimized navigation by removing low-priority items (Events/Resources) to focus on core features.
+- **Professional Footer**: Integrated a clean footer at the bottom of the dashboard with project idea credits.
+- **Responsive Optimization**: Adjusted CSS grids to ensure a seamless experience across desktop and mobile viewports.
+
+### 🔧 UI Bug Fixes (2026-05-16)
+- **Asset Resolution**: Fixed `Module not found` errors by migrating generated image assets into the `src/assets` directory.
+- **Build Integrity**: Resolved runtime `Undefined` errors by restoring accidentally cleared widget exports.
+- **Compact Styling**: Fine-tuned CSS gaps, margins, and line-heights in the Forum widget to achieve an ultra-sharp, professional aesthetic.
+
+---
+*Last Updated: 2026-05-16*
