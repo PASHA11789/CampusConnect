@@ -83,5 +83,22 @@ This document tracks the completed features and milestones of the **CampusConnec
 - **Student Card Photo Integration**: Added a dynamic ID photo section to the student card with support for user avatars and stylized placeholders. Optimized the layout for right-side photo placement.
 - **Compact Styling**: Fine-tuned CSS gaps, margins, and line-heights in the Forum widget to achieve an ultra-sharp, professional aesthetic.
 
+### **9. Backend Models for Dashboard**
+- **Forum Model**: Created schema to manage discussion topics, tracking title, content, author, tags, and reply counts.
+- **Petition Model**: Designed to handle student petitions with goals, current signature tracking, and active/closed status.
+- **Lost & Found Model**: Built to track campus items with type (lost/found), item details, location, status, and reporter.
+- **Notification Model**: Created to handle user-specific alerts (unread status, type, message) for real-time dashboard updates.
+
+### **10. Dashboard API Integration**
+- **Dashboard Controller**: Implemented `getDashboardSummary` to aggregate real-time metrics across multiple collections using `Promise.all` for performance.
+- **Data Structuring**: The endpoint computes unread notification counts by category and fetches the latest active petitions, recent forums, and open lost/found items.
+- **Secure Routing**: Configured protected `/api/dashboard/summary` route requiring JWT authentication.
+
+### **11. Real-time Infrastructure (Socket.io)**
+- **Server Upgrade**: Migrated the Express app to leverage `http.createServer` for WebSocket compatibility.
+- **Socket.io Integration**: Configured `Server` from `socket.io` with proper CORS policies for the client (`http://localhost:3000`).
+- **Global Event Access**: Bound the `io` instance to the Express app (`app.set("socketio", io)`) to allow controllers to emit events.
+- **Connection Handling**: Added logging for student connections/disconnections to track live updates.
+
 ---
 *Last Updated: 2026-05-16*
