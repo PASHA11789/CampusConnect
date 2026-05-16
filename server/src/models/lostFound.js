@@ -6,7 +6,7 @@ const lostFoundSchema = new mongoose.Schema(
     title: {
       type: String,
       enum: ["LOST", "FOUND"],
-      required: ture,
+      required: true,
     },
     itemName: {
       type: String,

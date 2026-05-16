@@ -5,7 +5,7 @@ import Notification from "../models/Notification.js";
 
 export const getDashboardSummary = async (req, res) => {
   try {
-    const [recentForums, activePetitions, recentLostFound, unreadNotications] =
+    const [recentForums, activePetitions, recentLostFound, unreadNotifications] =
       await Promise.all([
         Forum.find()
           .sort({ createdAt: -1 })
@@ -14,7 +14,7 @@ export const getDashboardSummary = async (req, res) => {
         Petition.find({ status: "Active" })
           .sort({ createdAt: -1 })
           .limit(3)
-          .select("title currntSignatures targetSignatures"),
+          .select("title currentSignatures"),
         LostFound.find({ status: "Open" })
           .sort({ createdAt: -1 })
           .limit(3)
@@ -27,7 +27,7 @@ export const getDashboardSummary = async (req, res) => {
       forums: unreadNotifications.filter((n) => n.type === "FORUM").length,
       petitions: unreadNotifications.filter((n) => n.type === "PETITION")
         .length,
-      upadates: unreadNotifications.filter(
+      updates: unreadNotifications.filter(
         (n) => n.type === "Annoucement" || n.type === "GENERAL",
       ).length,
     };

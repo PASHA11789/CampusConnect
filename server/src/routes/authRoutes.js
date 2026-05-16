@@ -13,12 +13,8 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 
-
-// Route to get profile data (to display the image initially)
 router.get("/profile", protect, getUserProfile);
 
-// Route to CHANGE the image (The "Edit" option)
-// 'avatar' must match the 'name' attribute in Sagheer's frontend form/input
 router.put(
   "/update-avatar",
   protect,

@@ -8,6 +8,7 @@ import helmet from "helmet";
 
 import connectDB from "./utils/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
+import dashboardRoutes from "./src/routes/dashboardRoutes.js";
 
 connectDB();
 
@@ -24,8 +25,8 @@ app.get("/", (req, res) => {
   res.send("The CampusConnect API is working");
 });
 
-
 app.use("/api/auth", authRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
