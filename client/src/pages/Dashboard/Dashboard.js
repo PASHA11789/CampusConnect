@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./Dashboard.css";
 
 // Layout Components
@@ -22,6 +23,13 @@ export default function Dashboard() {
   const [avatar, setAvatar] = useState(null);
   const [greeting, setGreeting] = useState("");
   const [time, setTime] = useState(new Date());
+  const [dashboardData, setDashboardData] = useState({
+    notifications: { forums: 0, petitions: 0, updates: 0 },
+    forums: [],
+    petitions: [],
+    lostAndFound: [],
+    busRoutes: []
+  });
 
   useEffect(() => {
     // Auth guard
@@ -50,6 +58,23 @@ export default function Dashboard() {
     const tick = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(tick);
   }, [navigate]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const { data } = await axios.get("/api/dashboard/summary", config);
+        setDashboardData(data);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+    if (user) {
+      fetchDashboardData();
+    }
+  }, [user]);
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
@@ -83,14 +108,14 @@ export default function Dashboard() {
 
           <div className="db-main-grid">
             <div className="db-left-col">
-              <ForumsWidget />
+              <ForumsWidget forums={dashboardData.forums} />
             </div>
 
             <div className="db-right-col">
-              <PetitionsWidget />
+              <PetitionsWidget petitions={dashboardData.petitions} />
               <div className="utility-container">
-                <LostFoundWidget />
-                <BusRoutesWidget />
+                <LostFoundWidget items={dashboardData.lostAndFound} />
+                <BusRoutesWidget busRoutes={dashboardData.busRoutes} />
               </div>
             </div>
           </div>

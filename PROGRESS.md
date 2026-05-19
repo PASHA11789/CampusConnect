@@ -101,4 +101,18 @@ This document tracks the completed features and milestones of the **CampusConnec
 - **Connection Handling**: Added logging for student connections/disconnections to track live updates.
 
 ---
-*Last Updated: 2026-05-16*
+
+### **12. Frontend-Backend Data Integration (2026-05-19)**
+- **Dynamic Widget Props**: Refactored all dashboard widgets (`ForumsWidget`, `PetitionsWidget`, `LostFoundWidget`, `BusRoutesWidget`) to accept data as props instead of using hard-coded mock data.
+- **Dashboard State Management**: Added `dashboardData` state in Dashboard component with proper initialization for forums, petitions, lostAndFound, and busRoutes arrays.
+- **API Data Fetching**: Implemented `useEffect` hook to fetch real-time data from `/api/dashboard/summary` endpoint using axios with Bearer token authentication.
+- **Data Display**: 
+  - Forums: Display title, reply count, and auto-formatted creation timestamps
+  - Petitions: Show title, signature progress bar, current/target signatures, and status
+  - Lost & Found: Display item name, location, type (LOST/FOUND), and status
+  - Bus Routes: Show route name, status (On Time/Delayed), and estimated time
+- **Error Handling**: Added error logging for failed API requests; graceful fallback to empty states if data unavailable.
+- **Responsive Data Rendering**: All widgets handle empty arrays gracefully with "No data available" messages.
+
+---
+*Last Updated: 2026-05-19*

@@ -1,13 +1,19 @@
 import React from 'react';
 import './DashboardWidgets.css';
 
-const FORUM_POSTS = [
-  { user: 'Ali Ahmed', topic: 'Mid-term Preparation Tips', replies: 12, time: '2h ago' },
-  { user: 'Sana Khan', topic: 'How to apply for internship?', replies: 8, time: '5h ago' },
-  { user: 'Zaid Malik', topic: 'Best coffee spots on campus', replies: 24, time: '1d ago' },
-];
+export const ForumsWidget = ({ forums = [] }) => {
+  const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const now = new Date();
+    const diff = Math.floor((now - d) / 1000);
+    
+    if (diff < 60) return 'now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
+  };
 
-export const ForumsWidget = () => {
   return (
     <div className="db-card widget-forum">
       <div className="db-card-head">
@@ -15,35 +21,25 @@ export const ForumsWidget = () => {
         <a href="/forums" className="db-card-link">Join Discussion →</a>
       </div>
       <div className="widget-content scrollable">
-        {FORUM_POSTS.map((post, i) => (
+        {forums && forums.length > 0 ? forums.map((post, i) => (
           <div key={i} className="forum-item">
-            <div className="forum-avatar">{post.user[0]}</div>
+            <div className="forum-avatar">{post.title ? post.title.charAt(0).toUpperCase() : 'F'}</div>
             <div className="forum-info">
-              <div className="forum-topic">{post.topic}</div>
+              <div className="forum-topic">{post.title || 'Untitled'}</div>
               <div className="forum-meta">
-                <span>By {post.user}</span> • <span>{post.replies} replies</span> • <span>{post.time}</span>
+                <span>{post.repliesCount || 0} replies</span> • <span>{formatDate(post.createdAt)}</span>
               </div>
             </div>
           </div>
-        ))}
-        {/* Repeating for visual height if needed */}
-        {FORUM_POSTS.map((post, i) => (
-          <div key={i+10} className="forum-item">
-            <div className="forum-avatar">{post.user[0]}</div>
-            <div className="forum-info">
-              <div className="forum-topic">{post.topic}</div>
-              <div className="forum-meta">
-                <span>By {post.user}</span> • <span>{post.replies} replies</span> • <span>{post.time}</span>
-              </div>
-            </div>
-          </div>
-        ))}
+        )) : (
+          <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b' }}>No active discussions</div>
+        )}
       </div>
     </div>
   );
 };
 
-export const PetitionsWidget = () => {
+export const PetitionsWidget = ({ petitions = [] }) => {
   return (
     <div className="db-card widget-petition">
       <div className="db-card-head">
@@ -51,32 +47,33 @@ export const PetitionsWidget = () => {
         <a href="/petitions" className="db-card-link">View all →</a>
       </div>
       <div className="widget-content">
-        <div className="petition-item">
-          <div className="petition-info">
-            <div className="petition-title">Extend Library Hours</div>
-            <div className="petition-progress-bar">
-              <div className="progress" style={{ width: '75%' }}></div>
+        {petitions && petitions.length > 0 ? petitions.map((petition, i) => {
+          const target = 1000;
+          const progress = Math.min(((petition.currentSignatures || 0) / target) * 100, 100);
+          return (
+            <div key={i} className="petition-item">
+              <div className="petition-info">
+                <div className="petition-title">{petition.title || 'Untitled'}</div>
+                <div className="petition-progress-bar">
+                  <div className="progress" style={{ width: `${progress}%` }}></div>
+                </div>
+                <div className="petition-meta">{petition.currentSignatures || 0} / {target} signatures</div>
+                <div className="petition-status" style={{ fontSize: '0.75rem', color: '#475569', marginTop: '0.25rem' }}>
+                  Status: {petition.status || 'Active'}
+                </div>
+              </div>
+              <button className="btn-sign">Sign</button>
             </div>
-            <div className="petition-meta">750 / 1000 signatures</div>
-          </div>
-          <button className="btn-sign">Sign</button>
-        </div>
-        <div className="petition-item">
-          <div className="petition-info">
-            <div className="petition-title">More Vegan Options in Canteen</div>
-            <div className="petition-progress-bar">
-              <div className="progress" style={{ width: '40%' }}></div>
-            </div>
-            <div className="petition-meta">400 / 1000 signatures</div>
-          </div>
-          <button className="btn-sign">Sign</button>
-        </div>
+          );
+        }) : (
+          <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b' }}>No active petitions</div>
+        )}
       </div>
     </div>
   );
 };
 
-export const LostFoundWidget = () => {
+export const LostFoundWidget = ({ items = [] }) => {
   return (
     <div className="utility-item lost-found">
       <div className="utility-head">
@@ -84,20 +81,26 @@ export const LostFoundWidget = () => {
         <h4>Lost & Found</h4>
       </div>
       <div className="utility-body">
-        <div className="lf-item">
-          <span className="lf-tag lost">LOST</span>
-          <span>Blue Backpack - Room 204</span>
-        </div>
-        <div className="lf-item">
-          <span className="lf-tag found">FOUND</span>
-          <span>Car Keys - Parking Lot</span>
-        </div>
+        {items && items.length > 0 ? items.map((item, i) => (
+          <div key={i} className="lf-item">
+            <span className={`lf-tag ${item.title ? item.title.toLowerCase() : ''}`}>{item.title || 'REPORT'}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: '500' }}>{item.itemName}</div>
+              <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{item.location}</div>
+              <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.25rem' }}>
+                Status: {item.status || 'Open'}
+              </div>
+            </div>
+          </div>
+        )) : (
+          <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b' }}>No items reported</div>
+        )}
       </div>
     </div>
   );
 };
 
-export const BusRoutesWidget = () => {
+export const BusRoutesWidget = ({ busRoutes = [] }) => {
   return (
     <div className="utility-item bus-routes">
       <div className="utility-head">
@@ -121,16 +124,17 @@ export const BusRoutesWidget = () => {
           </div>
         </div>
         <div className="bus-details">
-          <div className="bus-row">
-            <span className="route">Route A</span>
-            <span className="status">On Time</span>
-            <span className="time">5m</span>
-          </div>
-          <div className="bus-row">
-            <span className="route">Route B</span>
-            <span className="status delayed">Delayed</span>
-            <span className="time">12m</span>
-          </div>
+          {busRoutes && busRoutes.length > 0 ? busRoutes.map((route, i) => (
+            <div key={i} className="bus-row">
+              <span className="route">{route.route || `Route ${String.fromCharCode(65 + i)}`}</span>
+              <span className={`status ${route.status?.toLowerCase() === 'delayed' ? 'delayed' : ''}`}>
+                {route.status || 'On Time'}
+              </span>
+              <span className="time">{route.time || '5m'}</span>
+            </div>
+          )) : (
+            <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b' }}>No bus routes available</div>
+          )}
         </div>
       </div>
     </div>
