@@ -1,12 +1,10 @@
 import mongoose from "mongoose";
-import { timeStamp } from "node:console";
-import { type } from "node:os";
 
 const forumSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      require: true,
+      required: true,
       trim: true,
     },
     author: {
@@ -23,7 +21,7 @@ const forumSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { timeStamp: true },
+  { timestamps: true },
 );
 
 const Forum = mongoose.model("Forum", forumSchema);

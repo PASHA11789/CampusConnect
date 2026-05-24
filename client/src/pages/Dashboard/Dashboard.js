@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { io } from "socket.io-client";
 import "./Dashboard.css";
 
 // Layout Components
@@ -40,6 +41,7 @@ export default function Dashboard() {
       return;
     }
 
+    // Load initial user details from cache for premium instant rendering
     const userStr = localStorage.getItem("user");
     if (userStr) {
       try {
@@ -50,6 +52,24 @@ export default function Dashboard() {
         }
       } catch (e) {}
     }
+
+    // Fetch latest user profile dynamically from server to sync state & avoid stale cache
+    const fetchUserProfile = async () => {
+      try {
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const { data } = await axios.get("/api/auth/profile", config);
+        
+        setUser(data);
+        if (data.avatar) {
+          setAvatar(data.avatar);
+        }
+        localStorage.setItem("user", JSON.stringify(data));
+      } catch (error) {
+        console.error("Failed to fetch latest user profile from server:", error);
+      }
+    };
+    fetchUserProfile();
+
     // Remove legacy global avatar cache to avoid leaking profile pictures between different users
     localStorage.removeItem("userAvatar");
 
@@ -78,6 +98,40 @@ export default function Dashboard() {
     };
     if (user) {
       fetchDashboardData();
+
+      // Establish Socket.io connection for real-time updates
+      const socket = io("http://localhost:5000");
+
+      socket.on("connect", () => {
+        console.log("⚡ Connected to live updates socket");
+      });
+
+      socket.on("new_forum_thread", (data) => {
+        console.log("⚡ New forum thread received via socket:", data);
+        if (data && data.thread) {
+          setDashboardData((prevData) => {
+            // Check if thread already exists to avoid duplicates
+            const threadExists = prevData.forums.some(
+              (f) => f._id === data.thread._id
+            );
+            if (threadExists) return prevData;
+
+            // Prepend new thread and limit to 5 threads maximum
+            return {
+              ...prevData,
+              forums: [data.thread, ...prevData.forums].slice(0, 5)
+            };
+          });
+        }
+      });
+
+      socket.on("disconnect", () => {
+        console.log("❌ Disconnected from live updates socket");
+      });
+
+      return () => {
+        socket.disconnect();
+      };
     }
   }, [user]);
 

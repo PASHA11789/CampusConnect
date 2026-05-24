@@ -32,7 +32,7 @@ export const loginUser = async (req, res) => {
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export const registerUser = async (req, res) => {
-  const { name, email, password, role, department, semester } = req.body;
+  const { name, email, password, role, department, semester, avatar } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
@@ -48,6 +48,7 @@ export const registerUser = async (req, res) => {
       role,
       department,
       semester,
+      avatar, // Save avatar if provided (e.g. custom user photos seeded/registered)
     });
 
     if (user) {

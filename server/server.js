@@ -11,6 +11,7 @@ import helmet from "helmet";
 import connectDB from "./utils/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import dashboardRoutes from "./src/routes/dashboardRoutes.js";
+import forumRoutes from "./src/routes/forumRoutes.js"
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,8 +27,22 @@ const io = new Server(httpServer, {
 app.set("socketio", io);
 
 connectDB();
-app.use(helmet());
-app.use(cors());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://ui-avatars.com"],
+        connectSrc: ["'self'", "ws://localhost:5000", "http://localhost:5000"],
+      },
+    },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
+app.use(cors());  
 app.use(express.json());
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -39,6 +54,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/forums", forumRoutes);
 
 io.on("connection", (socket) => {
   console.log(`⚡ Student connected to live updates: ${socket.id}`);
