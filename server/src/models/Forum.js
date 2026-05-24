@@ -1,4 +1,24 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+
+const replySchema = new mongoose.Schema(
+  {
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    content: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    isHidden: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
 
 const forumSchema = new mongoose.Schema(
   {
@@ -8,8 +28,8 @@ const forumSchema = new mongoose.Schema(
       trim: true,
     },
     author: {
-      type: mongoose.Schema.Types.ObjectID,
-      ref: "User",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
     },
     content: {
@@ -20,9 +40,14 @@ const forumSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    isHidden: {
+      type: Boolean,
+      default: false,
+    },
+    replies: [replySchema],
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-const Forum = mongoose.model("Forum", forumSchema);
+const Forum = mongoose.model('Forum', forumSchema);
 export default Forum;
