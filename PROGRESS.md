@@ -115,4 +115,34 @@ This document tracks the completed features and milestones of the **CampusConnec
 - **Responsive Data Rendering**: All widgets handle empty arrays gracefully with "No data available" messages.
 
 ---
-*Last Updated: 2026-05-19*
+
+### **13. Profile Picture Upload & Optimization System (2026-05-24)**
+- **Optimistic UI Updates**: Configured the React dashboard to render a profile picture preview immediately upon selection (`URL.createObjectURL`), delivering a seamless and responsive user experience.
+- **Dynamic Avatar Upload**: Integrated file upload via `/api/auth/update-avatar` using `multipart/form-data`, linking directly to Cloudinary storage.
+- **State & Storage Sync**: Automated synchronization of updated avatar URLs across state and `localStorage` to avoid stale user data.
+- **Cache Isolation**: Removed legacy global avatar caches to ensure profile pictures do not leak when switching between different user accounts.
+- **Graceful Error Recovery**: Added a fallback mechanism that automatically reverts to the original database-saved avatar if the upload request fails.
+- **Personalized Placeholders**: Configured automatic letter-based avatar generation using the student's name if no custom profile picture is uploaded.
+
+### **14. Real-time Forum Updates (Socket.io Client Integration) (2026-05-24)**
+- **Client Socket.io Integration**: Installed and configured `socket.io-client` in the React frontend.
+- **Active Connection Hook**: Integrated a dedicated `useEffect` hook in `Dashboard.js` to open a WebSocket connection to `http://localhost:5000` when the user is logged in.
+- **Live Forum Broadcasting**: Set up a WebSocket listener for the `new_forum_thread` server event.
+- **Dynamic State Merging**: Programmed the frontend to automatically prepend new threads into the active forums state, perform index deduplication by ID, and limit the widget feed to the 5 most recent threads to avoid clutter.
+- **Safe Disconnection**: Implemented clean socket termination when the dashboard component unmounts or a user logs out to prevent memory leaks and redundant websocket listeners.
+
+### **15. Forum & Replies CRUD Endpoints and Verification (2026-05-24)**
+- **CRUD Controller Expansion**: Implemented full CRUD features for forum threads (Create, Read, Update, Delete) and nested thread replies (Create reply, Edit reply, Delete reply).
+- **Automated Test Scripts**: 
+  - `test_realtime.js`: Standalone script to simulate a live student starting a discussion thread and broadcasting to all connected users.
+  - `test_crud.js`: Robust API test suite validating the entire lifecycle of a forum post and nested replies under a dummy student account.
+- **Successful API Validation**: Executed all automated tests with 100% success rate, confirming stable database persistence, proper response statuses (200/201), and successful event broadcasts.
+
+### 🔧 Backend Bug Fixes Applied (2026-05-24)
+- **Resolved missing ID** in Mongoose query: Added `req.params.id` inside `Forum.findById()` for the thread update controller.
+- **Fixed controller syntax typo**: Changed `res.statu(500)` to `res.status(500)` inside the add thread reply handler.
+- **Corrected reply deletion response**: Replaced `reply.status(404)` with `res.status(404)` inside `deleteThreadReply` as `reply` is a mongoose subdocument and doesn't own Express methods.
+- **Fixed ID comparison mismatch**: Changed `req.user.toString()` to `req.user._id.toString()` in `deleteThreadReply` to ensure valid matching of mongoose string IDs.
+
+---
+*Last Updated: 2026-05-24*
