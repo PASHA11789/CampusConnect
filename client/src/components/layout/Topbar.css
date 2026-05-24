@@ -263,6 +263,35 @@
   border: 2px solid #ffffff;
 }
 
+.db-avatar-loading-overlay {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  border-radius: 50%;
+  background: rgba(10, 35, 66, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00c2cb;
+  backdrop-filter: blur(1.5px);
+  z-index: 5;
+}
+
+.db-avatar-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid rgba(0, 194, 203, 0.25);
+  border-top-color: #00c2cb;
+  border-radius: 50%;
+  animation: db-avatar-spin 0.8s linear infinite;
+}
+
+@keyframes db-avatar-spin {
+  to { transform: rotate(360deg); }
+}
+
 @media (max-width: 1100px) {
   .db-notif-label { display: none; }
   .db-notif-group { gap: 12px; }

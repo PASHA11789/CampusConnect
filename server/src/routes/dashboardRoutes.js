@@ -1,5 +1,5 @@
 import express from "express";
-import { getDashboardSummary } from "../controller/dashboaedController.js";
+import { getDashboardSummary } from "../controller/dashboardController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();

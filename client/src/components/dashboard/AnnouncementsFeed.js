@@ -15,7 +15,7 @@ const AnnouncementsFeed = () => {
         <a href="/announcements" className="db-card-link">View all →</a>
       </div>
       <div className="db-announce-list">
-        {ANNOUNCEMENTS.map((a, i) => (
+        {ANNOUNCEMENTS.map((a, i) => (      
           <div key={i} className="db-announce-item">
             <span className="db-announce-badge" style={{ background: `${a.color}22`, color: a.color }}>{a.badge}</span>
             <div className="db-announce-title">{a.title}</div>

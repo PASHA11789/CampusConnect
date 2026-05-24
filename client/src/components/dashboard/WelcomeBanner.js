@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './WelcomeBanner.css';
 import logo from '../../assets/MUL-Logo.png';
 
@@ -7,6 +7,27 @@ const IconPetitions = () => <svg viewBox="0 0 24 24" fill="none" stroke="current
 const IconBell      = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>;
 
 const WelcomeBanner = ({ user, avatar }) => {
+  const [imageError, setImageError] = useState(false);
+
+  // Reset image error state when avatar prop changes
+  useEffect(() => {
+    setImageError(false);
+  }, [avatar]);
+
+  // Helper to extract clean initials from the user's name
+  const getInitials = (name) => {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return parts[0][0].toUpperCase();
+  };
+
+  const isDefaultAvatar = !avatar || avatar.includes('ui-avatars.com');
+  const showFallback = isDefaultAvatar || imageError;
+  const initials = getInitials(user?.name);
+
   return (
     <div className="db-welcome-section">
       <div className="student-card-container">
@@ -44,10 +65,20 @@ const WelcomeBanner = ({ user, avatar }) => {
 
             <div className="card-photo">
               <div className="photo-box">
-                {avatar 
-                  ? <img src={avatar} alt="Profile" />
-                  : <div className="photo-placeholder">{user?.name?.charAt(0) || 'S'}</div>
-                }
+                {showFallback ? (
+                  <div 
+                    className="photo-placeholder" 
+                    style={{ fontSize: initials.length > 1 ? '36px' : '48px' }}
+                  >
+                    {initials}
+                  </div>
+                ) : (
+                  <img 
+                    src={avatar} 
+                    alt="Profile" 
+                    onError={() => setImageError(true)} 
+                  />
+                )}
               </div>
               <div className="card-id-label">ID PHOTO</div>
             </div>
