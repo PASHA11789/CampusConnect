@@ -1,5 +1,5 @@
 import Forum from "../models/Forum.js"
-import User from "../models/User.js"
+import Notification from "../models/Notification.js"
 
 export const getForumSummary = async(req , res) =>{
 
@@ -27,13 +27,14 @@ try{
 
 export const createForumThread = async(req,res)=>{
     try{
-        const {title,content} =req.body
+        const {title,content, isFlagged} =req.body
         if(!title || !content) return res.status(400).json({ message: 'Title and content are required' })
     
         const newThread= await Forum.create({
         title,
         content,
         author:req.user._id,
+        isHidden: isFlagged || false
        })
     
        const populatedThread = await Forum.findById(newThread._id)
@@ -41,7 +42,28 @@ export const createForumThread = async(req,res)=>{
        .select("title repliesCount createdAt")
 
        const io = req.app.get("socketio")
-       io.emit('new_forum_thread', {
+
+       if(isFlagged){
+      
+        await Notification.create({
+      
+        recipient: req.user._id,
+        type: "GENERAL",
+        message:"Your recent forum post is under review by moderators to ensure community safety"
+        })
+        io.to("mod_room").emit("new_flagged_content",{
+          message:"AI flagged a new forum post for review",
+          threadID: newThread._id
+        })
+
+        return res.status(202).json({
+          success:true,
+          message:"Your post contains specific ketwords and has been sent for moderator review.",
+          underReview: true
+        })
+       }  
+       
+      io.emit('new_forum_thread', {
       message: `${req.user.name} started a new topic!`,
       thread: populatedThread
     });
@@ -100,6 +122,35 @@ export const deleteForumThread = async (req,res)=>{
 
   }catch (error){
     res.status(500).json({message: "Server error during deletion", error: error.message})
+  }
+}
+
+export const toggleHideThread = async (req,res) =>{
+  try {
+    const thread = await Forum.findById(req.params.id)
+
+    if(!thread) return res.status(404).json({message:"Thread not found"})
+     if(req.user.role !== "admin" && req.user.role !== "student_mod"){
+      return res.status(403).json({message:"You do not have permission to moderate threads"})
+    
+     }  
+     thread.isHidden = !thread.isHidden
+     await thread.save()
+
+
+     const io = req.app.get("socketio")
+
+     io.emit("thread_moderated",{
+      threadId: thread._id,
+      isHidden: thread.isHidden 
+     })
+     res.status(200).json({
+      success: true,
+      message: thread.isHidden? "Thread hidden from public feed" : "Thread restored to public feed",
+      idHidden: thread.isHidden
+     })
+  }catch(error){
+    res.status(500).json({message:"Server error during moderation", error: error.message })
   }
 }
 
