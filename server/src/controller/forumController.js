@@ -86,7 +86,7 @@ export const createForumThread = async(req,res)=>{
 
 export const updateForumThread = async(req,res)=>{
   try{
-    const{title, content} = req.body
+    const{title, content, isFlagged} = req.body
     const thread = await Forum.findById(req.params.id)
 
     if (!thread) return res.status(404).json({message:"Thread not found"})
@@ -96,9 +96,28 @@ export const updateForumThread = async(req,res)=>{
     }
     thread.title = title || thread.title
     thread.content = content || thread.content
+    thread.isHidden = isFlagged || false
     await thread.save()
 
     const io = req.app.get("socketio")
+
+    if (isFlagged) {
+      await Notification.create({
+        recipient: req.user._id,
+        type: "GENERAL",
+        message: "Your updated forum post is under review by moderators to ensure community safety"
+      })
+      io.to("mod_room").emit("new_flagged_content", {
+        message: "AI flagged an updated forum post for review",
+        threadID: thread._id
+      })
+      return res.status(202).json({
+        success: true,
+        message: "Your post contains specific keywords and has been sent for moderator review.",
+        underReview: true
+      })
+    }
+
     io.emit("thread_updated",{threadId: thread._id, title: thread.title, content: thread.content})
     res.status(200).json({success: true, message: 'Thread updated!', thread})
 
@@ -157,13 +176,13 @@ export const toggleHideThread = async (req,res) =>{
 
 export const addThreadReply = async (req, res)=> {
   try{
-    const {content} = req.body
+    const {content, isFlagged} = req.body
     if(!content) return  res.status(400).json({message: "Reply content can not be empty"})
     
     const thread = await Forum.findById(req.params.id)
     if(!thread) return res.status(404).json({message:"Thread not found"})  
 
-    const newReply = {author: req.user._id, content} 
+    const newReply = {author: req.user._id, content, isHidden: isFlagged || false} 
     thread.replies.push(newReply) 
     thread.repliesCount = thread.replies.length
     await thread.save()
@@ -172,6 +191,25 @@ export const addThreadReply = async (req, res)=> {
     const savedReply = updatedThread.replies.at(-1);
  
     const io = req.app.get("socketio")
+   
+    if (isFlagged) {
+      await Notification.create({
+        recipient: req.user._id,
+        type: "GENERAL",
+        message: "Your recent reply is under review by moderators to ensure community safety"
+      })
+      io.to("mod_room").emit("new_flagged_content", {
+        message: "AI flagged a new reply for review",
+        threadID: thread._id,
+        replyID: savedReply._id
+      })
+      return res.status(202).json({
+        success: true,
+        message: "Your reply contains flagged keywords and has been sent for moderator review.",
+        underReview: true
+      })
+    }
+
     io.emit("new_reply", {threadId: thread._id, reply: savedReply, repliesCount: thread.repliesCount})
    
     res.status(201).json({success: true , reply: savedReply})
@@ -183,7 +221,7 @@ export const addThreadReply = async (req, res)=> {
 
 export const updateThreadReply = async (req, res)=>{
   try{
-    const {content} = req.body
+    const {content, isFlagged} = req.body
     const thread = await Forum.findById(req.params.threadId)
     if(!thread) return res.status(404).json({message:"Thread not found"})
 
@@ -195,9 +233,29 @@ export const updateThreadReply = async (req, res)=>{
     }  
 
     reply.content= content || reply.content 
+    reply.isHidden = isFlagged || false
     await thread.save()
 
     const io = req.app.get("socketio")
+    
+    if (isFlagged) {
+      await Notification.create({
+        recipient: req.user._id,
+        type: "GENERAL",
+        message: "Your updated reply is under review by moderators to ensure community safety"
+      })
+      io.to("mod_room").emit("new_flagged_content", {
+        message: "AI flagged an updated reply for review",
+        threadID: thread._id,
+        replyID: reply._id
+      })
+      return res.status(202).json({
+        success: true,
+        message: "Your reply contains flagged keywords and has been sent for moderator review.",
+        underReview: true
+      })
+    }
+
     io.emit("reply_updated", {threadId: thread._id, replyid: reply._id, content: reply.content })
     
     res.status(200).json({success:true, reply})

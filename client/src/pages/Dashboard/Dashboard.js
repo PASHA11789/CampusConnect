@@ -228,19 +228,23 @@ export default function Dashboard() {
         content: replyContent
       }, config);
 
-      setActiveThread(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          repliesCount: prev.repliesCount + 1,
-          replies: [...prev.replies, data.reply]
-        };
-      });
+      if (data.underReview) {
+        alert("Your reply contains flagged keywords and has been sent for moderator review.");
+      } else {
+        setActiveThread(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            repliesCount: prev.repliesCount + 1,
+            replies: [...prev.replies, data.reply]
+          };
+        });
 
-      setDashboardData(prev => ({
-        ...prev,
-        forums: prev.forums.map(f => f._id === activeThread._id ? { ...f, repliesCount: f.repliesCount + 1 } : f)
-      }));
+        setDashboardData(prev => ({
+          ...prev,
+          forums: prev.forums.map(f => f._id === activeThread._id ? { ...f, repliesCount: f.repliesCount + 1 } : f)
+        }));
+      }
 
       setReplyContent("");
     } catch (error) {
@@ -456,10 +460,10 @@ export default function Dashboard() {
                   </div>
 
                   <div className="replies-section">
-                    <h5 className="replies-title">{t('Replies')} ({activeThread.replies?.length || 0})</h5>
+                    <h5 className="replies-title">{t('Replies')} ({activeThread.replies ? activeThread.replies.filter(r => !r.isHidden).length : 0})</h5>
                     <div className="replies-list">
-                      {activeThread.replies && activeThread.replies.length > 0 ? (
-                        activeThread.replies.map((reply, i) => (
+                      {activeThread.replies && activeThread.replies.filter(r => !r.isHidden).length > 0 ? (
+                        activeThread.replies.filter(r => !r.isHidden).map((reply, i) => (
                           <div key={i} className="reply-item">
                             <div className="reply-avatar-fallback" style={{
                               background: 'linear-gradient(135deg, #64748b, #94a3b8)',

@@ -4,9 +4,11 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
 
 export const aiModeration = async (req, res, next) => {
     try {
-        const textToAnalyze = req.body.content || req.body.description
+        const textToAnalyze = [req.body.title, req.body.content, req.body.description]
+            .filter(Boolean)
+            .join("\n");
 
-        if (!textToAnalyze) {
+        if (!textToAnalyze.trim()) {
             req.body.isFlagged = false
             return next()
         }

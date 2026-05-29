@@ -22,14 +22,14 @@ router.route('/')
 
 router.route('/:id')
   .get(protect, getForumThreadById)
-  .put(protect, updateForumThread)
+  .put(protect, aiModeration, updateForumThread)
   .delete(protect, deleteForumThread);
 
 router.route("/:id/replies")
-  .post(protect, addThreadReply)
+  .post(protect, aiModeration, addThreadReply)
 
 router.route("/:threadId/replies/:replyId")
-  .put(protect, updateThreadReply)
+  .put(protect, aiModeration, updateThreadReply)
   .delete(protect, deleteThreadReply)
 
 
