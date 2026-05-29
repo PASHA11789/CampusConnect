@@ -7,12 +7,14 @@ const ANNOUNCEMENTS = [
   { badge: 'NEW',    title: 'Campus job fair — June 3rd',         desc: 'Over 30 companies visiting campus this year.',       color: '#34d399' },
 ];
 
+const t = (s) => s;
+
 const AnnouncementsFeed = () => {
   return (
     <section className="db-card">
       <div className="db-card-head">
-        <h3 className="db-card-title">Announcements</h3>
-        <a href="/announcements" className="db-card-link">View all →</a>
+        <h3 className="db-card-title">{t('Announcements')}</h3>
+        <a href="/announcements" className="db-card-link">{t('View all →')}</a>
       </div>
       <div className="db-announce-list">
         {ANNOUNCEMENTS.map((a, i) => (      

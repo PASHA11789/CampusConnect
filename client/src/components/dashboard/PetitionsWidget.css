@@ -1,0 +1,60 @@
+/* Petition Widget Styling */
+.widget-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.petition-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.petition-info {
+  flex: 1;
+}
+
+.petition-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+
+.petition-progress-bar {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.petition-progress-bar .progress {
+  height: 100%;
+  background: linear-gradient(90deg, #00c2cb, #00d4ff);
+  border-radius: 10px;
+}
+
+.petition-meta {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.btn-sign {
+  background: #0a2342;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-sign:hover {
+  background: #00c2cb;
+  transform: translateY(-2px);
+}

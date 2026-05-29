@@ -10,7 +10,8 @@ export const getDashboardSummary = async (req, res) => {
         Forum.find()
           .sort({ createdAt: -1 })
           .limit(5)
-          .select("title repliesCount"),
+          .populate("author", "name avatar")
+          .select("title repliesCount createdAt author"),
         Petition.find({ status: "Active" })
           .sort({ createdAt: -1 })
           .limit(3)
@@ -18,7 +19,7 @@ export const getDashboardSummary = async (req, res) => {
         LostFound.find({ status: "Open" })
           .sort({ createdAt: -1 })
           .limit(3)
-          .select("type itemName location"),
+          .select("title itemName location createdAt status"),
         Notification.find({ recipient: req.user._id, isRead: false }).select(
           "type",
         ),

@@ -7,7 +7,8 @@ import { getForumSummary,
          addThreadReply,
          updateThreadReply,
          deleteThreadReply,
-         toggleHideThread
+         toggleHideThread,
+         getForumThreadById
      } from "../controller/forumController.js"
 import {protect} from "../middleware/authMiddleware.js"
 
@@ -20,6 +21,7 @@ router.route('/')
   .post(protect, aiModeration ,createForumThread);
 
 router.route('/:id')
+  .get(protect, getForumThreadById)
   .put(protect, updateForumThread)
   .delete(protect, deleteForumThread);
 

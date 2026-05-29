@@ -145,4 +145,21 @@ This document tracks the completed features and milestones of the **CampusConnec
 - **Fixed ID comparison mismatch**: Changed `req.user.toString()` to `req.user._id.toString()` in `deleteThreadReply` to ensure valid matching of mongoose string IDs.
 
 ---
-*Last Updated: 2026-05-24*
+
+### **16. Linter Warnings & 18 Problems Resolved (2026-05-29)**
+- **i18n Literal Strings**: Wrapped all literal strings in `AnnouncementsFeed.js`, `BusRoutesWidget.js`, and `Dashboard.js` inside `t()` translation functions to eliminate 16 internationalization warnings in the IDE.
+- **Unused Variables Cleaned**: Removed unused `logo` import in `Topbar.js` and `greeting` state/effects in `Dashboard.js` to silence compiler warnings.
+- **Clean Backend Handler**: Prefixed unused `req` parameters with an underscore in `forumController.js` to ensure the Node backend conforms to ESLint standards.
+
+### **17. Premium Full-Width Forums Page (2026-05-29)**
+- **Full Forums Interface**: Created `Forum.js` and `Forum.css` pages matching the sidebar, topbar, and layout frames of the dashboard.
+- **Header Tools**: Built a glassmorphic search input box that matches keywords dynamically, along with a category filter pill bar (`All`, `Academics`, `Tech Hub`, `Campus Life`, `Q & A`, `General`).
+- **Interactive Modals & Real-Time Sync**: Integrated glassmorphic overlays for new thread publishing and comment details. Connected to Socket.io to sync updates in real-time across student clients.
+- **Mock Description Fallbacks**: Created a client-side context-aware snippet generator that displays brief category-based description previews on cards since the backend summary route is restricted from returning full descriptions for list performance.
+- **Loader Animation**: Added a profile loading indicator state with a spinner that displays during initial authentication.
+
+### **18. Modals Design Overhaul (2026-05-29)**
+- **Global Modal Stylesheet**: Appended complete modal layout styling to `index.css` to fix unstyled overlays and align them with a backdrop blur and soft glass shadows.
+
+---
+*Last Updated: 2026-05-29*

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './Topbar.css';
-import logo from '../../assets/MUL-Logo.png';
 
 const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
   const [imageError, setImageError] = useState(false);

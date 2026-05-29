@@ -1,7 +1,7 @@
 import Forum from "../models/Forum.js"
 import Notification from "../models/Notification.js"
 
-export const getForumSummary = async(req , res) =>{
+export const getForumSummary = async(_req , res) =>{
 
 try{
     const threads= await Forum.find()
@@ -169,7 +169,7 @@ export const addThreadReply = async (req, res)=> {
     await thread.save()
 
     const updatedThread  = await Forum.findById(thread._id).populate("replies.author", "name avatar")
-    const savedReply = updatedThread.replies[updatedThread.replies.length -1]
+    const savedReply = updatedThread.replies.at(-1);
  
     const io = req.app.get("socketio")
     io.emit("new_reply", {threadId: thread._id, reply: savedReply, repliesCount: thread.repliesCount})
@@ -230,4 +230,27 @@ export const deleteThreadReply = async (req,res)=>{
     }catch(error){
       res.status(500).json({message:"Server error deleting reply",error : error.message})
     } 
-}
+};
+
+export const getForumThreadById = async (req, res) => {
+  try {
+    const thread = await Forum.findById(req.params.id)
+      .populate("author", "name avatar")
+      .populate("replies.author", "name avatar");
+
+    if (!thread) {
+      return res.status(404).json({ message: "Thread not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      thread
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch thread details",
+      error: error.message
+    });
+  }
+};

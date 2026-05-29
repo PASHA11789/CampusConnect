@@ -2,36 +2,27 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
-import "./Dashboard.css";
+import "./Forum.css";
 
 // Layout Components
 import Sidebar from "../../components/layout/Sidebar";
 import Topbar from "../../components/layout/Topbar";
 
-// Dashboard Widgets
-import WelcomeBanner from "../../components/dashboard/WelcomeBanner";
-import CanteenWidget from "../../components/dashboard/CanteenWidget";
-import ForumsWidget from "../../components/dashboard/ForumsWidget";
-import PetitionsWidget from "../../components/dashboard/PetitionsWidget";
-import LostFoundWidget from "../../components/dashboard/LostFoundWidget";
-import BusRoutesWidget from "../../components/dashboard/BusRoutesWidget";
-
 const t = (s) => s;
 
-export default function Dashboard() {
+export default function Forum() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [avatar, setAvatar] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [time, setTime] = useState(new Date());
-  const [dashboardData, setDashboardData] = useState({
-    notifications: { forums: 0, petitions: 0, updates: 0 },
-    forums: [],
-    petitions: [],
-    lostAndFound: [],
-    busRoutes: []
-  });
-
+  
+  // Forum-specific states
+  const [threads, setThreads] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  
+  // Modals state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedThreadId, setSelectedThreadId] = useState(null);
   const [activeThread, setActiveThread] = useState(null);
@@ -42,15 +33,14 @@ export default function Dashboard() {
   const [isSubmittingThread, setIsSubmittingThread] = useState(false);
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
 
+  // Authenticate and load profile on mount
   useEffect(() => {
-    // Auth guard
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
     }
 
-    // Load initial user details from cache for premium instant rendering
     const userStr = localStorage.getItem("user");
     if (userStr) {
       try {
@@ -62,7 +52,6 @@ export default function Dashboard() {
       } catch (e) {}
     }
 
-    // Fetch latest user profile dynamically from server to sync state & avoid stale cache
     const fetchUserProfile = async () => {
       try {
         const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -74,62 +63,50 @@ export default function Dashboard() {
         }
         localStorage.setItem("user", JSON.stringify(data));
       } catch (error) {
-        console.error("Failed to fetch latest user profile from server:", error);
+        console.error("Failed to fetch latest user profile:", error);
       }
     };
     fetchUserProfile();
 
-    // Remove legacy global avatar cache to avoid leaking profile pictures between different users
-    localStorage.removeItem("userAvatar");
-
-    // Clock
     const tick = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(tick);
   }, [navigate]);
 
+  // Fetch forum threads and initialize socket connection
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchForumThreads = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        const { data } = await axios.get("/api/dashboard/summary", config);
-        setDashboardData(data);
+        const { data } = await axios.get("/api/forums", config);
+        console.log("🔥 Forums API Data:", data);
+        setThreads(data.threads || []);
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error("Error fetching forums:", error);
       }
     };
-    if (user) {
-      fetchDashboardData();
 
-      // Establish Socket.io connection for real-time updates
+    if (user) {
+      fetchForumThreads();
+
       const socket = io("http://localhost:5000");
 
       socket.on("connect", () => {
-        console.log("⚡ Connected to live updates socket");
+        console.log("⚡ Connected to forum updates socket");
       });
 
       socket.on("new_forum_thread", (data) => {
-        console.log("⚡ New forum thread received via socket:", data);
         if (data && data.thread) {
-          setDashboardData((prevData) => {
-            // Check if thread already exists to avoid duplicates
-            const threadExists = prevData.forums.some(
-              (f) => f._id === data.thread._id
-            );
-            if (threadExists) return prevData;
-
-            // Prepend new thread and limit to 5 threads maximum
-            return {
-              ...prevData,
-              forums: [data.thread, ...prevData.forums].slice(0, 5)
-            };
+          setThreads((prevThreads) => {
+            const exists = prevThreads.some((t) => t._id === data.thread._id);
+            if (exists) return prevThreads;
+            return [data.thread, ...prevThreads];
           });
         }
       });
 
       socket.on("new_reply", (data) => {
-        console.log("⚡ New reply received via socket:", data);
         if (data && data.threadId) {
           setActiveThread((prevActive) => {
             if (prevActive && prevActive._id === data.threadId) {
@@ -146,17 +123,14 @@ export default function Dashboard() {
             return prevActive;
           });
 
-          setDashboardData((prevData) => ({
-            ...prevData,
-            forums: prevData.forums.map((f) =>
-              f._id === data.threadId ? { ...f, repliesCount: data.repliesCount } : f
+          setThreads((prevThreads) =>
+            prevThreads.map((t) =>
+              t._id === data.threadId
+                ? { ...t, repliesCount: data.repliesCount }
+                : t
             )
-          }));
+          );
         }
-      });
-
-      socket.on("disconnect", () => {
-        console.log("❌ Disconnected from live updates socket");
       });
 
       return () => {
@@ -198,11 +172,10 @@ export default function Dashboard() {
       if (data.underReview) {
         alert("Your post contains flagged keywords and has been sent for moderator review.");
       } else {
-        setDashboardData(prev => {
-          const exists = prev.forums.some(f => f._id === data.thread?._id);
+        setThreads((prev) => {
+          const exists = prev.some((t) => t._id === data.thread?._id);
           if (exists) return prev;
-          const updatedForums = [data.thread, ...prev.forums].slice(0, 5);
-          return { ...prev, forums: updatedForums };
+          return [data.thread, ...prev];
         });
       }
 
@@ -228,7 +201,7 @@ export default function Dashboard() {
         content: replyContent
       }, config);
 
-      setActiveThread(prev => {
+      setActiveThread((prev) => {
         if (!prev) return null;
         return {
           ...prev,
@@ -237,10 +210,13 @@ export default function Dashboard() {
         };
       });
 
-      setDashboardData(prev => ({
-        ...prev,
-        forums: prev.forums.map(f => f._id === activeThread._id ? { ...f, repliesCount: f.repliesCount + 1 } : f)
-      }));
+      setThreads((prev) =>
+        prev.map((t) =>
+          t._id === activeThread._id
+            ? { ...t, repliesCount: t.repliesCount + 1 }
+            : t
+        )
+      );
 
       setReplyContent("");
     } catch (error) {
@@ -255,7 +231,6 @@ export default function Dashboard() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Premium micro-animation / optimistic update: preview image immediately
     const previewUrl = URL.createObjectURL(file);
     setAvatar(previewUrl);
     setIsUploading(true);
@@ -282,7 +257,6 @@ export default function Dashboard() {
       if (data.avatar) {
         setAvatar(data.avatar);
 
-        // Sync with user details in state & local storage
         const userStr = localStorage.getItem("user");
         if (userStr) {
           try {
@@ -299,7 +273,6 @@ export default function Dashboard() {
       console.error("Profile picture upload failed:", error);
       alert(error.response?.data?.message || "Failed to upload avatar. Please try again.");
       
-      // Revert to original database-saved avatar on error
       const userStr = localStorage.getItem("user");
       if (userStr) {
         try {
@@ -320,13 +293,94 @@ export default function Dashboard() {
     return url;
   };
 
-  if (!user) return null;
+  // Helper formatting helpers
+  const formatDate = (date) => {
+    if (!date) return t('some time ago');
+    const d = new Date(date);
+    const now = new Date();
+    const diff = Math.floor((now - d) / 1000);
+
+    if (diff < 60) return t('Just now');
+    if (diff < 3600) return `${Math.floor(diff / 60)}${t('m ago')}`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}${t('h ago')}`;
+    return `${Math.floor(diff / 86400)}${t('d ago')}`;
+  };
+
+  const getCategoryTag = (title) => {
+    const lower = (title || "").toLowerCase();
+    if (lower.includes("exam") || lower.includes("study") || lower.includes("course") || lower.includes("assignment") || lower.includes("class")) {
+      return { label: t("Academics"), class: "tag-academic" };
+    }
+    if (lower.includes("coding") || lower.includes("tech") || lower.includes("web") || lower.includes("software") || lower.includes("computer")) {
+      return { label: t("Tech Hub"), class: "tag-tech" };
+    }
+    if (lower.includes("canteen") || lower.includes("sports") || lower.includes("match") || lower.includes("play") || lower.includes("game")) {
+      return { label: t("Campus Life"), class: "tag-life" };
+    }
+    if (lower.includes("help") || lower.includes("question") || lower.includes("how") || lower.includes("need")) {
+      return { label: t("Q & A"), class: "tag-qna" };
+    }
+    return { label: t("General"), class: "tag-general" };
+  };
+
+  const getMockSnippet = (title) => {
+    const lower = (title || "").toLowerCase();
+    if (lower.includes("exam") || lower.includes("study") || lower.includes("course") || lower.includes("assignment") || lower.includes("class")) {
+      return t("Prepare for your midterms and finals, share study guides, and coordinate study sessions with fellow classmates.");
+    }
+    if (lower.includes("coding") || lower.includes("tech") || lower.includes("web") || lower.includes("software") || lower.includes("computer")) {
+      return t("Discuss coding challenges, software engineering trends, frameworks like React 19, and local hackathons.");
+    }
+    if (lower.includes("canteen") || lower.includes("sports") || lower.includes("match") || lower.includes("play") || lower.includes("game")) {
+      return t("Get canteen menu reviews, coordinate sports matches, or check campus athletics schedules.");
+    }
+    if (lower.includes("help") || lower.includes("question") || lower.includes("how") || lower.includes("need")) {
+      return t("Need help with campus resources or project tasks? Ask your questions here and get quick feedback.");
+    }
+    return t("Join the discussion on campus events, university life, academic schedules, and general topics.");
+  };
+
+  const isRecent = (date) => {
+    if (!date) return false;
+    const diff = new Date() - new Date(date);
+    return diff < 86400000; 
+  };
+
+  // Filtering Logic
+  const filteredThreads = threads.filter((post) => {
+    if (post.isHidden) return false;
+
+    const category = getCategoryTag(post.title).label;
+    const matchesCategory =
+      selectedCategory === "All" || category === selectedCategory;
+
+    const query = searchTerm.toLowerCase();
+    const matchesSearch =
+      (post.title || "").toLowerCase().includes(query) ||
+      (post.content || "").toLowerCase().includes(query);
+
+    return matchesCategory && matchesSearch;
+  });
+
+  const categoriesList = ["All", "Academics", "Tech Hub", "Campus Life", "Q & A", "General"];
+
+  console.log("🔥 Render Forum - user:", user?.name, "threads length:", threads.length, "filtered length:", filteredThreads.length);
+
+  if (!user) {
+    console.log("🔥 Render Forum - user is null, returning loading screen");
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: '14px', background: '#f0f4f8' }}>
+        <div className="spinner"></div>
+        <p style={{ fontFamily: 'Inter, sans-serif', color: '#64748b', fontSize: '14.5px', fontWeight: '600' }}>{t('Loading your profile...')}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="db-root">
+    <div className="forum-root-page">
       <Sidebar />
 
-      <main className="db-main">
+      <main className="forum-main-frame">
         <Topbar
           time={time}
           user={user}
@@ -335,28 +389,116 @@ export default function Dashboard() {
           isUploading={isUploading}
         />
 
-        <div className="db-content">
-          <WelcomeBanner user={user} avatar={getPersonalizedAvatar(avatar)} />
-          <CanteenWidget />
-
-          <div className="db-main-grid">
-            <div className="db-left-col">
-              <ForumsWidget 
-                forums={dashboardData.forums} 
-                onThreadClick={handleThreadClick}
-                onCreateClick={() => setIsCreateOpen(true)}
-              />
+        <div className="forum-content-container">
+          {/* ── FORUM HEADER ── */}
+          <div className="forum-page-header">
+            <div className="header-meta">
+              <h1 className="forum-page-title">{t("Campus Discussion Forum")}</h1>
+              <p className="forum-page-subtitle">{t("Share ideas, ask questions, and collaborate with your peers")}</p>
             </div>
-
-            <div className="db-right-col">
-              <PetitionsWidget petitions={dashboardData.petitions} />
-              <div className="utility-container">
-                <LostFoundWidget items={dashboardData.lostAndFound} />
-                <BusRoutesWidget busRoutes={dashboardData.busRoutes} />
+            
+            <div className="header-actions">
+              <div className="forum-search-box">
+                <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder={t("Search discussions...")}
+                  className="search-input"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
+
+              <button className="btn-start-discussion" onClick={() => setIsCreateOpen(true)}>
+                <span className="plus-icon">+</span> {t("Start Discussion")}
+              </button>
             </div>
           </div>
 
+          {/* ── CATEGORY FILTER TABS ── */}
+          <div className="forum-category-tabs">
+            {categoriesList.map((cat) => (
+              <button
+                key={cat}
+                className={`category-tab-btn ${selectedCategory === cat ? "active" : ""}`}
+                onClick={() => setSelectedCategory(cat)}
+              >
+                {t(cat)}
+              </button>
+            ))}
+          </div>
+
+          {/* ── DISCUSSION FEED LIST ── */}
+          <div className="forum-threads-feed">
+            {filteredThreads.length > 0 ? (
+              filteredThreads.map((post, i) => {
+                const category = getCategoryTag(post.title);
+                return (
+                  <div
+                    key={i}
+                    className="forum-feed-card"
+                    onClick={() => handleThreadClick(post._id)}
+                  >
+                    <div className="card-top-header">
+                      <div className="card-avatar-section">
+                        <div className="anonymous-avatar" style={{
+                          background: 'linear-gradient(135deg, #00c2cb, #0a2342)',
+                          color: '#ffffff'
+                        }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                          </svg>
+                        </div>
+                        <span className="anonymous-author">{t("by Student")}</span>
+                        {isRecent(post.createdAt) && <span className="feed-pulse-dot" title={t("Recent activity")} />}
+                      </div>
+
+                      <div className="card-badge-section">
+                        <span className={`forum-tag-badge ${category.class}`}>{category.label}</span>
+                        <span className="feed-relative-time">{formatDate(post.createdAt)}</span>
+                      </div>
+                    </div>
+
+                    <div className="card-body-section">
+                      <h3 className="feed-thread-title">{post.title || t('Untitled Discussion')}</h3>
+                      <p className="feed-thread-snippet">
+                        {post.content ? (post.content.length > 180 ? `${post.content.substring(0, 180)}...` : post.content) : getMockSnippet(post.title)}
+                      </p>
+                    </div>
+
+                    <div className="card-footer-section">
+                      <div className="reply-metrics">
+                        <svg className="comment-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        <span>{post.repliesCount || 0} {post.repliesCount === 1 ? t('reply') : t('replies')}</span>
+                      </div>
+                      <div className="card-action-trigger">
+                        <span>{t("Join Conversation")}</span>
+                        <svg className="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="forum-empty-feed">
+                <span className="empty-icon-bubble">💬</span>
+                <h3>{t("No discussions found")}</h3>
+                <p>{t("Be the first to share an idea, ask a query, or start a debate with fellow students")}</p>
+                <button className="btn-empty-start" onClick={() => setIsCreateOpen(true)}>
+                  {t("Start the first topic")}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* ── FOOTER ── */}
           <footer className="db-footer">
             <p>
               {t('© 2026 CampusConnect. An idea by')} <span>{t('Mr. Sagheer Ahmad')}</span> &{" "}
@@ -366,7 +508,7 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* ── CREATE THREAD MODAL ── */}
+      {/* ── CREATE DISCUSSION MODAL ── */}
       {isCreateOpen && (
         <div className="forum-modal-overlay" onClick={() => setIsCreateOpen(false)}>
           <div className="forum-modal-container" onClick={(e) => e.stopPropagation()}>
@@ -381,7 +523,7 @@ export default function Dashboard() {
                   <input
                     id="thread-title"
                     type="text"
-                    placeholder="e.g. Study Group for Midterms or Canteen reviews"
+                    placeholder={t("e.g. Study Group for Midterms or Canteen reviews")}
                     className="form-input"
                     value={newThreadTitle}
                     onChange={(e) => setNewThreadTitle(e.target.value)}
@@ -392,7 +534,7 @@ export default function Dashboard() {
                   <label htmlFor="thread-content">{t('Description / Question Details')}</label>
                   <textarea
                     id="thread-content"
-                    placeholder="Explain your question or details of the discussion..."
+                    placeholder={t("Explain your question or details of the discussion...")}
                     className="form-input form-textarea"
                     value={newThreadContent}
                     onChange={(e) => setNewThreadContent(e.target.value)}
@@ -489,7 +631,7 @@ export default function Dashboard() {
 
                   <form onSubmit={handleReplySubmit} className="add-reply-box">
                     <textarea
-                      placeholder="Write your response/comment..."
+                      placeholder={t("Write your response/comment...")}
                       className="form-input reply-textarea"
                       value={replyContent}
                       onChange={(e) => setReplyContent(e.target.value)}
