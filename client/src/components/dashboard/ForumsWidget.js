@@ -89,7 +89,6 @@ export const ForumsWidget = ({ forums = [], onThreadClick, onCreateClick }) => {
           <div className="forum-empty-state">
             <span className="empty-icon">💬</span>
             <p>No active discussions found</p>
-            <button className="btn-empty-create" onClick={onCreateClick}>Start the first discussion</button>
           </div>
         )}
       </div>

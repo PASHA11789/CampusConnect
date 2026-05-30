@@ -32,14 +32,10 @@ export default function Dashboard() {
     busRoutes: []
   });
 
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedThreadId, setSelectedThreadId] = useState(null);
   const [activeThread, setActiveThread] = useState(null);
   const [isThreadLoading, setIsThreadLoading] = useState(false);
-  const [newThreadTitle, setNewThreadTitle] = useState("");
-  const [newThreadContent, setNewThreadContent] = useState("");
   const [replyContent, setReplyContent] = useState("");
-  const [isSubmittingThread, setIsSubmittingThread] = useState(false);
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
 
   useEffect(() => {
@@ -183,39 +179,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleCreateThreadSubmit = async (e) => {
-    e.preventDefault();
-    if (!newThreadTitle.trim() || !newThreadContent.trim()) return;
-    setIsSubmittingThread(true);
-    try {
-      const token = localStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      const { data } = await axios.post("/api/forums", {
-        title: newThreadTitle,
-        content: newThreadContent
-      }, config);
 
-      if (data.underReview) {
-        alert("Your post contains flagged keywords and has been sent for moderator review.");
-      } else {
-        setDashboardData(prev => {
-          const exists = prev.forums.some(f => f._id === data.thread?._id);
-          if (exists) return prev;
-          const updatedForums = [data.thread, ...prev.forums].slice(0, 5);
-          return { ...prev, forums: updatedForums };
-        });
-      }
-
-      setIsCreateOpen(false);
-      setNewThreadTitle("");
-      setNewThreadContent("");
-    } catch (error) {
-      console.error("Error creating thread:", error);
-      alert(error.response?.data?.message || "Failed to create discussion thread.");
-    } finally {
-      setIsSubmittingThread(false);
-    }
-  };
 
   const handleReplySubmit = async (e) => {
     e.preventDefault();
@@ -348,7 +312,6 @@ export default function Dashboard() {
               <ForumsWidget 
                 forums={dashboardData.forums} 
                 onThreadClick={handleThreadClick}
-                onCreateClick={() => setIsCreateOpen(true)}
               />
             </div>
 
@@ -370,52 +333,7 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* ── CREATE THREAD MODAL ── */}
-      {isCreateOpen && (
-        <div className="forum-modal-overlay" onClick={() => setIsCreateOpen(false)}>
-          <div className="forum-modal-container" onClick={(e) => e.stopPropagation()}>
-            <div className="forum-modal-header">
-              <h3 className="forum-modal-title">{t('Start a New Discussion')}</h3>
-              <button className="btn-modal-close" onClick={() => setIsCreateOpen(false)}>×</button>
-            </div>
-            <form onSubmit={handleCreateThreadSubmit}>
-              <div className="forum-modal-body">
-                <div className="form-group">
-                  <label htmlFor="thread-title">{t('Discussion Title')}</label>
-                  <input
-                    id="thread-title"
-                    type="text"
-                    placeholder="e.g. Study Group for Midterms or Canteen reviews"
-                    className="form-input"
-                    value={newThreadTitle}
-                    onChange={(e) => setNewThreadTitle(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="thread-content">{t('Description / Question Details')}</label>
-                  <textarea
-                    id="thread-content"
-                    placeholder="Explain your question or details of the discussion..."
-                    className="form-input form-textarea"
-                    value={newThreadContent}
-                    onChange={(e) => setNewThreadContent(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="forum-modal-footer">
-                <button type="button" className="btn-modal-cancel" onClick={() => setIsCreateOpen(false)}>
-                  {t('Cancel')}
-                </button>
-                <button type="submit" className="btn-modal-submit" disabled={isSubmittingThread}>
-                  {isSubmittingThread ? t("Publishing...") : t("Post Discussion")}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+
 
       {/* ── THREAD DETAIL MODAL ── */}
       {selectedThreadId && (
