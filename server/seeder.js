@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import User from "./src/models/User.js";
+import Forum from "./src/models/Forum.js";
 import connectDB from "./utils/db.js";
 import bcryptjs from "bcryptjs";
 
@@ -10,8 +11,13 @@ const seedUsers = async () => {
   try {
     await connectDB();
     console.log("📡 Seeder is connecting to:", process.env.MONGO_URI);
+    
+    // Delete existing users and forum threads
     await User.deleteMany();
-    console.log("prievious users deleted");
+    console.log("previous users deleted");
+    await Forum.deleteMany();
+    console.log("previous forum threads deleted");
+    
     const Salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash("password123", Salt);
     const dummyUsers = [
@@ -19,6 +25,7 @@ const seedUsers = async () => {
       {
         name: "Super Admin",
         email: "admin@campusconnect.com",
+        registeration_number: "2020F-muladmin-001",
         password: hashedPassword,
         role: "admin",
         department: "Administration",
@@ -29,6 +36,7 @@ const seedUsers = async () => {
       {
         name: "Shujaat Ali",
         email: "shujaat@mod.com",
+        registeration_number: "2022F-mulbscs-011",
         password: hashedPassword,
         role: "student_mod",
         department: "Computer Science",
@@ -37,6 +45,7 @@ const seedUsers = async () => {
       {
         name: "Usama Syed",
         email: "usama@mod.com",
+        registeration_number: "2023S-mulbsit-022",
         password: hashedPassword,
         role: "student_mod",
         department: "Information Technology",
@@ -47,6 +56,7 @@ const seedUsers = async () => {
       {
         name: "Javeria Khan",
         email: "javeria@alumni.com",
+        registeration_number: "2021F-mulbsse-033",
         password: hashedPassword,
         role: "alumni",
         department: "Software Engineering",
@@ -55,6 +65,7 @@ const seedUsers = async () => {
       {
         name: "Azam Ahmed",
         email: "azam@alumni.com",
+        registeration_number: "2020F-mulbscs-044",
         password: hashedPassword,
         role: "alumni",
         department: "Computer Science",
@@ -65,6 +76,7 @@ const seedUsers = async () => {
       {
         name: "Hamza Malik",
         email: "hamza@student.com",
+        registeration_number: "2024F-mulbscs-055",
         password: hashedPassword,
         role: "student",
         department: "Computer Science",
@@ -73,6 +85,7 @@ const seedUsers = async () => {
       {
         name: "Zoya Sheikh",
         email: "zoya@student.com",
+        registeration_number: "2025F-mulbsds-066",
         password: hashedPassword,
         role: "student",
         department: "Data Science",
@@ -81,6 +94,7 @@ const seedUsers = async () => {
       {
         name: "Bilal Farooqi",
         email: "bilal@student.com",
+        registeration_number: "2023F-mulbscys-077",
         password: hashedPassword,
         role: "student",
         department: "Cyber Security",
@@ -89,6 +103,7 @@ const seedUsers = async () => {
       {
         name: "Fatima Noor",
         email: "fatima@student.com",
+        registeration_number: "2024S-mulbsse-088",
         password: hashedPassword,
         role: "student",
         department: "Software Engineering",
@@ -97,6 +112,7 @@ const seedUsers = async () => {
       {
         name: "Ali Raza",
         email: "ali@student.com",
+        registeration_number: "2025S-mulbscs-099",
         password: hashedPassword,
         role: "student",
         department: "Computer Science",

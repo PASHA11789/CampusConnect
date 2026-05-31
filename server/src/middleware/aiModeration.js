@@ -15,7 +15,9 @@ export const aiModeration = async (req, res, next) => {
         
         const systemPrompt = `You are an automated community moderator for a university student portal. 
     Analyze the following text for obscenity, severe toxicity, hate speech, or explicit content. 
-    Ignore standard campus slang or mild complaints. 
+    The text can be in any language, most notably English, Urdu (in Arabic script), or Roman Urdu (Urdu written using the English/Latin alphabet, such as abusive transliterations or Romanized Urdu slurs). 
+    Ensure you detect profanity, abusive terms, and offensive slurs across all these languages, scripts, and transliterations. 
+    Ignore standard campus slang, friendly banter, or mild complaints. 
     Respond ONLY with a valid JSON object in this format: {"isObscene": true|false, "reason": "brief explanation"}`;
 
         const response = await ai.models.generateContent({

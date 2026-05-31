@@ -14,6 +14,7 @@ export const loginUser = async (req, res) => {
           _id: user._id,
           name: user.name,
           email: user.email,
+          registeration_number: user.registeration_number,
           role: user.role,
           department: user.department,
           semester: user.semester,
@@ -32,7 +33,7 @@ export const loginUser = async (req, res) => {
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export const registerUser = async (req, res) => {
-  const { name, email, password, role, department, semester, avatar } = req.body;
+  const { name, email, registeration_number, password, role, department, semester, avatar } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
@@ -44,6 +45,7 @@ export const registerUser = async (req, res) => {
     const user = await User.create({
       name,
       email,
+      registeration_number,
       password,
       role,
       department,
@@ -56,6 +58,7 @@ export const registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        registeration_number: user.registeration_number,
         role: user.role,
         avatar: user.avatar,
         token: generateToken(user._id),
@@ -93,6 +96,7 @@ export const getUserProfile = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      registeration_number: user.registeration_number,
       role: user.role,
       avatar: user.avatar,
       department: user.department,
