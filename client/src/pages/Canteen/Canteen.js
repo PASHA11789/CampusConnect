@@ -79,13 +79,13 @@ export default function Canteen() {
 
   // Authenticate user on mount
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
     }
 
-    const userStr = localStorage.getItem("user");
+    const userStr = sessionStorage.getItem("user");
     if (userStr) {
       try {
         const parsedUser = JSON.parse(userStr);
@@ -107,7 +107,7 @@ export default function Canteen() {
         if (data.avatar) {
           setAvatar(data.avatar);
         }
-        localStorage.setItem("user", JSON.stringify(data));
+        sessionStorage.setItem("user", JSON.stringify(data));
       } catch (error) {
         console.error("Failed to fetch latest user profile:", error);
       }
@@ -127,7 +127,7 @@ export default function Canteen() {
     setAvatar(previewUrl);
     setIsUploading(true);
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (!token) {
       setIsUploading(false);
       return;
@@ -148,13 +148,13 @@ export default function Canteen() {
 
       if (data.avatar) {
         setAvatar(data.avatar);
-        const userStr = localStorage.getItem("user");
+        const userStr = sessionStorage.getItem("user");
         if (userStr) {
           try {
             const parsedUser = JSON.parse(userStr);
             const updatedUser = { ...parsedUser, avatar: data.avatar };
             setUser(updatedUser);
-            localStorage.setItem("user", JSON.stringify(updatedUser));
+            sessionStorage.setItem("user", JSON.stringify(updatedUser));
           } catch (err) {
             console.error("Failed to update user object in local storage:", err);
           }
@@ -163,7 +163,7 @@ export default function Canteen() {
     } catch (error) {
       console.error("Profile picture upload failed:", error);
       alert(error.response?.data?.message || "Failed to upload avatar. Please try again.");
-      const userStr = localStorage.getItem("user");
+      const userStr = sessionStorage.getItem("user");
       if (userStr) {
         try {
           const parsedUser = JSON.parse(userStr);

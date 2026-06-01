@@ -43,7 +43,9 @@ export default function ReplyBubble({
   activeDropdown,
   setActiveDropdown,
   onReport,
-  t
+  t,
+  isChild = false,
+  onReplyClick
 }) {
   const replyKey = reply._id;
   const isFlagged = reply.isHidden;
@@ -78,8 +80,12 @@ export default function ReplyBubble({
   const showFallback = !reply.author?.avatar || reply.author?.avatar.includes('ui-avatars.com') || reply.author?.avatar.includes('name=');
 
   return (
-    <div className={`flex gap-2 py-1.5 px-2.5 rounded-lg animate-fade-in border transition-all duration-200 ease-out hover:-translate-y-[1px] hover:shadow-[0_3px_8px_rgba(0,0,0,0.05)] ${
-      isReplyOwner ? 'self-end ml-10 max-w-[85%] w-fit' : 'self-start mr-10 max-w-[85%] w-fit'
+    <div className={`relative flex gap-2 py-1.5 px-2.5 rounded-lg animate-fade-in border transition-all duration-200 ease-out hover:-translate-y-[1px] hover:shadow-[0_3px_8px_rgba(0,0,0,0.05)] ${
+      isDropdownActive ? 'z-30' : 'z-10'
+    } ${
+      isChild
+        ? 'w-full'
+        : isReplyOwner ? 'self-end ml-10 max-w-[85%] w-fit' : 'self-start mr-10 max-w-[85%] w-fit'
     } ${
       isFlagged 
         ? 'bg-slate-50 border-slate-200 border-l-4 border-l-red-500 hover:border-slate-300' 
@@ -126,43 +132,53 @@ export default function ReplyBubble({
               </button>
               {isDropdownActive && (
                 <div className="absolute right-0 top-7 z-20">
-                  <div className="fixed inset-0 z-10 cursor-default" onClick={() => setActiveDropdown({ type: null, id: null })} />
                   <div className="relative z-20 bg-white border border-slate-200 shadow-lg rounded-xl overflow-hidden py-1 w-[120px]">
-                    {isReplyOwner ? (
-                      <>
-                        <button
-                          type="button"
-                          className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-slate-50 text-slate-700"
-                          onClick={() => {
-                            setActiveDropdown({ type: null, id: null });
-                            setEditReplyContent(reply.content || "");
-                            setDeletingReplyId(null);
-                            setEditingReplyId(replyKey);
-                          }}
-                        >
-                          ✏️ {t('Edit')}
-                        </button>
-                        <button
-                          type="button"
-                          className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-red-50 text-red-600"
-                          onClick={() => {
-                            setActiveDropdown({ type: null, id: null });
-                            setEditingReplyId(null);
-                            setDeletingReplyId(replyKey);
-                          }}
-                        >
-                          🗑️ {t('Delete')}
-                        </button>
-                      </>
-                    ) : (
+                    <>
                       <button
                         type="button"
                         className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-slate-50 text-slate-700"
-                        onClick={() => onReport('reply', replyKey)}
+                        onClick={() => {
+                          setActiveDropdown({ type: null, id: null });
+                          const targetParentId = reply.parentId || replyKey;
+                          onReplyClick(targetParentId, authorName);
+                        }}
+                      >
+                        💬 {t('Reply')}
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-slate-50 text-slate-700"
+                        onClick={() => {
+                          setActiveDropdown({ type: null, id: null });
+                          setEditReplyContent(reply.content || "");
+                          setDeletingReplyId(null);
+                          setEditingReplyId(replyKey);
+                        }}
+                      >
+                        ✏️ {t('Edit')}
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-red-50 text-red-600"
+                        onClick={() => {
+                          setActiveDropdown({ type: null, id: null });
+                          setEditingReplyId(null);
+                          setDeletingReplyId(replyKey);
+                        }}
+                      >
+                        🗑️ {t('Delete')}
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-slate-50 text-slate-700"
+                        onClick={() => {
+                          setActiveDropdown({ type: null, id: null });
+                          onReport('reply', replyKey);
+                        }}
                       >
                         🛡️ {t('Report')}
                       </button>
-                    )}
+                    </>
                   </div>
                 </div>
               )}
@@ -196,7 +212,7 @@ export default function ReplyBubble({
               {editingReplyId === replyKey ? (
                 <div className="flex flex-col gap-2">
                   <textarea
-                    className="w-full px-3 py-2 text-[12px] font-medium border border-slate-200 rounded-lg min-h-[64px] focus:outline-none focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/10 bg-white"
+                    className="w-full px-3 py-2 text-[12px] text-slate-800 font-medium border border-slate-200 rounded-lg min-h-[64px] focus:outline-none focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/10 bg-white"
                     value={editReplyContent}
                     onChange={(e) => setEditReplyContent(e.target.value)}
                     required

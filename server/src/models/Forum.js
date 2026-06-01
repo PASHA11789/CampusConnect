@@ -16,6 +16,10 @@ const replySchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    parentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
   },
   { timestamps: true }
 );

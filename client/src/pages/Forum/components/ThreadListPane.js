@@ -18,13 +18,13 @@ export default function ThreadListPane({
   return (
     <div className={`w-full flex flex-col gap-3 self-start ${mobileView === "detail" ? "max-[768px]:hidden" : ""}`}>
       <button 
-        className="bg-gradient-to-br from-[#00c2cb] to-[#0a2342] text-white border-none py-2.5 px-4.5 rounded-[10px] text-[13px] font-bold cursor-pointer flex items-center justify-center gap-1.5 shadow-[0_4px_14px_rgba(0,194,203,0.25)] transition-all duration-250 shrink-0 hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(0,194,203,0.35)]" 
+        className="w-fit self-start bg-gradient-to-r from-[#00c2cb] to-[#0079c2] text-white border-none py-2.5 px-5 rounded-full text-[13px] font-extrabold cursor-pointer flex items-center justify-center gap-1.5 shadow-[0_4px_14px_rgba(0,194,203,0.2)] transition-all duration-200 shrink-0 hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(0,194,203,0.3)] active:translate-y-0" 
         onClick={onStartDiscussion}
       >
-        <span className="text-[16px] font-black">+</span> {t("Start Discussion")}
+        <span className="text-[15px] font-black">+</span> {t("Start Discussion")}
       </button>
 
-      <div className="flex flex-col gap-2.5">
+      <div className={selectedThreadId ? "flex flex-col gap-2.5" : "grid grid-cols-2 gap-4 max-md:grid-cols-1"}>
         {filteredThreads.length > 0 ? (
           filteredThreads.map((post) => (
             <ThreadListCard

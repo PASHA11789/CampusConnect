@@ -176,13 +176,13 @@ export const toggleHideThread = async (req, res) => {
 
 export const addThreadReply = async (req, res) => {
   try {
-    const { content, isFlagged } = req.body
+    const { content, isFlagged, parentId } = req.body
     if (!content) return res.status(400).json({ message: "Reply content can not be empty" })
 
     const thread = await Forum.findById(req.params.id)
     if (!thread) return res.status(404).json({ message: "Thread not found" })
 
-    const newReply = { author: req.user._id, content, isHidden: isFlagged || false }
+    const newReply = { author: req.user._id, content, isHidden: isFlagged || false, parentId: parentId || null }
     thread.replies.push(newReply)
     thread.repliesCount = thread.replies.length
     await thread.save()
@@ -238,9 +238,7 @@ export const updateThreadReply = async (req, res) => {
     const reply = thread.replies.id(req.params.replyId)
     if (!reply) return res.status(404).json({ message: "Reply not found" })
 
-    if (reply.author.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to edit this" })
-    }
+    // Authorization check removed per user requirements to allow Edit/Delete for everyone
 
     reply.content = content || reply.content
     reply.isHidden = isFlagged || false
@@ -282,11 +280,13 @@ export const deleteThreadReply = async (req, res) => {
     const reply = thread.replies.id(req.params.replyId)
     if (!reply) return res.status(404).json({ message: "Reply not found" })
 
-    if (reply.author.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to delete this reply" })
-    }
+    // Authorization check removed per user requirements to allow Edit/Delete for everyone
 
-    reply.deleteOne()
+    // Delete the reply and its child replies from the array to prevent orphaned comments
+    thread.replies = thread.replies.filter(
+      (r) => r._id.toString() !== req.params.replyId.toString() && 
+             (!r.parentId || r.parentId.toString() !== req.params.replyId.toString())
+    );
     thread.repliesCount = thread.replies.length
     await thread.save()
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
 // Layout Components
@@ -16,6 +16,7 @@ const t = (s) => s;
 
 export default function Forum() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [avatar, setAvatar] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -28,7 +29,7 @@ export default function Forum() {
 
   // Modals state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [selectedThreadId, setSelectedThreadId] = useState(null);
+  const [selectedThreadId, setSelectedThreadId] = useState(location.state?.threadId || null);
   const [activeThread, setActiveThread] = useState(null);
   const [isThreadLoading, setIsThreadLoading] = useState(false);
   const [newThreadTitle, setNewThreadTitle] = useState("");
@@ -48,6 +49,7 @@ export default function Forum() {
   const [activeDropdown, setActiveDropdown] = useState({ type: null, id: null });
   const [editingThreadId, setEditingThreadId] = useState(null);
   const [mobileView, setMobileView] = useState("list");
+  const [replyingTo, setReplyingTo] = useState(null); // { replyId, authorName }
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,13 +57,13 @@ export default function Forum() {
 
   // Authenticate and load profile on mount
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
     }
 
-    const userStr = localStorage.getItem("user");
+    const userStr = sessionStorage.getItem("user");
     if (userStr) {
       try {
         const parsedUser = JSON.parse(userStr);
@@ -81,7 +83,7 @@ export default function Forum() {
         if (data.avatar) {
           setAvatar(data.avatar);
         }
-        localStorage.setItem("user", JSON.stringify(data));
+        sessionStorage.setItem("user", JSON.stringify(data));
       } catch (error) {
         console.error("Failed to fetch latest user profile:", error);
       }
@@ -92,11 +94,24 @@ export default function Forum() {
     return () => clearInterval(tick);
   }, [navigate]);
 
+  // Dismiss dropdowns when clicking anywhere else
+  useEffect(() => {
+    const handleDocumentClick = () => {
+      if (activeDropdown.id !== null) {
+        setActiveDropdown({ type: null, id: null });
+      }
+    };
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, [activeDropdown]);
+
   // Fetch forum threads and initialize socket connection
   useEffect(() => {
     const fetchForumThreads = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         if (!token) return;
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const { data } = await axios.get("/api/forums", config);
@@ -176,7 +191,7 @@ export default function Forum() {
               return {
                 ...prevActive,
                 repliesCount: data.repliesCount,
-                replies: prevActive.replies.filter((r) => r._id !== data.replyId)
+                replies: prevActive.replies.filter((r) => r._id !== data.replyId && r.parentId !== data.replyId)
               };
             }
             return prevActive;
@@ -213,8 +228,9 @@ export default function Forum() {
     setSelectedThreadId(id);
     setIsThreadLoading(true);
     setActiveThread(null);
+    setReplyingTo(null);
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const { data } = await axios.get(`/api/forums/${id}`, config);
       setActiveThread(data.thread);
@@ -227,6 +243,13 @@ export default function Forum() {
     }
   }, [showToast]);
 
+  // Load thread details on redirect from Dashboard
+  useEffect(() => {
+    if (selectedThreadId && !activeThread) {
+      handleThreadClick(selectedThreadId);
+    }
+  }, [selectedThreadId, activeThread, handleThreadClick]);
+
   const handleCancelModal = () => {
     setIsCreateOpen(false);
     setEditingThreadId(null);
@@ -237,7 +260,7 @@ export default function Forum() {
   const handleDeleteThread = async (threadId) => {
     if (!window.confirm("Are you sure you want to permanently delete this discussion?")) return;
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
       await axios.delete(`/api/forums/${threadId}`, config);
       showToast("Discussion deleted successfully.", 'success');
@@ -262,7 +285,7 @@ export default function Forum() {
     if (!newThreadTitle.trim() || !newThreadContent.trim()) return;
     setIsSubmittingThread(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
       if (editingThreadId) {
@@ -326,10 +349,11 @@ export default function Forum() {
     if (!replyContent.trim() || !activeThread) return;
     setIsSubmittingReply(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const { data } = await axios.post(`/api/forums/${activeThread._id}/replies`, {
-        content: replyContent
+        content: replyContent,
+        parentId: replyingTo?.replyId || null
       }, config);
 
       if (data.underReview) {
@@ -356,6 +380,7 @@ export default function Forum() {
       }
 
       setReplyContent("");
+      setReplyingTo(null);
     } catch (error) {
       console.error("Error adding reply:", error);
       showToast("Failed to submit comment. Please try again.", 'error');
@@ -366,53 +391,73 @@ export default function Forum() {
 
   const handleUpdateReply = async (replyId) => {
     if (!editReplyContent.trim() || !activeThread) return;
+    const originalContent = editReplyContent;
+    const oldReplies = [...activeThread.replies];
+
+    // Optimistically update UI state immediately
+    setActiveThread((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        replies: prev.replies.map((r) =>
+          r._id === replyId ? { ...r, content: originalContent } : r
+        )
+      };
+    });
+    setEditingReplyId(null);
+    setEditReplyContent("");
+
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
       await axios.put(`/api/forums/${activeThread._id}/replies/${replyId}`, {
-        content: editReplyContent
+        content: originalContent
       }, config);
 
+      showToast("Comment updated successfully.", 'success');
+    } catch (error) {
+      console.error("Error updating reply:", error);
+      showToast(error.response?.data?.message || "Failed to update comment.", 'error');
+      // Rollback to previous state on error
       setActiveThread((prev) => {
         if (!prev) return null;
         return {
           ...prev,
-          replies: prev.replies.map((r) =>
-            r._id === replyId ? { ...r, content: editReplyContent } : r
-          )
+          replies: oldReplies
         };
       });
-
-      showToast("Comment updated successfully.", 'success');
-      setEditingReplyId(null);
-      setEditReplyContent("");
-    } catch (error) {
-      console.error("Error updating reply:", error);
-      showToast(error.response?.data?.message || "Failed to update comment.", 'error');
     }
   };
 
   const handleDeleteReply = async (replyId) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
       await axios.delete(`/api/forums/${activeThread._id}/replies/${replyId}`, config);
 
       setActiveThread((prev) => {
         if (!prev) return null;
+        // Count how many replies are being deleted (parent + its children)
+        const deletedCount = prev.replies.filter(
+          (r) => r._id === replyId || r.parentId === replyId
+        ).length;
         return {
           ...prev,
-          repliesCount: Math.max(0, prev.repliesCount - 1),
-          replies: prev.replies.filter((r) => r._id !== replyId)
+          repliesCount: Math.max(0, prev.repliesCount - deletedCount),
+          replies: prev.replies.filter((r) => r._id !== replyId && r.parentId !== replyId)
         };
       });
 
       setThreads((prev) =>
-        prev.map((t) =>
-          t._id === activeThread._id
-            ? { ...t, repliesCount: Math.max(0, t.repliesCount - 1) }
-            : t
-        )
+        prev.map((t) => {
+          if (t._id === activeThread._id) {
+            const deletedCount = activeThread.replies.filter(
+              (r) => r._id === replyId || r.parentId === replyId
+            ).length;
+            return { ...t, repliesCount: Math.max(0, t.repliesCount - deletedCount) };
+          }
+          return t;
+        })
       );
 
       showToast("Comment deleted successfully.", 'success');
@@ -431,7 +476,7 @@ export default function Forum() {
     setAvatar(previewUrl);
     setIsUploading(true);
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (!token) {
       setIsUploading(false);
       return;
@@ -453,13 +498,13 @@ export default function Forum() {
       if (data.avatar) {
         setAvatar(data.avatar);
 
-        const userStr = localStorage.getItem("user");
+        const userStr = sessionStorage.getItem("user");
         if (userStr) {
           try {
             const parsedUser = JSON.parse(userStr);
             const updatedUser = { ...parsedUser, avatar: data.avatar };
             setUser(updatedUser);
-            localStorage.setItem("user", JSON.stringify(updatedUser));
+            sessionStorage.setItem("user", JSON.stringify(updatedUser));
           } catch (err) {
             console.error("Failed to update user object in local storage:", err);
           }
@@ -469,7 +514,7 @@ export default function Forum() {
       console.error("Profile picture upload failed:", error);
       alert(error.response?.data?.message || "Failed to upload avatar. Please try again.");
 
-      const userStr = localStorage.getItem("user");
+      const userStr = sessionStorage.getItem("user");
       if (userStr) {
         try {
           const parsedUser = JSON.parse(userStr);
@@ -538,18 +583,16 @@ export default function Forum() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedThreads = filteredThreads.slice(startIndex, startIndex + itemsPerPage);
 
-  // Auto-select first thread in the filtered list
+  // Clear selection if the selected thread is filtered out
   useEffect(() => {
-    if (filteredThreads.length > 0) {
+    if (selectedThreadId) {
       const isStillVisible = filteredThreads.some(t => t._id === selectedThreadId);
       if (!isStillVisible) {
-        handleThreadClick(filteredThreads[0]._id);
+        setSelectedThreadId(null);
+        setActiveThread(null);
       }
-    } else {
-      setSelectedThreadId(null);
-      setActiveThread(null);
     }
-  }, [filteredThreads, selectedThreadId, handleThreadClick]);
+  }, [filteredThreads, selectedThreadId]);
 
   const categoriesList = ["All", "Academics", "Tech Hub", "Campus Life", "Q & A", "General"];
 
@@ -619,7 +662,7 @@ export default function Forum() {
           </div>
 
           {/* ── SPLIT LAYOUT ── */}
-          <div className="flex-1 grid grid-cols-[340px_1fr] gap-6 rounded-2xl overflow-hidden min-h-[500px] max-[900px]:grid-cols-1">
+          <div className={`flex-1 ${selectedThreadId ? "grid grid-cols-[340px_1fr] gap-6" : "w-full"} rounded-2xl overflow-hidden min-h-[500px] max-[900px]:grid-cols-1`}>
             <ThreadListPane
               mobileView={mobileView}
               filteredThreads={paginatedThreads}
@@ -635,40 +678,52 @@ export default function Forum() {
               onPageChange={setCurrentPage}
             />
 
-            <RepliesPane
-              mobileView={mobileView}
-              setMobileView={setMobileView}
-              isThreadLoading={isThreadLoading}
-              activeThread={activeThread}
-              user={user}
-              replyContent={replyContent}
-              setReplyContent={setReplyContent}
-              isSubmittingReply={isSubmittingReply}
-              onReplySubmit={handleReplySubmit}
-              revealedReplies={revealedReplies}
-              onRevealReply={(replyId) => setRevealedReplies(prev => new Set([...prev, replyId]))}
-              editingReplyId={editingReplyId}
-              setEditingReplyId={setEditingReplyId}
-              editReplyContent={editReplyContent}
-              setEditReplyContent={setEditReplyContent}
-              onUpdateReply={handleUpdateReply}
-              deletingReplyId={deletingReplyId}
-              setDeletingReplyId={setDeletingReplyId}
-              onDeleteReply={handleDeleteReply}
-              activeDropdown={activeDropdown}
-              setActiveDropdown={setActiveDropdown}
-              onEditThread={(thread) => {
-                setEditingThreadId(thread._id);
-                setNewThreadTitle(thread.title || "");
-                setNewThreadContent(thread.content || "");
-                setIsCreateOpen(true);
-              }}
-              onDeleteThread={handleDeleteThread}
-              onReportContent={handleReportContent}
-              formatDate={formatDate}
-              getCategoryTag={getCategoryTag}
-              t={t}
-            />
+            {selectedThreadId && (
+              <RepliesPane
+                mobileView={mobileView}
+                setMobileView={setMobileView}
+                isThreadLoading={isThreadLoading}
+                activeThread={activeThread}
+                user={user}
+                replyContent={replyContent}
+                setReplyContent={setReplyContent}
+                isSubmittingReply={isSubmittingReply}
+                onReplySubmit={handleReplySubmit}
+                revealedReplies={revealedReplies}
+                onRevealReply={(replyId) => setRevealedReplies(prev => new Set([...prev, replyId]))}
+                editingReplyId={editingReplyId}
+                setEditingReplyId={setEditingReplyId}
+                editReplyContent={editReplyContent}
+                setEditReplyContent={setEditReplyContent}
+                onUpdateReply={handleUpdateReply}
+                deletingReplyId={deletingReplyId}
+                setDeletingReplyId={setDeletingReplyId}
+                onDeleteReply={handleDeleteReply}
+                activeDropdown={activeDropdown}
+                setActiveDropdown={setActiveDropdown}
+                onEditThread={(thread) => {
+                  setEditingThreadId(thread._id);
+                  setNewThreadTitle(thread.title || "");
+                  setNewThreadContent(thread.content || "");
+                  setIsCreateOpen(true);
+                }}
+                onDeleteThread={handleDeleteThread}
+                onReportContent={handleReportContent}
+                formatDate={formatDate}
+                getCategoryTag={getCategoryTag}
+                t={t}
+                replyingTo={replyingTo}
+                setReplyingTo={setReplyingTo}
+                onClose={() => {
+                  setSelectedThreadId(null);
+                  setActiveThread(null);
+                  setReplyingTo(null);
+                  if (location.state?.threadId) {
+                    navigate(location.pathname, { replace: true, state: {} });
+                  }
+                }}
+              />
+            )}
           </div>
 
           <footer className="mt-5 py-3 border-t border-slate-200 text-center">

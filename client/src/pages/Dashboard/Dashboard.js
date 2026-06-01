@@ -39,14 +39,14 @@ export default function Dashboard() {
 
   useEffect(() => {
     // Auth guard
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
     }
 
     // Load initial user details from cache for premium instant rendering
-    const userStr = localStorage.getItem("user");
+    const userStr = sessionStorage.getItem("user");
     if (userStr) {
       try {
         const parsedUser = JSON.parse(userStr);
@@ -67,7 +67,7 @@ export default function Dashboard() {
         if (data.avatar) {
           setAvatar(data.avatar);
         }
-        localStorage.setItem("user", JSON.stringify(data));
+        sessionStorage.setItem("user", JSON.stringify(data));
       } catch (error) {
         console.error("Failed to fetch latest user profile from server:", error);
       }
@@ -75,7 +75,7 @@ export default function Dashboard() {
     fetchUserProfile();
 
     // Remove legacy global avatar cache to avoid leaking profile pictures between different users
-    localStorage.removeItem("userAvatar");
+    sessionStorage.removeItem("userAvatar");
 
     // Clock
     const tick = setInterval(() => setTime(new Date()), 1000);
@@ -85,7 +85,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         if (!token) return;
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const { data } = await axios.get("/api/dashboard/summary", config);
@@ -160,22 +160,8 @@ export default function Dashboard() {
     }
   }, [user]);
 
-  const handleThreadClick = async (id) => {
-    setSelectedThreadId(id);
-    setIsThreadLoading(true);
-    setActiveThread(null);
-    try {
-      const token = localStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      const { data } = await axios.get(`/api/forums/${id}`, config);
-      setActiveThread(data.thread);
-    } catch (error) {
-      console.error("Error fetching thread details:", error);
-      alert("Failed to load thread discussion details.");
-      setSelectedThreadId(null);
-    } finally {
-      setIsThreadLoading(false);
-    }
+  const handleThreadClick = (id) => {
+    navigate("/forum", { state: { threadId: id } });
   };
 
 
@@ -185,7 +171,7 @@ export default function Dashboard() {
     if (!replyContent.trim() || !activeThread) return;
     setIsSubmittingReply(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const { data } = await axios.post(`/api/forums/${activeThread._id}/replies`, {
         content: replyContent
@@ -227,7 +213,7 @@ export default function Dashboard() {
     setAvatar(previewUrl);
     setIsUploading(true);
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (!token) {
       setIsUploading(false);
       return;
@@ -250,13 +236,13 @@ export default function Dashboard() {
         setAvatar(data.avatar);
 
         // Sync with user details in state & local storage
-        const userStr = localStorage.getItem("user");
+        const userStr = sessionStorage.getItem("user");
         if (userStr) {
           try {
             const parsedUser = JSON.parse(userStr);
             const updatedUser = { ...parsedUser, avatar: data.avatar };
             setUser(updatedUser);
-            localStorage.setItem("user", JSON.stringify(updatedUser));
+            sessionStorage.setItem("user", JSON.stringify(updatedUser));
           } catch (err) {
             console.error("Failed to update user object in local storage:", err);
           }
@@ -267,7 +253,7 @@ export default function Dashboard() {
       alert(error.response?.data?.message || "Failed to upload avatar. Please try again.");
 
       // Revert to original database-saved avatar on error
-      const userStr = localStorage.getItem("user");
+      const userStr = sessionStorage.getItem("user");
       if (userStr) {
         try {
           const parsedUser = JSON.parse(userStr);
@@ -334,109 +320,7 @@ export default function Dashboard() {
 
 
 
-      {/* ── THREAD DETAIL MODAL ── */}
-      {selectedThreadId && (
-        <div className="fixed inset-0 bg-[#0a2342]/40 backdrop-blur-[8px] flex items-center justify-center z-[2000] animate-modal-fade-in" onClick={() => setSelectedThreadId(null)}>
-          <div className="w-[90%] max-w-[620px] max-h-[85vh] bg-white rounded-[20px] border border-white/80 shadow-[0_20px_50px_rgba(10,35,66,0.15)] flex flex-col overflow-hidden animate-modal-slide-in" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
-              <h3 className="text-[16px] font-black text-[#0a2342] tracking-tight">{t('Discussion Thread')}</h3>
-              <button className="bg-none border-none text-[26px] leading-none text-slate-400 cursor-pointer flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 hover:bg-slate-100 hover:text-red-500" onClick={() => setSelectedThreadId(null)}>×</button>
-            </div>
-            <div className="p-6 overflow-y-auto flex-1">
-              {isThreadLoading ? (
-                <div className="flex flex-col items-center justify-center py-10 gap-3.5">
-                  <div className="w-8 h-8 border-3 border-slate-100 border-t-[#00c2cb] rounded-full animate-spin"></div>
-                  <p className="text-[13px] text-slate-500 font-medium">{t('Fetching discussion thread...')}</p>
-                </div>
-              ) : activeThread ? (
-                <>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-[38px] h-[38px] rounded-full shrink-0" style={{
-                      background: 'linear-gradient(135deg, #0a2342, #00c2cb)',
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                      </svg>
-                    </div>
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[13px] font-bold text-[#0a2342]">{t('Student')}</span>
-                      <span className="text-[11px] text-slate-400 font-medium">{t('Posted on ')}{new Date(activeThread.createdAt).toLocaleString()}</span>
-                    </div>
-                  </div>
 
-                  <h4 style={{ fontSize: '16px', fontWeight: '800', color: '#0a2342', marginTop: '12px', marginBottom: '8px' }}>
-                    {activeThread.title}
-                  </h4>
-
-                  <div className="text-[13.5px] text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 whitespace-pre-wrap">
-                    {activeThread.content}
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    <h5 className="text-[13.5px] font-extrabold text-[#0a2342] border-b border-slate-100 pb-2">{t('Replies')} ({activeThread.replies ? activeThread.replies.filter(r => !r.isHidden).length : 0})</h5>
-                    <div className="flex flex-col gap-2.5 max-h-[240px] overflow-y-auto pr-1">
-                      {activeThread.replies && activeThread.replies.filter(r => !r.isHidden).length > 0 ? (
-                        activeThread.replies.filter(r => !r.isHidden).map((reply, i) => (
-                          <div key={i} className="flex gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-lg animate-fade-in">
-                            <div className="w-7 h-7 rounded-full shrink-0" style={{
-                              background: 'linear-gradient(135deg, #64748b, #94a3b8)',
-                              color: 'white',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                              </svg>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex justify-between items-center mb-1">
-                                <span className="text-[11.5px] font-bold text-[#0a2342]">{t('Student')}</span>
-                                <span className="text-[10.5px] text-slate-400 font-medium">{new Date(reply.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                              </div>
-                              <p className="text-[12.5px] text-slate-600 leading-normal whitespace-pre-wrap">{reply.content}</p>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-center py-6 text-[12.5px] text-slate-400 font-medium border-[1.5px] border-dashed border-slate-200 rounded-lg bg-slate-50">{t('No replies yet. Be the first to join the conversation!')}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <form onSubmit={handleReplySubmit} className="mt-5 border-t border-slate-100 pt-4 flex flex-col gap-3">
-                    <textarea
-                      placeholder="Write your response/comment..."
-                      className="w-full px-3.5 py-3 font-inherit text-[13.5px] border-[1.5px] border-slate-200 rounded-lg text-[#0a2342] font-medium transition-all duration-200 focus:outline-none focus:bg-white focus:border-[#00c2cb] focus:shadow-[0_0_0_3px_rgba(0,194,203,0.1)] min-h-[64px] p-2.5 text-[13px] bg-white"
-                      value={replyContent}
-                      onChange={(e) => setReplyContent(e.target.value)}
-                      required
-                    />
-                    <div className="flex justify-end">
-                      <button type="submit" className="bg-[#0a2342] text-white border-none font-inherit text-[12px] font-bold px-4.5 py-2 rounded-lg cursor-pointer transition-all duration-200 hover:enabled:bg-[#00c2cb] disabled:opacity-60 disabled:cursor-not-allowed" disabled={isSubmittingReply}>
-                        {isSubmittingReply ? t("Posting...") : t("Send Comment")}
-                      </button>
-                    </div>
-                  </form>
-                </>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '20px', color: '#ef4444' }}>
-                  {t('Failed to load details.')}
-                </div>
-              )}
-            </div>
-            <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50">
-              <button className="bg-slate-200 text-slate-600 border-none font-inherit text-[13px] font-bold px-5 py-2.5 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-slate-300 hover:text-slate-800" onClick={() => setSelectedThreadId(null)}>
-                {t('Close')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

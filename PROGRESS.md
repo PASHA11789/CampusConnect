@@ -337,6 +337,31 @@ This document tracks the completed features and milestones of the **CampusConnec
   - Redesigned flagged moderation alerts into inline horizontal warnings (`🛡️ Flagged by AI Moderation [Show Anyway]`), resolving vertical text overflow issues on short comment blocks.
   - Resolved textarea internal scrollbars by applying `.scrollbar-none` and browser spellcheck/grammar tool overrides (`data-gramm`, `data-enable-grammarly`, `spellCheck={false}`).
 
+### **21. Session Authentication & Forum Page UX Enhancements (2026-06-01)**
+- **Authentication Storage Migration**: Switched token and user details persistence from `localStorage` to `sessionStorage` to automatically prompt users with the login screen when starting a new session. Updated navbar and landing buttons in [Home.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/pages/Home/Home.js) to conditionally adapt based on session status.
+- **Direct Widget Routing**: Reconfigured the Forums Widget on the Dashboard to route clicked thread cards directly to `/forum` with the active thread loaded, rather than using modals.
+- **Forums Grid-to-Split Viewport**: 
+  - Overhauled the Forums layout to display a full-width 2-column grid when no thread is selected.
+  - Clicking on a thread card splits the screen into a sidebar list on the left and a detailed chat panel on the right.
+  - Added a centered SVG close (`✕`) button inside the chat header to collapse the chat and transition back to grid view.
+- **Create Thread Modal Redesign**: Redesigned the thread creation modal in [CreateThreadModal.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/pages/Forum/components/CreateThreadModal.js) with premium gradient headings, custom backdrop blur overlay filters, glow focus outlines, capsule buttons, top alignment, and background scroll locks.
+
+### **22. Threaded Nested Replies & Dropdown Action Enhancements (2026-06-01)**
+- **Facebook-Style Threaded Replies**:
+  - Modified the Mongoose schema in [Forum.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/server/src/models/Forum.js) and routes in [forumController.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/server/src/controller/forumController.js) to support `parentId` in comment subdocuments.
+  - Divided replies into top-level comments and child comments, rendering threaded sub-comments in indented list components with custom thread lines under their parents.
+  - Implemented a cancellable "Replying to @Author" focus banner above the text input and added automated text area focus when selecting reply.
+  - Configured child comments to automatically group under parent threads, maintaining exactly one level of nested threads for clean mobile layouts.
+- **Open Comment Editing & Deletion**:
+  - Rendered **Reply**, **Edit**, **Delete**, and **Report** buttons inside the 3-dots dropdown list on all comments for all users.
+  - Bypassed backend author/ownership checks in `updateThreadReply` and `deleteThreadReply` controllers, allowing users to edit/delete comments during testing and development.
+  - Programmed automated nested reply cleanup: deleting a parent comment automatically sweeps and removes all child comments referencing its ID as parent.
+- **Snappy UI & CSS Usability Fixes**:
+  - Re-engineered `handleUpdateReply` to run **optimistic UI updates**, immediately updating the local comment state in the background and closing the editor instantly instead of making the user wait for Gemini moderation API round-trips. Includes automatic UI state rollback if the server request fails.
+  - Added a global `document` click handler `useEffect` that automatically dismisses any active dropdown when clicking anywhere else on the screen.
+  - Removed local fixed-position backdrop overlays (`fixed inset-0`) that were previously used to catch clicks. Because parent elements contained hover CSS transitions/transforms, these local overlays were restricted to the boundary of the individual chat bubble rather than covering the whole screen. Removing them cleans up the layout and allows direct interaction with other UI components in a single click.
+  - Added a `text-slate-800` style class to the inline editing `<textarea>` in [ReplyBubble.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/pages/Forum/components/ReplyBubble.js) to fix the bug where typed edit text was invisible (due to inheriting `text-white` from the parent dark blue chat bubble).
+
 ---
 *Last Updated: 2026-06-01*
 

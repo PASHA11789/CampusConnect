@@ -133,8 +133,11 @@ export default function Home() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
+    setIsLoggedIn(!!sessionStorage.getItem("token"));
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -167,9 +170,11 @@ export default function Home() {
             ))}
           </ul>
 
-          <button className="max-[768px]:hidden flex items-center gap-2 bg-[#0a2342] text-white border-none rounded-lg py-2.5 px-[18px] text-[14px] font-bold cursor-pointer transition-all duration-[250ms] hover:bg-[#0079c2] hover:-translate-y-[2px] whitespace-nowrap cc-page-cursor-none" onClick={() => navigate('/dashboard')}>
-            <span className="text-[16px]">⊞</span> Dashboard
-          </button>
+          {isLoggedIn && (
+            <button className="max-[768px]:hidden flex items-center gap-2 bg-[#0a2342] text-white border-none rounded-lg py-2.5 px-[18px] text-[14px] font-bold cursor-pointer transition-all duration-[250ms] hover:bg-[#0079c2] hover:-translate-y-[2px] whitespace-nowrap cc-page-cursor-none" onClick={() => navigate('/dashboard')}>
+              <span className="text-[16px]">⊞</span> Dashboard
+            </button>
+          )}
 
           <button className="hidden max-[768px]:flex flex-col gap-1.5 bg-none border-none cursor-pointer p-1 ml-4 cc-page-cursor-none" onClick={() => setMenuOpen(o => !o)} aria-label="Toggle menu">
             <span className={`block w-[22px] h-0.5 rounded-sm transition-all duration-300 ${isScrolled ? 'bg-[#0a2342]' : 'bg-white'}`} />
@@ -197,9 +202,15 @@ export default function Home() {
               Connect with peers, find lost items, sign petitions, order from the canteen — everything you need as a student, beautifully unified.
             </p>
             <div className="flex gap-4 flex-wrap max-[1024px]:justify-center">
-              <button className="inline-flex items-center gap-2.5 bg-[#0079c2] text-white border-none rounded-xl py-3.5 px-7 text-[15px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_6px_24px_rgba(0,121,194,0.4)] hover:bg-[#005fa3] hover:-translate-y-[2px] hover:shadow-[0_10px_30px_rgba(0,121,194,0.5)] cc-page-cursor-none" onClick={() => navigate('/login')}>
-                Sign In to Portal <span><IconArrow /></span>
-              </button>
+              {isLoggedIn ? (
+                <button className="inline-flex items-center gap-2.5 bg-[#0079c2] text-white border-none rounded-xl py-3.5 px-7 text-[15px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_6px_24px_rgba(0,121,194,0.4)] hover:bg-[#005fa3] hover:-translate-y-[2px] hover:shadow-[0_10px_30px_rgba(0,121,194,0.5)] cc-page-cursor-none" onClick={() => navigate('/dashboard')}>
+                  Go to Dashboard <span><IconArrow /></span>
+                </button>
+              ) : (
+                <button className="inline-flex items-center gap-2.5 bg-[#0079c2] text-white border-none rounded-xl py-3.5 px-7 text-[15px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_6px_24px_rgba(0,121,194,0.4)] hover:bg-[#005fa3] hover:-translate-y-[2px] hover:shadow-[0_10px_30px_rgba(0,121,194,0.5)] cc-page-cursor-none" onClick={() => navigate('/login')}>
+                  Sign In to Portal <span><IconArrow /></span>
+                </button>
+              )}
               <button className="inline-flex items-center gap-2.5 bg-white/8 text-white border-[1.5px] border-white/25 rounded-xl py-3.5 px-7 text-[15px] font-bold cursor-pointer transition-all duration-[250ms] backdrop-blur-[4px] hover:bg-white/15 hover:-translate-y-[2px] cc-page-cursor-none" onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}>
                 Explore Features <span>✦</span>
               </button>
@@ -364,10 +375,17 @@ export default function Home() {
               Stop juggling multiple apps. Bring your entire university experience into one beautiful, unified platform. Experience CampusConnect today.
             </p>
             <div className="flex">
-              <button className="group/glow relative inline-flex items-center gap-3 bg-gradient-to-br from-[#00c2cb] to-[#0079c2] text-white border-none rounded-2xl py-[18px] px-10 text-[16px] font-extrabold cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] shadow-[0_10px_40px_rgba(0,194,203,0.4)] overflow-hidden hover:-translate-y-[6px] hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(0,194,203,0.6)] cc-page-cursor-none" onClick={() => navigate('/login')}>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full transition-transform duration-600 group-hover/glow:translate-x-full pointer-events-none" />
-                Sign In to Portal <span className="relative z-10"><IconArrow /></span>
-              </button>
+              {isLoggedIn ? (
+                <button className="group/glow relative inline-flex items-center gap-3 bg-gradient-to-br from-[#00c2cb] to-[#0079c2] text-white border-none rounded-2xl py-[18px] px-10 text-[16px] font-extrabold cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] shadow-[0_10px_40px_rgba(0,194,203,0.4)] overflow-hidden hover:-translate-y-[6px] hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(0,194,203,0.6)] cc-page-cursor-none" onClick={() => navigate('/dashboard')}>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full transition-transform duration-600 group-hover/glow:translate-x-full pointer-events-none" />
+                  Go to Dashboard <span className="relative z-10"><IconArrow /></span>
+                </button>
+              ) : (
+                <button className="group/glow relative inline-flex items-center gap-3 bg-gradient-to-br from-[#00c2cb] to-[#0079c2] text-white border-none rounded-2xl py-[18px] px-10 text-[16px] font-extrabold cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] shadow-[0_10px_40px_rgba(0,194,203,0.4)] overflow-hidden hover:-translate-y-[6px] hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(0,194,203,0.6)] cc-page-cursor-none" onClick={() => navigate('/login')}>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full transition-transform duration-600 group-hover/glow:translate-x-full pointer-events-none" />
+                  Sign In to Portal <span className="relative z-10"><IconArrow /></span>
+                </button>
+              )}
             </div>
           </div>
 

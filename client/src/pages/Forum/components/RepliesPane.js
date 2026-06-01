@@ -55,8 +55,19 @@ export default function RepliesPane({
   onReportContent,
   formatDate,
   getCategoryTag,
-  t
+  t,
+  onClose,
+  replyingTo,
+  setReplyingTo
 }) {
+  React.useEffect(() => {
+    if (replyingTo) {
+      const textarea = document.getElementById("reply-textarea");
+      if (textarea) {
+        textarea.focus();
+      }
+    }
+  }, [replyingTo]);
   const isThreadOwner = activeThread?.author && (
     (typeof activeThread.author === 'string' && activeThread.author === user._id) ||
     (typeof activeThread.author === 'object' && activeThread.author._id === user._id)
@@ -71,14 +82,29 @@ export default function RepliesPane({
 
   return (
     <div className={`flex-grow bg-white flex flex-col relative h-full border border-slate-200 rounded-2xl p-[22px] min-w-0 ${mobileView === "list" ? "max-[900px]:hidden" : ""}`}>
-      {mobileView === "detail" && (
-        <button className="hidden max-[900px]:block bg-slate-100 hover:bg-slate-200 border-none text-[#0a2342] text-[12px] font-bold py-1.5 px-3 rounded-lg mb-3 cursor-pointer self-start" onClick={() => setMobileView("list")}>
-          ← {t("Back to list")}
-        </button>
-      )}
+      {/* Header Row with Back button (for mobile) and Close button (for desktop/split toggle) */}
+      <div className="flex items-center w-full mb-3 shrink-0">
+        {mobileView === "detail" && (
+          <button className="hidden max-[900px]:block bg-slate-100 hover:bg-slate-200 border-none text-[#0a2342] text-[12px] font-bold py-1.5 px-3 rounded-lg cursor-pointer" onClick={() => setMobileView("list")}>
+            ← {t("Back to list")}
+          </button>
+        )}
+        {onClose && (
+          <button 
+            type="button"
+            className="ml-auto bg-slate-100 hover:bg-red-50 hover:text-red-500 text-slate-500 w-8 h-8 rounded-full cursor-pointer flex items-center justify-center transition-all duration-200 border-none shadow-sm hover:shadow active:scale-95" 
+            onClick={onClose}
+            title={t("Close Discussion")}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+      </div>
 
       {isThreadLoading ? (
-        <div className="flex flex-col items-center justify-center py-10 gap-3.5">
+        <div className="flex flex-col items-center justify-center py-10 gap-3.5 flex-1">
           <div className="w-8 h-8 border-3 border-slate-100 border-t-[#00c2cb] rounded-full animate-spin"></div>
           <p className="text-[13px] text-slate-500 font-medium">{t('Fetching discussion thread...')}</p>
         </div>
@@ -109,7 +135,6 @@ export default function RepliesPane({
                 </button>
                 {isThreadDropdownActive && (
                   <div className="absolute right-0 top-7 z-20">
-                    <div className="fixed inset-0 z-10 cursor-default" onClick={() => setActiveDropdown({ type: null, id: null })} />
                     <div className="relative z-20 bg-white border border-slate-200 shadow-lg rounded-xl overflow-hidden py-1 w-[120px]">
                       {isThreadOwner ? (
                         <>
@@ -189,27 +214,73 @@ export default function RepliesPane({
 
               <div className="flex flex-col gap-3.5">
                 {activeThread.replies && activeThread.replies.length > 0 ? (
-                  activeThread.replies.map((reply, i) => (
-                    <ReplyBubble
-                      key={reply._id || i}
-                      reply={reply}
-                      user={user}
-                      revealedReplies={revealedReplies}
-                      onReveal={onRevealReply}
-                      editingReplyId={editingReplyId}
-                      setEditingReplyId={setEditingReplyId}
-                      editReplyContent={editReplyContent}
-                      setEditReplyContent={setEditReplyContent}
-                      onEditSave={onUpdateReply}
-                      deletingReplyId={deletingReplyId}
-                      setDeletingReplyId={setDeletingReplyId}
-                      onDeleteConfirm={onDeleteReply}
-                      activeDropdown={activeDropdown}
-                      setActiveDropdown={setActiveDropdown}
-                      onReport={onReportContent}
-                      t={t}
-                    />
-                  ))
+                  (() => {
+                    const replies = activeThread.replies;
+                    const topLevelReplies = replies.filter(r => !r.parentId || !replies.some(p => p._id === r.parentId));
+                    const childReplies = replies.filter(r => r.parentId && replies.some(p => p._id === r.parentId));
+
+                    return topLevelReplies.map((reply, i) => {
+                      const children = childReplies.filter(c => c.parentId === reply._id);
+                      const isParentOwner = reply.author && (
+                        (typeof reply.author === 'string' && reply.author === user._id) ||
+                        (typeof reply.author === 'object' && reply.author._id === user._id)
+                      );
+                      return (
+                        <div key={reply._id || i} className="flex flex-col gap-1.5 w-full">
+                          <ReplyBubble
+                            reply={reply}
+                            user={user}
+                            revealedReplies={revealedReplies}
+                            onReveal={onRevealReply}
+                            editingReplyId={editingReplyId}
+                            setEditingReplyId={setEditingReplyId}
+                            editReplyContent={editReplyContent}
+                            setEditReplyContent={setEditReplyContent}
+                            onEditSave={onUpdateReply}
+                            deletingReplyId={deletingReplyId}
+                            setDeletingReplyId={setDeletingReplyId}
+                            onDeleteConfirm={onDeleteReply}
+                            activeDropdown={activeDropdown}
+                            setActiveDropdown={setActiveDropdown}
+                            onReport={onReportContent}
+                            t={t}
+                            onReplyClick={(replyId, authorName) => setReplyingTo({ replyId, authorName })}
+                          />
+                          {children.length > 0 && (
+                            <div className={`pl-4 flex flex-col gap-2 mt-1 mb-2 w-[85%] ${
+                              isParentOwner 
+                                ? 'self-end ml-14 mr-2 border-l-2 border-[#1a5269]/40' 
+                                : 'self-start ml-8 mr-14 border-l-2 border-slate-300'
+                            }`}>
+                              {children.map((child, idx) => (
+                                <ReplyBubble
+                                  key={child._id || idx}
+                                  reply={child}
+                                  isChild={true}
+                                  user={user}
+                                  revealedReplies={revealedReplies}
+                                  onReveal={onRevealReply}
+                                  editingReplyId={editingReplyId}
+                                  setEditingReplyId={setEditingReplyId}
+                                  editReplyContent={editReplyContent}
+                                  setEditReplyContent={setEditReplyContent}
+                                  onEditSave={onUpdateReply}
+                                  deletingReplyId={deletingReplyId}
+                                  setDeletingReplyId={setDeletingReplyId}
+                                  onDeleteConfirm={onDeleteReply}
+                                  activeDropdown={activeDropdown}
+                                  setActiveDropdown={setActiveDropdown}
+                                  onReport={onReportContent}
+                                  t={t}
+                                  onReplyClick={(replyId, authorName) => setReplyingTo({ replyId, authorName })}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    });
+                  })()
                 ) : (
                   <p className="text-center py-8 text-[12.5px] text-slate-400 font-medium border-[1.5px] border-dashed border-slate-200 rounded-lg bg-slate-50">{t('No replies yet. Be the first to join the conversation!')}</p>
                 )}
@@ -218,40 +289,59 @@ export default function RepliesPane({
           </div>
 
           {/* WRITE REPLY INPUT AREA */}
-          <form onSubmit={onReplySubmit} className="mt-4 border-t border-slate-100 pt-3.5 flex items-center gap-3">
-            <textarea
-              placeholder={t("Write your response...")}
-              className="flex-1 px-5 py-2.5 text-[13px] border-[1.5px] border-slate-200 rounded-full text-[#0a2342] font-medium transition-all duration-200 focus:outline-none focus:bg-white focus:border-[#00c2cb] focus:shadow-[0_0_0_3px_rgba(0,194,203,0.1)] h-11 min-h-[44px] max-h-[44px] bg-slate-50 resize-none leading-normal overflow-hidden scrollbar-none"
-              value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-              required
-              rows={1}
-              spellCheck={false}
-              data-gramm={false}
-              data-enable-grammarly={false}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  onReplySubmit(e);
-                }
-              }}
-            />
-            <button
-              type="submit"
-              className="w-11 h-11 rounded-full bg-[#00c2cb] text-white border-none flex items-center justify-center shrink-0 cursor-pointer transition-all duration-250 hover:bg-[#00b2bb] hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-[0_3px_10px_rgba(0,194,203,0.2)]"
-              disabled={isSubmittingReply || !replyContent.trim()}
-              title={t("Post Reply")}
-            >
-              {isSubmittingReply ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <svg className="w-5 h-5 translate-x-[1px] -translate-y-[0.5px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="22" y1="2" x2="11" y2="13"></line>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-              )}
-            </button>
-          </form>
+          <div className="mt-4 border-t border-slate-100 pt-3.5 flex flex-col gap-2 shrink-0">
+            {replyingTo && (
+              <div className="w-full flex items-center justify-between bg-slate-50 border border-slate-200/80 rounded-xl px-4.5 py-2 text-[11.5px] font-semibold text-slate-600 animate-fade-in">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[#00c2cb] text-[13px] font-bold">↪</span>
+                  <span>{t("Replying to")} <strong className="text-[#0a2342]">@{replyingTo.authorName}</strong></span>
+                </div>
+                <button
+                  type="button"
+                  className="bg-none border-none text-slate-400 hover:text-red-500 font-bold text-[14px] cursor-pointer transition-colors"
+                  onClick={() => setReplyingTo(null)}
+                  title={t("Cancel reply")}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            <form onSubmit={onReplySubmit} className="flex items-center gap-3 w-full">
+              <textarea
+                id="reply-textarea"
+                placeholder={t("Write your response...")}
+                className="flex-1 px-5 py-2.5 text-[13px] border-[1.5px] border-slate-200 rounded-full text-[#0a2342] font-medium transition-all duration-200 focus:outline-none focus:bg-white focus:border-[#00c2cb] focus:shadow-[0_0_0_3px_rgba(0,194,203,0.1)] h-11 min-h-[44px] max-h-[44px] bg-slate-50 resize-none leading-normal overflow-hidden scrollbar-none"
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                required
+                rows={1}
+                spellCheck={false}
+                data-gramm={false}
+                data-enable-grammarly={false}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    onReplySubmit(e);
+                  }
+                }}
+              />
+              <button
+                type="submit"
+                className="w-11 h-11 rounded-full bg-[#00c2cb] text-white border-none flex items-center justify-center shrink-0 cursor-pointer transition-all duration-250 hover:bg-[#00b2bb] hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-[0_3px_10px_rgba(0,194,203,0.2)]"
+                disabled={isSubmittingReply || !replyContent.trim()}
+                title={t("Post Reply")}
+              >
+                {isSubmittingReply ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <svg className="w-5 h-5 translate-x-[1px] -translate-y-[0.5px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                )}
+              </button>
+            </form>
+          </div>
         </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400 gap-2 h-full">
