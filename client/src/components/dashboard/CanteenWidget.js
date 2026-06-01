@@ -1,5 +1,4 @@
 import React from 'react';
-import './CanteenWidget.css';
 
 // Importing generated images from src/assets
 import gourmetImg from '../../assets/gourmet.png';
@@ -14,18 +13,18 @@ const RESTAURANTS = [
 
 const CanteenWidget = () => {
   return (
-    <section className="db-canteen-section">
-      <h3 className="db-section-title">Campus Canteen & Nearby Eateries</h3>
-      <div className="canteen-grid">
+    <section className="w-full mt-6">
+      <h3 className="text-[14px] font-extrabold text-[#0a2342] tracking-wide mb-3.5">Campus Canteen & Nearby Eateries</h3>
+      <div className="grid grid-cols-4 gap-4 max-[1024px]:grid-cols-2 max-[600px]:grid-cols-1">
         {RESTAURANTS.map((res, i) => (
-          <div key={i} className="canteen-card">
-            <div className="canteen-img-wrapper">
-              <img src={res.image} alt={res.name} />
-              <div className="canteen-distance">{res.distance}</div>
+          <div key={i} className="bg-white rounded-2xl overflow-hidden border border-slate-200 transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:-translate-y-2 hover:shadow-[0_12px_24px_rgba(0,0,0,0.08)] group">
+            <div className="relative h-[120px] overflow-hidden">
+              <img src={res.image} alt={res.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+              <div className="absolute top-2 left-2 bg-[#00c2cb]/90 text-white text-[10px] font-extrabold px-2 py-1 rounded-full backdrop-blur-[4px]">{res.distance}</div>
             </div>
-            <div className="canteen-info">
-              <h4>{res.name}</h4>
-              <button className="btn-order">Order Now</button>
+            <div className="p-3 flex flex-col gap-2">
+              <h4 className="text-[13px] font-bold text-[#0a2342] m-0">{res.name}</h4>
+              <button className="bg-slate-50 text-[#00c2cb] border border-slate-200 py-1.5 rounded-lg text-[11px] font-bold cursor-pointer transition-all duration-200 hover:bg-[#00c2cb] hover:text-white hover:border-[#00c2cb]">Order Now</button>
             </div>
           </div>
         ))}
@@ -35,3 +34,4 @@ const CanteenWidget = () => {
 };
 
 export default CanteenWidget;
+

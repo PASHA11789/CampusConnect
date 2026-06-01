@@ -1,18 +1,17 @@
 import React from 'react';
-import './BusRoutesWidget.css';
 
 const t = (s) => s;
 
 export const BusRoutesWidget = ({ busRoutes = [] }) => {
   return (
-    <div className="utility-item bus-routes">
-      <div className="utility-head">
-        <span className="utility-icon">🚌</span>
-        <h4>{t('Bus Routes & Map')}</h4>
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <span className="text-[18px]">🚌</span>
+        <h4 className="text-[14px] font-bold text-[#0a2342]">{t('Bus Routes & Map')}</h4>
       </div>
-      <div className="utility-body map-container">
-        <div className="stylised-map">
-          <svg viewBox="0 0 200 120" className="map-svg">
+      <div className="flex-1 bg-slate-50 rounded-xl p-0 flex flex-col gap-2.5 overflow-hidden">
+        <div className="relative h-[100px] border-b border-[#eef2f6] bg-slate-200">
+          <svg viewBox="0 0 200 120" className="w-full h-full block">
             {/* Professional light-themed canvas */}
             <rect width="200" height="120" fill="#f1f5f9" />
             
@@ -42,22 +41,22 @@ export const BusRoutesWidget = ({ busRoutes = [] }) => {
               <animateMotion path="M20,60 Q60,25 100,60 T180,60" dur="12s" repeatCount="indefinite" />
             </circle>
           </svg>
-          <div className="map-overlay">
-            <span className="live-badge">{t('LIVE')}</span>
+          <div className="absolute top-2 right-2 z-10">
+            <span className="bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded tracking-wide animate-pulse shadow-[0_1px_4px_rgba(220,38,38,0.2)]">{t('LIVE')}</span>
           </div>
         </div>
-        <div className="bus-details">
+        <div className="px-2 pb-2.5 flex flex-col gap-1.5">
           {busRoutes && busRoutes.length > 0 ? busRoutes.map((route, i) => {
             const isDelayed = route.status?.toLowerCase() === 'delayed';
             return (
-              <div key={i} className="bus-row-premium">
-                <span className="route">{route.route || `${t('Route')} ${String.fromCharCode(65 + i)}`}</span>
-                <span className={`status-pill ${isDelayed ? 'delayed' : 'ontime'}`}>
-                  <span className="status-dot"></span>
+              <div key={i} className="flex justify-between items-center text-[12px] font-semibold py-1.5 transition-all duration-200 ease-out hover:translate-x-1">
+                <span className="text-[#0a2342] font-bold w-[60px]">{route.route || `${t('Route')} ${String.fromCharCode(65 + i)}`}</span>
+                <span className={`inline-flex items-center gap-1.25 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${isDelayed ? 'bg-red-500/10 text-red-600' : 'bg-emerald-500/10 text-emerald-600'}`}>
+                  <span className={`w-1.25 h-1.25 rounded-full inline-block ${isDelayed ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`}></span>
                   {route.status || t('On Time')}
                 </span>
-                <span className="time">
-                  <svg className="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <span className="text-slate-500 flex items-center gap-1 font-semibold">
+                  <svg className="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <circle cx="12" cy="12" r="10" />
                     <polyline points="12 6 12 12 16 14" />
                   </svg>
@@ -75,3 +74,4 @@ export const BusRoutesWidget = ({ busRoutes = [] }) => {
 };
 
 export default BusRoutesWidget;
+

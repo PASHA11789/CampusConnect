@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './Topbar.css';
 
 const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
   const [imageError, setImageError] = useState(false);
@@ -23,35 +22,35 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
   const showFallback = isDefaultAvatar || imageError;
 
   return (
-    <header className="db-topbar">
-      <div className="db-topbar-left">
+    <header className="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 sticky top-0 z-[100] animate-slide-down max-md:px-4 max-md:py-3">
+      <div className="flex items-center">
 
       </div>
 
-      <div className="db-topbar-right">
-        <div className="db-user-details">
-          <div className="user-info">
-            <span className="user-name">{user?.name || 'Sagheer Ahmad'}</span>
-            <span className="user-reg">{user?.registration_no || '2022F-mulbscs-104'}</span>
+      <div className="flex items-center">
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-end">
+            <span className="text-[13px] font-extrabold text-[#0a2342]">{user?.name || 'Sagheer Ahmad'}</span>
+            <span className="text-[10px] text-slate-400 font-semibold">{user?.registration_no || '2022F-mulbscs-104'}</span>
           </div>
-          <label className="db-avatar-wrap" title="Change avatar">
+          <label className="relative w-[42px] h-[42px] rounded-full bg-gradient-to-br from-[#00c2cb] to-[#0079c2] p-[2px] cursor-pointer shadow-[0_4px_10px_rgba(0,194,203,0.2)] transition-transform duration-200 hover:scale-105" title="Change avatar">
             {showFallback ? (
-              <span className="db-avatar-letter">{getInitials(user?.name)}</span>
+              <span className="w-full h-full rounded-full bg-[#0a2342] flex items-center justify-center text-base font-black text-[#00c2cb]">{getInitials(user?.name)}</span>
             ) : (
               <img 
                 src={avatar} 
                 alt="Avatar" 
-                className="db-avatar-img" 
+                className="w-full h-full rounded-full object-cover block bg-white" 
                 onError={() => setImageError(true)} 
               />
             )}
             {isUploading && (
-              <div className="db-avatar-loading-overlay">
-                <div className="db-avatar-spinner" />
+              <div className="absolute inset-[2px] rounded-full bg-[#0a2342]/75 flex items-center justify-center text-[#00c2cb] backdrop-blur-[1.5px] z-5">
+                <div className="w-4 h-4 border-[2.5px] border-[#00c2cb]/25 border-t-[#00c2cb] rounded-full animate-spin" />
               </div>
             )}
-            <input type="file" accept="image/*" className="db-avatar-input" onChange={handleAvatarChange} disabled={isUploading} />
-            <span className="db-online-dot" />
+            <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} disabled={isUploading} />
+            <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#34d399] rounded-full border-2 border-white" />
           </label>
         </div>
       </div>
@@ -60,3 +59,4 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
 };
 
 export default Topbar;
+

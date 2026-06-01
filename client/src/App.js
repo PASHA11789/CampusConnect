@@ -4,7 +4,7 @@ import Login from './pages/Login/Login';
 import Home from './pages/Home/Home';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Forum from './pages/Forum/Forum';
-import './App.css';
+import Canteen from './pages/Canteen/Canteen';
 
 function App() {
   return (
@@ -15,6 +15,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/forum" element={<Forum />} />
+          <Route path="/canteen" element={<Canteen />} />
         </Routes>
       </div>
     </Router>
