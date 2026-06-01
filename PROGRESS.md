@@ -320,6 +320,23 @@ This document tracks the completed features and milestones of the **CampusConnec
 - **In-Context Inline UI Confirmation**: Replaced native browser confirmation alerts with a clean, in-context inline UI confirmation element (**Delete? [Yes] [No]**) matching the premium theme.
 - **Secure Ownership Checks**: Added robust check constraints (`isReplyOwner`) to only show **Edit** and **Delete** actions to the original author of the reply.
 
+### **20. Tailwind CSS Styling Migration & WhatsApp Chat UI Overhaul (2026-06-01)**
+- **Tailwind CSS Migration**:
+  - Migrated the entire frontend styling structure to **Tailwind CSS v3.4**, removing 14 legacy `.css` files and centralizing global configurations in [tailwind.config.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/tailwind.config.js) (custom brand colors, keyframe animations, etc.) and [index.css](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/index.css).
+  - Eliminated all unused stylesheet imports across core modules like `App.js` and `Home.js` while maintaining compile and build integrity.
+  - Resolved landing page layout breakage in [Home.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/pages/Home/Home.js) by correcting all non-standard decimal values (e.g. `w-5.5` -> `w-[22px]`, `px-4.5` -> `px-[18px]`, `py-7.5` -> `py-[30px]`), missing shadow units (e.g. `shadow-[0_6px_24_...]` -> `shadow-[0_6px_24px_...]`), and transition errors.
+  - Standardized all inline SVG components in [Home.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/pages/Home/Home.js) with default Tailwind width/height dimensions (e.g. `w-6 h-6`, `w-4 h-4`) to eliminate browser defaults (300x150px) that were expanding parent card and button backgrounds.
+  - Fixed color wash-out and low contrast on the left side of the landing page by replacing invalid `opacity-18` with standard `opacity-20` on background glow blobs and layering them strictly underneath content container via `z-0` / `relative z-10`.
+- **WhatsApp-Style Chat Panel Refactor**:
+  - Overhauled [RepliesPane.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/pages/Forum/components/RepliesPane.js) to feature a scrollable replies list wrapped inside a WhatsApp-style warm sand background panel (`bg-[#efeae2]`).
+  - Added dynamic sizing to the replies scroll view (`max-h-[500px]`), allowing the container to expand as replies are added and sitting right above the input form, capping and showing scrollbars after exactly 8 replies.
+- **Dynamic Bubble Alignment & Themes**:
+  - Restructured [ReplyBubble.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/pages/Forum/components/ReplyBubble.js) to align messages dynamically: user/sender replies sit on the right (`self-end ml-10`) with a dark ocean blue background (`bg-[#1a5269]`) and white readable text, while receiver replies sit on the left (`self-start mr-10`) with a white background.
+  - Implemented smooth hover micro-animations (`-translate-y-[1px]` lift, custom dynamic borders, and drop shadows) on all reply bubbles.
+- **AI Moderation Banners & Textarea Fixes**:
+  - Redesigned flagged moderation alerts into inline horizontal warnings (`🛡️ Flagged by AI Moderation [Show Anyway]`), resolving vertical text overflow issues on short comment blocks.
+  - Resolved textarea internal scrollbars by applying `.scrollbar-none` and browser spellcheck/grammar tool overrides (`data-gramm`, `data-enable-grammarly`, `spellCheck={false}`).
+
 ---
-*Last Updated: 2026-05-30*
+*Last Updated: 2026-06-01*
 

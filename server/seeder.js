@@ -119,8 +119,57 @@ const seedUsers = async () => {
         semester: 3,
       },
     ];
-    await User.insertMany(dummyUsers);
+    const insertedUsers = await User.insertMany(dummyUsers);
     console.log("✅ 10 Dummy Users created successfully!");
+    
+    // Assign authors for threads and replies
+    const studentUser1 = insertedUsers.find(u => u.email === "hamza@student.com");
+    const studentUser2 = insertedUsers.find(u => u.email === "zoya@student.com");
+    const modUser = insertedUsers.find(u => u.role === "student_mod");
+
+    const dummyThreads = [
+      {
+        title: "Midterm Exams Preparation",
+        content: "Hey guys, when are the midterm exams starting? Let's share study guides and past papers here.",
+        author: studentUser1._id,
+        replies: [
+          {
+            content: "They start from next Monday! I have the CS study guide if anyone needs it.",
+            author: modUser._id,
+            createdAt: new Date(Date.now() - 100000)
+          },
+          {
+            content: "Please share the CS guide! It would be really helpful.",
+            author: studentUser2._id,
+            createdAt: new Date(Date.now() - 50000)
+          }
+        ],
+        repliesCount: 2
+      },
+      {
+        title: "Canteen Gourmet Menu Review",
+        content: "The new Gourmet canteen menu has some great additions. The chicken wrap is amazing!",
+        author: studentUser2._id,
+        replies: [
+          {
+            content: "Yes, I tried it yesterday. Highly recommended!",
+            author: studentUser1._id,
+            createdAt: new Date()
+          }
+        ],
+        repliesCount: 1
+      },
+      {
+        title: "Coding Hackathon next month",
+        content: "There's a local hackathon happening next month. Who wants to team up? Looking for a React developer.",
+        author: modUser._id,
+        replies: [],
+        repliesCount: 0
+      }
+    ];
+
+    await Forum.insertMany(dummyThreads);
+    console.log("✅ Dummy Forum threads seeded successfully!");
     process.exit();
   } catch (error) {
     console.error(`❌ Error seeding data: ${error.message}`);
