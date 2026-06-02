@@ -238,7 +238,10 @@ export const updateThreadReply = async (req, res) => {
     const reply = thread.replies.id(req.params.replyId)
     if (!reply) return res.status(404).json({ message: "Reply not found" })
 
-    // Authorization check removed per user requirements to allow Edit/Delete for everyone
+    // Authorization check: only the reply owner can edit
+    if (reply.author.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Only the original author can edit this reply" })
+    }
 
     reply.content = content || reply.content
     reply.isHidden = isFlagged || false
@@ -280,7 +283,10 @@ export const deleteThreadReply = async (req, res) => {
     const reply = thread.replies.id(req.params.replyId)
     if (!reply) return res.status(404).json({ message: "Reply not found" })
 
-    // Authorization check removed per user requirements to allow Edit/Delete for everyone
+    // Authorization check: only the reply owner can delete
+    if (reply.author.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Only the original author can delete this reply" })
+    }
 
     // Delete the reply and its child replies from the array to prevent orphaned comments
     thread.replies = thread.replies.filter(

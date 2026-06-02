@@ -46,9 +46,10 @@ export default function Forum() {
   const [deletingReplyId, setDeletingReplyId] = useState(null);
 
   // Redesign states
+  const [threadsLoaded, setThreadsLoaded] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState({ type: null, id: null });
   const [editingThreadId, setEditingThreadId] = useState(null);
-  const [mobileView, setMobileView] = useState("list");
+  const [mobileView, setMobileView] = useState(location.state?.threadId ? "detail" : "list");
   const [replyingTo, setReplyingTo] = useState(null); // { replyId, authorName }
 
   // Pagination State
@@ -119,6 +120,8 @@ export default function Forum() {
         setThreads(data.threads || []);
       } catch (error) {
         console.error("Error fetching forums:", error);
+      } finally {
+        setThreadsLoaded(true);
       }
     };
 
@@ -585,14 +588,14 @@ export default function Forum() {
 
   // Clear selection if the selected thread is filtered out
   useEffect(() => {
-    if (selectedThreadId) {
+    if (threadsLoaded && selectedThreadId) {
       const isStillVisible = filteredThreads.some(t => t._id === selectedThreadId);
       if (!isStillVisible) {
         setSelectedThreadId(null);
         setActiveThread(null);
       }
     }
-  }, [filteredThreads, selectedThreadId]);
+  }, [filteredThreads, selectedThreadId, threadsLoaded]);
 
   const categoriesList = ["All", "Academics", "Tech Hub", "Campus Life", "Q & A", "General"];
 

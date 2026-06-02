@@ -121,7 +121,7 @@ export default function ReplyBubble({
           </div>
 
           {/* DROPDOWN ACTIONS */}
-          {!isFlagged && (
+          {(!isFlagged || isReplyOwner) && (
             <div className="relative">
               <button
                 type="button"
@@ -145,39 +145,45 @@ export default function ReplyBubble({
                       >
                         💬 {t('Reply')}
                       </button>
-                      <button
-                        type="button"
-                        className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-slate-50 text-slate-700"
-                        onClick={() => {
-                          setActiveDropdown({ type: null, id: null });
-                          setEditReplyContent(reply.content || "");
-                          setDeletingReplyId(null);
-                          setEditingReplyId(replyKey);
-                        }}
-                      >
-                        ✏️ {t('Edit')}
-                      </button>
-                      <button
-                        type="button"
-                        className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-red-50 text-red-600"
-                        onClick={() => {
-                          setActiveDropdown({ type: null, id: null });
-                          setEditingReplyId(null);
-                          setDeletingReplyId(replyKey);
-                        }}
-                      >
-                        🗑️ {t('Delete')}
-                      </button>
-                      <button
-                        type="button"
-                        className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-slate-50 text-slate-700"
-                        onClick={() => {
-                          setActiveDropdown({ type: null, id: null });
-                          onReport('reply', replyKey);
-                        }}
-                      >
-                        🛡️ {t('Report')}
-                      </button>
+                      {isReplyOwner && (
+                        <>
+                          <button
+                            type="button"
+                            className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-slate-50 text-slate-700"
+                            onClick={() => {
+                              setActiveDropdown({ type: null, id: null });
+                              setEditReplyContent(reply.content || "");
+                              setDeletingReplyId(null);
+                              setEditingReplyId(replyKey);
+                            }}
+                          >
+                            ✏️ {t('Edit')}
+                          </button>
+                          <button
+                            type="button"
+                            className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-red-50 text-red-600"
+                            onClick={() => {
+                              setActiveDropdown({ type: null, id: null });
+                              setEditingReplyId(null);
+                              setDeletingReplyId(replyKey);
+                            }}
+                          >
+                            🗑️ {t('Delete')}
+                          </button>
+                        </>
+                      )}
+                      {!isReplyOwner && (
+                        <button
+                          type="button"
+                          className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-slate-50 text-slate-700"
+                          onClick={() => {
+                            setActiveDropdown({ type: null, id: null });
+                            onReport('reply', replyKey);
+                          }}
+                        >
+                          🛡️ {t('Report')}
+                        </button>
+                      )}
                     </>
                   </div>
                 </div>
@@ -188,55 +194,39 @@ export default function ReplyBubble({
 
         {/* BUBBLE BODY */}
         <div className={`text-[11.5px] ${bodyColor} leading-normal relative`}>
-          {isFlagged && !isRevealed ? (
-            <div className="flex items-center justify-between gap-3 bg-slate-100 border border-slate-200/60 rounded-lg p-2 mt-1">
-              <div className="flex items-center gap-1.5 text-slate-600">
-                <span className="text-[13px] text-red-500">🛡️</span>
-                <span className="text-[10.5px] font-bold text-slate-500">{t('Flagged by AI Moderation')}</span>
+          {editingReplyId === replyKey ? (
+            <div className="flex flex-col gap-2">
+              <textarea
+                className="w-full px-3 py-2 text-[12px] text-slate-800 font-medium border border-slate-200 rounded-lg min-h-[64px] focus:outline-none focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/10 bg-white"
+                value={editReplyContent}
+                onChange={(e) => setEditReplyContent(e.target.value)}
+                required
+              />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className="bg-[#0a2342] text-white border-none py-1 px-3 rounded-lg text-[11px] font-bold cursor-pointer transition-all hover:bg-[#00c2cb]"
+                  onClick={() => onEditSave(replyKey)}
+                >
+                  {t('Save')}
+                </button>
+                <button
+                  type="button"
+                  className="bg-slate-200 text-slate-600 border-none py-1 px-3 rounded-lg text-[11px] font-bold cursor-pointer transition-all hover:bg-slate-300"
+                  onClick={() => setEditingReplyId(null)}
+                >
+                  {t('Cancel')}
+                </button>
               </div>
-              <button
-                type="button"
-                className="bg-[#00c2cb] hover:bg-[#00b2bb] text-white border-none py-1 px-2.5 rounded-full text-[10px] font-bold cursor-pointer transition-all active:scale-95 shrink-0"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onReveal(replyKey);
-                }}
-              >
-                {t('Show Anyway')}
-              </button>
             </div>
+          ) : isFlagged && !isRevealed ? (
+            <p className="whitespace-pre-wrap leading-relaxed select-none filter blur-[5px]">
+              {reply.content}
+            </p>
           ) : (
             <>
               {isFlagged && <span className="inline-block text-[9.5px] font-extrabold text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded-full mb-1.5 uppercase">⚠️ {t('Flagged')}</span>}
-
-              {editingReplyId === replyKey ? (
-                <div className="flex flex-col gap-2">
-                  <textarea
-                    className="w-full px-3 py-2 text-[12px] text-slate-800 font-medium border border-slate-200 rounded-lg min-h-[64px] focus:outline-none focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/10 bg-white"
-                    value={editReplyContent}
-                    onChange={(e) => setEditReplyContent(e.target.value)}
-                    required
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      className="bg-[#0a2342] text-white border-none py-1 px-3 rounded-lg text-[11px] font-bold cursor-pointer transition-all hover:bg-[#00c2cb]"
-                      onClick={() => onEditSave(replyKey)}
-                    >
-                      {t('Save')}
-                    </button>
-                    <button
-                      type="button"
-                      className="bg-slate-200 text-slate-600 border-none py-1 px-3 rounded-lg text-[11px] font-bold cursor-pointer transition-all hover:bg-slate-300"
-                      onClick={() => setEditingReplyId(null)}
-                    >
-                      {t('Cancel')}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <p className="whitespace-pre-wrap leading-relaxed">{reply.content}</p>
-              )}
+              <p className="whitespace-pre-wrap leading-relaxed">{reply.content}</p>
 
               {deletingReplyId === replyKey && (
                 <div className="flex items-center gap-2 mt-2 bg-red-50 border border-red-100 p-2 rounded-lg text-[11.5px] font-semibold text-red-700">
@@ -260,7 +250,6 @@ export default function ReplyBubble({
             </>
           )}
         </div>
-
       </div>
     </div>
   );
