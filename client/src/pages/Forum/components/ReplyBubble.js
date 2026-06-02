@@ -56,7 +56,7 @@ export default function ReplyBubble({
     (typeof reply.author === 'object' && reply.author._id === user._id)
   );
 
-  const authorName = reply.author?.name || t('Student');
+  const authorName = reply.author?.registeration_number || reply.author?.name || t('Student');
   const initials = getInitials(authorName);
   const avatarColor = getAvatarColor(authorName);
   const isDropdownActive = activeDropdown.type === 'reply' && activeDropdown.id === replyKey;
@@ -219,14 +219,18 @@ export default function ReplyBubble({
                 </button>
               </div>
             </div>
-          ) : isFlagged && !isRevealed ? (
-            <p className="whitespace-pre-wrap leading-relaxed select-none filter blur-[5px]">
-              {reply.content}
-            </p>
           ) : (
             <>
-              {isFlagged && <span className="inline-block text-[9.5px] font-extrabold text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded-full mb-1.5 uppercase">⚠️ {t('Flagged')}</span>}
-              <p className="whitespace-pre-wrap leading-relaxed">{reply.content}</p>
+              {isFlagged && !isRevealed ? (
+                <p className="whitespace-pre-wrap leading-relaxed select-none filter blur-[5px]">
+                  {reply.content}
+                </p>
+              ) : (
+                <>
+                  {isFlagged && <span className="inline-block text-[9.5px] font-extrabold text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded-full mb-1.5 uppercase">⚠️ {t('Flagged')}</span>}
+                  <p className="whitespace-pre-wrap leading-relaxed">{reply.content}</p>
+                </>
+              )}
 
               {deletingReplyId === replyKey && (
                 <div className="flex items-center gap-2 mt-2 bg-red-50 border border-red-100 p-2 rounded-lg text-[11.5px] font-semibold text-red-700">

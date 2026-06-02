@@ -75,7 +75,7 @@ export default function RepliesPane({
 
   const isThreadDropdownActive = activeThread && activeDropdown.type === 'thread' && activeDropdown.id === activeThread._id;
 
-  const authorName = activeThread?.author?.name || t('Student');
+  const authorName = activeThread?.author?.registeration_number || activeThread?.author?.name || t('Student');
   const initials = getInitials(authorName);
   const avatarColor = getAvatarColor(authorName);
   const showFallback = !activeThread?.author?.avatar || activeThread?.author?.avatar.includes('ui-avatars.com') || activeThread?.author?.avatar.includes('name=');

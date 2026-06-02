@@ -10,7 +10,7 @@ export const getDashboardSummary = async (req, res) => {
         Forum.find()
           .sort({ createdAt: -1 })
           .limit(5)
-          .populate("author", "name avatar")
+          .populate("author", "registeration_number avatar")
           .select("title repliesCount createdAt author"),
         Petition.find({ status: "Active" })
           .sort({ createdAt: -1 })

@@ -2,6 +2,13 @@ import { GoogleGenAI } from "@google/genai"
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
 
+const VULGAR_PATTERNS = [
+    /loray?\s+lag/i,
+    /lan\s+lag/i,
+    /lund?\s+lag/i,
+    /\b(loray?|loda|lode|laude?|lund?|luns?|chutiya?|chutiye|gand|gandu|harami|kanjar|gashti|randi|bhenchod|penchod|madarchod|bitch|fuck|asshole|dick|pussy|sexii?|sexxy|sexi|sxy)\b/i
+];
+
 export const aiModeration = async (req, res, next) => {
     try {
         const textToAnalyze = [req.body.title, req.body.content, req.body.description]
@@ -12,13 +19,31 @@ export const aiModeration = async (req, res, next) => {
             req.body.isFlagged = false
             return next()
         }
+
+        // 1. Fast Local Regex Moderation Fallback
+        const matchesVulgar = VULGAR_PATTERNS.some(pattern => pattern.test(textToAnalyze));
+        if (matchesVulgar) {
+            req.body.isFlagged = true;
+            req.body.flagReason = "Locally flagged: Contains high-risk vulgarity or offensive language.";
+            return next();
+        }
         
         const systemPrompt = `You are an automated community moderator for a university student portal. 
-    Analyze the following text for obscenity, severe toxicity, hate speech, or explicit content. 
-    The text can be in any language, most notably English, Urdu (in Arabic script), or Roman Urdu (Urdu written using the English/Latin alphabet, such as abusive transliterations or Romanized Urdu slurs). 
-    Ensure you detect profanity, abusive terms, and offensive slurs across all these languages, scripts, and transliterations. 
-    Ignore standard campus slang, friendly banter, or mild complaints. 
-    Respond ONLY with a valid JSON object in this format: {"isObscene": true|false, "reason": "brief explanation"}`;
+    Your job is to ensure that only decent, respectful, and appropriate comments are published. This is a strict academic environment with conservative South Asian/Pakistani cultural values.
+    
+    Analyze the text for obscenity, vulgarity, profanity, sexually suggestive language, flirting, or romantic/sexual advances.
+    
+    CRITICAL RULES:
+    1. FLIRTING & SUGGESTIVE COMPLIMENTS: Any physical/romantic/sexual compliments, flirting, or suggestive remarks directed at individuals are strictly forbidden. This includes calling someone "hot", "so hot", "sexy", "sexii", "hawt", "cute", or their variations/misspellings (e.g., "sxy", "sexi", "sexxy"), as well as terms of endearment ("sweetie", "bae", "shona", "jigar", etc.) when used suggestively. Any such post MUST be flagged as obscene (isObscene: true).
+    2. LOCAL CULTURE & TRANSLITERATION: Detect profanity, abusive terms, offensive slurs, and culturally inappropriate/flirting terms in all scripts and transliterations:
+       - English (e.g., "hot", "sexy", "sexii", "bitch", etc.)
+       - Urdu in Arabic script
+       - Roman Urdu (Urdu transliterated into English alphabet, such as abusive transliterations, Romanized Urdu slurs, or informal romantic slang like "loray lag gaye", "lan lag gaye", "lund", "chutiya", "gand").
+    3. ACADEMIC DECENCY: Keep a very high standard of decency. If the post contains any vulgar, indecent, suggestive, or highly inappropriate content for a university setting, flag it.
+    4. CONTEXT AWARENESS: Distinguish between literal academic discussions (e.g., "a hot topic in physics", "hot weather", or "sex chromosomes") which are ALLOWED, and personal remarks, flirting, or obscenities (e.g., "you are so hot", "sexii pic", "check out this hot girl/guy") which MUST BE FLAGGED.
+    
+    Respond ONLY with a valid JSON object in this format:
+    {"isObscene": true|false, "reason": "brief explanation of why it was flagged or why it is clean"}`;
 
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
@@ -35,7 +60,9 @@ export const aiModeration = async (req, res, next) => {
         next()
     } catch (error) {
         console.error("AI moderation Error: ", error)
-        req.body.isFlagged = false
+        // Fail-safe approach: if the AI moderation service is rate-limited or fails, send to moderator review instead of posting unmoderated.
+        req.body.isFlagged = true
+        req.body.flagReason = "Moderation system busy. Sent for manual review to ensure academic decency."
         next()
     }
 }

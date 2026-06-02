@@ -6,7 +6,7 @@ export const getForumSummary = async (_req, res) => {
   try {
     const threads = await Forum.find()
       .sort({ createdAt: -1 })
-      .populate('author', 'name avatar')
+      .populate('author', 'registeration_number avatar')
       .select('title repliesCount createdAt')
 
     res.status(200).json({
@@ -38,7 +38,7 @@ export const createForumThread = async (req, res) => {
     })
 
     const populatedThread = await Forum.findById(newThread._id)
-      .populate('author', 'name avatar')
+      .populate('author', 'registeration_number avatar')
       .select("title repliesCount createdAt")
 
     const io = req.app.get("socketio")
@@ -187,7 +187,7 @@ export const addThreadReply = async (req, res) => {
     thread.repliesCount = thread.replies.length
     await thread.save()
 
-    const updatedThread = await Forum.findById(thread._id).populate("replies.author", "name avatar")
+    const updatedThread = await Forum.findById(thread._id).populate("replies.author", "registeration_number avatar")
     const savedReply = updatedThread.replies.at(-1);
 
     if (req.body.isFlagged) {
@@ -239,7 +239,8 @@ export const updateThreadReply = async (req, res) => {
     if (!reply) return res.status(404).json({ message: "Reply not found" })
 
     // Authorization check: only the reply owner can edit
-    if (reply.author.toString() !== req.user._id.toString()) {
+    const authorId = reply.author && (reply.author._id ? reply.author._id.toString() : reply.author.toString());
+    if (authorId !== req.user._id.toString()) {
       return res.status(403).json({ message: "Only the original author can edit this reply" })
     }
 
@@ -284,15 +285,24 @@ export const deleteThreadReply = async (req, res) => {
     if (!reply) return res.status(404).json({ message: "Reply not found" })
 
     // Authorization check: only the reply owner can delete
-    if (reply.author.toString() !== req.user._id.toString()) {
+    const authorId = reply.author && (reply.author._id ? reply.author._id.toString() : reply.author.toString());
+    if (authorId !== req.user._id.toString()) {
       return res.status(403).json({ message: "Only the original author can delete this reply" })
     }
 
-    // Delete the reply and its child replies from the array to prevent orphaned comments
-    thread.replies = thread.replies.filter(
-      (r) => r._id.toString() !== req.params.replyId.toString() && 
-             (!r.parentId || r.parentId.toString() !== req.params.replyId.toString())
-    );
+    // Find all replies to delete: the reply itself + its child replies
+    const toDeleteIds = [req.params.replyId];
+    thread.replies.forEach((r) => {
+      if (r.parentId && r.parentId.toString() === req.params.replyId.toString()) {
+        toDeleteIds.push(r._id.toString());
+      }
+    });
+
+    // Pull them all using Mongoose's built-in pull to ensure correct change tracking and persistence
+    toDeleteIds.forEach((id) => {
+      thread.replies.pull(id);
+    });
+
     thread.repliesCount = thread.replies.length
     await thread.save()
 
@@ -309,8 +319,8 @@ export const deleteThreadReply = async (req, res) => {
 export const getForumThreadById = async (req, res) => {
   try {
     const thread = await Forum.findById(req.params.id)
-      .populate("author", "name avatar")
-      .populate("replies.author", "name avatar");
+      .populate("author", "registeration_number avatar")
+      .populate("replies.author", "registeration_number avatar");
 
     if (!thread) {
       return res.status(404).json({ message: "Thread not found" });

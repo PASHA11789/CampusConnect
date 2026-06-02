@@ -7,7 +7,7 @@ export default function ThreadListCard({
   formatDate,
   t
 }) {
-  const authorName = post.author?.name || t('Student');
+  const authorName = post.author?.registeration_number || post.author?.name || t('Student');
   const relativeTime = formatDate(post.createdAt);
 
   return (

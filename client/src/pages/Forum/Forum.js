@@ -362,16 +362,7 @@ export default function Forum() {
       if (data.underReview) {
         showToast("Your reply contains flagged keywords and has been sent for moderator review.", 'warning');
       } else {
-        setActiveThread((prev) => {
-          if (!prev) return null;
-          const exists = prev.replies.some((r) => r._id === data.reply?._id);
-          if (exists) return prev;
-          return {
-            ...prev,
-            repliesCount: prev.repliesCount + 1,
-            replies: [...prev.replies, data.reply]
-          };
-        });
+        await handleThreadClick(activeThread._id);
 
         setThreads((prev) =>
           prev.map((t) =>
@@ -438,18 +429,7 @@ export default function Forum() {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       await axios.delete(`/api/forums/${activeThread._id}/replies/${replyId}`, config);
 
-      setActiveThread((prev) => {
-        if (!prev) return null;
-        // Count how many replies are being deleted (parent + its children)
-        const deletedCount = prev.replies.filter(
-          (r) => r._id === replyId || r.parentId === replyId
-        ).length;
-        return {
-          ...prev,
-          repliesCount: Math.max(0, prev.repliesCount - deletedCount),
-          replies: prev.replies.filter((r) => r._id !== replyId && r.parentId !== replyId)
-        };
-      });
+      await handleThreadClick(activeThread._id);
 
       setThreads((prev) =>
         prev.map((t) => {
