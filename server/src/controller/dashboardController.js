@@ -29,7 +29,7 @@ export const getDashboardSummary = async (req, res) => {
       petitions: unreadNotifications.filter((n) => n.type === "PETITION")
         .length,
       updates: unreadNotifications.filter(
-        (n) => n.type === "Annoucement" || n.type === "GENERAL",
+        (n) => n.type === "ANNOUNCEMENT" || n.type === "GENERAL",
       ).length,
     };
 

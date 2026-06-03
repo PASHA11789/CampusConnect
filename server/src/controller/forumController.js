@@ -2,7 +2,6 @@ import Forum from "../models/Forum.js"
 import Notification from "../models/Notification.js"
 
 export const getForumSummary = async (_req, res) => {
-
   try {
     const threads = await Forum.find()
       .sort({ createdAt: -1 })
@@ -14,7 +13,6 @@ export const getForumSummary = async (_req, res) => {
       count: threads.length,
       threads,
     })
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -22,7 +20,6 @@ export const getForumSummary = async (_req, res) => {
       error: error.message,
     })
   }
-
 }
 
 export const createForumThread = async (req, res) => {
@@ -44,13 +41,14 @@ export const createForumThread = async (req, res) => {
     const io = req.app.get("socketio")
 
     if (isFlagged) {
-
-      await Notification.create({
-
+      const warningNotification = await Notification.create({
         recipient: req.user._id,
         type: "GENERAL",
         message: "Your recent forum post is under review by moderators to ensure community safety"
       })
+      
+      io.to(req.user._id.toString()).emit("new_notification", warningNotification);
+
       io.to("mod_room").emit("new_flagged_content", {
         message: "AI flagged a new forum post for review",
         threadID: newThread._id
@@ -58,7 +56,7 @@ export const createForumThread = async (req, res) => {
 
       return res.status(202).json({
         success: true,
-        message: "Your post contains specific ketwords and has been sent for moderator review.",
+        message: "Your post contains specific keywords and has been sent for moderator review.",
         underReview: true
       })
     }
@@ -73,8 +71,6 @@ export const createForumThread = async (req, res) => {
       message: 'Discussion thread published!',
       thread: populatedThread,
     });
-
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -92,8 +88,8 @@ export const updateForumThread = async (req, res) => {
     if (!thread) return res.status(404).json({ message: "Thread not found" })
     if (thread.author.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Only the original author can edit this thread" })
-
     }
+    
     thread.title = title || thread.title
     thread.content = content || thread.content
     thread.isHidden = isFlagged || false
@@ -102,15 +98,20 @@ export const updateForumThread = async (req, res) => {
     const io = req.app.get("socketio")
 
     if (isFlagged) {
-      await Notification.create({
+      const warningNotification = await Notification.create({
         recipient: req.user._id,
         type: "GENERAL",
         message: "Your updated forum post is under review by moderators to ensure community safety"
       })
+      
+  
+      io.to(req.user._id.toString()).emit("new_notification", warningNotification);
+
       io.to("mod_room").emit("new_flagged_content", {
         message: "AI flagged an updated forum post for review",
         threadID: thread._id
       })
+      
       return res.status(202).json({
         success: true,
         message: "Your post contains specific keywords and has been sent for moderator review.",
@@ -151,11 +152,10 @@ export const toggleHideThread = async (req, res) => {
     if (!thread) return res.status(404).json({ message: "Thread not found" })
     if (req.user.role !== "admin" && req.user.role !== "student_mod") {
       return res.status(403).json({ message: "You do not have permission to moderate threads" })
-
     }
+    
     thread.isHidden = !thread.isHidden
     await thread.save()
-
 
     const io = req.app.get("socketio")
 
@@ -173,7 +173,6 @@ export const toggleHideThread = async (req, res) => {
   }
 }
 
-
 export const addThreadReply = async (req, res) => {
   try {
     const { content, isFlagged, parentId } = req.body
@@ -190,29 +189,26 @@ export const addThreadReply = async (req, res) => {
     const updatedThread = await Forum.findById(thread._id).populate("replies.author", "registeration_number avatar")
     const savedReply = updatedThread.replies.at(-1);
 
-    if (req.body.isFlagged) {
-      await Notification.create({
-        recipient: req.user._id,
-        type: "FORUM",
-        message: "Your reply on a forum discussion was flagged as inappropriate and is blurred pending review.",
-        relatedItem: thread._id,
-        onModel: "Forum"
-      });
-    }
-
     const io = req.app.get("socketio")
 
     if (isFlagged) {
-      await Notification.create({
+      const warningNotification = await Notification.create({
         recipient: req.user._id,
         type: "GENERAL",
-        message: "Your recent reply is under review by moderators to ensure community safety"
+        message: "Your recent reply is under review by moderators to ensure community safety",
+        relatedItem: thread._id,
+        onModel: "Forum"
       })
+      
+    
+      io.to(req.user._id.toString()).emit("new_notification", warningNotification);
+
       io.to("mod_room").emit("new_flagged_content", {
         message: "AI flagged a new reply for review",
         threadID: thread._id,
         replyID: savedReply._id
       })
+      
       return res.status(202).json({
         success: true,
         message: "Your reply contains flagged keywords and has been sent for moderator review.",
@@ -222,7 +218,19 @@ export const addThreadReply = async (req, res) => {
 
     io.emit("new_reply", { threadId: thread._id, reply: savedReply, repliesCount: thread.repliesCount })
 
-    res.status(201).json({ success: true, reply: savedReply, underReview: req.body.isFlagged || false })
+    if (thread.author.toString() !== req.user._id.toString()) {
+      const replyNotification = await Notification.create({
+        recipient: thread.author,
+        type: 'FORUM',
+        message: `${req.user.name || 'A student'} replied to your discussion: "${thread.title}"`,
+        relatedItem: thread._id,
+        onModel: 'Forum'
+      });
+
+      io.to(thread.author.toString()).emit('new_notification', replyNotification);
+    }
+
+    res.status(201).json({ success: true, reply: savedReply, underReview: false })
 
   } catch (error) {
     res.status(500).json({ message: "Server error adding reply", error: error.message })
@@ -238,7 +246,6 @@ export const updateThreadReply = async (req, res) => {
     const reply = thread.replies.id(req.params.replyId)
     if (!reply) return res.status(404).json({ message: "Reply not found" })
 
-    // Authorization check: only the reply owner can edit
     const authorId = reply.author && (reply.author._id ? reply.author._id.toString() : reply.author.toString());
     if (authorId !== req.user._id.toString()) {
       return res.status(403).json({ message: "Only the original author can edit this reply" })
@@ -251,11 +258,14 @@ export const updateThreadReply = async (req, res) => {
     const io = req.app.get("socketio")
 
     if (isFlagged) {
-      await Notification.create({
+      const warningNotification = await Notification.create({
         recipient: req.user._id,
         type: "GENERAL",
         message: "Your updated reply is under review by moderators to ensure community safety"
       })
+      
+      io.to(req.user._id.toString()).emit("new_notification", warningNotification);
+
       io.to("mod_room").emit("new_flagged_content", {
         message: "AI flagged an updated reply for review",
         threadID: thread._id,
@@ -284,13 +294,11 @@ export const deleteThreadReply = async (req, res) => {
     const reply = thread.replies.id(req.params.replyId)
     if (!reply) return res.status(404).json({ message: "Reply not found" })
 
-    // Authorization check: only the reply owner can delete
     const authorId = reply.author && (reply.author._id ? reply.author._id.toString() : reply.author.toString());
     if (authorId !== req.user._id.toString()) {
       return res.status(403).json({ message: "Only the original author can delete this reply" })
     }
 
-    // Find all replies to delete: the reply itself + its child replies
     const toDeleteIds = [req.params.replyId];
     thread.replies.forEach((r) => {
       if (r.parentId && r.parentId.toString() === req.params.replyId.toString()) {
@@ -298,7 +306,6 @@ export const deleteThreadReply = async (req, res) => {
       }
     });
 
-    // Pull them all using Mongoose's built-in pull to ensure correct change tracking and persistence
     toDeleteIds.forEach((id) => {
       thread.replies.pull(id);
     });

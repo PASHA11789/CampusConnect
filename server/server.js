@@ -12,7 +12,7 @@ import connectDB from "./utils/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import dashboardRoutes from "./src/routes/dashboardRoutes.js";
 import forumRoutes from "./src/routes/forumRoutes.js"
-
+import notificationRoutes from "./src/routes/notificationRoutes.js"
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -55,9 +55,15 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/forums", forumRoutes);
+app.use("/api/notifications",notificationRoutes)
 
 io.on("connection", (socket) => {
   console.log(`⚡ Student connected to live updates: ${socket.id}`);
+
+  socket.on("join_user_room", (userId)=>{
+    socket.join(userId)
+    console.log(`User ${userId} secured their private notification channel`)
+  })
 
   socket.on("disconnect", () => {
     console.log("❌ Student disconnected from live updates");
