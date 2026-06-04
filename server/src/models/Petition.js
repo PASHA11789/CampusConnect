@@ -19,25 +19,34 @@ const petitionSchema = new mongoose.Schema(
     level: {
       type: String,
       enum: ["Class", "Department", "Campus"],
-      required: true
+      required: true,
     },
-   signatures:[{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
-    
-   milestone:{type: Number, default: null},
-   status: {
+    targetGroup: {
       type: String,
-      enum: ["Pending Mod Approval","Active" ,"Under Review", "Resolved", "Closed"],
+      default: "",
+    },
+    signatures: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    milestone: {
+      type: Number,
+      default: 0,
+    },
+    status: {
+      type: String,
+      enum: ["Pending Mod Approval", "Active", "Under Review", "Resolved", "Closed"],
       default: "Active",
     },
+    isHidden: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
-
-petitionSchema.virtual("currentSignatures").get(function(){
-  return this.signatures ? this.signatures.length : 0;
-})
-
-petitionSchema.set("toJSON",{virtuals:true})
 
 const Petition = mongoose.model("Petition", petitionSchema);
 export default Petition;

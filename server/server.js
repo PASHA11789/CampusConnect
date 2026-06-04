@@ -13,6 +13,7 @@ import authRoutes from "./src/routes/authRoutes.js";
 import dashboardRoutes from "./src/routes/dashboardRoutes.js";
 import forumRoutes from "./src/routes/forumRoutes.js"
 import notificationRoutes from "./src/routes/notificationRoutes.js"
+import petitionRoutes from "./src/routes/petitionRoutes.js"
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -56,6 +57,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/forums", forumRoutes);
 app.use("/api/notifications",notificationRoutes)
+app.use("/api/petitions", petitionRoutes)
 
 io.on("connection", (socket) => {
   console.log(`⚡ Student connected to live updates: ${socket.id}`);
@@ -63,6 +65,11 @@ io.on("connection", (socket) => {
   socket.on("join_user_room", (userId)=>{
     socket.join(userId)
     console.log(`User ${userId} secured their private notification channel`)
+  })
+
+  socket.on("join_room", (roomName) => {
+    socket.join(roomName)
+    console.log(`Socket ${socket.id} joined room ${roomName}`)
   })
 
   socket.on("disconnect", () => {
