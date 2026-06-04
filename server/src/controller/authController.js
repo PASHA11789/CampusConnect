@@ -17,7 +17,9 @@ export const loginUser = async (req, res) => {
           registeration_number: user.registeration_number,
           role: user.role,
           department: user.department,
+          program: user.program,
           semester: user.semester,
+          section: user.section,
           avatar: user.avatar,
           token: generateToken(user._id),
         });
@@ -31,9 +33,9 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: "server error", error: error.message });
   }
 };
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 export const registerUser = async (req, res) => {
-  const { name, email, registeration_number, password, role, department, semester, avatar } = req.body;
+  const { name, email, registeration_number, password, role, department,program, semester, section,avatar } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
@@ -47,10 +49,12 @@ export const registerUser = async (req, res) => {
       email,
       registeration_number,
       password,
-      role,
+      role: role || "student",
       department,
-      semester,
-      avatar, // Save avatar if provided (e.g. custom user photos seeded/registered)
+      program: program || "BS",
+      semester: semester|| 0,
+      section: section || "",
+      avatar, 
     });
 
     if (user) {
@@ -60,6 +64,10 @@ export const registerUser = async (req, res) => {
         email: user.email,
         registeration_number: user.registeration_number,
         role: user.role,
+        department: user.department,
+        program: user.program,
+        semester: user.semester,
+        section: user.section,
         avatar: user.avatar,
         token: generateToken(user._id),
       });
@@ -98,9 +106,11 @@ export const getUserProfile = async (req, res) => {
       email: user.email,
       registeration_number: user.registeration_number,
       role: user.role,
+      program: user.program,
       avatar: user.avatar,
       department: user.department,
       semester: user.semester,
+      section:user.section
     });
   } else {
     res.status(404).json({ message: "User not found" });
@@ -113,14 +123,14 @@ export const updateUserAvatar = async (req, res) => {
       return res.status(400).json({ message: "Please upload an image" });
     }
 
-    // req.file.path is the URL Cloudinary generated
+   
     const imageUrl = req.file.path;
 
-    // Find the user (from protect middleware) and update their avatar field
+    
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { avatar: imageUrl },
-      { new: true }, // Returns the updated document
+      { new: true }, 
     );
 
     res.status(200).json({

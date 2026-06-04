@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema(
       default: "student",
     },
     department: { type: String, default: "" },
-    program:{type: String, defualt: ""},
+    program:{type: String, default: ""},
     semester: { type: Number, default: 0 },
     section:{ type: String, default:""},
     avatar: {

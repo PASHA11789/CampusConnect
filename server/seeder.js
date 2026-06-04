@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import User from "./src/models/User.js";
 import Forum from "./src/models/Forum.js";
+import Petition from "./src/models/Petition.js";
 import connectDB from "./utils/db.js";
 import bcryptjs from "bcryptjs";
 
@@ -12,11 +13,13 @@ const seedUsers = async () => {
     await connectDB();
     console.log("📡 Seeder is connecting to:", process.env.MONGO_URI);
     
-    // Delete existing users and forum threads
+    // Delete existing users, forum threads, and petitions
     await User.deleteMany();
     console.log("previous users deleted");
     await Forum.deleteMany();
     console.log("previous forum threads deleted");
+    await Petition.deleteMany();
+    console.log("previous petitions deleted");
     
     const Salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash("password123", Salt);
@@ -30,6 +33,8 @@ const seedUsers = async () => {
         role: "admin",
         department: "Administration",
         semester: 0,
+        program: "",
+        section: "",
       },
 
       // --- STUDENT MODS (Active Seniors) ---
@@ -41,6 +46,8 @@ const seedUsers = async () => {
         role: "student_mod",
         department: "Computer Science",
         semester: 8,
+        program: "BSCS",
+        section: "A",
       },
       {
         name: "Usama Syed",
@@ -50,6 +57,8 @@ const seedUsers = async () => {
         role: "student_mod",
         department: "Information Technology",
         semester: 7,
+        program: "BSIT",
+        section: "B",
       },
 
       // --- ALUMNI (Semester set to 0 as they are graduated) ---
@@ -61,6 +70,8 @@ const seedUsers = async () => {
         role: "alumni",
         department: "Software Engineering",
         semester: 0,
+        program: "BSSE",
+        section: "A",
       },
       {
         name: "Azam Ahmed",
@@ -70,6 +81,8 @@ const seedUsers = async () => {
         role: "alumni",
         department: "Computer Science",
         semester: 0,
+        program: "BSCS",
+        section: "B",
       },
 
       // --- STUDENTS ---
@@ -81,6 +94,8 @@ const seedUsers = async () => {
         role: "student",
         department: "Computer Science",
         semester: 4,
+        program: "BSCS",
+        section: "A",
       },
       {
         name: "Zoya Sheikh",
@@ -90,6 +105,8 @@ const seedUsers = async () => {
         role: "student",
         department: "Data Science",
         semester: 2,
+        program: "BSDS",
+        section: "B",
       },
       {
         name: "Bilal Farooqi",
@@ -99,6 +116,8 @@ const seedUsers = async () => {
         role: "student",
         department: "Cyber Security",
         semester: 6,
+        program: "BSCY",
+        section: "A",
       },
       {
         name: "Fatima Noor",
@@ -108,6 +127,8 @@ const seedUsers = async () => {
         role: "student",
         department: "Software Engineering",
         semester: 5,
+        program: "BSSE",
+        section: "A",
       },
       {
         name: "Ali Raza",
@@ -117,6 +138,8 @@ const seedUsers = async () => {
         role: "student",
         department: "Computer Science",
         semester: 3,
+        program: "BSCS",
+        section: "C",
       },
     ];
     const insertedUsers = await User.insertMany(dummyUsers);
@@ -125,6 +148,8 @@ const seedUsers = async () => {
     // Assign authors for threads and replies
     const studentUser1 = insertedUsers.find(u => u.email === "hamza@student.com");
     const studentUser2 = insertedUsers.find(u => u.email === "zoya@student.com");
+    const studentUser3 = insertedUsers.find(u => u.email === "bilal@student.com");
+    const studentUser4 = insertedUsers.find(u => u.email === "fatima@student.com");
     const modUser = insertedUsers.find(u => u.role === "student_mod");
 
     const dummyThreads = [
@@ -170,6 +195,47 @@ const seedUsers = async () => {
 
     await Forum.insertMany(dummyThreads);
     console.log("✅ Dummy Forum threads seeded successfully!");
+
+    // Add dummy petitions
+    const dummyPetitions = [
+      {
+        title: "Rescheduling CS-401 Midterm Exam",
+        description: "The current midterm date conflicts with the national hackathon. We request the department/instructor to reschedule it.",
+        creator: studentUser1._id,
+        level: "Class",
+        signatures: [studentUser1._id, studentUser2._id],
+        milestone: 10,
+        status: "Active"
+      },
+      {
+        title: "Extended Lab Hours for Software Engineering Department",
+        description: "We request the Software Engineering department to keep computer labs open until 7 PM during project weeks.",
+        creator: studentUser2._id,
+        level: "Department",
+        signatures: [studentUser2._id, studentUser1._id, studentUser4._id],
+        milestone: 50,
+        status: "Active"
+      },
+      {
+        title: "Upgrade Campus Cafeteria Menu & Quality",
+        description: "A request to the campus administration to inspect hygiene standards and add healthier food options in the cafeteria.",
+        creator: modUser._id,
+        level: "Campus",
+        signatures: [
+          modUser._id,
+          studentUser1._id,
+          studentUser2._id,
+          studentUser3._id,
+          studentUser4._id
+        ],
+        milestone: 100,
+        status: "Under Review"
+      }
+    ];
+
+    await Petition.insertMany(dummyPetitions);
+    console.log("✅ Dummy Petitions seeded successfully!");
+    
     process.exit();
   } catch (error) {
     console.error(`❌ Error seeding data: ${error.message}`);

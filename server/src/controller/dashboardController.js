@@ -15,7 +15,7 @@ export const getDashboardSummary = async (req, res) => {
         Petition.find({ status: "Active" })
           .sort({ createdAt: -1 })
           .limit(3)
-          .select("title currentSignatures"),
+          .select("title signatures status"),
         LostFound.find({ status: "Open" })
           .sort({ createdAt: -1 })
           .limit(3)

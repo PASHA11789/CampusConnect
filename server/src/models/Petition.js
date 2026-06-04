@@ -17,10 +17,9 @@ const petitionSchema = new mongoose.Schema(
       required: true,
     },
     level: {
-      type :String,
+      type: String,
       enum: ["Class", "Department", "Campus"],
       required: true
-
     },
    signatures:[{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
     
@@ -35,7 +34,7 @@ const petitionSchema = new mongoose.Schema(
 );
 
 petitionSchema.virtual("currentSignatures").get(function(){
-  return this.signatures.length
+  return this.signatures ? this.signatures.length : 0;
 })
 
 petitionSchema.set("toJSON",{virtuals:true})
