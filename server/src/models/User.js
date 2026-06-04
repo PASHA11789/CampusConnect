@@ -13,7 +13,9 @@ const userSchema = new mongoose.Schema(
       default: "student",
     },
     department: { type: String, default: "" },
+    program:{type: String, defualt: ""},
     semester: { type: Number, default: 0 },
+    section:{ type: String, default:""},
     avatar: {
       type: String,
       default: "https://ui-avatars.com/api/?name=User&background=random", // Nice fallback!
