@@ -98,6 +98,63 @@ export default function Dashboard() {
 
       socket.on("connect", () => {
         console.log("⚡ Connected to live updates socket");
+        
+        // Join scope rooms for live updates
+        socket.emit("join_room", "Campus");
+        if (user.department) {
+          socket.emit("join_room", user.department);
+        }
+        if (user.program && user.department && user.semester && user.section) {
+          const classString = `${user.program}-${user.department}-${user.semester}-${user.section}`;
+          socket.emit("join_room", classString);
+        }
+        socket.emit("join_user_room", user._id);
+      });
+
+      socket.on("new_petition_published", (newPetition) => {
+        console.log("⚡ New petition received via socket:", newPetition);
+        if (newPetition) {
+          setDashboardData((prevData) => {
+            const exists = prevData.petitions.some((p) => p._id === newPetition._id);
+            if (exists) return prevData;
+
+            // Prepend new petition and limit to 3 active petitions maximum
+            return {
+              ...prevData,
+              petitions: [newPetition, ...prevData.petitions].slice(0, 3)
+            };
+          });
+        }
+      });
+
+      socket.on("petition_signed", (data) => {
+        console.log("⚡ Petition signature update received via socket:", data);
+        if (data && data.petitionId) {
+          setDashboardData((prevData) => {
+            // Remove if no longer active (e.g. Under Review)
+            if (data.status && data.status !== "Active") {
+              return {
+                ...prevData,
+                petitions: prevData.petitions.filter((p) => p._id !== data.petitionId)
+              };
+            }
+
+            return {
+              ...prevData,
+              petitions: prevData.petitions.map((p) => {
+                if (p._id === data.petitionId) {
+                  const updatedSignatures = new Array(data.currentSignatures).fill(null);
+                  return {
+                    ...p,
+                    signatures: updatedSignatures,
+                    status: data.status || p.status
+                  };
+                }
+                return p;
+              })
+            };
+          });
+        }
       });
 
       socket.on("new_forum_thread", (data) => {

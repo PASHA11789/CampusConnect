@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
 
@@ -11,6 +11,7 @@ const t = (s) => s;
 
 export default function Petitions() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [avatar, setAvatar] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -177,6 +178,19 @@ export default function Petitions() {
       };
     }
   }, [user, showToast]);
+
+  // Auto-open petition detail modal from redirect state
+  useEffect(() => {
+    if (petitionsLoaded && location.state?.petitionId && petitions.length > 0) {
+      const match = petitions.find((p) => p._id === location.state.petitionId);
+      if (match) {
+        setSelectedPetition(match);
+        setIsDetailOpen(true);
+        // Clear navigation state so the modal doesn't open again on page refresh
+        navigate(location.pathname, { replace: true, state: {} });
+      }
+    }
+  }, [petitionsLoaded, petitions, location, navigate]);
 
   // Handle avatar changes (upload profile pic)
   const handleAvatarChange = async (e) => {
