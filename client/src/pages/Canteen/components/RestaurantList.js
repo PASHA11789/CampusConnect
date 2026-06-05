@@ -1,104 +1,52 @@
-import React, { useRef } from "react";
+import React from "react";
 
-export default function RestaurantList({ restaurants, activeRestaurant, setActiveRestaurant, setSelectedCategory }) {
-  const scrollRef = useRef(null);
-
-  const handleScroll = (direction) => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -240 : 240,
-        behavior: "smooth",
-      });
-    }
-  };
-
+export default function RestaurantList({
+  restaurants,
+  activeRestaurant,
+  setActiveRestaurant,
+  setSelectedCategory,
+}) {
   return (
-    <div className="shrink-0">
-      <div className="flex justify-between items-center mb-3">
-        <h3
-          id="select-restaurant-heading"
-          className="text-[13px] font-extrabold text-[#0a2342] tracking-wide uppercase"
-        >
-          Select Restaurant or Cafeteria
-        </h3>
-        <button className="text-[11.5px] font-extrabold text-[#00c2cb] hover:underline cursor-pointer bg-transparent border-none focus:outline-none">
-          View All →
-        </button>
+    <section className="rounded-3xl bg-white p-5 shadow-sm border border-slate-100">
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-black text-[#0a2342]">Nearby Restaurants</h2>
+          <p className="text-xs font-semibold text-slate-400">Within campus range</p>
+        </div>
+        <span className="rounded-full bg-[#e2725b]/10 px-3 py-1 text-[10px] font-black text-[#e2725b]">
+          Open Now
+        </span>
       </div>
 
-      <div className="relative group w-full">
-        {/* Left Arrow */}
-        <button
-          type="button"
-          onClick={() => handleScroll("left")}
-          className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95 text-slate-600 hover:text-[#00c2cb] hover:border-[#00c2cb] focus:outline-none opacity-0 group-hover:opacity-100 duration-200"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-
-        <div
-          ref={scrollRef}
-          className="flex gap-4 overflow-x-auto pb-2 pr-1 scrollbar-none scroll-smooth"
-        >
-          {restaurants.map((res) => (
-            <div
-              key={res.id}
-              onClick={() => {
-                setActiveRestaurant(res.id);
-                setSelectedCategory("All");
-              }}
-              className={`flex-shrink-0 w-[190px] bg-white border rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group/card card-premium ${
-                activeRestaurant === res.id
-                  ? "border-[#00c2cb] ring-4 ring-[#00c2cb]/10 shadow-sm"
-                  : "border-slate-100"
+      <div className="flex gap-4 overflow-x-auto pb-2">
+        {restaurants.map((res) => (
+          <button
+            key={res.id}
+            onClick={() => {
+              setActiveRestaurant(res.id);
+              setSelectedCategory("All");
+            }}
+            className={`min-w-[210px] overflow-hidden rounded-3xl border bg-white text-left transition hover:-translate-y-1 hover:shadow-md ${activeRestaurant === res.id
+                ? "border-[#e2725b] shadow-md"
+                : "border-slate-100"
               }`}
-            >
-              <div className="relative h-[95px] overflow-hidden">
-                <img
-                  src={res.image}
-                  alt={res.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
-                />
-                <span className="absolute top-2 left-2 bg-[#00c2cb] text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full">
-                  {res.distance}
+          >
+            <img src={res.image} alt={res.name} className="h-28 w-full object-cover" />
+            <div className="p-4">
+              <h3 className="text-sm font-black text-[#0a2342]">{res.name}</h3>
+              <p className="text-[11px] font-semibold text-slate-400">
+                {res.cuisine} • {res.distance}
+              </p>
+              <div className="mt-2 flex items-center justify-between">
+                <span className="text-xs font-black text-amber-500">⭐ {res.rating}</span>
+                <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-black text-emerald-600">
+                  {res.status}
                 </span>
-                {activeRestaurant === res.id && (
-                  <span className="absolute top-2 right-2 bg-white text-[#00c2cb] text-[8px] font-black px-1.5 py-0.5 rounded-full shadow-sm">
-                    ✓ Selected
-                  </span>
-                )}
-              </div>
-              <div className="p-3 flex flex-col gap-1">
-                <h4 className="text-[12.5px] font-black text-[#0a2342] m-0 truncate">{res.name}</h4>
-                <div className="flex items-center gap-1 text-[11px] text-slate-400 font-bold">
-                  <span className="text-[#fbbf24]">★</span>
-                  <span className="text-slate-600">{res.rating}</span>
-                  <span>•</span>
-                  <span>{res.cuisine}</span>
-                </div>
-                <div className="flex justify-between items-center mt-1 pt-1 border-t border-slate-50">
-                  <span className="text-[10.5px] font-bold text-slate-500 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> Open
-                  </span>
-                </div>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Right Arrow */}
-        <button
-          type="button"
-          onClick={() => handleScroll("right")}
-          className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95 text-slate-600 hover:text-[#00c2cb] hover:border-[#00c2cb] focus:outline-none opacity-0 group-hover:opacity-100 duration-200"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+          </button>
+        ))}
       </div>
-    </div>
+    </section>
   );
 }

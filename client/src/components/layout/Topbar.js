@@ -30,8 +30,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
       <div className="flex items-center">
         <div className="flex items-center gap-4">
           <div className="flex flex-col items-end">
-            <span className="text-[13px] font-extrabold text-[#0a2342]">{user?.name || 'Sagheer Ahmad'}</span>
-            <span className="text-[10px] text-slate-400 font-semibold">{user?.registration_no || '2022F-mulbscs-104'}</span>
+            <span className="text-[13px] font-extrabold text-[#0a2342]">{user?.name || ''}</span>
+            <span className="text-[10px] text-slate-400 font-semibold">{user?.registeration_number || user?.registration_no || ''}</span>
           </div>
           <label className="relative w-[42px] h-[42px] rounded-full bg-gradient-to-br from-[#00c2cb] to-[#0079c2] p-[2px] cursor-pointer shadow-[0_4px_10px_rgba(0,194,203,0.2)] transition-transform duration-200 hover:scale-105" title="Change avatar">
             {showFallback ? (

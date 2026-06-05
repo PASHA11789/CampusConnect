@@ -581,5 +581,14 @@ This document tracks the completed features and milestones of the **CampusConnec
   - Added custom CSS `@keyframes bounce-subtle` and class `.animate-bounce-subtle` in a self-contained inline `<style>` tag to run the floating cart bar bounce animation smoothly.
   - Linked the "View All" top reviews button to smoothly scroll users to the community reviews section at the bottom.
 
+### **24. Premium Scoped Petitions Page (2026-06-04)**
+- **Full Petitions Interface**: Created `Petitions.js` utilizing the core global `<Sidebar>` and `<Topbar>` layouts.
+- **Premium Background-Overlay Header**: Crafted a header banner using a custom abstract campus vector background image under a semi-transparent dark navy to cyan brand gradient overlay.
+- **Card progress metrics**: Styled scoped tags (`Class`, `Department`, `Campus`), custom category-appropriate SVG icons, current signature goal meters, and student registration number displays on creator headers to guarantee participant anonymity.
+- **Start a Petition Panel**: Developed a clean sidebar form with Title/Description character length validations, target milestone signature count configurations, and dynamic helper hints based on the selected scope.
+- **Socket.io Live Syncing**: Set up real-time event listeners (`petition_signed` and `new_petition_published`) to synchronize signature milestones and update grid items dynamically without page reloads.
+- **Topbar & WelcomeBanner Alignment**: Resolved database-schema mapping mismatches, changing `user?.registration_no` key lookups to standard `registeration_number` to correctly show the logged-in student's real details instead of default placeholders.
+- **Repositioned Notifications**: Adjusted AI Moderation and state update toast notifications to display at the top-right corner (`top-24 right-6`) just below the sticky header.
+
 ---
-*Last Updated: 2026-06-01*
+*Last Updated: 2026-06-04*

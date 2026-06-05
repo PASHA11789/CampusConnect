@@ -42,11 +42,11 @@ const WelcomeBanner = ({ user, avatar }) => {
             <div className="flex flex-col gap-2 w-full z-[2]">
               <div className="flex items-baseline gap-3">
                 <span className="text-[#E0F2F1] font-semibold text-[13px] min-w-[60px]">Name:</span>
-                <span className="text-white font-bold text-base">{user?.name || 'Sagheer Ahmad'}</span>
+                <span className="text-white font-bold text-base">{user?.name || ''}</span>
               </div>
               <div className="flex items-baseline gap-3">
                 <span className="text-[#E0F2F1] font-semibold text-[13px] min-w-[60px]">Reg. #:</span>
-                <span className="text-white font-bold text-base">{user?.registration_no || '2022F-mulbscs-104'}</span>
+                <span className="text-white font-bold text-base">{user?.registeration_number || user?.registration_no || ''}</span>
               </div>
               <div className="flex items-baseline gap-3">
                 <span className="text-[#E0F2F1] font-semibold text-[13px] min-w-[60px]">Class:</span>

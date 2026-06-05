@@ -96,18 +96,16 @@ export default function MenuBoard({
               className="flex-shrink-0 flex flex-col items-center gap-2 border-none bg-transparent cursor-pointer p-0 select-none group focus:outline-none"
             >
               <div
-                className={`w-[60px] h-[60px] rounded-full flex items-center justify-center text-[26px] shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-md ${
-                  selectedCategory === cat.name ? "bg-[#00c2cb] scale-105" : cat.bgColor
-                }`}
+                className={`w-[60px] h-[60px] rounded-full flex items-center justify-center text-[26px] shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-md ${selectedCategory === cat.name ? "bg-[#00c2cb] scale-105" : cat.bgColor
+                  }`}
               >
                 <span>{cat.icon}</span>
               </div>
               <span
-                className={`text-[11.5px] font-extrabold transition-colors ${
-                  selectedCategory === cat.name
+                className={`text-[11.5px] font-extrabold transition-colors ${selectedCategory === cat.name
                     ? "text-[#00c2cb]"
                     : "text-slate-500 group-hover:text-[#00c2cb]"
-                }`}
+                  }`}
               >
                 {cat.name}
               </span>

@@ -31,11 +31,7 @@ export default function Dashboard() {
     busRoutes: []
   });
 
-  const [selectedThreadId, setSelectedThreadId] = useState(null);
-  const [activeThread, setActiveThread] = useState(null);
-  const [isThreadLoading, setIsThreadLoading] = useState(false);
-  const [replyContent, setReplyContent] = useState("");
-  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+
 
   useEffect(() => {
     // Auth guard
@@ -126,21 +122,6 @@ export default function Dashboard() {
       socket.on("new_reply", (data) => {
         console.log("⚡ New reply received via socket:", data);
         if (data && data.threadId) {
-          setActiveThread((prevActive) => {
-            if (prevActive && prevActive._id === data.threadId) {
-              const replyExists = prevActive.replies.some(
-                (r) => r._id === data.reply._id
-              );
-              if (replyExists) return prevActive;
-              return {
-                ...prevActive,
-                repliesCount: data.repliesCount,
-                replies: [...prevActive.replies, data.reply]
-              };
-            }
-            return prevActive;
-          });
-
           setDashboardData((prevData) => ({
             ...prevData,
             forums: prevData.forums.map((f) =>
@@ -164,45 +145,6 @@ export default function Dashboard() {
     navigate("/forum", { state: { threadId: id } });
   };
 
-
-
-  const handleReplySubmit = async (e) => {
-    e.preventDefault();
-    if (!replyContent.trim() || !activeThread) return;
-    setIsSubmittingReply(true);
-    try {
-      const token = sessionStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      const { data } = await axios.post(`/api/forums/${activeThread._id}/replies`, {
-        content: replyContent
-      }, config);
-
-      if (data.underReview) {
-        alert("Your reply contains flagged keywords and has been sent for moderator review.");
-      } else {
-        setActiveThread(prev => {
-          if (!prev) return null;
-          return {
-            ...prev,
-            repliesCount: prev.repliesCount + 1,
-            replies: [...prev.replies, data.reply]
-          };
-        });
-
-        setDashboardData(prev => ({
-          ...prev,
-          forums: prev.forums.map(f => f._id === activeThread._id ? { ...f, repliesCount: f.repliesCount + 1 } : f)
-        }));
-      }
-
-      setReplyContent("");
-    } catch (error) {
-      console.error("Error adding reply:", error);
-      alert("Failed to submit comment.");
-    } finally {
-      setIsSubmittingReply(false);
-    }
-  };
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
