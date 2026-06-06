@@ -131,6 +131,24 @@ export default function Dashboard() {
         }
       });
 
+      socket.on("petition_signed", (data) => {
+        console.log("⚡ Petition signed received via socket on dashboard:", data);
+        if (data && data.petitionId) {
+          setDashboardData((prevData) => ({
+            ...prevData,
+            petitions: prevData.petitions.map((p) =>
+              p._id === data.petitionId
+                ? {
+                    ...p,
+                    signatures: new Array(data.currentSignatures).fill(null),
+                    status: data.status,
+                  }
+                : p
+            )
+          }));
+        }
+      });
+
       socket.on("disconnect", () => {
         console.log("❌ Disconnected from live updates socket");
       });

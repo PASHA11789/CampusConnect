@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
 
@@ -11,6 +11,7 @@ const t = (s) => s;
 
 export default function Petitions() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [user, setUser] = useState(null);
   const [avatar, setAvatar] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -21,17 +22,45 @@ export default function Petitions() {
   const [petitionsLoaded, setPetitionsLoaded] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLevel, setSelectedLevel] = useState("All");
+  const [expandedPetitionId, setExpandedPetitionId] = useState(null);
 
   // Create form state
   const [newTitle, setNewTitle] = useState("");
   const [newLevel, setNewLevel] = useState("Class");
   const [newDescription, setNewDescription] = useState("");
-  const [newMilestone, setNewMilestone] = useState(100);
+  const [newMilestone, setNewMilestone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // UI status states
   const [toast, setToast] = useState(null);
   const [signingIds, setSigningIds] = useState(new Set());
+
+  // Handle query parameter for expansion on mount/change
+  useEffect(() => {
+    const queryId = searchParams.get("id");
+    if (queryId && petitionsLoaded) {
+      setExpandedPetitionId(queryId);
+      setTimeout(() => {
+        const element = document.getElementById(`petition-card-${queryId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 300);
+    }
+  }, [searchParams, petitionsLoaded]);
+
+  // Click handler to toggle card expansion
+  const handleCardClick = (id) => {
+    setExpandedPetitionId((prevId) => {
+      const nextId = prevId === id ? null : id;
+      if (nextId) {
+        navigate(`/petitions?id=${id}`, { replace: true });
+      } else {
+        navigate(`/petitions`, { replace: true });
+      }
+      return nextId;
+    });
+  };
 
   // ── TOAST NOTIFICATION HELPER ──
   const showToast = useCallback((message, type = 'info') => {
@@ -150,16 +179,22 @@ export default function Petitions() {
       socket.on("petition_signed", (data) => {
         if (data && data.petitionId) {
           setPetitions((prev) =>
-            prev.map((p) =>
-              p._id === data.petitionId
-                ? {
-                  ...p,
-                  signatures: new Array(data.currentSignatures).fill(null), // simulate signature count
-                  currentSignaturesCount: data.currentSignatures,
-                  status: data.status,
-                }
-                : p
-            )
+            prev.map((p) => {
+              if (p._id !== data.petitionId) return p;
+              const isSignedByMe = p.signatures && p.signatures.includes(user._id);
+              let newSignatures = p.signatures || [];
+              if (isSignedByMe) {
+                newSignatures = [user._id, ...new Array(Math.max(0, data.currentSignatures - 1)).fill(null)];
+              } else {
+                newSignatures = new Array(data.currentSignatures).fill(null);
+              }
+              return {
+                ...p,
+                signatures: newSignatures,
+                currentSignaturesCount: data.currentSignatures,
+                status: data.status,
+              };
+            })
           );
         }
       });
@@ -282,13 +317,18 @@ export default function Petitions() {
       const token = sessionStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
+      const targetGroup = newLevel === "Class"
+        ? `${user.program}-${user.department}-${user.semester}-${user.section}`
+        : (newLevel === "Department" ? user.department : "Campus");
+
       const { data } = await axios.post(
         "/api/petitions",
         {
           title: newTitle,
           description: newDescription,
           level: newLevel,
-          milestone: newMilestone,
+          targetGroup,
+          milestone: newMilestone === "" || newMilestone === null ? null : Number(newMilestone),
         },
         config
       );
@@ -308,7 +348,7 @@ export default function Petitions() {
       setNewTitle("");
       setNewDescription("");
       setNewLevel("Class");
-      setNewMilestone(100);
+      setNewMilestone("");
     } catch (error) {
       console.error("Error creating petition:", error);
       showToast(error.response?.data?.message || "Failed to create petition.", "error");
@@ -489,8 +529,9 @@ export default function Petitions() {
                   <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
                     {filteredPetitions.map((petition) => {
                       const sigsCount = petition.signatures ? petition.signatures.length : (petition.currentSignaturesCount || 0);
-                      const targetMilestone = petition.milestone || 100;
-                      const percentage = Math.min(Math.round((sigsCount / targetMilestone) * 100), 100);
+                      const targetMilestone = petition.milestone;
+                      const hasMilestone = targetMilestone !== null && targetMilestone !== undefined && targetMilestone > 0;
+                      const percentage = hasMilestone ? Math.min(Math.round((sigsCount / targetMilestone) * 100), 100) : 0;
                       const isSignedByMe = petition.signatures && petition.signatures.includes(user._id);
 
                       // Determine status colors
@@ -503,7 +544,11 @@ export default function Petitions() {
                       return (
                         <div
                           key={petition._id}
-                          className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md transition-all duration-300 relative group overflow-hidden"
+                          id={`petition-card-${petition._id}`}
+                          onClick={() => handleCardClick(petition._id)}
+                          className={`bg-white border rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md transition-all duration-300 relative group overflow-hidden cursor-pointer ${
+                            expandedPetitionId === petition._id ? "border-[#00c2cb] ring-1 ring-[#00c2cb] bg-sky-50/5" : "border-slate-200"
+                          }`}
                         >
                           {/* Card Top: Category Icon & Status Badge */}
                           <div className="flex justify-between items-center">
@@ -520,7 +565,9 @@ export default function Petitions() {
                             <h3 className="text-[16px] font-extrabold text-[#0a2342] line-clamp-1 leading-tight">
                               {petition.title}
                             </h3>
-                            <p className="text-[12.5px] text-slate-500 font-medium line-clamp-3 leading-relaxed">
+                            <p className={`text-[12.5px] text-slate-500 font-medium leading-relaxed ${
+                              expandedPetitionId === petition._id ? "whitespace-pre-line" : "line-clamp-3"
+                            }`}>
                               {petition.description}
                             </p>
                           </div>
@@ -542,75 +589,93 @@ export default function Petitions() {
                             </div>
                           </div>
 
-                          {/* Progress Meter */}
-                          <div className="flex flex-col gap-1.5 mt-2">
-                            <div className="flex justify-between text-[11px] font-bold text-slate-400">
-                              <span>
-                                <strong className="text-[#0a2342]">{sigsCount}</strong> / {targetMilestone} {t("signatures")}
+                          {/* Progress Meter / No Limit Badge */}
+                          {!hasMilestone ? (
+                            <div className="flex items-center mt-2" onClick={(e) => e.stopPropagation()}>
+                              <span className="px-3 py-1.5 rounded-xl text-[11px] font-bold bg-[#0a2342]/5 text-[#0a2342] border border-[#0a2342]/10">
+                                {sigsCount} {sigsCount === 1 ? t("Signature") : t("Signatures")} ({t("No Limit")})
                               </span>
-                              <span className="text-[#00c2cb]">{percentage}%</span>
                             </div>
-                            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-gradient-to-r from-[#00c2cb] to-[#00d4ff] rounded-full transition-all duration-500 ease-out"
-                                style={{ width: `${percentage}%` }}
-                              />
+                          ) : (
+                            <div className="flex flex-col gap-1.5 mt-2" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex justify-between text-[11px] font-bold text-slate-400">
+                                <span>
+                                  <strong className="text-[#0a2342]">{sigsCount}</strong> / {targetMilestone} {t("signatures")}
+                                </span>
+                                <span className="text-[#00c2cb]">{percentage}%</span>
+                              </div>
+                              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-[#00c2cb] to-[#00d4ff] rounded-full transition-all duration-500 ease-out"
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
                             </div>
-                          </div>
+                          )}
 
                           {/* Card Footer Actions */}
-                          <div className="flex gap-2 items-center mt-3 pt-3 border-t border-slate-50">
-                            {petition.status === "Active" ? (
-                              isSignedByMe ? (
+                          {expandedPetitionId === petition._id && (
+                            <div className="flex gap-2 items-center mt-3 pt-3 border-t border-slate-100" onClick={(e) => e.stopPropagation()}>
+                              {petition.status === "Active" ? (
+                                isSignedByMe ? (
+                                  <button
+                                    disabled
+                                    className="flex-1 bg-emerald-50 text-emerald-600 border border-emerald-200 py-2.5 px-4 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2 cursor-not-allowed"
+                                  >
+                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                      <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                    {t("✓ Signed")}
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleSignPetition(petition._id);
+                                    }}
+                                    disabled={signingIds.has(petition._id)}
+                                    className="flex-1 bg-gradient-to-r from-[#00c2cb] to-[#00a8b0] text-white hover:from-[#00b2bb] hover:to-[#009299] py-2.5 px-4 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 disabled:opacity-50"
+                                  >
+                                    {signingIds.has(petition._id) ? (
+                                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    ) : (
+                                      t("Sign Petition")
+                                    )}
+                                  </button>
+                                )
+                              ) : petition.status === "Resolved" ? (
                                 <button
                                   disabled
-                                  className="flex-1 bg-emerald-50 text-emerald-600 border border-emerald-200 py-2.5 px-4 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2 cursor-not-allowed"
+                                  className="flex-1 bg-slate-50 text-slate-500 border border-slate-200 py-2.5 px-4 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2"
                                 >
-                                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                                    <polyline points="20 6 9 17 4 12" />
+                                  <svg className="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="m9 12 2 2 4-4" />
                                   </svg>
-                                  {t("Signed")}
+                                  {t("Resolved")}
                                 </button>
                               ) : (
                                 <button
-                                  onClick={() => handleSignPetition(petition._id)}
-                                  disabled={signingIds.has(petition._id)}
-                                  className="flex-1 bg-gradient-to-r from-[#00c2cb] to-[#00a8b0] text-white hover:from-[#00b2bb] hover:to-[#009299] py-2.5 px-4 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 disabled:opacity-50"
+                                  disabled
+                                  className="flex-1 bg-slate-50 text-slate-400 border border-slate-200 py-2.5 px-4 rounded-xl text-[12.5px] font-bold"
                                 >
-                                  {signingIds.has(petition._id) ? (
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                  ) : (
-                                    t("Sign Petition")
-                                  )}
+                                  {t("Under Review")}
                                 </button>
-                              )
-                            ) : petition.status === "Resolved" ? (
-                              <button
-                                disabled
-                                className="flex-1 bg-slate-50 text-slate-500 border border-slate-200 py-2.5 px-4 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2"
-                              >
-                                <svg className="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                  <circle cx="12" cy="12" r="10" />
-                                  <path d="m9 12 2 2 4-4" />
-                                </svg>
-                                {t("Resolved")}
-                              </button>
-                            ) : (
-                              <button
-                                disabled
-                                className="flex-1 bg-slate-50 text-slate-400 border border-slate-200 py-2.5 px-4 rounded-xl text-[12.5px] font-bold"
-                              >
-                                {t("Under Review")}
-                              </button>
-                            )}
+                              )}
 
-                            {/* Bookmark / Share Placeholder icon */}
-                            <button className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200/80 flex items-center justify-center text-slate-400 hover:text-[#0a2342] transition-colors">
-                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                              </svg>
-                            </button>
-                          </div>
+                              {/* Bookmark / Share Placeholder icon */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                }}
+                                className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200/80 flex items-center justify-center text-slate-400 hover:text-[#0a2342] transition-colors"
+                              >
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                                </svg>
+                              </button>
+                            </div>
+                          )}
 
                         </div>
                       );
@@ -698,16 +763,16 @@ export default function Petitions() {
                   {/* Target Milestone field */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[12px] font-extrabold text-slate-500">
-                      {t("Required Signatures Target")} <span className="text-red-500">*</span>
+                      {t("Required Signatures Target (Optional)")}
                     </label>
                     <input
                       type="number"
-                      required
                       min={5}
                       max={10000}
+                      placeholder={t("e.g. 100 (leave blank for no limit)")}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[12.5px] font-semibold text-[#0a2342] focus:outline-none focus:border-[#00c2cb] focus:bg-white transition-colors"
                       value={newMilestone}
-                      onChange={(e) => setNewMilestone(parseInt(e.target.value) || 0)}
+                      onChange={(e) => setNewMilestone(e.target.value === "" ? "" : (parseInt(e.target.value) || ""))}
                     />
                   </div>
 
@@ -747,7 +812,10 @@ export default function Petitions() {
                     className="w-full bg-[#00c2cb] text-[#060e1c] hover:bg-[#00b2bb] py-3 rounded-xl text-[13px] font-black cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50"
                   >
                     {isSubmitting ? (
-                      <div className="w-5 h-5 border-2 border-[#060e1c]/30 border-t-[#060e1c] rounded-full animate-spin" />
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 border-2 border-[#060e1c]/30 border-t-[#060e1c] rounded-full animate-spin" />
+                        <span>{t("Analyzing & Submitting...")}</span>
+                      </div>
                     ) : (
                       <>
                         <svg className="w-4 h-4 rotate-45 -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">

@@ -61,7 +61,7 @@ export const createPetition = async (req, res) => {
       creator: req.user._id,
       level,
       targetGroup: derivedTargetGroup,
-      milestone: milestone || 10,
+      milestone: milestone === null ? null : (milestone || 10),
       status: initialStatus,
       isHidden: isFlagged || false,
     });
