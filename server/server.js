@@ -9,11 +9,14 @@ import morgan from "morgan";
 import helmet from "helmet";
 
 import connectDB from "./utils/db.js";
+
 import authRoutes from "./src/routes/authRoutes.js";
 import dashboardRoutes from "./src/routes/dashboardRoutes.js";
 import forumRoutes from "./src/routes/forumRoutes.js"
 import notificationRoutes from "./src/routes/notificationRoutes.js"
 import petitionRoutes from "./src/routes/petitionRoutes.js"
+import modRoutes from "./src/routes/modroutes.js"
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -58,6 +61,8 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/forums", forumRoutes);
 app.use("/api/notifications",notificationRoutes)
 app.use("/api/petitions", petitionRoutes)
+app.user("/api/moderation",modRoutes)
+
 
 io.on("connection", (socket) => {
   console.log(`⚡ Student connected to live updates: ${socket.id}`);
