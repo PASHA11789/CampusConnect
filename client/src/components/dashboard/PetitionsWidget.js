@@ -3,11 +3,17 @@ import { useNavigate } from 'react-router-dom';
 
 export const PetitionsWidget = ({ petitions = [] }) => {
   const navigate = useNavigate();
+
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-[22px] flex flex-col transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-hidden hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)]">
       <div className="flex items-center justify-between mb-[18px]">
         <h3 className="text-[14px] font-extrabold text-[#0a2342]">Active Petitions</h3>
-        <a href="/petitions" className="text-[12px] text-[#00c2cb] no-underline font-semibold transition-all duration-200 hover:opacity-70 hover:translate-x-[3px]">View all →</a>
+        <button 
+          onClick={() => navigate("/petitions")}
+          className="bg-transparent border-none text-[12px] text-[#00c2cb] no-underline font-semibold transition-all duration-200 hover:opacity-70 hover:translate-x-[3px] cursor-pointer"
+        >
+          View all →
+        </button>
       </div>
       <div className="flex flex-col gap-2">
         {petitions && petitions.length > 0 ? petitions.map((petition, i) => {
@@ -16,12 +22,11 @@ export const PetitionsWidget = ({ petitions = [] }) => {
           const hasMilestone = target !== null && target !== undefined && target > 0;
           const progress = hasMilestone ? Math.min((sigsCount / target) * 100, 100) : 0;
           return (
-            <div
-              key={i}
-              onClick={() => navigate(`/petitions?id=${petition._id}`)}
-              className="flex items-center gap-3 py-2.5 cursor-pointer hover:bg-slate-50 rounded-xl px-2.5 transition-colors"
-            >
-              <div className="flex-1">
+            <div key={i} className="flex items-center gap-3 py-2.5">
+              <div 
+                className="flex-1 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => navigate(`/petitions?id=${petition._id}`)}
+              >
                 <div className="text-[13px] font-semibold text-slate-800 mb-1.5">{petition.title || 'Untitled'}</div>
                 {hasMilestone ? (
                   <>
@@ -39,6 +44,12 @@ export const PetitionsWidget = ({ petitions = [] }) => {
                   Status: {petition.status || 'Active'}
                 </div>
               </div>
+              <button 
+                onClick={() => navigate(`/petitions?id=${petition._id}`)}
+                className="bg-[#0a2342] text-white border-none px-3.5 py-1.5 rounded-lg text-[12px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#00c2cb] hover:-translate-y-0.5"
+              >
+                Sign
+              </button>
             </div>
           );
         }) : (
