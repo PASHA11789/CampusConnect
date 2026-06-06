@@ -61,7 +61,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/forums", forumRoutes);
 app.use("/api/notifications",notificationRoutes)
 app.use("/api/petitions", petitionRoutes)
-app.user("/api/moderation",modRoutes)
+app.use("/api/moderation", modRoutes)
 
 
 io.on("connection", (socket) => {

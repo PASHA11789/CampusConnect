@@ -183,61 +183,56 @@ export const signPetition = async (req, res) => {
 
 export const moderatePetition = async (req, res) => {
   try {
-    if (req.user.role !== "admin" && req.user.role !== "student_mod") {
-      return res.status(403).json({ success: false, message: "Not authorized to moderate" });
+    if (req.user.role !== 'admin' && req.user.role !== 'student_mod') {
+      return res.status(403).json({ message: "Not authorized to moderate" });
     }
 
-    const { action } = req.body;
-    const petition = await Petition.findById(req.params.id).populate("creator", "name");
+    const { action } = req.body; 
+    const petition = await Petition.findById(req.params.id).populate('creator', 'name');
 
-    if (!petition) {
-      return res.status(404).json({ success: false, message: "Petition not found" });
-    }
+    if (!petition) return res.status(404).json({ message: 'Petition not found' });
 
     const io = req.app.get("socketio");
-    const actionNormalized = action?.toLowerCase();
 
-    if (actionNormalized === "approved" || actionNormalized === "approve") {
-      petition.status = "Active";
+    if (action === 'Approve') {
+      petition.status = 'Active';
       petition.isHidden = false;
+      
+      petition.moderatedBy = req.user._id;
+      
       await petition.save();
 
       const approvedNotif = await Notification.create({
         recipient: petition.creator._id,
-        type: "PETITION",
+        type: 'PETITION',
         message: `Your petition "${petition.title}" has been approved and is now live!`,
         relatedItem: petition._id,
-        onModel: "Petition",
+        onModel: 'Petition'
       });
-
       if (io) {
-        io.to(petition.creator._id.toString()).emit("new_notification", approvedNotif);
-        const targetRoom = petition.level === "Campus" ? "Campus" : petition.targetGroup;
-        io.to(targetRoom).emit("new_petition_published", petition);
+        io.to(petition.creator._id.toString()).emit('new_notification', approvedNotif);
+        const targetRoom = petition.level === 'Campus' ? 'Campus' : petition.targetGroup;
+        io.to(targetRoom).emit('new_petition_published', petition);
       }
 
-      return res.status(200).json({ success: true, message: "Petition approved and published" });
-    } else if (actionNormalized === "rejected" || actionNormalized === "reject") {
-      const creatorId = petition.creator._id;
-      const petitionTitle = petition.title;
-
+      res.status(200).json({ success: true, message: "Petition approved and published." });
+    } else if (action === 'Reject') {
       await petition.deleteOne();
-
+      
       const rejectedNotif = await Notification.create({
-        recipient: creatorId,
-        type: "GENERAL",
-        message: `Your petition "${petitionTitle}" was rejected by moderation as it violated community guidelines.`,
+        recipient: petition.creator._id,
+        type: 'GENERAL',
+        message: `Your petition "${petition.title}" was rejected by moderation as it violated community guidelines.`
       });
-
       if (io) {
-        io.to(creatorId.toString()).emit("new_notification", rejectedNotif);
+        io.to(petition.creator._id.toString()).emit('new_notification', rejectedNotif);
       }
 
-      return res.status(200).json({ success: true, message: "Petition was rejected and deleted" });
+      res.status(200).json({ success: true, message: "Petition rejected and deleted." });
     } else {
-      return res.status(400).json({ success: false, message: "Invalid action. Use 'Approve' or 'Reject'." });
+      res.status(400).json({ message: "Invalid action. Use 'Approve' or 'Reject'." });
     }
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Server error during moderation", error: error.message });
+    res.status(500).json({ message: "Server error during moderation", error: error.message });
   }
 };

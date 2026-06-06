@@ -131,7 +131,7 @@ export const deleteForumThread = async (req, res) => {
   try {
     const thread = await Forum.findById(req.params.id)
     if (!thread) return res.status(404).json({ message: "Thread not found" })
-    if (thread.author.toString() !== req.user._id.toString()) {
+    if (thread.author.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'student_mod') {
       return res.status(403).json({ message: "Not authorized to delete this thread" })
     }
     await thread.deleteOne()
@@ -155,17 +155,23 @@ export const toggleHideThread = async (req, res) => {
     }
     
     thread.isHidden = !thread.isHidden
+
+    if(!thread.isHidden){
+      thread.moderatedBy = req.user._id
+    }
     await thread.save()
 
     const io = req.app.get("socketio")
 
     io.emit("thread_moderated", {
       threadId: thread._id,
-      isHidden: thread.isHidden
+      isHidden: thread.isHidden,
+      moderatedBy : req.user.name
     })
     res.status(200).json({
       success: true,
       message: thread.isHidden ? "Thread hidden from public feed" : "Thread restored to public feed",
+      isHidden: thread.isHidden,
       idHidden: thread.isHidden
     })
   } catch (error) {
@@ -295,7 +301,7 @@ export const deleteThreadReply = async (req, res) => {
     if (!reply) return res.status(404).json({ message: "Reply not found" })
 
     const authorId = reply.author && (reply.author._id ? reply.author._id.toString() : reply.author.toString());
-    if (authorId !== req.user._id.toString()) {
+    if (authorId !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'student_mod') {
       return res.status(403).json({ message: "Only the original author can delete this reply" })
     }
 
