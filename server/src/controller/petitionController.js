@@ -132,7 +132,7 @@ export const signPetition = async (req, res) => {
       return res.status(400).json({ success: false, message: `Cannot sign a petition that is ${petition.status}` });
     }
 
-    if (petition.signatures.includes(req.user._id)) {
+    if (petition.signatures.some(id => id.toString() === req.user._id.toString())) {
       return res.status(400).json({ success: false, message: "You have already signed this petition" });
     }
 

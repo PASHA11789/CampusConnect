@@ -44,6 +44,7 @@ const petitionSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    moderatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
   },
   { timestamps: true }
 );

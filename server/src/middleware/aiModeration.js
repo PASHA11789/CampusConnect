@@ -61,8 +61,15 @@ export const aiModeration = async (req, res, next) => {
     } catch (error) {
         console.error("AI moderation Error: ", error)
         // Fail-safe approach: if the AI moderation service is rate-limited or fails, send to moderator review instead of posting unmoderated.
-        req.body.isFlagged = true
-        req.body.flagReason = "Moderation system busy. Sent for manual review to ensure academic decency."
+        // In development/test environments, bypass to allow local development/testing without dependency on external API availability.
+        if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
+            console.warn("AI moderation service failed/busy. Bypassing check in development/test environment.");
+            req.body.isFlagged = false;
+            req.body.flagReason = "Moderation system busy. Bypassed in dev/test.";
+        } else {
+            req.body.isFlagged = true;
+            req.body.flagReason = "Moderation system busy. Sent for manual review to ensure academic decency.";
+        }
         next()
     }
 }

@@ -20,6 +20,8 @@ const replySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       default: null,
     },
+    reportedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], 
+    moderatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   },
   { timestamps: true }
 );
@@ -48,6 +50,8 @@ const forumSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    reportedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], 
+    moderatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     replies: [replySchema],
   },
   { timestamps: true }

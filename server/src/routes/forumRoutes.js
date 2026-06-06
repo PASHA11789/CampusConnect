@@ -7,8 +7,10 @@ import { getForumSummary,
          addThreadReply,
          updateThreadReply,
          deleteThreadReply,
-         toggleHideThread,
-         getForumThreadById
+         getForumThreadById,
+         reportForumThread,
+         reportThreadReply
+
      } from "../controller/forumController.js"
 import {protect} from "../middleware/authMiddleware.js"
 
@@ -31,6 +33,10 @@ router.route("/:id/replies")
 router.route("/:threadId/replies/:replyId")
   .put(protect, aiModeration, updateThreadReply)
   .delete(protect, deleteThreadReply)
+router.route('/:id/report')
+  .post(protect, reportForumThread)
 
+router.route('/:threadId/replies/:replyId/report')
+  .post(protect, reportThreadReply)
 
 export default router;
