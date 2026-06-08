@@ -590,5 +590,30 @@ This document tracks the completed features and milestones of the **CampusConnec
 - **Topbar & WelcomeBanner Alignment**: Resolved database-schema mapping mismatches, changing `user?.registration_no` key lookups to standard `registeration_number` to correctly show the logged-in student's real details instead of default placeholders.
 - **Repositioned Notifications**: Adjusted AI Moderation and state update toast notifications to display at the top-right corner (`top-24 right-6`) just below the sticky header.
 
+
+### **25. Dashboard Renaming, Moderation Workflows & UI Polish (2026-06-08)**
+- **Dashboard Component File Renamings**:
+  - Renamed `WelcomeBanner.js` to `StudentCardAndCareerPath.js` (component renamed to `StudentCardAndCareerPath`) to accurately match its contents: the **Student ID Card** and the **Career Path Explorer** widgets.
+  - Renamed `AnnouncementsFeed.js` to `AnnouncementsWidget.js` (component renamed to `AnnouncementsWidget`) to align with other dashboard widgets (`CanteenWidget`, `ForumsWidget`, `PetitionsWidget`, etc.).
+  - Cleaned up the project by deleting obsolete files (`WelcomeBanner.js` and `AnnouncementsFeed.js`) and updating all import/render tags in [Dashboard.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/pages/Dashboard/Dashboard.js).
+- **Career Path Design Enhancements**:
+  - Upgraded standard select dropdown into a custom box wrapper with custom border transitions, shadows, and a styled down chevron SVG.
+  - Transformed skill checkmark lists into individual hoverable rounded cards with subtle background transitions, custom checkbox icons, and elegant "DONE" state badges.
+  - Styled the suggested next-step recommendation into a premium cyan-tinted callout banner with a pulsing lightbulb SVG icon.
+- **Petition Scopes & Cascading Selectors**:
+  - Restructured the create-petition scope selector: selecting `Class` level dynamically reveals cascading selectors for choosing department filters.
+- **Petition Pagination & Modal Scroll Lock**:
+  - Integrated client-side pagination on the main Petitions page, showing a clean list of 10 active petitions per page.
+  - Resolved the persistent double scrollbar issue during petition detail popup modals by locking the document body scroll when a modal is active.
+- **Petition Moderation Routing**:
+  - Configured socket-based notification routing based on level values: Class petitions bypass moderation, Department petitions go to the department's student moderator, and Campus petitions route to all department moderators.
+- **Topbar Notifications Bell & Privileged Moderation Navigation**:
+  - Built a real-time notification bell dropdown panel inside the Topbar with category filters (All / Unread).
+  - Configured conditional navigation rendering to show the Moderator Room link exclusively to admins and student moderators in the Sidebar.
+- **Forum Discussion & Comment Reporting**:
+  - Added dynamic location state sync to open threads directly from notification clicks.
+  - Linked thread/reply report buttons to trigger live backend reporting APIs and hide reported content.
+
 ---
-*Last Updated: 2026-06-04*
+*Last Updated: 2026-06-08*
+

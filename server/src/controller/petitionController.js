@@ -95,8 +95,14 @@ export const createPetition = async (req, res) => {
 
     if (initialStatus === "Pending Mod Approval") {
       if (io) {
-        io.to("mod_room").emit("new_petition_pending", {
-          message: "New petition requires approval",
+        let room = "mod_room";
+        if (level === "Department") {
+          room = `mod_room_${derivedTargetGroup}`;
+        } else if (level === "Class") {
+          room = `mod_room_${req.user.department}`;
+        }
+        io.to(room).emit("new_petition_pending", {
+          message: `New ${level} petition requires approval`,
           petitionId: newPetition._id,
         });
       }

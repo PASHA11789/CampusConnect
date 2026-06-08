@@ -253,6 +253,14 @@ export default function Forum() {
     }
   }, [selectedThreadId, activeThread, handleThreadClick]);
 
+  // Sync thread when location.state is updated dynamically (e.g. from topbar notification click)
+  useEffect(() => {
+    if (location.state?.threadId) {
+      setSelectedThreadId(location.state.threadId);
+      handleThreadClick(location.state.threadId);
+    }
+  }, [location.state?.threadId, handleThreadClick]);
+
   const handleCancelModal = () => {
     setIsCreateOpen(false);
     setEditingThreadId(null);
@@ -278,9 +286,38 @@ export default function Forum() {
     }
   };
 
-  const handleReportContent = (type, id) => {
-    showToast("This content has been reported to moderators for review.", 'success');
-    setActiveDropdown({ type: null, id: null });
+  const handleReportContent = async (type, id) => {
+    try {
+      const token = sessionStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      
+      if (type === 'thread') {
+        const { data } = await axios.post(`/api/forums/${id}/report`, {}, config);
+        showToast(data.message || "Discussion thread has been reported and hidden.", 'success');
+        setThreads((prev) => prev.filter((t) => t._id !== id));
+        if (selectedThreadId === id) {
+          setSelectedThreadId(null);
+          setActiveThread(null);
+        }
+      } else if (type === 'reply') {
+        if (!activeThread) return;
+        const { data } = await axios.post(`/api/forums/${activeThread._id}/replies/${id}/report`, {}, config);
+        showToast(data.message || "Comment has been reported and hidden.", 'success');
+        
+        setActiveThread((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            replies: prev.replies.map((r) => r._id === id ? { ...r, isHidden: true } : r)
+          };
+        });
+      }
+    } catch (error) {
+      console.error(`Error reporting ${type}:`, error);
+      showToast(error.response?.data?.message || `Failed to report ${type}.`, 'error');
+    } finally {
+      setActiveDropdown({ type: null, id: null });
+    }
   };
 
   const handleCreateThreadSubmit = async (e) => {

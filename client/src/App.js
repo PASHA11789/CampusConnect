@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Forum from './pages/Forum/Forum';
 import Canteen from './pages/Canteen/Canteen';
 import Petitions from './pages/Petitions/Petitions';
+import ModerationRoom from './pages/Moderation/ModerationRoom';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/forum" element={<Forum />} />
           <Route path="/canteen" element={<Canteen />} />
           <Route path="/petitions" element={<Petitions />} />
+          <Route path="/moderation" element={<ModerationRoom />} />
         </Routes>
       </div>
     </Router>

@@ -8,7 +8,7 @@ import Sidebar from "../../components/layout/Sidebar";
 import Topbar from "../../components/layout/Topbar";
 
 // Dashboard Widgets
-import WelcomeBanner from "../../components/dashboard/WelcomeBanner";
+import StudentCardAndCareerPath from "../../components/dashboard/StudentCardAndCareerPath";
 import CanteenWidget from "../../components/dashboard/CanteenWidget";
 import ForumsWidget from "../../components/dashboard/ForumsWidget";
 import PetitionsWidget from "../../components/dashboard/PetitionsWidget";
@@ -306,7 +306,7 @@ export default function Dashboard() {
         />
 
         <div className="flex-1 px-8 py-7 flex flex-col gap-6 overflow-y-auto max-md:p-4 [&>*]:animate-fade-in">
-          <WelcomeBanner user={user} avatar={getPersonalizedAvatar(avatar)} />
+          <StudentCardAndCareerPath user={user} avatar={getPersonalizedAvatar(avatar)} />
           <CanteenWidget />
 
           <div className="grid grid-cols-[0.9fr_1.1fr] gap-6 max-[1200px]:grid-cols-1">

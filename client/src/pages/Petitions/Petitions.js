@@ -23,7 +23,7 @@ export default function Petitions() {
   const [petitionsLoaded, setPetitionsLoaded] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLevel, setSelectedLevel] = useState("All");
-  const [expandedPetitionId, setExpandedPetitionId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Create form state
   const [newTitle, setNewTitle] = useState("");
@@ -239,6 +239,18 @@ export default function Petitions() {
     }
   }, [petitionsLoaded, petitions, location, navigate]);
 
+  // Scroll lock background when modal detail is open
+  useEffect(() => {
+    if (isDetailOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isDetailOpen]);
+
   // Handle avatar changes (upload profile pic)
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
@@ -385,6 +397,11 @@ export default function Petitions() {
     }
   };
 
+  // Reset page when filter/search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedLevel]);
+
   // Filter logic
   const filteredPetitions = petitions.filter((p) => {
     if (p.isHidden) return false;
@@ -397,6 +414,13 @@ export default function Petitions() {
 
     return matchesSearch && matchesLevel;
   });
+
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredPetitions.length / itemsPerPage);
+  const paginatedPetitions = filteredPetitions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const levelTabs = ["All", "Class", "Department", "Campus"];
 
@@ -556,7 +580,7 @@ export default function Petitions() {
               {petitionsLoaded ? (
                 filteredPetitions.length > 0 ? (
                   <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
-                    {filteredPetitions.map((petition) => {
+                    {paginatedPetitions.map((petition) => {
                       const sigsCount = petition.signatures ? petition.signatures.length : (petition.currentSignaturesCount || 0);
                       const targetMilestone = petition.milestone;
                       const hasMilestone = targetMilestone !== null && targetMilestone !== undefined && targetMilestone > 0;
@@ -658,48 +682,97 @@ export default function Petitions() {
                                   }}
                                   disabled={signingIds.has(petition._id)}
                                   className="flex-1 bg-gradient-to-r from-[#00c2cb] to-[#00a8b0] text-white hover:from-[#00b2bb] hover:to-[#009299] py-2.5 px-4 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 disabled:opacity-50"
+                                  >
+                                    {signingIds.has(petition._id) ? (
+                                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    ) : (
+                                      t("Sign Petition")
+                                    )}
+                                  </button>
+                                )
+                              ) : petition.status === "Resolved" ? (
+                                <button
+                                  disabled
+                                  className="flex-1 bg-slate-50 text-slate-500 border border-slate-200 py-2.5 px-4 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2"
                                 >
-                                  {signingIds.has(petition._id) ? (
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                  ) : (
-                                    t("Sign Petition")
-                                  )}
+                                  <svg className="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="m9 12 2 2 4-4" />
+                                  </svg>
+                                  {t("Resolved")}
                                 </button>
-                              )
-                            ) : petition.status === "Resolved" ? (
-                              <button
-                                disabled
-                                className="flex-1 bg-slate-50 text-slate-500 border border-slate-200 py-2.5 px-4 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2"
-                              >
-                                <svg className="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                  <circle cx="12" cy="12" r="10" />
-                                  <path d="m9 12 2 2 4-4" />
-                                </svg>
-                                {t("Resolved")}
-                              </button>
-                            ) : (
-                              <button
-                                disabled
-                                className="flex-1 bg-slate-50 text-slate-400 border border-slate-200 py-2.5 px-4 rounded-xl text-[12.5px] font-bold"
-                              >
-                                {t("Under Review")}
-                              </button>
-                            )}
+                              ) : (
+                                <button
+                                  disabled
+                                  className="flex-1 bg-slate-50 text-slate-400 border border-slate-200 py-2.5 px-4 rounded-xl text-[12.5px] font-bold"
+                                >
+                                  {t("Under Review")}
+                                </button>
+                              )}
 
-                            {/* Bookmark / Share Placeholder icon */}
-                            <button
-                              onClick={(e) => e.stopPropagation()}
-                              className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200/80 flex items-center justify-center text-slate-400 hover:text-[#0a2342] transition-colors"
-                            >
-                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                              </svg>
-                            </button>
+                              {/* Bookmark / Share Placeholder icon */}
+                              <button
+                                onClick={(e) => e.stopPropagation()}
+                                className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200/80 flex items-center justify-center text-slate-400 hover:text-[#0a2342] transition-colors"
+                              >
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                                </svg>
+                              </button>
+                            </div>
                           </div>
+                        );
+                      })}
+
+                      {/* Pagination Controls */}
+                      {totalPages > 1 && (
+                        <div className="col-span-2 flex items-center justify-between bg-white border border-slate-200 rounded-2xl p-4 shadow-sm mt-4 animate-fade-in">
+                          <button
+                            type="button"
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                            className="px-4 py-2 rounded-xl text-[12.5px] font-bold border border-slate-200 text-slate-600 hover:text-[#0a2342] hover:bg-slate-50 transition-all duration-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-slate-600 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer"
+                          >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                            </svg>
+                            {t("Previous")}
+                          </button>
+
+                          <div className="flex items-center gap-2">
+                            {Array.from({ length: totalPages }).map((_, idx) => {
+                              const pageNum = idx + 1;
+                              return (
+                                <button
+                                  type="button"
+                                  key={pageNum}
+                                  onClick={() => setCurrentPage(pageNum)}
+                                  className={`w-9 h-9 rounded-xl text-[12px] font-black transition-all duration-200 cursor-pointer ${
+                                    currentPage === pageNum
+                                      ? "bg-[#0a2342] text-white shadow-md shadow-[#0a2342]/10 scale-105"
+                                      : "text-slate-500 hover:bg-slate-100 hover:text-[#0a2342]"
+                                  }`}
+                                >
+                                  {pageNum}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          <button
+                            type="button"
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                            className="px-4 py-2 rounded-xl text-[12.5px] font-bold border border-slate-200 text-slate-600 hover:text-[#0a2342] hover:bg-slate-50 transition-all duration-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-slate-600 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer"
+                          >
+                            {t("Next")}
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                            </svg>
+                          </button>
                         </div>
-                      );
-                    })}
-                  </div>
+                      )}
+                    </div>
                 ) : (
                   <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-400 font-semibold shadow-sm">
                     {t("No active petitions matching your search criteria.")}

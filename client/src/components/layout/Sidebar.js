@@ -20,6 +20,15 @@ const Sidebar = () => {
     navigate('/login');
   };
 
+  const userStr = sessionStorage.getItem('user');
+  let user = null;
+  try {
+    user = userStr ? JSON.parse(userStr) : null;
+  } catch (e) {
+    console.error("Failed to parse user session in Sidebar", e);
+  }
+  const isMod = user?.role === 'admin' || user?.role === 'student_mod';
+
   const isActive = (path) => location.pathname === path;
 
   const getNavItemClass = (path) => {
@@ -54,6 +63,13 @@ const Sidebar = () => {
         <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">PERSONAL</div>
         <a href="/profile"  className={getNavItemClass('/profile')}><span className="text-[15px]">👤</span> My Profile</a>
         <a href="/messages" className={getNavItemClass('/messages')}><IconMail/> Messages <span className="ml-auto bg-[#00c2cb] text-[#060e1c] text-[9px] font-extrabold px-1.5 py-[2px] rounded-full">3</span></a>
+
+        {isMod && (
+          <>
+            <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">MODERATION</div>
+            <a href="/moderation" className={getNavItemClass('/moderation')}><span className="text-[15px]">🛡️</span> Moderator Room</a>
+          </>
+        )}
       </nav>
 
       <button className="flex items-center gap-[10px] mx-3 px-3.5 py-2.5 rounded-xl border-none bg-red-400/8 text-red-400/70 text-[13.5px] font-semibold cursor-pointer transition-all duration-200 hover:bg-red-400/15 hover:text-red-400" onClick={handleLogout}>
