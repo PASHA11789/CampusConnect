@@ -614,6 +614,17 @@ This document tracks the completed features and milestones of the **CampusConnec
   - Added dynamic location state sync to open threads directly from notification clicks.
   - Linked thread/reply report buttons to trigger live backend reporting APIs and hide reported content.
 
+
+### **24. Dashboard Decoupling & Interactive Career Roadmap (2026-06-09)**
+- **Widget Decoupling**: Split the combined `StudentCardAndCareerPath` component into two standalone components: [StudentCard.js](file:///client/src/components/dashboard/StudentCard.js) and [CareerPathExplorer.js](file:///client/src/components/dashboard/CareerPathExplorer.js).
+- **Height Alignment & Flex Fix**: Configured the dashboard layout to stretch both components to equal heights side-by-side using Tailwind grid classes, while completely decoupling their sizing so that styling edits on one do not affect or stretch the other disproportionately.
+- **Milestone Timeline Redesign**: Overhauled `CareerPathExplorer` from a basic list into a premium vertical roadmap timeline. Connecting lines automatically light up in cyan when preceding milestone nodes are toggled, and nodes dynamically transition into completed SVG checkmarks.
+
+### **25. Petition QR Code & Link Sharing (2026-06-09)**
+- **QR Code & Share Utility**: Replaced the placeholder bookmark/save button next to "Sign Petition" with a new Share button inside all petition cards on the main Petitions page.
+- **Copy Link & Success Feedback**: Implemented a "Copy Link" utility using standard `navigator.clipboard` APIs that copies the petition URL (formatted with query parameters: `http://localhost:3000/petitions?id=<id>`) and triggers success states (button text updates to "Copied!" and emits a toast notification).
+- **Instant Admin Redirection**: Scanning the generated QR code or opening the shared link redirects the user to the portal and automatically highlights/opens the target petition in the details modal, showing current signature numbers instantly.
+
 ---
-*Last Updated: 2026-06-08*
+*Last Updated: 2026-06-09*
 
