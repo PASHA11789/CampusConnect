@@ -37,6 +37,8 @@ export default function Petitions() {
   const [signingIds, setSigningIds] = useState(new Set());
   const [selectedPetition, setSelectedPetition] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [sharePetition, setSharePetition] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   // Handle query parameter or state redirection for expansion/modal on mount/change
   useEffect(() => {
@@ -342,6 +344,20 @@ export default function Petitions() {
         return next;
       });
     }
+  };
+
+  // Copy Link Action Handler
+  const handleCopyLink = (link) => {
+    navigator.clipboard.writeText(link)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        showToast(t("Petition link copied to clipboard!"), "success");
+      })
+      .catch((err) => {
+        console.error("Failed to copy link:", err);
+        showToast(t("Failed to copy link."), "error");
+      });
   };
 
   // Create Petition Form Submission
@@ -710,13 +726,21 @@ export default function Petitions() {
                                 </button>
                               )}
 
-                              {/* Bookmark / Share Placeholder icon */}
+                              {/* Share Petition / QR Code Button */}
                               <button
-                                onClick={(e) => e.stopPropagation()}
-                                className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200/80 flex items-center justify-center text-slate-400 hover:text-[#0a2342] transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSharePetition(petition);
+                                }}
+                                className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200/80 flex items-center justify-center text-slate-400 hover:text-[#00c2cb] transition-colors"
+                                title={t("Share & QR Code")}
                               >
                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                                  <circle cx="18" cy="5" r="3" />
+                                  <circle cx="6" cy="12" r="3" />
+                                  <circle cx="18" cy="19" r="3" />
+                                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
                                 </svg>
                               </button>
                             </div>
@@ -1070,6 +1094,82 @@ export default function Petitions() {
               )}
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* ── SHARE PETITION MODAL ── */}
+      {sharePetition && (
+        <div 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[2100] p-4 animate-fade-in" 
+          onClick={() => setSharePetition(null)}
+        >
+          <div
+            className="bg-white border border-slate-200 rounded-3xl p-7 max-w-[420px] w-full shadow-2xl relative animate-modal-slide-in flex flex-col items-center text-center gap-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              className="absolute right-5 top-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200/80 flex items-center justify-center text-slate-500 hover:text-[#0a2342] transition-colors"
+              onClick={() => setSharePetition(null)}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+
+            {/* Icon & Title */}
+            <div className="w-12 h-12 rounded-full bg-[#00c2cb]/12 flex items-center justify-center text-[#00c2cb] mt-2">
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+            </div>
+
+            <div className="flex flex-col gap-1 w-full">
+              <h2 className="text-[17px] font-black text-[#0a2342] leading-tight">
+                {t("Share Petition")}
+              </h2>
+              <p className="text-[12.5px] text-slate-500 font-bold px-4 truncate w-full" title={sharePetition.title}>
+                {sharePetition.title}
+              </p>
+            </div>
+
+            {/* QR Code image */}
+            <div className="flex flex-col items-center gap-1.5 mt-1 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/petitions?id=${sharePetition._id}`)}`}
+                alt="Petition QR Code"
+                className="w-36 h-36 border border-slate-200 p-2 rounded-xl bg-white shadow-sm"
+              />
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Scan QR to View / Sign</span>
+            </div>
+
+            {/* Copy link input and button */}
+            <div className="w-full flex flex-col gap-2 mt-2">
+              <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-1.5 w-full">
+                <input
+                  type="text"
+                  readOnly
+                  value={`${window.location.origin}/petitions?id=${sharePetition._id}`}
+                  className="bg-transparent border-none text-[11px] font-semibold text-slate-500 focus:outline-none px-2 flex-1 select-all"
+                />
+                <button
+                  onClick={() => handleCopyLink(`${window.location.origin}/petitions?id=${sharePetition._id}`)}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                    copied 
+                      ? "bg-emerald-500 text-white" 
+                      : "bg-[#00c2cb] text-[#060e1c] hover:bg-[#00b2bb]"
+                  }`}
+                >
+                  {copied ? t("Copied!") : t("Copy")}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

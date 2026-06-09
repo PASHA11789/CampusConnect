@@ -8,7 +8,8 @@ import Sidebar from "../../components/layout/Sidebar";
 import Topbar from "../../components/layout/Topbar";
 
 // Dashboard Widgets
-import StudentCardAndCareerPath from "../../components/dashboard/StudentCardAndCareerPath";
+import StudentCard from "../../components/dashboard/StudentCard";
+import CareerPathExplorer from "../../components/dashboard/CareerPathExplorer";
 import CanteenWidget from "../../components/dashboard/CanteenWidget";
 import ForumsWidget from "../../components/dashboard/ForumsWidget";
 import PetitionsWidget from "../../components/dashboard/PetitionsWidget";
@@ -98,7 +99,7 @@ export default function Dashboard() {
 
       socket.on("connect", () => {
         console.log("⚡ Connected to live updates socket");
-        
+
         // Join scope rooms for live updates
         socket.emit("join_room", "Campus");
         if (user.department) {
@@ -196,10 +197,10 @@ export default function Dashboard() {
             petitions: prevData.petitions.map((p) =>
               p._id === data.petitionId
                 ? {
-                    ...p,
-                    signatures: new Array(data.currentSignatures).fill(null),
-                    status: data.status,
-                  }
+                  ...p,
+                  signatures: new Array(data.currentSignatures).fill(null),
+                  status: data.status,
+                }
                 : p
             )
           }));
@@ -306,7 +307,11 @@ export default function Dashboard() {
         />
 
         <div className="flex-1 px-8 py-7 flex flex-col gap-6 overflow-y-auto max-md:p-4 [&>*]:animate-fade-in">
-          <StudentCardAndCareerPath user={user} avatar={getPersonalizedAvatar(avatar)} />
+          {/* Render separated StudentCard and CareerPath widgets */}
+          <div className="grid grid-cols-[1.4fr_1fr] gap-6 max-[1100px]:grid-cols-1 items-start">
+            <StudentCard user={user} avatar={getPersonalizedAvatar(avatar)} />
+            <CareerPathExplorer user={user} />
+          </div>
           <CanteenWidget />
 
           <div className="grid grid-cols-[0.9fr_1.1fr] gap-6 max-[1200px]:grid-cols-1">
