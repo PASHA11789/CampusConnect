@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/MUL-Logo.png';
+import { SplineScene } from './components/SplineScene';
 
 /* ─────────────────────────────────────────────
    Inline SVG icons (no external icon lib needed)
@@ -217,45 +218,11 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex-1 relative max-w-[520px] w-full">
-            <div className="bg-white/7 border border-white/12 rounded-[20px] overflow-hidden backdrop-blur-2xl shadow-[0_24px_80px_rgba(0,0,0,0.4)] animate-float">
-              <div className="bg-white/8 py-3 px-4 flex items-center gap-3 border-b border-white/10">
-                <div className="flex gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
-                </div>
-                <div className="flex gap-2.5 text-[11px] text-white/50 font-semibold flex-1">
-                  <span className="text-[#00c2cb]">Lost &amp; Found</span>
-                  <span>Petitions</span>
-                  <span>Events</span>
-                </div>
-                <div className="text-[16px] text-white/70">🔔<sup className="bg-[#e53e3e] text-white text-[8px] rounded-full px-1 py-0.5">2</sup></div>
-              </div>
-              <div className="flex min-h-[200px]">
-                <div className="py-3 px-2 flex flex-col gap-1.5 border-r border-white/8">
-                  {['🏠', '💬', '🔍', '📋', '🍽️', '🔔'].map((ic, i) => (
-                    <div key={i} className={`w-8 h-8 rounded-lg flex items-center justify-center text-[14px] cursor-pointer transition-all duration-200 text-white/50 ${i === 0 ? 'bg-[#00c2cb]/20 text-[#00c2cb]' : ''}`}>{ic}</div>
-                  ))}
-                </div>
-                <div className="flex-1 py-3.5 px-4 text-left">
-                  <div className="text-[10px] font-bold text-white/50 tracking-[0.08em] uppercase mb-2">Recent Activity</div>
-                  {['📢 New petition posted', '🔍 Lost keys reported', '🍽️ Menu updated'].map((t, i) => (
-                    <div key={i} className="flex items-center gap-2 text-[11px] text-white/75 mb-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#00c2cb] shrink-0" />
-                      <span>{t}</span>
-                    </div>
-                  ))}
-                  <div className="text-[10px] font-bold text-white/50 tracking-[0.08em] uppercase mb-2" style={{ marginTop: '12px' }}>Upcoming Events</div>
-                  {['Tech Talk Seminar', 'Cultural Day', 'Sports Gala'].map((e, i) => (
-                    <div key={i} className="bg-[#00c2cb]/15 border border-[#00c2cb]/25 text-[#00c2cb] text-[10px] font-semibold py-1 px-2.5 rounded-full inline-block mt-0.5 mr-1">{e}</div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            {/* floating badges */}
-            <div className="absolute flex items-center gap-2 bg-white rounded-xl py-2.5 px-4 text-[12px] font-bold text-[#0a2342] shadow-[0_8px_32px_rgba(0,0,0,0.2)] bottom-[-20px] left-[-24px] animate-float">📬 <span className="text-[#0079c2]">12 New Messages</span></div>
-            <div className="absolute flex items-center gap-2 bg-white rounded-xl py-2.5 px-4 text-[12px] font-bold text-[#0a2342] shadow-[0_8px_32px_rgba(0,0,0,0.2)] top-[-16px] right-[-20px] animate-[float_7s_ease-in-out_infinite_reverse]">🔔 <span className="text-[#0079c2]">Event Reminder</span></div>
+          <div className="flex-1 relative max-w-[520px] w-full min-h-[400px] h-[450px] flex items-center justify-center">
+            <SplineScene 
+              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+              className="w-full h-full"
+            />
           </div>
         </div>
       </section>
