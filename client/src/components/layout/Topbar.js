@@ -11,6 +11,35 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState('all'); // 'all' or 'unread'
+  const [subView, setSubView] = useState(null); // null, 'petitions', 'forums', 'others'
+
+  const getPetitionNotifications = () => {
+    return notifications.filter(notif => {
+      const model = notif.onModel || '';
+      const type = notif.type || '';
+      const message = (notif.message || '').toLowerCase();
+      return model === 'Petition' || type === 'PETITION' || message.includes('petition') || message.includes('signature') || message.includes('milestone') || message.includes('vote');
+    });
+  };
+
+  const getForumNotifications = () => {
+    return notifications.filter(notif => {
+      const model = notif.onModel || '';
+      const type = notif.type || '';
+      const message = (notif.message || '').toLowerCase();
+      return model === 'Forum' || type === 'FORUM' || message.includes('forum') || message.includes('post') || message.includes('reply') || message.includes('comment');
+    });
+  };
+
+  const getOtherNotifications = () => {
+    const petitionIds = new Set(getPetitionNotifications().map(n => n._id));
+    const forumIds = new Set(getForumNotifications().map(n => n._id));
+    return notifications.filter(notif => !petitionIds.has(notif._id) && !forumIds.has(notif._id));
+  };
+
+  const unreadPetitions = getPetitionNotifications().filter(n => !n.isRead).length;
+  const unreadForums = getForumNotifications().filter(n => !n.isRead).length;
+  const unreadOthers = getOtherNotifications().filter(n => !n.isRead).length;
 
   // Reset image error state if a new avatar is uploaded or passed
   useEffect(() => {
@@ -63,6 +92,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
     const handleDocumentClick = (e) => {
       if (!e.target.closest('.notification-bell-container')) {
         setIsOpen(false);
+        setSubView(null);
       }
     };
     if (isOpen) {
@@ -194,9 +224,16 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
   const isDefaultAvatar = !avatar || avatar.includes('ui-avatars.com');
   const showFallback = isDefaultAvatar || imageError;
 
+  const getCategoryNotifications = () => {
+    if (subView === 'petitions') return getPetitionNotifications();
+    if (subView === 'forums') return getForumNotifications();
+    if (subView === 'others') return getOtherNotifications();
+    return [];
+  };
+
   const filteredNotifications = filter === 'all' 
-    ? notifications 
-    : notifications.filter(n => !n.isRead);
+    ? getCategoryNotifications() 
+    : getCategoryNotifications().filter(n => !n.isRead);
 
   return (
     <header className="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 sticky top-0 z-[100] animate-slide-down max-md:px-4 max-md:py-3">
@@ -210,7 +247,10 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
         {user && (
           <div className="relative notification-bell-container">
             <button
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => {
+                setIsOpen(!isOpen);
+                setSubView(null);
+              }}
               className={`relative p-2.5 rounded-full transition-all duration-200 cursor-pointer border flex items-center justify-center ${
                 isOpen 
                   ? "bg-[#00c2cb]/10 border-[#00c2cb]/30 text-[#00c2cb]" 
@@ -223,7 +263,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
               {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white animate-pulse">
+                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-pulse shadow-sm">
                   {unreadCount}
                 </span>
               )}
@@ -231,97 +271,185 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
 
             {/* Dropdown Panel */}
             {isOpen && (
-              <div className="absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-lg border border-slate-200/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] z-[999] overflow-hidden animate-modal-slide-in flex flex-col">
+              <div 
+                onClick={(e) => e.stopPropagation()}
+                className="absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-lg border border-slate-200/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] z-[999] overflow-hidden animate-modal-slide-in flex flex-col"
+              >
                 
-                {/* Header */}
-                <div className="px-4 pt-4 pb-2 flex justify-between items-center bg-slate-50/20">
-                  <span className="text-[12px] font-black text-[#0a2342] tracking-wider uppercase">Notifications</span>
-                  {unreadCount > 0 && (
-                    <button
-                      onClick={handleMarkAllAsRead}
-                      className="text-[10px] font-bold text-[#00c2cb] hover:text-[#00a8b0] border-none bg-none cursor-pointer transition-colors"
-                    >
-                      Mark all as read
-                    </button>
-                  )}
-                </div>
+                {subView === null ? (
+                  <>
+                    {/* Header */}
+                    <div className="px-4 pt-4 pb-2 flex justify-between items-center bg-slate-50/20">
+                      <span className="text-[12px] font-black text-[#0a2342] tracking-wider uppercase">Notifications</span>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={handleMarkAllAsRead}
+                          className="text-[10px] font-bold text-[#00c2cb] hover:text-[#00a8b0] border-none bg-none cursor-pointer transition-colors"
+                        >
+                          Mark all as read
+                        </button>
+                      )}
+                    </div>
 
-                {/* Filter Tabs */}
-                <div className="flex gap-2 px-4 border-b border-slate-100 pb-2 bg-slate-50/20">
-                  <button
-                    onClick={() => setFilter('all')}
-                    className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${
-                      filter === 'all'
-                        ? 'bg-[#0a2342] text-white border-[#0a2342]'
-                        : 'bg-transparent text-slate-500 border-transparent hover:text-[#0a2342]'
-                    }`}
-                  >
-                    All ({notifications.length})
-                  </button>
-                  <button
-                    onClick={() => setFilter('unread')}
-                    className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${
-                      filter === 'unread'
-                        ? 'bg-[#0a2342] text-white border-[#0a2342]'
-                        : 'bg-transparent text-slate-500 border-transparent hover:text-[#0a2342]'
-                    }`}
-                  >
-                    Unread ({unreadCount})
-                  </button>
-                </div>
+                    {/* Horizontal Categories Row */}
+                    <div className="px-4 py-4 flex justify-around items-center gap-2 bg-slate-50/10">
+                      {/* Petitions Sub-Bell */}
+                      <button 
+                        onClick={() => setSubView('petitions')}
+                        className="flex flex-col items-center group relative border-none bg-transparent cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
+                      >
+                        <div className="relative">
+                          <div className="w-11 h-11 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center border border-emerald-100/60 group-hover:scale-105 transition-all duration-200 shadow-sm">
+                            <svg className="w-5 h-5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                            </svg>
+                          </div>
+                          {unreadPetitions > 0 && (
+                            <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm">
+                              {unreadPetitions}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] font-black text-slate-600 group-hover:text-emerald-500 mt-1.5 tracking-wide uppercase transition-colors">Petitions</span>
+                      </button>
 
-                {/* List Container */}
-                <div className="max-h-64 overflow-y-auto scrollbar-none p-1 flex flex-col gap-0.5">
-                  {filteredNotifications.length > 0 ? (
-                    filteredNotifications.map((notif) => (
-                      <div
-                        key={notif._id}
-                        onClick={() => handleMarkAsRead(notif)}
-                        className={`p-2.5 rounded-2xl flex gap-3 transition-all duration-200 cursor-pointer hover:bg-slate-50 items-start ${
-                          !notif.isRead 
-                            ? "bg-[#00c2cb]/5 border border-[#00c2cb]/10" 
-                            : "bg-transparent border border-transparent"
+                      {/* Forums Sub-Bell */}
+                      <button 
+                        onClick={() => setSubView('forums')}
+                        className="flex flex-col items-center group relative border-none bg-transparent cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
+                      >
+                        <div className="relative">
+                          <div className="w-11 h-11 rounded-full bg-sky-50 text-sky-500 flex items-center justify-center border border-sky-100/60 group-hover:scale-105 transition-all duration-200 shadow-sm">
+                            <svg className="w-5 h-5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                            </svg>
+                          </div>
+                          {unreadForums > 0 && (
+                            <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm">
+                              {unreadForums}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] font-black text-slate-600 group-hover:text-sky-500 mt-1.5 tracking-wide uppercase transition-colors">Forums</span>
+                      </button>
+
+                      {/* Others Sub-Bell */}
+                      <button 
+                        onClick={() => setSubView('others')}
+                        className="flex flex-col items-center group relative border-none bg-transparent cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
+                      >
+                        <div className="relative">
+                          <div className="w-11 h-11 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100/60 group-hover:scale-105 transition-all duration-200 shadow-sm">
+                            <svg className="w-5 h-5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                            </svg>
+                          </div>
+                          {unreadOthers > 0 && (
+                            <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm">
+                              {unreadOthers}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] font-black text-slate-600 group-hover:text-amber-500 mt-1.5 tracking-wide uppercase transition-colors">Others</span>
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col flex-1">
+                    {/* Category Details View Header */}
+                    <div className="px-4 pt-3 pb-2 flex items-center gap-2 border-b border-slate-100 bg-slate-50/20">
+                      <button 
+                        onClick={() => setSubView(null)}
+                        className="text-[#00c2cb] hover:text-[#00a8b0] text-[11px] font-black border-none bg-none cursor-pointer flex items-center gap-1 transition-colors"
+                      >
+                        ← Back
+                      </button>
+                      <span className="text-[11px] font-black text-[#0a2342] uppercase tracking-wider">
+                        {subView === 'petitions' ? 'Petition Notifications' : subView === 'forums' ? 'Forum Notifications' : 'Other Notifications'}
+                      </span>
+                    </div>
+
+                    {/* Filter Tabs for selected category */}
+                    <div className="flex gap-2 px-4 pt-2 border-b border-slate-100 pb-2 bg-slate-50/20">
+                      <button
+                        onClick={() => setFilter('all')}
+                        className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${
+                          filter === 'all'
+                            ? 'bg-[#0a2342] text-white border-[#0a2342]'
+                            : 'bg-transparent text-slate-500 border-transparent hover:text-[#0a2342]'
                         }`}
                       >
-                        {/* Icon */}
-                        {getNotificationIcon(notif.type)}
-
-                        {/* Message Content */}
-                        <div className="flex-1 flex flex-col gap-0.5 text-left">
-                          <p className={`text-[12px] leading-relaxed ${
-                            !notif.isRead ? "text-slate-800 font-bold" : "text-slate-500 font-normal"
-                          }`}>
-                            {notif.message}
-                          </p>
-                          <span className="text-[9px] text-slate-400 font-semibold flex items-center gap-1 mt-0.5">
-                            <svg className="w-3 h-3 text-slate-350" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                              <circle cx="12" cy="12" r="10" />
-                              <polyline points="12 6 12 12 16 14" />
-                            </svg>
-                            {formatDate(notif.createdAt)}
-                          </span>
-                        </div>
-
-                        {/* Unread dot */}
-                        {!notif.isRead && (
-                          <div className="flex items-center self-center">
-                            <div className="w-1.5 h-1.5 bg-[#00c2cb] rounded-full shrink-0 shadow-[0_0_8px_rgba(0,194,203,0.5)] animate-pulse" />
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="py-10 px-6 text-center text-slate-400 font-bold text-[12px] flex flex-col items-center justify-center gap-2.5">
-                      <div className="w-11 h-11 rounded-full bg-slate-50 flex items-center justify-center text-[18px] text-slate-350 shadow-inner">
-                        🔔
-                      </div>
-                      <span className="text-slate-500">All caught up!</span>
-                      <p className="text-[10px] text-slate-400 font-semibold max-w-[180px] leading-normal">
-                        {filter === 'unread' ? "You have no unread notifications." : "No new notifications yet."}
-                      </p>
+                        All ({getCategoryNotifications().length})
+                      </button>
+                      <button
+                        onClick={() => setFilter('unread')}
+                        className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${
+                          filter === 'unread'
+                            ? 'bg-[#0a2342] text-white border-[#0a2342]'
+                            : 'bg-transparent text-slate-500 border-transparent hover:text-[#0a2342]'
+                        }`}
+                      >
+                        Unread ({getCategoryNotifications().filter(n => !n.isRead).length})
+                      </button>
                     </div>
-                  )}
-                </div>
+
+                    {/* List Container */}
+                    <div className="max-h-64 overflow-y-auto scrollbar-none p-1 flex flex-col gap-0.5">
+                      {filteredNotifications.length > 0 ? (
+                        filteredNotifications.map((notif) => (
+                          <div
+                            key={notif._id}
+                            onClick={() => handleMarkAsRead(notif)}
+                            className={`p-2.5 rounded-2xl flex gap-3 transition-all duration-200 cursor-pointer hover:bg-slate-50 items-start ${
+                              !notif.isRead 
+                                ? "bg-[#00c2cb]/5 border border-[#00c2cb]/10" 
+                                : "bg-transparent border border-transparent"
+                            }`}
+                          >
+                            {/* Icon */}
+                            {getNotificationIcon(notif.type)}
+
+                            {/* Message Content */}
+                            <div className="flex-1 flex flex-col gap-0.5 text-left">
+                              <p className={`text-[12px] leading-relaxed ${
+                                !notif.isRead ? "text-slate-800 font-bold" : "text-slate-500 font-normal"
+                              }`}>
+                                {notif.message}
+                              </p>
+                              <span className="text-[9px] text-slate-400 font-semibold flex items-center gap-1 mt-0.5">
+                                <svg className="w-3 h-3 text-slate-350" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                  <circle cx="12" cy="12" r="10" />
+                                  <polyline points="12 6 12 12 16 14" />
+                                </svg>
+                                {formatDate(notif.createdAt)}
+                              </span>
+                            </div>
+
+                            {/* Unread dot */}
+                            {!notif.isRead && (
+                              <div className="flex items-center self-center">
+                                <div className="w-1.5 h-1.5 bg-[#00c2cb] rounded-full shrink-0 shadow-[0_0_8px_rgba(0,194,203,0.5)] animate-pulse" />
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-10 px-6 text-center text-slate-400 font-bold text-[12px] flex flex-col items-center justify-center gap-2.5">
+                          <div className="w-11 h-11 rounded-full bg-slate-50 flex items-center justify-center text-[18px] text-slate-350 shadow-inner">
+                            🔔
+                          </div>
+                          <span className="text-slate-500">All caught up!</span>
+                          <p className="text-[10px] text-slate-400 font-semibold max-w-[180px] leading-normal">
+                            {filter === 'unread' ? "You have no unread notifications." : "No new notifications yet."}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
+import { createPortal } from "react-dom";
 
 // Layout Components
 import Sidebar from "../../components/layout/Sidebar";
@@ -23,6 +24,7 @@ export default function ModerationRoom() {
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState(null);
   const [actioningId, setActioningId] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, type: null, targetId: null, extraId: null });
 
   // ── TOAST NOTIFICATION HELPER ──
   const showToast = useCallback((message, type = 'info') => {
@@ -224,37 +226,36 @@ export default function ModerationRoom() {
     }
   };
 
-  // Delete Forum Thread Permanently
-  const handleDeleteThread = async (threadId) => {
-    if (!window.confirm("Are you sure you want to delete this thread permanently?")) return;
-    setActioningId(threadId);
-    try {
-      const token = sessionStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.delete(`/api/forums/${threadId}`, config);
-      showToast("Thread permanently deleted.", "success");
-      fetchQueue();
-    } catch (error) {
-      console.error("Failed to delete thread:", error);
-      showToast(error.response?.data?.message || "Failed to delete thread.", "error");
-    } finally {
-      setActioningId(null);
-    }
+  // Trigger delete confirmation modal for threads
+  const handleDeleteThread = (threadId) => {
+    setDeleteConfirm({ isOpen: true, type: "thread", targetId: threadId });
   };
 
-  // Delete Flagged Forum Reply
-  const handleDeleteReply = async (threadId, replyId) => {
-    if (!window.confirm("Are you sure you want to delete this comment permanently?")) return;
-    setActioningId(replyId);
+  // Trigger delete confirmation modal for replies/comments
+  const handleDeleteReply = (threadId, replyId) => {
+    setDeleteConfirm({ isOpen: true, type: "comment", targetId: replyId, extraId: threadId });
+  };
+
+  // Perform actual deletion of flagged thread or comment
+  const confirmDelete = async () => {
+    const { type, targetId, extraId } = deleteConfirm;
+    setDeleteConfirm({ isOpen: false, type: null, targetId: null, extraId: null });
+    setActioningId(targetId);
     try {
       const token = sessionStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.delete(`/api/forums/${threadId}/replies/${replyId}`, config);
-      showToast("Comment permanently deleted.", "success");
+      
+      if (type === "thread") {
+        await axios.delete(`/api/forums/${targetId}`, config);
+        showToast("Thread permanently deleted.", "success");
+      } else if (type === "comment") {
+        await axios.delete(`/api/forums/${extraId}/replies/${targetId}`, config);
+        showToast("Comment permanently deleted.", "success");
+      }
       fetchQueue();
     } catch (error) {
-      console.error("Failed to delete comment:", error);
-      showToast(error.response?.data?.message || "Failed to delete comment.", "error");
+      console.error(`Failed to delete ${type}:`, error);
+      showToast(error.response?.data?.message || `Failed to delete ${type}.`, "error");
     } finally {
       setActioningId(null);
     }
@@ -590,6 +591,38 @@ export default function ModerationRoom() {
           </div>
           <button className="text-[18px] text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1" onClick={() => setToast(null)}>×</button>
         </div>
+      )}
+
+      {/* Custom Delete Confirmation Modal */}
+      {deleteConfirm.isOpen && createPortal(
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[4000] flex items-center justify-center p-4 animate-modal-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full border border-slate-200 shadow-2xl p-6 flex flex-col gap-5 animate-modal-slide-in">
+            <div className="flex items-center gap-3 text-rose-600">
+              <span className="text-[28px]">⚠️</span>
+              <h3 className="text-[17.5px] font-black text-slate-900">Are you sure?</h3>
+            </div>
+            
+            <p className="text-[13.5px] text-slate-500 leading-relaxed font-semibold">
+              Are you sure you want to delete this {deleteConfirm.type === 'thread' ? 'discussion thread' : 'comment'}? This action is permanent and cannot be undone.
+            </p>
+            
+            <div className="flex justify-end gap-3 mt-2">
+              <button 
+                onClick={() => setDeleteConfirm({ isOpen: false, type: null, targetId: null, extraId: null })}
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-2xl text-[13px] font-extrabold transition-all cursor-pointer border-none"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmDelete}
+                className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-2xl text-[13px] font-extrabold transition-all shadow-md shadow-red-600/10 cursor-pointer border-none"
+              >
+                Delete {deleteConfirm.type === 'thread' ? 'Post' : 'Comment'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

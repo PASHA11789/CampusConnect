@@ -45,6 +45,15 @@ module.exports = {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-20px)' },
         },
+        bellRing: {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '20%, 60%': { transform: 'rotate(15deg)' },
+          '40%, 80%': { transform: 'rotate(-15deg)' },
+        },
+        bounceSubtle: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-3px)' },
+        },
       },
       animation: {
         'slide-down': 'dbSlideDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both',
@@ -55,6 +64,8 @@ module.exports = {
         'blob': 'blob 7s infinite alternate',
         'shimmer': 'shimmer 2s infinite',
         'float': 'float 6s ease-in-out infinite',
+        'bell-ring': 'bellRing 0.8s ease-in-out infinite',
+        'bounce-subtle': 'bounceSubtle 1.5s ease-in-out infinite',
       }
     },
   },
