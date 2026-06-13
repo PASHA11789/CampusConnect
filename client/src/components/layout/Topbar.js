@@ -245,7 +245,99 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
         
         {/* Notification Bell */}
         {user && (
-          <div className="relative notification-bell-container">
+          <div className="relative notification-bell-container flex items-center">
+            
+            {/* Sliding Sub-Bells (Three Balls) */}
+            <div
+              className={`absolute right-full top-1/2 -translate-y-1/2 mr-3 flex items-center gap-3 transition-all duration-300 ease-out z-[99] ${
+                isOpen
+                  ? "opacity-100 translate-x-0 scale-100"
+                  : "opacity-0 translate-x-12 scale-90 pointer-events-none"
+              }`}
+            >
+              {/* Petitions Ball */}
+              <div className="group relative">
+                <button
+                  onClick={() => setSubView('petitions')}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
+                    subView === 'petitions'
+                      ? "bg-emerald-500 text-white border-emerald-500"
+                      : "bg-emerald-50 text-emerald-500 border-emerald-100/60 hover:bg-emerald-100/50"
+                  }`}
+                >
+                  <svg className="w-5 h-5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                  {unreadPetitions > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                      {unreadPetitions}
+                    </span>
+                  )}
+                </button>
+                {/* Tooltip */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 hidden group-hover:block bg-[#0a2342] text-white text-[9px] font-black py-1 px-2.5 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                  Petitions
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#0a2342]"></div>
+                </div>
+              </div>
+
+              {/* Forums Ball */}
+              <div className="group relative">
+                <button
+                  onClick={() => setSubView('forums')}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
+                    subView === 'forums'
+                      ? "bg-sky-500 text-white border-sky-500"
+                      : "bg-sky-50 text-sky-500 border-sky-100/60 hover:bg-sky-100/50"
+                  }`}
+                >
+                  <svg className="w-5 h-5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                  {unreadForums > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                      {unreadForums}
+                    </span>
+                  )}
+                </button>
+                {/* Tooltip */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 hidden group-hover:block bg-[#0a2342] text-white text-[9px] font-black py-1 px-2.5 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                  Forums
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#0a2342]"></div>
+                </div>
+              </div>
+
+              {/* Others Ball */}
+              <div className="group relative">
+                <button
+                  onClick={() => setSubView('others')}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
+                    subView === 'others'
+                      ? "bg-amber-500 text-white border-amber-500"
+                      : "bg-amber-50 text-amber-600 border-amber-100/60 hover:bg-amber-100/50"
+                  }`}
+                >
+                  <svg className="w-5 h-5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                  {unreadOthers > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                      {unreadOthers}
+                    </span>
+                  )}
+                </button>
+                {/* Tooltip */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 hidden group-hover:block bg-[#0a2342] text-white text-[9px] font-black py-1 px-2.5 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                  Others
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#0a2342]"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Bell Button */}
             <button
               onClick={() => {
                 setIsOpen(!isOpen);
@@ -269,98 +361,16 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
               )}
             </button>
 
-            {/* Dropdown Panel */}
-            {isOpen && (
+            {/* Dropdown Panel (Only renders when subView is active) */}
+            {isOpen && subView !== null && (
               <div 
                 onClick={(e) => e.stopPropagation()}
-                className="absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-lg border border-slate-200/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] z-[999] overflow-hidden animate-modal-slide-in flex flex-col"
+                className="absolute right-0 top-full mt-3 w-80 bg-white/95 backdrop-blur-lg border border-slate-200/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] z-[999] overflow-hidden animate-modal-slide-in flex flex-col"
               >
-                
-                {subView === null ? (
-                  <>
-                    {/* Header */}
-                    <div className="px-4 pt-4 pb-2 flex justify-between items-center bg-slate-50/20">
-                      <span className="text-[12px] font-black text-[#0a2342] tracking-wider uppercase">Notifications</span>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={handleMarkAllAsRead}
-                          className="text-[10px] font-bold text-[#00c2cb] hover:text-[#00a8b0] border-none bg-none cursor-pointer transition-colors"
-                        >
-                          Mark all as read
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Horizontal Categories Row */}
-                    <div className="px-4 py-4 flex justify-around items-center gap-2 bg-slate-50/10">
-                      {/* Petitions Sub-Bell */}
-                      <button 
-                        onClick={() => setSubView('petitions')}
-                        className="flex flex-col items-center group relative border-none bg-transparent cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
-                      >
-                        <div className="relative">
-                          <div className="w-11 h-11 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center border border-emerald-100/60 group-hover:scale-105 transition-all duration-200 shadow-sm">
-                            <svg className="w-5 h-5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                            </svg>
-                          </div>
-                          {unreadPetitions > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm">
-                              {unreadPetitions}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[10px] font-black text-slate-600 group-hover:text-emerald-500 mt-1.5 tracking-wide uppercase transition-colors">Petitions</span>
-                      </button>
-
-                      {/* Forums Sub-Bell */}
-                      <button 
-                        onClick={() => setSubView('forums')}
-                        className="flex flex-col items-center group relative border-none bg-transparent cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
-                      >
-                        <div className="relative">
-                          <div className="w-11 h-11 rounded-full bg-sky-50 text-sky-500 flex items-center justify-center border border-sky-100/60 group-hover:scale-105 transition-all duration-200 shadow-sm">
-                            <svg className="w-5 h-5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                            </svg>
-                          </div>
-                          {unreadForums > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm">
-                              {unreadForums}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[10px] font-black text-slate-600 group-hover:text-sky-500 mt-1.5 tracking-wide uppercase transition-colors">Forums</span>
-                      </button>
-
-                      {/* Others Sub-Bell */}
-                      <button 
-                        onClick={() => setSubView('others')}
-                        className="flex flex-col items-center group relative border-none bg-transparent cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
-                      >
-                        <div className="relative">
-                          <div className="w-11 h-11 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100/60 group-hover:scale-105 transition-all duration-200 shadow-sm">
-                            <svg className="w-5 h-5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                            </svg>
-                          </div>
-                          {unreadOthers > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm">
-                              {unreadOthers}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[10px] font-black text-slate-600 group-hover:text-amber-500 mt-1.5 tracking-wide uppercase transition-colors">Others</span>
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex flex-col flex-1">
-                    {/* Category Details View Header */}
-                    <div className="px-4 pt-3 pb-2 flex items-center gap-2 border-b border-slate-100 bg-slate-50/20">
+                <div className="flex flex-col flex-1">
+                  {/* Category Details View Header */}
+                  <div className="px-4 pt-3 pb-2 flex items-center justify-between border-b border-slate-100 bg-slate-50/20">
+                    <div className="flex items-center gap-1.5">
                       <button 
                         onClick={() => setSubView(null)}
                         className="text-[#00c2cb] hover:text-[#00a8b0] text-[11px] font-black border-none bg-none cursor-pointer flex items-center gap-1 transition-colors"
@@ -368,88 +378,96 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
                         ← Back
                       </button>
                       <span className="text-[11px] font-black text-[#0a2342] uppercase tracking-wider">
-                        {subView === 'petitions' ? 'Petition Notifications' : subView === 'forums' ? 'Forum Notifications' : 'Other Notifications'}
+                        {subView === 'petitions' ? 'Petitions' : subView === 'forums' ? 'Forums' : 'Others'}
                       </span>
                     </div>
-
-                    {/* Filter Tabs for selected category */}
-                    <div className="flex gap-2 px-4 pt-2 border-b border-slate-100 pb-2 bg-slate-50/20">
+                    {unreadCount > 0 && (
                       <button
-                        onClick={() => setFilter('all')}
-                        className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${
-                          filter === 'all'
-                            ? 'bg-[#0a2342] text-white border-[#0a2342]'
-                            : 'bg-transparent text-slate-500 border-transparent hover:text-[#0a2342]'
-                        }`}
+                        onClick={handleMarkAllAsRead}
+                        className="text-[10px] font-bold text-[#00c2cb] hover:text-[#00a8b0] border-none bg-none cursor-pointer transition-colors"
                       >
-                        All ({getCategoryNotifications().length})
+                        Mark all read
                       </button>
-                      <button
-                        onClick={() => setFilter('unread')}
-                        className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${
-                          filter === 'unread'
-                            ? 'bg-[#0a2342] text-white border-[#0a2342]'
-                            : 'bg-transparent text-slate-500 border-transparent hover:text-[#0a2342]'
-                        }`}
-                      >
-                        Unread ({getCategoryNotifications().filter(n => !n.isRead).length})
-                      </button>
-                    </div>
-
-                    {/* List Container */}
-                    <div className="max-h-64 overflow-y-auto scrollbar-none p-1 flex flex-col gap-0.5">
-                      {filteredNotifications.length > 0 ? (
-                        filteredNotifications.map((notif) => (
-                          <div
-                            key={notif._id}
-                            onClick={() => handleMarkAsRead(notif)}
-                            className={`p-2.5 rounded-2xl flex gap-3 transition-all duration-200 cursor-pointer hover:bg-slate-50 items-start ${
-                              !notif.isRead 
-                                ? "bg-[#00c2cb]/5 border border-[#00c2cb]/10" 
-                                : "bg-transparent border border-transparent"
-                            }`}
-                          >
-                            {/* Icon */}
-                            {getNotificationIcon(notif.type)}
-
-                            {/* Message Content */}
-                            <div className="flex-1 flex flex-col gap-0.5 text-left">
-                              <p className={`text-[12px] leading-relaxed ${
-                                !notif.isRead ? "text-slate-800 font-bold" : "text-slate-500 font-normal"
-                              }`}>
-                                {notif.message}
-                              </p>
-                              <span className="text-[9px] text-slate-400 font-semibold flex items-center gap-1 mt-0.5">
-                                <svg className="w-3 h-3 text-slate-350" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                  <circle cx="12" cy="12" r="10" />
-                                  <polyline points="12 6 12 12 16 14" />
-                                </svg>
-                                {formatDate(notif.createdAt)}
-                              </span>
-                            </div>
-
-                            {/* Unread dot */}
-                            {!notif.isRead && (
-                              <div className="flex items-center self-center">
-                                <div className="w-1.5 h-1.5 bg-[#00c2cb] rounded-full shrink-0 shadow-[0_0_8px_rgba(0,194,203,0.5)] animate-pulse" />
-                              </div>
-                            )}
-                          </div>
-                        ))
-                      ) : (
-                        <div className="py-10 px-6 text-center text-slate-400 font-bold text-[12px] flex flex-col items-center justify-center gap-2.5">
-                          <div className="w-11 h-11 rounded-full bg-slate-50 flex items-center justify-center text-[18px] text-slate-350 shadow-inner">
-                            🔔
-                          </div>
-                          <span className="text-slate-500">All caught up!</span>
-                          <p className="text-[10px] text-slate-400 font-semibold max-w-[180px] leading-normal">
-                            {filter === 'unread' ? "You have no unread notifications." : "No new notifications yet."}
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
-                )}
+
+                  {/* Filter Tabs for selected category */}
+                  <div className="flex gap-2 px-4 pt-2 border-b border-slate-100 pb-2 bg-slate-50/20">
+                    <button
+                      onClick={() => setFilter('all')}
+                      className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${
+                        filter === 'all'
+                          ? 'bg-[#0a2342] text-white border-[#0a2342]'
+                          : 'bg-transparent text-slate-500 border-transparent hover:text-[#0a2342]'
+                      }`}
+                    >
+                      All ({getCategoryNotifications().length})
+                    </button>
+                    <button
+                      onClick={() => setFilter('unread')}
+                      className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${
+                        filter === 'unread'
+                          ? 'bg-[#0a2342] text-white border-[#0a2342]'
+                          : 'bg-transparent text-slate-500 border-transparent hover:text-[#0a2342]'
+                      }`}
+                    >
+                      Unread ({getCategoryNotifications().filter(n => !n.isRead).length})
+                    </button>
+                  </div>
+
+                  {/* List Container */}
+                  <div className="max-h-64 overflow-y-auto scrollbar-none p-1 flex flex-col gap-0.5">
+                    {filteredNotifications.length > 0 ? (
+                      filteredNotifications.map((notif) => (
+                        <div
+                          key={notif._id}
+                          onClick={() => handleMarkAsRead(notif)}
+                          className={`p-2.5 rounded-2xl flex gap-3 transition-all duration-200 cursor-pointer hover:bg-slate-50 items-start ${
+                            !notif.isRead 
+                              ? "bg-[#00c2cb]/5 border border-[#00c2cb]/10" 
+                              : "bg-transparent border border-transparent"
+                          }`}
+                        >
+                          {/* Icon */}
+                          {getNotificationIcon(notif.type)}
+
+                          {/* Message Content */}
+                          <div className="flex-1 flex flex-col gap-0.5 text-left">
+                            <p className={`text-[12px] leading-relaxed ${
+                              !notif.isRead ? "text-slate-800 font-bold" : "text-slate-500 font-normal"
+                            }`}>
+                              {notif.message}
+                            </p>
+                            <span className="text-[9px] text-slate-400 font-semibold flex items-center gap-1 mt-0.5">
+                              <svg className="w-3 h-3 text-slate-350" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                              </svg>
+                              {formatDate(notif.createdAt)}
+                            </span>
+                          </div>
+
+                          {/* Unread dot */}
+                          {!notif.isRead && (
+                            <div className="flex items-center self-center">
+                              <div className="w-1.5 h-1.5 bg-[#00c2cb] rounded-full shrink-0 shadow-[0_0_8px_rgba(0,194,203,0.5)] animate-pulse" />
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="py-10 px-6 text-center text-slate-400 font-bold text-[12px] flex flex-col items-center justify-center gap-2.5">
+                        <div className="w-11 h-11 rounded-full bg-slate-50 flex items-center justify-center text-[18px] text-slate-350 shadow-inner">
+                          🔔
+                        </div>
+                        <span className="text-slate-500">All caught up!</span>
+                        <p className="text-[10px] text-slate-400 font-semibold max-w-[180px] leading-normal">
+                          {filter === 'unread' ? "You have no unread notifications." : "No new notifications yet."}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
           </div>
