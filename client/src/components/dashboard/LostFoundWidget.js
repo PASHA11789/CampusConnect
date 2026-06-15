@@ -21,7 +21,7 @@ export const LostFoundWidget = ({ items = [] }) => {
       </div>
       <div className="flex-1 bg-slate-50 rounded-xl p-3 flex flex-col gap-2 max-h-full overflow-y-auto pr-1">
         {items && items.length > 0 ? items.map((item, i) => {
-          const isLost = item.title?.toUpperCase() === 'LOST';
+          const isLost = item.type?.toUpperCase() === 'LOST';
           return (
             <div key={i} className={`flex flex-col gap-1.5 p-2.5 bg-white border border-[#eef2f6] rounded-xl relative transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:translate-x-0.75 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(10,35,66,0.06)] hover:border-slate-300 ${isLost ? 'border-l-[3.5px] border-l-red-500 bg-red-500/[0.005] hover:border-l-[4.5px]' : 'border-l-[3.5px] border-l-emerald-500 bg-emerald-500/[0.005] hover:border-l-[4.5px]'}`}>
               <div className="flex items-center justify-between w-full">

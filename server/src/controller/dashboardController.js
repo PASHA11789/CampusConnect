@@ -19,7 +19,7 @@ export const getDashboardSummary = async (req, res) => {
         LostFound.find({ status: "Open" })
           .sort({ createdAt: -1 })
           .limit(3)
-          .select("title itemName location createdAt status"),
+          .select("type itemName location createdAt status"),
         Notification.find({ recipient: req.user._id, isRead: false }).select(
           "type",
         ),

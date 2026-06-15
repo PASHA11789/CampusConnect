@@ -16,6 +16,7 @@ import forumRoutes from "./src/routes/forumRoutes.js"
 import notificationRoutes from "./src/routes/notificationRoutes.js"
 import petitionRoutes from "./src/routes/petitionRoutes.js"
 import modRoutes from "./src/routes/modroutes.js"
+import LostFoundRoutes from "./src/routes/lostFoundRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -62,6 +63,7 @@ app.use("/api/forums", forumRoutes);
 app.use("/api/notifications",notificationRoutes)
 app.use("/api/petitions", petitionRoutes)
 app.use("/api/moderation", modRoutes)
+app.use('/api/lost-found',LostFoundRoutes)
 
 
 io.on("connection", (socket) => {
