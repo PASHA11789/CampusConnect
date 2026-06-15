@@ -16,7 +16,7 @@ import forumRoutes from "./src/routes/forumRoutes.js"
 import notificationRoutes from "./src/routes/notificationRoutes.js"
 import petitionRoutes from "./src/routes/petitionRoutes.js"
 import modRoutes from "./src/routes/modroutes.js"
-import LostFoundRoutes from "./src/routes/lostFoundRoutes.js";
+import LostFoundRoutes from "./src/routes/lostfoundRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
