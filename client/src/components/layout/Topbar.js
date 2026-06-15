@@ -270,7 +270,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
                     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                   </svg>
                   {unreadPetitions > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
                       {unreadPetitions}
                     </span>
                   )}
@@ -297,7 +297,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
                     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                   </svg>
                   {unreadForums > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
                       {unreadForums}
                     </span>
                   )}
@@ -324,7 +324,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
                     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                   </svg>
                   {unreadOthers > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
                       {unreadOthers}
                     </span>
                   )}
