@@ -19,8 +19,8 @@ export default function ModerationRoom() {
 
   // Moderation state
   const [activeTab, setActiveTab] = useState("forums");
-  const [queue, setQueue] = useState({ forums: [], petitions: [] });
-  const [counts, setCounts] = useState({ forums: 0, petitions: 0, total: 0 });
+  const [queue, setQueue] = useState({ forums: [], petitions: [], lostFound: [] });
+  const [counts, setCounts] = useState({ forums: 0, petitions: 0, lostFound: 0, total: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState(null);
   const [actioningId, setActioningId] = useState(null);
@@ -61,8 +61,8 @@ export default function ModerationRoom() {
       if (!token) return;
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const { data } = await axios.get("/api/moderation/queue", config);
-      setQueue(data.queue || { forums: [], petitions: [] });
-      setCounts(data.counts || { forums: 0, petitions: 0, total: 0 });
+      setQueue(data.queue || { forums: [], petitions: [], lostFound: [] });
+      setCounts(data.counts || { forums: 0, petitions: 0, lostFound: 0, total: 0 });
     } catch (error) {
       console.error("Error fetching moderation queue:", error);
       showToast(error.response?.data?.message || "Failed to load moderation queue.", "error");
@@ -135,6 +135,11 @@ export default function ModerationRoom() {
 
       socket.on("new_reported_content", (data) => {
         showToast(data.message || "New flagged item submitted.", "info");
+        fetchQueue();
+      });
+
+      socket.on("new_flagged_content", (data) => {
+        showToast(data.message || "New flagged Lost & Found item submitted.", "info");
         fetchQueue();
       });
 
@@ -278,6 +283,23 @@ export default function ModerationRoom() {
     }
   };
 
+  // Moderate Lost & Found (Approve/Reject)
+  const handleModerateLostFound = async (itemId, action) => {
+    setActioningId(itemId);
+    try {
+      const token = sessionStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const { data } = await axios.put(`/api/moderation/lostfound/${itemId}/moderate`, { action }, config);
+      showToast(data.message || `Lost & Found item ${action}ed successfully.`, "success");
+      fetchQueue();
+    } catch (error) {
+      console.error(`Failed to ${action} Lost & Found item:`, error);
+      showToast(error.response?.data?.message || `Failed to ${action} Lost & Found item.`, "error");
+    } finally {
+      setActioningId(null);
+    }
+  };
+
   if (!user) {
     return (
       <div className="flex items-center justify-center h-screen flex-col gap-3.5 bg-[#f0f4f8]">
@@ -362,6 +384,16 @@ export default function ModerationRoom() {
               }`}
             >
               Pending Petitions ({queue.petitions.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("lostfound")}
+              className={`pb-3 px-1 text-[13.5px] font-bold border-b-2 transition-all cursor-pointer ${
+                activeTab === "lostfound"
+                  ? "border-[#00c2cb] text-[#00c2cb]"
+                  : "border-transparent text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              Flagged Lost & Found ({queue.lostFound?.length || 0})
             </button>
           </div>
 
@@ -550,6 +582,80 @@ export default function ModerationRoom() {
                   ) : (
                     <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-400 font-semibold shadow-sm">
                       No petitions awaiting moderation approval.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 3: LOST & FOUND */}
+              {activeTab === "lostfound" && (
+                <div className="flex flex-col gap-4">
+                  <h3 className="text-[16px] font-black text-[#0a2342] flex items-center gap-2">
+                    🔍 Lost & Found Items Awaiting Review ({queue.lostFound?.length || 0})
+                  </h3>
+                  {queue.lostFound && queue.lostFound.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-4">
+                      {queue.lostFound.map((item) => (
+                        <div
+                          key={item._id}
+                          className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col gap-4 relative overflow-hidden"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2">
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${
+                                  item.type === "LOST" 
+                                    ? "bg-rose-50 text-rose-600 border-rose-100" 
+                                    : "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                }`}>
+                                  {item.type}
+                                </span>
+                                <span className="text-[11px] text-slate-400 font-medium">
+                                  Reported by <strong className="text-slate-600">{item.reporter?.registeration_number || item.reporter?.name}</strong> • {formatDate(item.createdAt)}
+                                </span>
+                              </div>
+                              <span className="text-[11px] text-slate-500 font-semibold">
+                                Location: {item.location} {item.surrenderedAt ? `• Surrendered at: ${item.surrenderedAt}` : ""}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                disabled={actioningId === item._id}
+                                onClick={() => handleModerateLostFound(item._id, "Approve")}
+                                className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-xl text-[12.5px] font-bold transition-all disabled:opacity-50 cursor-pointer"
+                              >
+                                Approve & Publish
+                              </button>
+                              <button
+                                disabled={actioningId === item._id}
+                                onClick={() => handleModerateLostFound(item._id, "Reject")}
+                                className="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-4 py-2 rounded-xl text-[12.5px] font-bold transition-all disabled:opacity-50 cursor-pointer"
+                              >
+                                Reject & Delete
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex gap-4 items-start max-sm:flex-col">
+                            {item.image && (
+                              <img 
+                                src={item.image} 
+                                alt={item.itemName} 
+                                className="w-24 h-24 object-cover rounded-xl border border-slate-100"
+                              />
+                            )}
+                            <div className="flex-1">
+                              <h4 className="text-[15.5px] font-extrabold text-[#0a2342]">{item.itemName}</h4>
+                              <p className="text-[12.5px] text-slate-600 mt-2 bg-slate-50 p-3.5 rounded-xl border border-slate-100 leading-relaxed">
+                                {item.description}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-400 font-semibold shadow-sm">
+                      No Lost & Found items awaiting moderation approval.
                     </div>
                   )}
                 </div>
