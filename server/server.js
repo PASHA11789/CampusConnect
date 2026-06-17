@@ -17,6 +17,8 @@ import notificationRoutes from "./src/routes/notificationRoutes.js"
 import petitionRoutes from "./src/routes/petitionRoutes.js"
 import modRoutes from "./src/routes/modroutes.js"
 import LostFoundRoutes from "./src/routes/lostfoundRoutes.js";
+import canteenRoutes from "./src/routes/canteenRoutes.js";
+import vendorRoutes from "./src/routes/vendorRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -64,6 +66,8 @@ app.use("/api/notifications",notificationRoutes)
 app.use("/api/petitions", petitionRoutes)
 app.use("/api/moderation", modRoutes)
 app.use('/api/lost-found',LostFoundRoutes)
+app.use("/api/canteen", canteenRoutes);
+app.use("/api/vendor", vendorRoutes);
 
 
 io.on("connection", (socket) => {

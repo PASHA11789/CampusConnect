@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import User from "./src/models/User.js";
 import Forum from "./src/models/Forum.js";
 import Petition from "./src/models/Petition.js";
+import Restaurant from "./src/models/Restaurants.js";
+import Order from "./src/models/Order.js";
 import connectDB from "./utils/db.js";
 import bcryptjs from "bcryptjs";
 
@@ -20,6 +22,10 @@ const seedUsers = async () => {
     console.log("previous forum threads deleted");
     await Petition.deleteMany();
     console.log("previous petitions deleted");
+    await Restaurant.deleteMany();
+    console.log("previous restaurants deleted");
+    await Order.deleteMany();
+    console.log("previous orders deleted");
     
     const Salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash("password123", Salt);
@@ -141,9 +147,66 @@ const seedUsers = async () => {
         program: "BSCS",
         section: "C",
       },
+      // --- VENDOR ---
+      {
+        name: "Campus Bites Vendor",
+        email: "vendor@campusconnect.com",
+        registeration_number: "2020F-mulvendor-001",
+        password: hashedPassword,
+        role: "vendor",
+        department: "Food Services",
+        semester: 0,
+        program: "",
+        section: "",
+      },
     ];
     const insertedUsers = await User.insertMany(dummyUsers);
-    console.log("✅ 10 Dummy Users created successfully!");
+    console.log("✅ 11 Dummy Users created successfully!");
+    
+    // Seed Restaurant
+    const vendorUser = insertedUsers.find(u => u.email === "vendor@campusconnect.com");
+    const dummyRestaurant = {
+      name: "Campus Bites",
+      owner: vendorUser._id,
+      phone: "+923001234567",
+      address: "Central Canteen, Block B",
+      coverImage: "https://images.unsplash.com/photo-1552566626-52f8b828add9",
+      deliveryRadiusKm: 5,
+      menu: [
+        {
+          name: "Chicken Biryani",
+          price: 250,
+          description: "Spicy and aromatic basmati rice cooked with chicken and traditional herbs.",
+          image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0",
+          isAvailable: true
+        },
+        {
+          name: "Zinger Burger",
+          price: 200,
+          description: "Crispy chicken fillet with lettuce and mayo in a soft bun.",
+          image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd",
+          isAvailable: true
+        },
+        {
+          name: "French Fries",
+          price: 80,
+          description: "Golden and crispy potato fries served with tomato ketchup.",
+          image: "https://images.unsplash.com/photo-1576107232684-1279f390859f",
+          isAvailable: true
+        },
+        {
+          name: "Soft Drink",
+          price: 50,
+          description: "Chilled 350ml soda bottle.",
+          image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97",
+          isAvailable: true
+        }
+      ],
+      isActive: true
+    };
+
+    await Restaurant.create(dummyRestaurant);
+    console.log("✅ Dummy Restaurant seeded successfully!");
     
     // Assign authors for threads and replies
     const studentUser1 = insertedUsers.find(u => u.email === "hamza@student.com");

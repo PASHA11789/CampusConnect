@@ -21,9 +21,9 @@ export const addMenuItem = async (req,res)=>{
     }
 }
 
-export const updatedMenuItem = async (req,res) =>{
+export const updateMenuItem = async (req,res) =>{
     try{
-        const {name, price, description, isAvailible} = req.body
+        const {name, price, description, isAvailable} = req.body
         const restaurant = await Restaurant.findOne({owner:req.user._id})
         if(!restaurant) return res.status(404).json({message: "Restaurant profile not found"})
         
@@ -44,8 +44,8 @@ export const updatedMenuItem = async (req,res) =>{
 
 export const deleteMenuItem = async (req,res) =>{
     try{
-        const restaurant = await Restaurant.finOne({owner:req.user._id})
-        if(!restaurant) return res.status(404).json({messsage:"Restaurant profile not found."})
+        const restaurant = await Restaurant.findOne({owner:req.user._id})
+        if(!restaurant) return res.status(404).json({message:"Restaurant profile not found."})
         restaurant.menu.pull(req.params.itemId)
         await restaurant.save()
         
@@ -66,7 +66,7 @@ export const getVendorQueue = async (req,res)=>{
         })
         .populate("student","name registeration_number")
         .sort({createdAt: 1})
-        res.status(200).json({success:true, count:orderslength, orders})
+        res.status(200).json({success:true, count:orders.length, orders})
     }catch(error){
         res.status(500).json({message:"Error fetching queue",error: error.message})
     }
@@ -92,7 +92,8 @@ export const updateOrderStatus = async (req, res) =>{
         status: order.status
        })
 
-if (status === "Preparing") message = `Your order from ${restaurant.name} is confirmed and being prepared!`;
+    let message = "";
+    if (status === "Preparing") message = `Your order from ${restaurant.name} is confirmed and being prepared!`;
     if (status === "Dispatched") message = "Order dispatched! The rider is heading to the gate.";
     if (status === "Cancelled") message = `Your order was cancelled by ${restaurant.name}.`;
 

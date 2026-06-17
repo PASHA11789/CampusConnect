@@ -1,5 +1,5 @@
 import Order from '../models/Order.js';
-import Restaurant from '../models/Restaurant.js';
+import Restaurant from '../models/Restaurants.js';
 
 export const getActiveRestaurants = async (req, res) => {
   try {

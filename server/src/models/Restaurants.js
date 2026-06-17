@@ -1,13 +1,11 @@
 import mongoose from "mongoose";
-import { timeStamp } from "node:console";
-import { stringify } from "node:querystring";
 
 const menuItemSchema = new mongoose.Schema({
     name: {type: String, required: true},
     price:{type: Number, required: true},
     description:{type: String, default:""},
     image:{type:String, default:""},
-    isAvailible:{type:Boolean, default: true}
+    isAvailable:{type:Boolean, default: true}
 })
 
 const restaurantSchema = new mongoose.Schema({

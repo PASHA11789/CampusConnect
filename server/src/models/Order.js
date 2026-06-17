@@ -10,8 +10,8 @@ const orderItemSchema = new mongoose.Schema({
 const orderSchema = new mongoose.Schema({
     student:{type: mongoose.Schema.Types.ObjectId, ref:"User", required: true},
     studentPhone: {type:String, required:true},
-    restaurantId:{type: mongoose.Schema.Types.ObjectId, ref:"Restaurant", required: true},
-    items:{orderItemSchema},
+    restaurant:{type: mongoose.Schema.Types.ObjectId, ref:"Restaurant", required: true},
+    items:[orderItemSchema],
     totalAmount:{type: Number, required: true},
     deliveryLocation:{type: String, default: "University Main Gate"},
     status:{
