@@ -1,6 +1,6 @@
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
-import upload from '../utils/cloudinaryConfig.js'; 
+import upload from '../../utils/cloudinaryConfig.js'; 
 import { 
   addMenuItem, 
   updateMenuItem, 
