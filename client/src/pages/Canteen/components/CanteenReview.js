@@ -10,30 +10,37 @@ export default function CanteenReview({
   handlePostReview,
 }) {
   return (
-    <section className="rounded-3xl bg-white p-6 shadow-sm border border-slate-100">
-      <div className="mb-5">
-        <h2 className="text-lg font-black text-[#0a2342]">Community Reviews</h2>
-        <p className="text-xs font-semibold text-slate-400">
-          Students feedback about campus food
+    <section className="rounded-[32px] bg-white p-6 shadow-[0_12px_40px_rgba(0,0,0,0.015)] border border-slate-200/80">
+      {/* Header */}
+      <div className="mb-5 flex flex-col gap-0.5">
+        <h2 className="text-[13px] font-black text-[#0a2342] uppercase tracking-wide">
+          Community Reviews
+        </h2>
+        <p className="text-[10px] font-bold text-slate-400">
+          Student feedback about campus food
         </p>
       </div>
 
-      <form onSubmit={handlePostReview} className="mb-6 rounded-3xl bg-[#fff7f2] p-4">
-        <div className="grid grid-cols-[1fr_120px] gap-3 max-md:grid-cols-1">
+      {/* Review Posting Form */}
+      <form
+        onSubmit={handlePostReview}
+        className="mb-6 rounded-[24px] bg-slate-50 border border-slate-100 p-5 flex flex-col gap-3"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_150px] gap-3">
           <input
             value={newReviewName}
             disabled
-            className="rounded-2xl border border-slate-100 bg-white px-4 py-3 text-xs font-bold text-slate-500"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-400 shadow-sm cursor-not-allowed outline-none"
           />
 
           <select
             value={newReviewRating}
             onChange={(e) => setNewReviewRating(Number(e.target.value))}
-            className="rounded-2xl border border-slate-100 bg-white px-4 py-3 text-xs font-bold outline-none"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-black text-[#0a2342] outline-none shadow-sm focus:border-[#e87a5d] cursor-pointer transition-colors"
           >
             {[5, 4, 3, 2, 1].map((r) => (
               <option key={r} value={r}>
-                ⭐ {r}
+                ⭐ {r} Stars
               </option>
             ))}
           </select>
@@ -42,26 +49,46 @@ export default function CanteenReview({
         <textarea
           value={newReviewComment}
           onChange={(e) => setNewReviewComment(e.target.value)}
-          placeholder="Write your review..."
-          className="mt-3 min-h-[90px] w-full rounded-2xl border border-slate-100 bg-white px-4 py-3 text-xs font-semibold outline-none"
+          placeholder="Write your review about the canteen menu, taste, or delivery..."
+          rows="3"
+          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-semibold outline-none focus:border-[#e87a5d] transition-all placeholder-slate-400 resize-none shadow-sm"
         />
 
-        <button className="mt-3 rounded-2xl bg-[#e2725b] px-5 py-3 text-xs font-black text-white">
+        <button
+          type="submit"
+          className="rounded-xl bg-[#0a2342] hover:bg-[#e87a5d] text-white border-none px-5 py-2.5 text-xs font-black uppercase tracking-wider transition-colors duration-200 shadow-sm cursor-pointer self-start focus:outline-none"
+        >
           Post Review
         </button>
       </form>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      {/* Review Tiles Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {reviews.map((review, index) => (
-          <div key={index} className="rounded-3xl border border-slate-100 bg-[#fffaf7] p-4">
+          <div
+            key={index}
+            className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_4px_12px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.02)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col gap-2"
+          >
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-black text-[#0a2342]">{review.name}</h3>
-              <span className="text-xs font-black text-amber-500">⭐ {review.rating}</span>
+              <div>
+                <h4 className="text-xs font-black text-[#0a2342]">{review.name}</h4>
+                {review.canteenName && (
+                  <span className="text-[9.5px] font-bold text-[#e87a5d] block mt-0.5">
+                    for {review.canteenName}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] font-black text-amber-500 flex items-center gap-0.5 self-start">
+                ⭐ {review.rating}.0
+              </span>
             </div>
-            <p className="mt-3 text-xs font-medium leading-relaxed text-slate-500">
+            <p className="text-xs font-medium leading-relaxed text-slate-500 italic">
               “{review.comment}”
             </p>
-            <p className="mt-3 text-[10px] font-bold text-slate-400">{review.date}</p>
+            <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between text-[9px] font-bold text-slate-400">
+              <span>Verified Student</span>
+              <span>{review.date}</span>
+            </div>
           </div>
         ))}
       </div>

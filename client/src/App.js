@@ -8,6 +8,8 @@ import Canteen from './pages/Canteen/Canteen';
 import Petitions from './pages/Petitions/Petitions';
 import ModerationRoom from './pages/Moderation/ModerationRoom';
 import LostFound from './pages/LostFound/LostFound';
+import VendorLogin from './pages/Canteen/VendorLogin';
+import VendorDashboard from './pages/Canteen/VendorDashboard';
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
           <Route path="/petitions" element={<Petitions />} />
           <Route path="/moderation" element={<ModerationRoom />} />
           <Route path="/lost-found" element={<LostFound />} />
+          <Route path="/vendor/login" element={<VendorLogin />} />
+          <Route path="/vendor/dashboard" element={<VendorDashboard />} />
         </Routes>
       </div>
     </Router>

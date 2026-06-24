@@ -1,6 +1,7 @@
 import React from "react";
 
 export default function CanteenHero({
+  user,
   orderType,
   setOrderType,
   deliveryLocation,
@@ -13,92 +14,149 @@ export default function CanteenHero({
   activeTab,
   setActiveTab,
 }) {
-  return (
-    <section className="relative overflow-visible rounded-[34px] bg-gradient-to-br from-[#e2725b] via-[#f08a69] to-[#ffb199] p-7 shadow-lg">
-      <div className="absolute right-8 top-5 text-[90px] opacity-20">🍔</div>
+  const getGreeting = () => {
+    const hrs = new Date().getHours();
+    if (hrs < 12) return "Good morning";
+    if (hrs < 18) return "Good afternoon";
+    return "Good evening";
+  };
 
-      <div className="relative z-10 flex flex-col gap-5">
+  return (
+    <section className="flex flex-col gap-6 w-full">
+      {/* Header Row: Title & Greeting on Left, Location Dropdown on Right */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <span className="inline-flex rounded-full bg-white/25 px-4 py-1 text-[11px] font-black uppercase tracking-widest text-white">
-            Campus Canteen
+          <span className="text-sm font-semibold text-slate-400">
+            {getGreeting()}, {user?.name || "Student"} 👏
           </span>
-          <h1 className="mt-3 text-4xl font-black text-white max-md:text-2xl">
-            Order food around campus
+          <h1 className="text-3xl font-extrabold text-[#0a2342] mt-1 tracking-tight">
+            What's on your plate today?
           </h1>
-          <p className="mt-2 max-w-2xl text-sm font-medium text-white/90">
-            Browse restaurants, customize meals, apply student deals and track delivery live.
-          </p>
         </div>
 
-        <div className="grid grid-cols-[1fr_auto] gap-3 max-md:grid-cols-1">
+        {/* Location Dropdown selector (Pill capsule) */}
+        <div className="relative shrink-0 self-start md:self-center">
+          <button
+            onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
+            className="flex items-center gap-2.5 rounded-full bg-[#fff5f2] border border-[#e87a5d]/20 px-5 py-2.5 text-xs font-black text-[#e87a5d] hover:shadow-[0_4px_12px_rgba(232,122,93,0.08)] transition-all duration-200 focus:outline-none cursor-pointer"
+          >
+            <svg
+              className="w-4 h-4 text-[#e87a5d] shrink-0 animate-pulse"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            <span>{deliveryLocation}</span>
+            <svg
+              className={`w-3 h-3 text-[#e87a5d]/70 shrink-0 transition-transform duration-300 ${
+                isLocationDropdownOpen ? "rotate-180" : ""
+              }`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="3.5"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {isLocationDropdownOpen && (
+            <div className="absolute right-0 top-13 z-30 w-[320px] overflow-hidden rounded-3xl border border-slate-200/80 bg-white/95 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.08)] max-md:left-0 max-md:right-auto animate-fade-in">
+              <div className="p-3.5 border-b border-slate-100 bg-[#fff5f2]/40 flex items-center justify-between">
+                <span className="text-[10px] font-black text-[#e87a5d] uppercase tracking-widest block">
+                  Select Delivery Spot
+                </span>
+                <span className="text-[9px] font-extrabold bg-[#e87a5d]/10 px-2 py-0.5 rounded-full text-[#e87a5d]">
+                  6 Spots
+                </span>
+              </div>
+              <div className="max-h-[260px] overflow-y-auto scrollbar-none py-1.5">
+                {CAMPUS_LOCATIONS.map((loc) => {
+                  const isSelected = deliveryLocation === loc;
+                  return (
+                    <button
+                      key={loc}
+                      onClick={() => {
+                        setDeliveryLocation(loc);
+                        setIsLocationDropdownOpen(false);
+                      }}
+                      className={`w-full px-5 py-3 text-left text-xs font-bold border-b border-slate-50 last:border-b-0 transition-all flex items-center justify-between cursor-pointer ${
+                        isSelected
+                          ? "text-[#e87a5d] bg-[#fff5f2]/60"
+                          : "text-slate-600 hover:bg-slate-50 hover:text-[#0a2342]"
+                      }`}
+                    >
+                      <span>{loc}</span>
+                      {isSelected && (
+                        <svg
+                          className="w-3.5 h-3.5 text-[#e87a5d] shrink-0"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="3.5"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Search & Toggle Row */}
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-center">
+        {/* Search Input Card */}
+        <div className="relative w-full">
+          <span className="absolute left-4.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+            🔍
+          </span>
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search biryani, burger, coffee..."
-            className="h-13 rounded-2xl border border-white/40 bg-white px-5 text-sm font-semibold outline-none"
+            placeholder="Search for food or restaurants..."
+            className="w-full h-12 pl-12 pr-5 bg-white border border-slate-200/80 rounded-2xl text-xs font-semibold text-[#0a2342] shadow-[0_4px_12px_rgba(0,0,0,0.015)] outline-none focus:border-[#e87a5d] focus:ring-4 focus:ring-[#e87a5d]/5 transition-all duration-300 placeholder-slate-400"
           />
-
-          <div className="flex gap-2">
-            {["delivery", "pickup"].map((type) => (
-              <button
-                key={type}
-                onClick={() => setOrderType(type)}
-                className={`rounded-2xl px-5 py-3 text-xs font-black uppercase transition ${orderType === type
-                  ? "bg-[#0a2342] text-white"
-                  : "bg-white/80 text-[#0a2342]"
-                  }`}
-              >
-                {type === "delivery" ? "Delivery" : "Pickup"}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {orderType === "delivery" && (
-          <div className="relative w-fit max-md:w-full">
-            <button
-              onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
-              className="w-full rounded-2xl bg-white px-5 py-3 text-left text-xs font-bold text-[#0a2342] shadow-sm"
-            >
-              📍 {deliveryLocation}
-            </button>
-
-            {isLocationDropdownOpen && (
-              <div className="absolute left-0 top-14 z-30 w-[320px] overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-xl max-md:w-full">
-                {CAMPUS_LOCATIONS.map((loc) => (
-                  <button
-                    key={loc}
-                    onClick={() => {
-                      setDeliveryLocation(loc);
-                      setIsLocationDropdownOpen(false);
-                    }}
-                    className="block w-full px-4 py-3 text-left text-xs font-bold text-slate-600 hover:bg-[#fff4ef]"
-                  >
-                    {loc}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="flex flex-wrap gap-3">
+        {/* Tab Selection Row (Browse, Deals, Active Order) */}
+        <div className="flex gap-2 shrink-0 overflow-x-auto pb-1 md:pb-0">
           {[
             { id: "browse", label: "Browse Menu", icon: "🍽️" },
-            { id: "deals", label: "Deals", icon: "🏷️" },
-            { id: "track", label: "Track Order", icon: "🛵" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`rounded-2xl px-5 py-3 text-xs font-black transition ${activeTab === tab.id
-                ? "bg-white text-[#e2725b]"
-                : "bg-white/20 text-white hover:bg-white/30"
+            { id: "deals", label: "Student Deals", icon: "🏷️" },
+            { id: "track", label: "Active Order", icon: "🛵" },
+          ].map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`rounded-xl px-4 py-3 text-xs font-black transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap focus:outline-none ${
+                  isActive
+                    ? "bg-[#fff1f2] text-[#e87a5d] shadow-[0_2px_8px_-4px_rgba(232,122,93,0.2)] border border-orange-100"
+                    : "bg-white border border-slate-200/80 text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
                 }`}
-            >
-              {tab.icon} {tab.label}
-            </button>
-          ))}
+              >
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </section>
