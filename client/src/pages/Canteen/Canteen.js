@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { io } from "socket.io-client";
 
 // Layout
 import Sidebar from "../../components/layout/Sidebar";
@@ -20,61 +21,6 @@ import gourmetImg from "../../assets/gourmet.png";
 import savourImg from "../../assets/savour.png";
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
-
-const RESTAURANTS = [
-  { id: "gourmet", name: "Gourmet Café", distance: "0.2 km", image: gourmetImg, rating: 4.5, cuisine: "Cafe", status: "Open" },
-  { id: "savour", name: "Savour Foods", distance: "0.5 km", image: savourImg, rating: 4.8, cuisine: "Fast Food", status: "Open" },
-  { id: "subway", name: "Subway Campus", distance: "0.3 km", image: "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=500&q=80", rating: 4.3, cuisine: "Sandwiches", status: "Open" },
-  { id: "biryani", name: "Student Biryani", distance: "0.6 km", image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&q=80", rating: 4.7, cuisine: "Biryani", status: "Open" },
-  { id: "tehzeeb", name: "Tehzeeb Bakers", distance: "1.0 km", image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&q=80", rating: 4.6, cuisine: "Bakery", status: "Open" },
-  { id: "pizza", name: "Pizza Online", distance: "0.8 km", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80", rating: 4.2, cuisine: "Fast Food", status: "Open" },
-  { id: "bbq", name: "Bundu Khan BBQ", distance: "1.1 km", image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80", rating: 4.6, cuisine: "Traditional", status: "Open" },
-];
-
-const MENU_ITEMS = {
-  gourmet: [
-    { id: "g1", name: "Chicken Club Sandwich", price: 320, category: "Fast Food", desc: "Classic double-decker sandwich with grilled chicken, egg, and fresh veggies.", image: "https://images.unsplash.com/photo-1567234669003-dce7a7a88821?w=400&q=80", popularity: "best seller" },
-    { id: "g2", name: "Crispy Chicken Zinger", price: 250, category: "Fast Food", desc: "Golden fried crispy chicken fillet topped with spicy mayo and lettuce.", image: "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=400&q=80", popularity: "popular" },
-    { id: "g3", name: "Loaded Cheese Fries", price: 150, category: "Fast Food", desc: "Crispy french fries drenched in rich cheese sauce and jalapenos.", image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&q=80" },
-    { id: "g4", name: "Cappuccino Coffee", price: 240, category: "Beverages", desc: "Rich espresso blend topped with creamy frothed milk foam.", image: "https://images.unsplash.com/photo-1571934811356-5cc561b63d2c?w=400&q=80" },
-    { id: "g5", name: "Chilled Peach Ice Tea", price: 160, category: "Beverages", desc: "Sweet, refreshing brewed tea infused with fresh peach flavors.", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&q=80" },
-    { id: "g6", name: "Fudge Chocolate Brownie", price: 150, category: "Desserts", desc: "Dense, chewy chocolate brownie served warm with fudge syrup.", image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&q=80" },
-  ],
-  savour: [
-    { id: "s1", name: "Savour Pulao Kabab", price: 450, category: "Traditional", desc: "Fragrant rice served with two Shami Kababs and succulent chicken roast.", image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=400&q=80", popularity: "best seller" },
-    { id: "s2", name: "Chicken Roast Quarter", price: 290, category: "Traditional", desc: "Perfectly seasoned, crispy fried chicken leg or breast quarter.", image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&q=80" },
-    { id: "s3", name: "Extra Shami Kabab", price: 90, category: "Traditional", desc: "Single golden fried chicken & lentil shami kabab.", image: "https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=400&q=80" },
-    { id: "s4", name: "Fresh Mint Raita", price: 60, category: "Traditional", desc: "Cool yogurt dip whisked with fresh mint leaves and spices.", image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&q=80" },
-    { id: "s5", name: "Mineral Water (Regular)", price: 80, category: "Beverages", desc: "Clean bottled drinking water.", image: "https://images.unsplash.com/photo-1608885898957-a599fb1698d6?w=400&q=80" },
-  ],
-  subway: [
-    { id: "sub1", name: "Chicken Teriyaki Sub (6-inch)", price: 420, category: "Fast Food", desc: "Tender chicken teriyaki strips with fresh vegetables and sweet onion sauce.", image: "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400&q=80", popularity: "best seller" },
-    { id: "sub2", name: "Oven Roasted Chicken Sub", price: 390, category: "Fast Food", desc: "Succulent oven-roasted chicken breast fillet with crisp greens and light mayo.", image: "https://images.unsplash.com/photo-1534790566855-4cb788d389ec?w=400&q=80" },
-    { id: "sub3", name: "Chocolate Chip Cookie", price: 90, category: "Desserts", desc: "Freshly baked signature Subway soft cookie loaded with chocolate chips.", image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&q=80", popularity: "popular" },
-  ],
-  biryani: [
-    { id: "by1", name: "Special Chicken Biryani", price: 280, category: "Traditional", desc: "Spicy and flavorful basmati rice layered with tender chicken, potatoes, and spices.", image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=400&q=80", popularity: "best seller" },
-    { id: "by2", name: "Aloo Biryani", price: 180, category: "Traditional", desc: "Aromatic biryani rice prepared with spicy, soft steamed potatoes.", image: "https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=400&q=80" },
-    { id: "by3", name: "Shami Kabab (Beef)", price: 70, category: "Traditional", desc: "Traditional pan-fried beef shami kabab with green chillies and mint.", image: "https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=400&q=80" },
-  ],
-  tehzeeb: [
-    { id: "tz1", name: "Chicken Tikka Pizza (Medium)", price: 950, category: "Fast Food", desc: "Tehzeeb's famous rich crust pizza loaded with chicken tikka, cheese, and capsicum.", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&q=80", popularity: "best seller" },
-    { id: "tz2", name: "Fresh Pineapple Pastry", price: 140, category: "Desserts", desc: "Layered sponge cake filled with pineapple chunks and whipped cream frosting.", image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80", popularity: "popular" },
-    { id: "tz3", name: "Chicken Puff Pastry", price: 110, category: "Fast Food", desc: "Flaky golden puff pastry shell stuffed with spicy minced chicken filling.", image: "https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=400&q=80" },
-  ],
-  pizza: [
-    { id: "p1", name: "Chicken Tikka Pizza (Small)", price: 690, category: "Fast Food", desc: "Local favorite! Tender chicken tikka chunks, onions, and rich mozzarella.", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&q=80", popularity: "best seller" },
-    { id: "p2", name: "Fajita Supreme Pizza (Small)", price: 720, category: "Fast Food", desc: "Fajita chicken, bell peppers, olives, onions, and melted cheese.", image: "https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=400&q=80", popularity: "popular" },
-    { id: "p3", name: "Garlic Bread with Cheese", price: 220, category: "Fast Food", desc: "Four pieces of crispy baguette topped with garlic butter and melted cheese.", image: "https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=400&q=80" },
-    { id: "p4", name: "Chocolate Lava Cake", price: 280, category: "Desserts", desc: "Warm chocolate cake with a molten, gooey chocolate center.", image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&q=80" },
-  ],
-  bbq: [
-    { id: "b1", name: "Chicken Boti Plate", price: 480, category: "Traditional", desc: "8 pieces of flame-grilled chicken breast cubes marinated in spices.", image: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400&q=80", popularity: "best seller" },
-    { id: "b2", name: "Beef Seekh Kabab Plate", price: 520, category: "Traditional", desc: "4 skewers of premium minced beef flame-grilled over burning charcoals.", image: "https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=400&q=80", popularity: "popular" },
-    { id: "b3", name: "Roghni Naan", price: 60, category: "Traditional", desc: "Fluffy tandoori flatbread topped with sesame seeds and butter glaze.", image: "https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=400&q=80" },
-    { id: "b4", name: "Fresh Mint Margerita", price: 180, category: "Beverages", desc: "Slushy blend of fresh mint leaves, lemon juice, sprite, and black salt.", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400&q=80" },
-  ],
-};
 
 const POPULAR_DISHES = [
   { id: "by1", name: "Chicken Biryani", price: 280, rating: 4.7, reviews: 120, image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&q=80", category: "Traditional", desc: "Spicy and flavorful basmati rice layered with tender chicken.", restaurantId: "biryani" },
@@ -127,11 +73,15 @@ export default function Canteen() {
   // ── UI / Navigation ─────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState("browse");
 
-  // ── Restaurant & Menu ───────────────────────────────────────────
+  // ── Restaurant & Menu States (Dynamic) ─────────────────────────
   const location = useLocation();
-  const [activeRestaurant, setActiveRestaurant] = useState(location.state?.restaurantId || "gourmet");
+  const [restaurantsList, setRestaurantsList] = useState([]);
+  const [menuList, setMenuList] = useState([]);
+  const [activeRestaurant, setActiveRestaurant] = useState(location.state?.restaurantId || "");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(true);
+  const [isLoadingMenu, setIsLoadingMenu] = useState(false);
 
   // ── Delivery ────────────────────────────────────────────────────
   const [orderType, setOrderType] = useState("delivery");
@@ -141,6 +91,7 @@ export default function Canteen() {
   // ── Cart ────────────────────────────────────────────────────────
   const [cart, setCart] = useState([]);
   const [favorites, setFavorites] = useState({});
+  const [studentPhone, setStudentPhone] = useState("");
 
   // ── Promo ───────────────────────────────────────────────────────
   const [promoCode, setPromoCode] = useState("");
@@ -164,9 +115,9 @@ export default function Canteen() {
   const [newReviewComment, setNewReviewComment] = useState("");
   const [newReviewRating, setNewReviewRating] = useState(5);
 
-  // ── Order Tracking ──────────────────────────────────────────────
+  // ── Order Tracking (Live) ──────────────────────────────────────
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
-  const [trackingStep, setTrackingStep] = useState(1);
+  const [activeOrder, setActiveOrder] = useState(null);
   const [orderId, setOrderId] = useState("");
 
   // ── Auth & Profile Mount ─────────────────────────────────────────
@@ -202,6 +153,110 @@ export default function Canteen() {
     const tick = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(tick);
   }, [navigate]);
+
+  // ── Fetch Restaurants List ───────────────────────────────────────
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      const token = sessionStorage.getItem("token");
+      if (!token) return;
+      try {
+        setIsLoadingRestaurants(true);
+        const { data } = await axios.get("/api/canteen/restaurants", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (data.success) {
+          setRestaurantsList(data.restaurants || []);
+          const initialResId = location.state?.restaurantId || data.restaurants[0]?._id;
+          if (initialResId) {
+            setActiveRestaurant(initialResId);
+          }
+        }
+      } catch (err) {
+        console.error("Error loading restaurants:", err);
+      } finally {
+        setIsLoadingRestaurants(false);
+      }
+    };
+    fetchRestaurants();
+  }, [location.state?.restaurantId]);
+
+  // ── Fetch Restaurant Menu ────────────────────────────────────────
+  useEffect(() => {
+    const fetchMenu = async () => {
+      const token = sessionStorage.getItem("token");
+      if (!token || !activeRestaurant) return;
+      try {
+        setIsLoadingMenu(true);
+        const { data } = await axios.get(`/api/canteen/restaurants/${activeRestaurant}/menu`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (data.success) {
+          setMenuList(data.menu || []);
+        }
+      } catch (err) {
+        console.error("Error loading restaurant menu:", err);
+      } finally {
+        setIsLoadingMenu(false);
+      }
+    };
+
+    if (activeRestaurant && activeRestaurant.length === 24) {
+      fetchMenu();
+    }
+  }, [activeRestaurant]);
+
+  // ── Fetch Active/Past Orders ─────────────────────────────────────
+  useEffect(() => {
+    const fetchPastOrders = async () => {
+      const token = sessionStorage.getItem("token");
+      if (!token) return;
+      try {
+        const { data } = await axios.get("/api/canteen/orders/my-orders", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (data.success && data.orders && data.orders.length > 0) {
+          const currentActive = data.orders.find(
+            (o) => o.status !== "Delivered" && o.status !== "Cancelled"
+          );
+          if (currentActive) {
+            setActiveOrder(currentActive);
+            setOrderId(currentActive._id);
+          } else {
+            setActiveOrder(data.orders[0]);
+            setOrderId(data.orders[0]._id);
+          }
+        }
+      } catch (err) {
+        console.error("Error loading past orders:", err);
+      }
+    };
+    if (user) {
+      fetchPastOrders();
+    }
+  }, [user]);
+
+  // ── WebSocket Real-Time Tracking ─────────────────────────────────
+  useEffect(() => {
+    if (!user) return;
+    const socket = io("http://localhost:5000");
+
+    socket.on("connect", () => {
+      socket.emit("join_user_room", user._id);
+    });
+
+    socket.on("order_status_update", (data) => {
+      setActiveOrder((prev) => {
+        if (prev && prev._id === data.orderId) {
+          return { ...prev, status: data.status };
+        }
+        return prev;
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user]);
 
   // ── Avatar Upload ─────────────────────────────────────────────────
   const handleAvatarChange = async (e) => {
@@ -244,15 +299,17 @@ export default function Canteen() {
 
   // ── Cart Helpers ──────────────────────────────────────────────────
   const handleAddToCart = (item) => {
+    const itemId = item._id || item.id;
     setCart((prev) => {
-      const ex = prev.find((ci) => ci.id === item.id);
-      if (ex) return prev.map((ci) => ci.id === item.id ? { ...ci, qty: ci.qty + 1 } : ci);
-      return [...prev, { ...item, qty: 1 }];
+      const ex = prev.find((ci) => ci.id === itemId);
+      if (ex) return prev.map((ci) => ci.id === itemId ? { ...ci, qty: ci.qty + 1 } : ci);
+      return [...prev, { ...item, id: itemId, qty: 1 }];
     });
   };
 
   const handleAddToCartClick = (item) => {
-    if (item.category === "Fast Food" || item.category === "Traditional") {
+    const itemCategory = item.category || (item.name.toLowerCase().match(/(burger|sandwich|pizza|zinger|fries|roll)/) ? "Fast Food" : "Other");
+    if (itemCategory === "Fast Food" || itemCategory === "Traditional") {
       setCustomizingItem(item);
       setCustomizations({ extraCheese: false, makeCombo: false, extraShami: false, extraRaita: false, portionSize: "Regular", spiceLevel: "Medium" });
     } else {
@@ -264,7 +321,9 @@ export default function Canteen() {
     if (!customizingItem) return;
     let extra = 0;
     const notes = [];
-    if (customizingItem.category === "Fast Food") {
+    const itemCategory = customizingItem.category || (customizingItem.name.toLowerCase().match(/(burger|sandwich|pizza|zinger|fries|roll)/) ? "Fast Food" : "Other");
+
+    if (itemCategory === "Fast Food") {
       if (customizations.extraCheese) { extra += 40; notes.push("Extra Cheese (+Rs.40)"); }
       if (customizations.makeCombo) { extra += 150; notes.push("Combo (Fries + Drink) (+Rs.150)"); }
       if (customizations.spiceLevel !== "Medium") notes.push(`Spice: ${customizations.spiceLevel}`);
@@ -273,7 +332,8 @@ export default function Canteen() {
       if (customizations.extraRaita) { extra += 30; notes.push("Extra Raita (+Rs.30)"); }
       if (customizations.portionSize === "Double") { extra += 100; notes.push("Double Portion (+Rs.100)"); }
     }
-    setCart((prev) => [...prev, { ...customizingItem, id: `${customizingItem.id}-${Date.now()}`, price: customizingItem.price + extra, customNotes: notes.join(", "), qty: 1 }]);
+    const baseId = customizingItem._id || customizingItem.id;
+    setCart((prev) => [...prev, { ...customizingItem, id: `${baseId}-${Date.now()}`, price: customizingItem.price + extra, customNotes: notes.join(", "), qty: 1 }]);
     setCustomizingItem(null);
   };
 
@@ -333,22 +393,41 @@ export default function Canteen() {
   };
   const handleRemovePromo = () => { setAppliedPromo(null); setPromoCode(""); setPromoError(""); };
 
-  // ── Checkout ──────────────────────────────────────────────────────
-  const handleCheckout = () => {
+  // ── Checkout (Live API call) ─────────────────────────────────────
+  const handleCheckout = async () => {
     if (cart.length === 0) return;
-    setOrderId("CC-" + Math.floor(100000 + Math.random() * 900000));
-    setCart([]);
-    setIsTrackingOpen(true);
-    setTrackingStep(1);
-    handleRemovePromo();
-  };
+    const token = sessionStorage.getItem("token");
+    if (!token) return;
 
-  // ── Tracking Simulation ───────────────────────────────────────────
-  useEffect(() => {
-    if (!isTrackingOpen || trackingStep >= 4) return;
-    const iv = setInterval(() => setTrackingStep((p) => (p >= 4 ? (clearInterval(iv), 4) : p + 1)), 4000);
-    return () => clearInterval(iv);
-  }, [isTrackingOpen, trackingStep]);
+    try {
+      const orderPayload = {
+        restaurantId: activeRestaurant,
+        items: cart.map((item) => ({
+          name: item.name,
+          quantity: item.qty,
+          price: item.price,
+        })),
+        totalAmount: cartTotal,
+        studentPhone: studentPhone,
+      };
+
+      const { data } = await axios.post("/api/canteen/orders", orderPayload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (data.success) {
+        setActiveOrder(data.order);
+        setOrderId(data.order._id);
+        setCart([]);
+        setIsTrackingOpen(true);
+        handleRemovePromo();
+        alert("Order placed successfully!");
+      }
+    } catch (err) {
+      console.error("Error creating order:", err);
+      alert(err.response?.data?.message || "Failed to place order. Please try again.");
+    }
+  };
 
   // ── Reviews ───────────────────────────────────────────────────────
   const handlePostReview = (e) => {
@@ -359,13 +438,45 @@ export default function Canteen() {
     setNewReviewRating(5);
   };
 
+  // ── Helper to determine food category dynamically ─────────────────
+  const getItemCategory = (item) => {
+    if (item.category) return item.category;
+    const nameLower = item.name.toLowerCase();
+    const descLower = (item.description || "").toLowerCase();
+    if (nameLower.match(/(burger|sandwich|pizza|zinger|fries|roll|patties|nugget)/) || descLower.match(/(burger|sandwich|pizza|zinger|fries|roll|patties|nugget)/)) return "Fast Food";
+    if (nameLower.match(/(pulao|biryani|kabab|roast|naan|raita|gravy|karahi|daal|sabzi)/) || descLower.match(/(pulao|biryani|kabab|roast|naan|raita|gravy|karahi|daal|sabzi)/)) return "Traditional";
+    if (nameLower.match(/(tea|coffee|coke|sprite|fanta|water|juice|soda|drink|shake)/) || descLower.match(/(tea|coffee|coke|sprite|fanta|water|juice|soda|drink|shake)/)) return "Beverages";
+    if (nameLower.match(/(pastry|cake|brownie|dessert|sweet|ice cream)/) || descLower.match(/(pastry|cake|brownie|dessert|sweet|ice cream)/)) return "Desserts";
+    return "Fast Food";
+  };
+
   // ── Filtered Menu ─────────────────────────────────────────────────
-  const currentMenu = MENU_ITEMS[activeRestaurant] || [];
-  const filteredMenu = currentMenu.filter((item) => {
-    const matchCat = selectedCategory === "All" || item.category === selectedCategory;
-    const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.desc.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredMenu = menuList.filter((item) => {
+    const itemCat = getItemCategory(item);
+    const matchCat = selectedCategory === "All" || itemCat === selectedCategory;
+    const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.description || "").toLowerCase().includes(searchQuery.toLowerCase());
     return matchCat && matchSearch;
   });
+
+  const getTrackingStep = (status) => {
+    switch (status) {
+      case "Pending":
+        return 1;
+      case "Preparing":
+        return 2;
+      case "Dispatched":
+        return 3;
+      case "Delivered":
+        return 4;
+      case "Cancelled":
+        return 0;
+      default:
+        return 1;
+    }
+  };
+
+  const trackingStep = getTrackingStep(activeOrder?.status || "Pending");
 
   if (!user) return null;
 
@@ -403,7 +514,7 @@ export default function Canteen() {
           {/* ── RESTAURANT CAROUSEL (Browse tab only) ── */}
           {activeTab === "browse" && (
             <RestaurantList
-              restaurants={RESTAURANTS}
+              restaurants={restaurantsList}
               activeRestaurant={activeRestaurant}
               setActiveRestaurant={setActiveRestaurant}
               setSelectedCategory={setSelectedCategory}
@@ -419,7 +530,7 @@ export default function Canteen() {
               {activeTab === "browse" && (
                 <MenuBoard
                   popularDishes={POPULAR_DISHES}
-                  restaurants={RESTAURANTS}
+                  restaurants={restaurantsList}
                   activeRestaurant={activeRestaurant}
                   filteredMenu={filteredMenu}
                   selectedCategory={selectedCategory}
@@ -530,13 +641,13 @@ export default function Canteen() {
                     <div className="relative w-full h-3 bg-slate-100 rounded-full mb-8 overflow-visible">
                       <div
                         className="h-full bg-gradient-to-r from-[#e2725b] to-[#0a2342] rounded-full transition-all duration-700"
-                        style={{ width: `${((trackingStep - 1) / 3) * 100}%` }}
+                        style={{ width: `${activeOrder?.status === "Cancelled" ? 100 : ((trackingStep - 1) / 3) * 100}%` }}
                       />
                       <div
                         className="absolute top-1/2 -translate-y-1/2 -ml-5 text-[28px] transition-all duration-700 select-none animate-bounce"
-                        style={{ left: `${Math.max(0, ((trackingStep - 1) / 3) * 100)}%` }}
+                        style={{ left: `${activeOrder?.status === "Cancelled" ? 50 : Math.max(0, ((trackingStep - 1) / 3) * 100)}%` }}
                       >
-                        🛵
+                        {activeOrder?.status === "Cancelled" ? "🛑" : "🛵"}
                       </div>
                     </div>
 
@@ -550,48 +661,56 @@ export default function Canteen() {
                       ].map(({ step, icon, label, color }) => (
                         <div
                           key={step}
-                          className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${trackingStep >= step
-                            ? "border-[#e2725b]/30 bg-[#e2725b]/5 shadow-sm"
-                            : "border-slate-100 opacity-50"
+                          className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${activeOrder?.status === "Cancelled" ? "opacity-30 border-slate-100" :
+                              trackingStep >= step
+                                ? "border-[#e2725b]/30 bg-[#e2725b]/5 shadow-sm"
+                                : "border-slate-100 opacity-50"
                             }`}
                         >
                           <span className={`text-2xl w-11 h-11 rounded-full flex items-center justify-center ${color}`}>
                             {icon}
                           </span>
                           <span className="text-[11px] font-extrabold text-[#0a2342] text-center">{label}</span>
-                          {trackingStep > step && (
+                          {activeOrder?.status !== "Cancelled" && trackingStep > step && (
                             <span className="text-emerald-600 text-[9px] font-extrabold">✓ Done</span>
                           )}
-                          {trackingStep === step && (
+                          {activeOrder?.status !== "Cancelled" && trackingStep === step && (
                             <span className="text-[#e2725b] text-[9px] font-extrabold animate-pulse">● Live</span>
                           )}
                         </div>
                       ))}
                     </div>
-                  </div>
 
-                  {/* Rider Card */}
-                  <div className="bg-white border border-slate-100 rounded-3xl p-5 flex justify-between items-center shadow-sm">
-                    <div className="flex gap-3.5 items-center">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#e2725b] to-[#0a2342] flex items-center justify-center font-black text-white text-[15px]">
-                        AR
+                    {activeOrder?.status === "Cancelled" && (
+                      <div className="mt-4 p-3 bg-rose-50 border border-rose-100 text-rose-700 text-xs font-bold rounded-2xl text-center">
+                        Order Cancelled: This order was cancelled by the vendor.
                       </div>
-                      <div>
-                        <h4 className="text-[13px] font-black text-[#0a2342]">Ali Raza</h4>
-                        <p className="text-[10.5px] text-slate-400 font-bold">Minhaj Delivery Express</p>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <span className="text-[#fbbf24] text-[11px]">★ ★ ★ ★ ★</span>
-                          <span className="text-[10px] text-slate-400 font-semibold">5.0</span>
+                    )}
+                  </div>
+                  {/* Rider Card */}
+                  {activeOrder?.status !== "Cancelled" && (
+                    <div className="bg-white border border-slate-100 rounded-3xl p-5 flex justify-between items-center shadow-sm">
+                      <div className="flex gap-3.5 items-center">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#e2725b] to-[#0a2342] flex items-center justify-center font-black text-white text-[15px]">
+                          AR
+                        </div>
+                        <div>
+                          <h4 className="text-[13px] font-black text-[#0a2342]">Ali Raza</h4>
+                          <p className="text-[10.5px] text-slate-400 font-bold">Minhaj Delivery Express</p>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <span className="text-[#fbbf24] text-[11px]">★ ★ ★ ★ ★</span>
+                            <span className="text-[10px] text-slate-400 font-semibold">5.0</span>
+                          </div>
                         </div>
                       </div>
+                      <button
+                        onClick={() => alert("Mock call: Connecting with rider Ali Raza...")}
+                        className="bg-[#e2725b] hover:bg-[#d55b41] text-white border-none py-2 px-5 rounded-xl text-[12px] font-bold cursor-pointer transition-all shadow-sm focus:outline-none"
+                      >
+                        📞 Call Rider
+                      </button>
                     </div>
-                    <button
-                      onClick={() => alert("Mock call: Connecting with rider Ali Raza...")}
-                      className="bg-[#e2725b] hover:bg-[#d55b41] text-white border-none py-2 px-5 rounded-xl text-[12px] font-bold cursor-pointer transition-all shadow-sm focus:outline-none"
-                    >
-                      📞 Call Rider
-                    </button>
-                  </div>
+                  )}
                 </div>
               )}
 

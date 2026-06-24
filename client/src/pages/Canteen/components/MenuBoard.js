@@ -103,8 +103,8 @@ export default function MenuBoard({
               </div>
               <span
                 className={`text-[11.5px] font-extrabold transition-colors ${selectedCategory === cat.name
-                    ? "text-[#00c2cb]"
-                    : "text-slate-500 group-hover:text-[#00c2cb]"
+                  ? "text-[#00c2cb]"
+                  : "text-slate-500 group-hover:text-[#00c2cb]"
                   }`}
               >
                 {cat.name}
@@ -118,7 +118,7 @@ export default function MenuBoard({
       <div>
         <div className="flex gap-2 items-center mb-3">
           <h3 className="text-[14px] font-extrabold text-[#0a2342] tracking-wide uppercase">
-            {restaurants.find((r) => r.id === activeRestaurant)?.name}'s Menu
+            {restaurants.find((r) => (r._id || r.id) === activeRestaurant)?.name || "Restaurant"}'s Menu
           </h3>
           <span className="bg-slate-100 text-slate-500 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
             {selectedCategory} items
@@ -127,42 +127,48 @@ export default function MenuBoard({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 min-[1100px]:grid-cols-1 min-[1250px]:grid-cols-2 gap-4">
           {filteredMenu.length > 0 ? (
-            filteredMenu.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden flex transition-all duration-300 hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 group"
-              >
-                <div className="relative w-[110px] shrink-0 overflow-hidden bg-slate-50">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  {item.popularity && (
-                    <span className="absolute top-2 left-2 bg-[#fbbf24] text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shadow-sm">
-                      {item.popularity}
-                    </span>
-                  )}
-                </div>
-                <div className="p-3 flex-1 flex flex-col gap-1.5 min-w-0">
-                  <h4 className="text-[13px] font-black text-[#0a2342] truncate leading-tight">
-                    {item.name}
-                  </h4>
-                  <p className="text-[11px] text-slate-400 font-medium line-clamp-2 leading-relaxed">
-                    {item.desc}
-                  </p>
-                  <div className="flex justify-between items-center mt-auto pt-1">
-                    <span className="text-[13px] font-black text-[#00c2cb]">Rs. {item.price}</span>
-                    <button
-                      className="bg-[#0a2342] hover:bg-[#00c2cb] text-white border-none py-1.5 px-3.5 rounded-lg text-[10.5px] font-bold cursor-pointer transition-colors shadow-sm focus:outline-none"
-                      onClick={() => handleAddToCartClick(item)}
-                    >
-                      + Add
-                    </button>
+            filteredMenu.map((item) => {
+              const itemId = item._id || item.id;
+              const itemImage = item.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80";
+              const itemDesc = item.description || item.desc || "Delicious campus meal";
+
+              return (
+                <div
+                  key={itemId}
+                  className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden flex transition-all duration-300 hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 group"
+                >
+                  <div className="relative w-[110px] shrink-0 overflow-hidden bg-slate-50">
+                    <img
+                      src={itemImage}
+                      alt={item.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    {item.popularity && (
+                      <span className="absolute top-2 left-2 bg-[#fbbf24] text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shadow-sm">
+                        {item.popularity}
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-3 flex-1 flex flex-col gap-1.5 min-w-0">
+                    <h4 className="text-[13px] font-black text-[#0a2342] truncate leading-tight">
+                      {item.name}
+                    </h4>
+                    <p className="text-[11px] text-slate-400 font-medium line-clamp-2 leading-relaxed">
+                      {itemDesc}
+                    </p>
+                    <div className="flex justify-between items-center mt-auto pt-1">
+                      <span className="text-[13px] font-black text-[#00c2cb]">Rs. {item.price}</span>
+                      <button
+                        className="bg-[#0a2342] hover:bg-[#00c2cb] text-white border-none py-1.5 px-3.5 rounded-lg text-[10.5px] font-bold cursor-pointer transition-colors shadow-sm focus:outline-none"
+                        onClick={() => handleAddToCartClick(item)}
+                      >
+                        + Add
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="col-span-2 p-10 text-center bg-white border border-dashed border-slate-200/80 rounded-2xl flex flex-col items-center justify-center">
               <span className="text-[32px] mb-2">🍽️</span>

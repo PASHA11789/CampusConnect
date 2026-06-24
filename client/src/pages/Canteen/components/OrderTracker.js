@@ -8,6 +8,8 @@ export default function OrderTracker({
 }) {
   if (!isTrackingOpen) return null;
 
+  const isCancelled = trackingStep === 0;
+
   const steps = [
     { id: 1, label: "Order Placed", icon: "📝" },
     { id: 2, label: "Preparing", icon: "👨‍🍳" },
@@ -31,41 +33,53 @@ export default function OrderTracker({
           </button>
         </div>
 
-        <div className="mt-7 rounded-3xl bg-[#fff7f2] p-5">
-          <div className="relative h-3 rounded-full bg-white">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-[#e2725b] to-[#0a2342]"
-              style={{ width: `${((trackingStep - 1) / 3) * 100}%` }}
-            />
-            <div
-              className="absolute top-1/2 -translate-y-1/2 text-3xl transition-all"
-              style={{ left: `${((trackingStep - 1) / 3) * 100}%` }}
-            >
-              🛵
-            </div>
+        {isCancelled ? (
+          <div className="mt-7 rounded-3xl bg-rose-50 border border-rose-100 p-6 text-center">
+            <span className="text-5xl">🛑</span>
+            <h3 className="mt-4 text-lg font-black text-rose-700">Order Cancelled</h3>
+            <p className="mt-2 text-xs font-medium text-rose-500">
+              Unfortunately, this order was cancelled. Please check your notifications or contact the canteen.
+            </p>
           </div>
-
-          <div className="mt-8 grid grid-cols-4 gap-3 max-sm:grid-cols-2">
-            {steps.map((step) => (
-              <div
-                key={step.id}
-                className={`rounded-2xl p-3 text-center ${trackingStep >= step.id ? "bg-white shadow-sm" : "opacity-40"
-                  }`}
-              >
-                <div className="text-2xl">{step.icon}</div>
-                <p className="mt-2 text-[10px] font-black text-[#0a2342]">{step.label}</p>
-                {trackingStep === step.id && (
-                  <span className="text-[9px] font-black text-[#e2725b]">Live</span>
-                )}
+        ) : (
+          <>
+            <div className="mt-7 rounded-3xl bg-[#fff7f2] p-5">
+              <div className="relative h-3 rounded-full bg-white">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-[#e2725b] to-[#0a2342]"
+                  style={{ width: `${((Math.max(1, trackingStep) - 1) / 3) * 100}%` }}
+                />
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 text-3xl transition-all"
+                  style={{ left: `${((Math.max(1, trackingStep) - 1) / 3) * 100}%` }}
+                >
+                  🛵
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
 
-        <div className="mt-5 rounded-3xl border border-slate-100 p-4">
-          <h3 className="text-sm font-black text-[#0a2342]">Rider: Ali Raza</h3>
-          <p className="text-xs font-semibold text-slate-400">Estimated time: 10-15 minutes</p>
-        </div>
+              <div className="mt-8 grid grid-cols-4 gap-3 max-sm:grid-cols-2">
+                {steps.map((step) => (
+                  <div
+                    key={step.id}
+                    className={`rounded-2xl p-3 text-center ${trackingStep >= step.id ? "bg-white shadow-sm" : "opacity-40"
+                      }`}
+                  >
+                    <div className="text-2xl">{step.icon}</div>
+                    <p className="mt-2 text-[10px] font-black text-[#0a2342]">{step.label}</p>
+                    {trackingStep === step.id && (
+                      <span className="text-[9px] font-black text-[#e2725b]">Live</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-3xl border border-slate-100 p-4">
+              <h3 className="text-sm font-black text-[#0a2342]">Rider: Ali Raza</h3>
+              <p className="text-xs font-semibold text-slate-400">Estimated time: 10-15 minutes</p>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

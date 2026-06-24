@@ -18,6 +18,8 @@ export default function CheckoutCart({
   handleCheckout,
   isFreeDelivery,
   deliveryThreshold,
+  studentPhone,
+  setStudentPhone,
 }) {
   return (
     <aside className="sticky top-6 h-fit rounded-3xl border border-slate-100 bg-white p-5 shadow-sm max-[1100px]:static">
@@ -72,6 +74,22 @@ export default function CheckoutCart({
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {cart.length > 0 && (
+        <div className="mt-4 flex flex-col gap-1.5">
+          <label className="text-[10px] font-black uppercase text-[#0a2342] tracking-wider">
+            Contact Phone *
+          </label>
+          <input
+            type="tel"
+            required
+            value={studentPhone}
+            onChange={(e) => setStudentPhone(e.target.value)}
+            placeholder="e.g. 03001234567"
+            className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold outline-none focus:border-[#e2725b]"
+          />
         </div>
       )}
 
@@ -134,7 +152,7 @@ export default function CheckoutCart({
 
       <button
         onClick={handleCheckout}
-        disabled={cart.length === 0}
+        disabled={cart.length === 0 || !studentPhone || !studentPhone.trim()}
         className="mt-4 w-full rounded-2xl bg-[#0a2342] py-4 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50 hover:bg-[#e2725b]"
       >
         Checkout Now
