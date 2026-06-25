@@ -545,10 +545,11 @@ export default function Canteen() {
 
   // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
-    <div className="flex min-h-screen bg-[#faf8f5] font-sans text-slate-800 animate-fade-in">
-      <Sidebar />
+    <div className="flex min-h-screen bg-[#faf8f5] font-sans text-slate-800">
+      <div className="flex flex-1 min-w-0 w-full animate-fade-in">
+        <Sidebar />
 
-      <main className="flex-1 flex flex-col min-w-0">
+        <main className="flex-1 flex flex-col min-w-0">
         <Topbar
           time={time}
           user={user}
@@ -807,6 +808,7 @@ export default function Canteen() {
           </footer>
         </div>
       </main>
+      </div>
 
       {/* ── MODALS ── */}
       <AddonModal
