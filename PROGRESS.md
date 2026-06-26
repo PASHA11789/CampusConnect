@@ -625,6 +625,31 @@ This document tracks the completed features and milestones of the **CampusConnec
 - **Copy Link & Success Feedback**: Implemented a "Copy Link" utility using standard `navigator.clipboard` APIs that copies the petition URL (formatted with query parameters: `http://localhost:3000/petitions?id=<id>`) and triggers success states (button text updates to "Copied!" and emits a toast notification).
 - **Instant Admin Redirection**: Scanning the generated QR code or opening the shared link redirects the user to the portal and automatically highlights/opens the target petition in the details modal, showing current signature numbers instantly.
 
----
-*Last Updated: 2026-06-09*
+### **26. Canteen Vendor Portal Integration (2026-06-26)**
+- **App Routing & Redirection**:
+  - Registered the `/vendor/register` route path in [App.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/App.js).
+  - Linked the "Sign up here" trigger inside [VendorLogin.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/pages/Canteen/VendorLogin.js) to redirect users to the registration page.
+- **Dedicated Signup Page**:
+  - Created [VendorRegister.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/pages/Canteen/VendorRegister.js) which provides a premium split-pane layout matching the styling of the login page.
+  - Implemented form inputs for Full Name, Email, Password, Phone Number, Restaurant Name, and Registration/Tax ID.
+  - Wired up registration API request to `/api/vendor/auth/register` and automatic dashboard redirection upon account creation.
+- **Cloudinary File Uploading**:
+  - Replaced the string image URL text input in [VendorDashboard.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/pages/Canteen/VendorDashboard.js)'s menu modal with a file selector input.
+  - Updated the form handler to compile details into a `FormData` object and post to menu addition/modification endpoints with `"Content-Type": "multipart/form-data"` header.
+  - Upgraded the profile tab's "Change Photo" action to trigger a file picker and submit selected avatars to the `/api/vendor/auth/update-avatar` Cloudinary endpoint.
+- **ESLint Compiler Cleanup**:
+  - Removed unused state variables (`restaurantId` and `loading`) in `VendorDashboard.js` to ensure the React application compiles with zero warnings or errors.
 
+### **27. Real-Time Toast Notifications Integration (2026-06-26)**
+- **Student Canteen Toast Notifications**:
+  - Replaced native browser alerts on order placement and checkout exceptions in [Canteen.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/pages/Canteen/Canteen.js) with premium animated toast messages.
+  - Integrated live Socket.io `order_status_update` listeners to push dynamic informational toast alerts when a vendor updates order progress (e.g., from "Pending" to "Preparing" or "Dispatched").
+- **Vendor Dashboard Toast Alerts & Chimes**:
+  - Configured [VendorDashboard.js](file:///c:/Users/Tech%20Planet/Desktop/CampusConnect/client/src/pages/Canteen/VendorDashboard.js) to display toast notifications for incoming orders (`new_vendor_order` WebSocket event) along with playing a notification chime sound.
+  - Replaced all legacy browser dialogs on general CRUD actions (Menu addition, edit, deletion, avatar updates) with success/error toast alerts.
+- **Auto-Clearing Mechanism & UI Alignment**:
+  - Implemented automatic cleanup hooks for toast states to prevent stale DOM elements or memory leaks.
+  - Restructured notification placement to stick to the standard top-right viewport coordinates (`top-24 right-6`) consistent with other real-time elements on the site.
+
+---
+*Last Updated: 2026-06-26*
