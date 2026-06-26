@@ -1,14 +1,102 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { io } from "socket.io-client";
 
 export default function VendorDashboard() {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("dashboard"); // dashboard, orders, menu, profile, settings
   const [restaurantOpen, setRestaurantOpen] = useState(true);
-  const [selectedRestaurant, setSelectedRestaurant] = useState("Spice Junction");
-  const [vendorUser, setVendorUser] = useState({ name: "Ali", email: "vendor@campusconnect.com" });
+  const [selectedRestaurant, setSelectedRestaurant] = useState("Canteen");
+  const [vendorUser, setVendorUser] = useState({ name: "Vendor", email: "" });
+  const [orders, setOrders] = useState([]);
+  const [menu, setMenu] = useState([]);
+  const [restaurantId, setRestaurantId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [newNotifications, setNewNotifications] = useState(0);
 
-  // Load auth info from sessionStorage on mount
+  // Audio Notification Sound (double chime) using Web Audio API
+  const playNotificationSound = () => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const playBeep = (time, freq, duration) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, time);
+        gain.gain.setValueAtTime(0.3, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+        osc.start(time);
+        osc.stop(time + duration);
+      };
+      const now = audioCtx.currentTime;
+      playBeep(now, 523.25, 0.15); // C5
+      playBeep(now + 0.15, 659.25, 0.25); // E5
+    } catch (err) {
+      console.error("Failed to play notification sound", err);
+    }
+  };
+
+  const fetchDashboardData = async (token) => {
+    try {
+      setLoading(true);
+      // 1. Fetch vendor's restaurant profile
+      const res = await axios.get("/api/vendor/restaurant", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data.success) {
+        const rest = res.data.restaurant;
+        setRestaurantId(rest._id);
+        setSelectedRestaurant(rest.name);
+        setRestaurantOpen(rest.isActive);
+        
+        const mappedMenu = (rest.menu || []).map(item => ({
+          id: item._id,
+          name: item.name,
+          category: item.category || "Burgers",
+          price: item.price,
+          status: item.isAvailable ? "Active" : "Inactive",
+          description: item.description,
+          image: item.image
+        }));
+        setMenu(mappedMenu);
+      }
+      
+      // 2. Fetch vendor's order queue
+      const ordersRes = await axios.get("/api/vendor/orders", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (ordersRes.data.success) {
+        const mappedOrders = (ordersRes.data.orders || []).map(order => ({
+          id: order._id,
+          studentName: order.student?.name || "Student",
+          avatar: order.student?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(order.student?.name || "Student")}&background=random`,
+          phone: order.studentPhone || "+923000000000",
+          items: order.items.map(item => `${item.name} x${item.quantity}`).join(", "),
+          itemsList: order.items.map(item => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          total: order.totalAmount,
+          time: new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          status: order.status === "Pending" ? "New" : order.status,
+          location: order.location || "Main Campus",
+          createdAt: new Date(order.createdAt)
+        }));
+        mappedOrders.sort((a, b) => b.createdAt - a.createdAt);
+        setOrders(mappedOrders);
+      }
+    } catch (err) {
+      console.error("Error loading dashboard data", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load auth info and start Socket.io connection on mount
   useEffect(() => {
     const token = sessionStorage.getItem("vendorToken");
     const infoStr = sessionStorage.getItem("vendorInfo");
@@ -16,9 +104,11 @@ export default function VendorDashboard() {
       navigate("/vendor/login");
       return;
     }
+    
+    let info = {};
     if (infoStr) {
       try {
-        const info = JSON.parse(infoStr);
+        info = JSON.parse(infoStr);
         setVendorUser(info);
         if (info.restaurantName) {
           setSelectedRestaurant(info.restaurantName);
@@ -27,138 +117,47 @@ export default function VendorDashboard() {
         console.error(e);
       }
     }
+
+    fetchDashboardData(token);
+
+    // Initialize Socket.io connection
+    const socket = io("http://localhost:5000");
+
+    socket.on("connect", () => {
+      if (info._id) {
+        socket.emit("join_user_room", info._id);
+        console.log(`Vendor joined private room: ${info._id}`);
+      }
+    });
+
+    socket.on("new_vendor_order", (newOrder) => {
+      const mapped = {
+        id: newOrder._id,
+        studentName: newOrder.student?.name || "Student",
+        avatar: newOrder.student?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(newOrder.student?.name || "Student")}&background=random`,
+        phone: newOrder.studentPhone || "+923000000000",
+        items: newOrder.items.map(item => `${item.name} x${item.quantity}`).join(", "),
+        itemsList: newOrder.items.map(item => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        total: newOrder.totalAmount,
+        time: new Date(newOrder.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: newOrder.status === "Pending" ? "New" : newOrder.status,
+        location: newOrder.location || "Main Campus",
+        createdAt: new Date(newOrder.createdAt)
+      };
+
+      setOrders(prev => [mapped, ...prev]);
+      setNewNotifications(prev => prev + 1);
+      playNotificationSound();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, [navigate]);
-
-  // --- Initial Mock Data representing the mockup screenshots ---
-  const [orders, setOrders] = useState([
-    {
-      id: "#ORD-1025",
-      studentName: "Ayesha Khan",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop",
-      phone: "+923009876541",
-      items: "2 Items (Zinger Burger x1, French Fries x1)",
-      itemsList: [
-        { name: "Zinger Burger", quantity: 1, price: 180 },
-        { name: "French Fries", quantity: 1, price: 80 }
-      ],
-      total: 340,
-      time: "10 min ago",
-      status: "New",
-      location: "Hostel Block A, Room 102",
-      createdAt: new Date(Date.now() - 10 * 60000)
-    },
-    {
-      id: "#ORD-1024",
-      studentName: "Usman Ali",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&auto=format&fit=crop",
-      phone: "+923123456789",
-      items: "3 Items (Chicken Alfredo Pasta x2, Soft Drink x1)",
-      itemsList: [
-        { name: "Chicken Alfredo Pasta", quantity: 2, price: 220 },
-        { name: "Soft Drink", quantity: 1, price: 50 }
-      ],
-      total: 560,
-      time: "25 min ago",
-      status: "Preparing",
-      location: "Library Basement Lobby",
-      createdAt: new Date(Date.now() - 25 * 60000)
-    },
-    {
-      id: "#ORD-1023",
-      studentName: "Hassan Raza",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop",
-      phone: "+923334445556",
-      items: "1 Item (Veg Loaded Pizza x1)",
-      itemsList: [
-        { name: "Veg Loaded Pizza", quantity: 1, price: 350 }
-      ],
-      total: 180,
-      time: "35 min ago",
-      status: "Preparing",
-      location: "Admin Block Ground Floor",
-      createdAt: new Date(Date.now() - 35 * 60000)
-    },
-    {
-      id: "#ORD-1022",
-      studentName: "Sana Malik",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop",
-      phone: "+923219876543",
-      items: "4 Items (Zinger Burger x2, Soft Drink x2)",
-      itemsList: [
-        { name: "Zinger Burger", quantity: 2, price: 180 },
-        { name: "Soft Drink", quantity: 2, price: 50 }
-      ],
-      total: 820,
-      time: "1 hr ago",
-      status: "Completed",
-      location: "Girls Hostel Annex",
-      createdAt: new Date(Date.now() - 60 * 60000)
-    },
-    {
-      id: "#ORD-1021",
-      studentName: "Ahmed Khan",
-      avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=150&auto=format&fit=crop",
-      phone: "+923051112223",
-      items: "2 Items (Veg Loaded Pizza x1, Iced Cold Coffee x1)",
-      itemsList: [
-        { name: "Veg Loaded Pizza", quantity: 1, price: 350 },
-        { name: "Iced Cold Coffee", quantity: 1, price: 120 }
-      ],
-      total: 420,
-      time: "1 hr ago",
-      status: "Completed",
-      location: "CS Department Lobby",
-      createdAt: new Date(Date.now() - 75 * 60000)
-    }
-  ]);
-
-  const [menu, setMenu] = useState([
-    {
-      id: "menu-1",
-      name: "Zinger Burger",
-      category: "Burgers",
-      price: 180,
-      status: "Active",
-      description: "Crispy chicken fillet with lettuce and mayo in a soft bun.",
-      image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=150&auto=format&fit=crop"
-    },
-    {
-      id: "menu-2",
-      name: "Chicken Alfredo Pasta",
-      category: "Pasta",
-      price: 220,
-      status: "Active",
-      description: "Creamy alfredo white sauce pasta cooked with grilled chicken slices.",
-      image: "https://images.unsplash.com/photo-1645112411341-6c4fd023714a?q=80&w=150&auto=format&fit=crop"
-    },
-    {
-      id: "menu-3",
-      name: "Veg Loaded Pizza",
-      category: "Pizza",
-      price: 350,
-      status: "Active",
-      description: "Fresh pizza crust loaded with onions, bell peppers, olives, and mozzarella.",
-      image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=150&auto=format&fit=crop"
-    },
-    {
-      id: "menu-4",
-      name: "Iced Cold Coffee",
-      category: "Beverages",
-      price: 120,
-      status: "Active",
-      description: "Chilled blended coffee served with chocolate syrup and ice cream.",
-      image: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?q=80&w=150&auto=format&fit=crop"
-    },
-    {
-      id: "menu-5",
-      name: "Chocolate Lava Cake",
-      category: "Desserts",
-      price: 150,
-      status: "Active",
-      description: "Warm chocolate cake with a rich molten lava core served hot.",
-      image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?q=80&w=150&auto=format&fit=crop"
-    }
-  ]);
 
   // --- Menu Management Modal States ---
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
@@ -195,14 +194,26 @@ export default function VendorDashboard() {
   };
 
   // Delete menu item
-  const handleDeleteItem = (itemId) => {
+  const handleDeleteItem = async (itemId) => {
     if (window.confirm("Are you sure you want to delete this menu item?")) {
-      setMenu(menu.filter((item) => item.id !== itemId));
+      const token = sessionStorage.getItem("vendorToken");
+      try {
+        const { data } = await axios.delete(`/api/vendor/menu/${itemId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (data.success) {
+          setMenu(menu.filter((item) => item.id !== itemId));
+          setRestaurantOpen(false); // Closed for now since menu is updating
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Failed to delete menu item");
+      }
     }
   };
 
   // Handle Save (Create or Update) Menu Item
-  const handleSaveMenuItem = (e) => {
+  const handleSaveMenuItem = async (e) => {
     e.preventDefault();
     if (!itemName || !itemPrice) {
       alert("Name and Price are required.");
@@ -218,51 +229,88 @@ export default function VendorDashboard() {
     };
 
     const finalImage = itemImage || defaultImages[itemCategory] || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=150&auto=format&fit=crop";
+    const token = sessionStorage.getItem("vendorToken");
 
-    if (editingItem) {
-      // Update
-      setMenu(
-        menu.map((item) =>
-          item.id === editingItem.id
-            ? {
-                ...item,
-                name: itemName,
-                category: itemCategory,
-                price: Number(itemPrice),
-                description: itemDescription,
-                status: itemStatus,
-                image: finalImage
-              }
-            : item
-        )
-      );
-    } else {
-      // Create
-      const newItem = {
-        id: "menu-" + Date.now(),
-        name: itemName,
-        category: itemCategory,
-        price: Number(itemPrice),
-        status: itemStatus,
-        description: itemDescription,
-        image: finalImage
-      };
-      setMenu([...menu, newItem]);
+    const payload = {
+      name: itemName,
+      price: Number(itemPrice),
+      description: itemDescription,
+      category: itemCategory,
+      image: finalImage,
+      isAvailable: itemStatus === "Active"
+    };
+
+    try {
+      if (editingItem) {
+        const { data } = await axios.put(`/api/vendor/menu/${editingItem.id}`, payload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (data.success) {
+          setMenu(
+            menu.map((item) =>
+              item.id === editingItem.id
+                ? {
+                    ...item,
+                    name: itemName,
+                    category: itemCategory,
+                    price: Number(itemPrice),
+                    description: itemDescription,
+                    status: itemStatus,
+                    image: finalImage
+                  }
+                : item
+            )
+          );
+          setRestaurantOpen(false); // Closed for now since menu is updating
+        }
+      } else {
+        const { data } = await axios.post("/api/vendor/menu", payload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (data.success) {
+          await fetchDashboardData(token);
+        }
+      }
+      setIsMenuModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save menu item");
     }
-
-    setIsMenuModalOpen(false);
   };
 
   // --- Order Status Modifications ---
-  const handleUpdateOrderStatus = (orderId, newStatus) => {
-    setOrders(
-      orders.map((o) => {
-        if (o.id === orderId) {
-          return { ...o, status: newStatus };
-        }
-        return o;
-      })
-    );
+  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+    const token = sessionStorage.getItem("vendorToken");
+    try {
+      const backendStatus = newStatus === "New" ? "Pending" : newStatus;
+      const { data } = await axios.put(`/api/vendor/orders/${orderId}/status`, { status: backendStatus }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (data.success) {
+        setOrders(prev =>
+          prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update order status");
+    }
+  };
+
+  // Toggle restaurant open/close status
+  const handleToggleRestaurantOpen = async () => {
+    const token = sessionStorage.getItem("vendorToken");
+    try {
+      const { data } = await axios.put("/api/vendor/restaurant/status", {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (data.success) {
+        setRestaurantOpen(data.isActive);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to toggle restaurant status");
+    }
   };
 
   // --- Statistics Calculation ---
@@ -398,9 +446,17 @@ export default function VendorDashboard() {
 
           <div className="flex items-center gap-5">
             {/* Notifications */}
-            <div className="relative cursor-pointer p-2 bg-white rounded-full border border-slate-200/60 shadow-sm">
+            <div 
+              onClick={() => {
+                setNewNotifications(0);
+                setActiveSection("orders");
+              }}
+              className="relative cursor-pointer p-2 bg-white rounded-full border border-slate-200/60 shadow-sm"
+            >
               <span className="text-lg">🔔</span>
-              <span className="absolute top-0.5 right-0.5 bg-rose-500 w-2.5 h-2.5 rounded-full border-2 border-white"></span>
+              {newNotifications > 0 && (
+                <span className="absolute top-0.5 right-0.5 bg-rose-500 w-2.5 h-2.5 rounded-full border-2 border-white"></span>
+              )}
             </div>
 
             {/* Restaurant Selector */}
@@ -736,7 +792,7 @@ export default function VendorDashboard() {
                     </div>
 
                     <button
-                      onClick={() => setRestaurantOpen(!restaurantOpen)}
+                      onClick={handleToggleRestaurantOpen}
                       className="w-full py-3 border border-teal-600 text-teal-600 hover:bg-teal-50 bg-white rounded-xl text-xs font-extrabold transition-all duration-300"
                     >
                       Update Status

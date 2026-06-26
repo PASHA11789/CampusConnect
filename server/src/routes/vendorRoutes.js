@@ -1,27 +1,35 @@
 import express from 'express';
-import { protect } from '../middleware/authMiddleware.js';
+import { protectVendor } from '../middleware/authMiddleware.js';
 import upload from '../../utils/cloudinaryConfig.js'; 
 import { 
   addMenuItem, 
   updateMenuItem, 
   deleteMenuItem, 
   getVendorQueue, 
-  updateOrderStatus 
+  updateOrderStatus,
+  getVendorRestaurant,
+  toggleRestaurantStatus
 } from '../controller/vendorCanteenController.js';
 
 const router = express.Router();
 
+router.route('/restaurant')
+  .get(protectVendor, getVendorRestaurant);
+
+router.route('/restaurant/status')
+  .put(protectVendor, toggleRestaurantStatus);
+
 router.route('/menu')
-  .post(protect, upload.single('image'), addMenuItem);
+  .post(protectVendor, upload.single('image'), addMenuItem);
 
 router.route('/menu/:itemId')
-  .put(protect, upload.single('image'), updateMenuItem)
-  .delete(protect, deleteMenuItem);
+  .put(protectVendor, upload.single('image'), updateMenuItem)
+  .delete(protectVendor, deleteMenuItem);
 
 router.route('/orders')
-  .get(protect, getVendorQueue);
+  .get(protectVendor, getVendorQueue);
 
 router.route('/orders/:orderId/status')
-  .put(protect, updateOrderStatus);
+  .put(protectVendor, updateOrderStatus);
 
 export default router;

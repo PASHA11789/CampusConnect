@@ -10,7 +10,7 @@ const menuItemSchema = new mongoose.Schema({
 
 const restaurantSchema = new mongoose.Schema({
     name: {type: String, required: true, trim: true},
-    owner:{type: mongoose.Schema.Types.ObjectId, ref:"User", required: true},
+    owner:{type: mongoose.Schema.Types.ObjectId, ref:"Vendor", required: true},
     phone:{type: String, required: true},
     address:{type:String, required:true},
     coverImage:{type: String, default:""},

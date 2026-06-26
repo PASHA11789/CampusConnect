@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function VendorLogin() {
   const [email, setEmail] = useState("");
@@ -10,34 +11,27 @@ export default function VendorLogin() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    // Mock Login Logic
-    setTimeout(() => {
-      if (email.trim() === "" || password.trim() === "") {
-        setError("Please enter both email and password.");
-        setLoading(false);
-        return;
-      }
+    try {
+      const { data } = await axios.post("/api/vendor/auth/login", {
+        email: email.trim(),
+        password: password.trim()
+      });
 
       // Store vendor auth in sessionStorage to isolate it from standard student sessions
-      sessionStorage.setItem("vendorToken", "mock_vendor_token_12345");
-      sessionStorage.setItem(
-        "vendorInfo",
-        JSON.stringify({
-          name: "Ali",
-          email: email,
-          restaurantName: "Spice Junction",
-          avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop",
-        })
-      );
+      sessionStorage.setItem("vendorToken", data.token);
+      sessionStorage.setItem("vendorInfo", JSON.stringify(data));
 
       navigate("/vendor/dashboard");
+    } catch (err) {
+      setError(err.response?.data?.message || "Invalid email or password.");
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   return (

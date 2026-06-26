@@ -286,8 +286,7 @@ export default function Canteen() {
     }
   }, [user]);
 
-  // ── WebSocket Real-Time Tracking (Deactivated - Tracked via WhatsApp) ──
-  /*
+  // ── WebSocket Real-Time Tracking ──
   useEffect(() => {
     if (!user) return;
     const socket = io("http://localhost:5000");
@@ -309,7 +308,6 @@ export default function Canteen() {
       socket.disconnect();
     };
   }, [user]);
-  */
 
   // ── Avatar Upload ─────────────────────────────────────────────────
   const handleAvatarChange = async (e) => {
@@ -514,7 +512,7 @@ export default function Canteen() {
   };
 
   // ── Filtered Menu ─────────────────────────────────────────────────
-  const filteredMenu = getCanteenMenu(selectedVisualIndex).filter((item) => {
+  const filteredMenu = menuList.filter((item) => {
     const itemCat = getItemCategory(item);
     const matchCat = selectedCategory === "All" || itemCat === selectedCategory;
     const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

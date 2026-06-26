@@ -5,14 +5,15 @@ import Notification from "../models/Notification.js"
 
 export const addMenuItem = async (req,res)=>{
     try{
-        const {name, price, description} = req.body
-        const imageUrl = req.file && req.file.path? req.file.path :""
+        const {name, price, description, image} = req.body;
+        const imageUrl = req.file && req.file.path? req.file.path : (image || "");
 
         const restaurant = await Restaurant.findOne({owner: req.user._id})
         if(!restaurant) return res.status(404).json({message:"Restaurant profile not found"})
          
         const newItem = {name, price, description, image: imageUrl, isAvailable:true}
         restaurant.menu.push(newItem)
+        restaurant.isActive = false; // Closed for now since menu is updating
         await restaurant.save()
         
         res.status(201).json({success:true, message:"Menu item added", menu: restaurant.menu})
@@ -23,7 +24,7 @@ export const addMenuItem = async (req,res)=>{
 
 export const updateMenuItem = async (req,res) =>{
     try{
-        const {name, price, description, isAvailable} = req.body
+        const {name, price, description, isAvailable, image} = req.body;
         const restaurant = await Restaurant.findOne({owner:req.user._id})
         if(!restaurant) return res.status(404).json({message: "Restaurant profile not found"})
         
@@ -34,7 +35,12 @@ export const updateMenuItem = async (req,res) =>{
         if(price) item.price = price
         if(description) item.description = description
         if (isAvailable !== undefined) item.isAvailable = isAvailable; 
-        if (req.file && req.file.path) item.image = req.file.path;
+        if (req.file && req.file.path) {
+            item.image = req.file.path;
+        } else if (image !== undefined) {
+            item.image = image;
+        }
+        restaurant.isActive = false; // Closed for now since menu is updating
         await restaurant.save();
         res.status(200).json({ success: true, message: "Menu item updated", item });
     }catch(error){
@@ -47,6 +53,7 @@ export const deleteMenuItem = async (req,res) =>{
         const restaurant = await Restaurant.findOne({owner:req.user._id})
         if(!restaurant) return res.status(404).json({message:"Restaurant profile not found."})
         restaurant.menu.pull(req.params.itemId)
+        restaurant.isActive = false; // Closed for now since menu is updating
         await restaurant.save()
         
         res.status(200).json({success:true, message:"Menu item deleted"})
@@ -102,7 +109,31 @@ export const updateOrderStatus = async (req, res) =>{
     }
 
     res.status(200).json({ success: true, message: `Order moved to ${status}`, order });
-     }catch(error){
-        res.status(500).json({ message: "Error updating order", error: error.message });
-     }
+  } catch(error){
+    res.status(500).json({ message: "Error updating order", error: error.message });
+  }
 }
+
+export const getVendorRestaurant = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findOne({ owner: req.user._id });
+    if (!restaurant) return res.status(404).json({ message: "Restaurant profile not found" });
+    res.status(200).json({ success: true, restaurant });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching restaurant details", error: error.message });
+  }
+};
+
+export const toggleRestaurantStatus = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findOne({ owner: req.user._id });
+    if (!restaurant) return res.status(404).json({ message: "Restaurant profile not found" });
+    
+    restaurant.isActive = !restaurant.isActive;
+    await restaurant.save();
+    
+    res.status(200).json({ success: true, message: `Restaurant is now ${restaurant.isActive ? "Open" : "Closed"}`, isActive: restaurant.isActive });
+  } catch (error) {
+    res.status(500).json({ message: "Error toggling restaurant status", error: error.message });
+  }
+};
