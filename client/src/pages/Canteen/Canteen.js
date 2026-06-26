@@ -15,10 +15,7 @@ import CheckoutCart from "./components/CheckoutCart";
 import OrderTracker from "./components/OrderTracker";
 import AddonModal from "./components/AddonModal";
 import CanteenReview from "./components/CanteenReview";
-
 // Assets
-import gourmetImg from "../../assets/gourmet.png";
-import savourImg from "../../assets/savour.png";
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
@@ -35,56 +32,7 @@ const DEALS = [
   { id: "d3", tag: "15% OFF", title: "Weekend Special", desc: "Flat 15% off on all orders above Rs. 700", price: 799, image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&q=80", category: "Fast Food", name: "Weekend Pizza Deal Platter", restaurantId: "dog" },
 ];
 
-const getCanteenMenu = (visualIndex) => {
-  switch (visualIndex) {
-    case 0: // Savour Foods
-      return [
-        { _id: "sav1", name: "Chicken Pulao Kabab", price: 380, description: "Savour's legendary fragrant basmati rice served with two shami kababs and tender chicken piece.", image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&q=80", category: "Traditional" },
-        { _id: "sav2", name: "Shami Kabab Platter", price: 150, description: "Two pieces of crispy, golden-brown chicken shami kababs served with raita.", image: "https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=500&q=80", category: "Traditional" },
-        { _id: "sav3", name: "Savour Chicken Roll", price: 220, description: "Crispy fried wrap filled with shredded chicken, mayo, and green chutney.", image: "https://images.unsplash.com/photo-1626700051175-6518c4793f4f?w=500&q=80", category: "Fast Food" },
-        { _id: "sav4", name: "Crispy Fries", price: 130, description: "Classic salted crispy potato fries with tomato ketchup.", image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&q=80", category: "Fast Food" },
-        { _id: "sav5", name: "Cold Drink (345ml)", price: 90, description: "Chilled carbonated soft drink of your choice.", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&q=80", category: "Beverages" },
-        { _id: "sav6", name: "Fresh Lime Soda", price: 140, description: "Fizzy club soda with freshly squeezed lime juice and simple syrup.", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500&q=80", category: "Beverages" },
-        { _id: "sav7", name: "Savour Special Kheer", price: 180, description: "Traditional slow-cooked rice pudding flavored with cardamom and garnished with almonds.", image: "https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?w=500&q=80", category: "Desserts" }
-      ];
-    case 1: // Gourmet Restaurant
-      return [
-        { _id: "gour1", name: "Gourmet Chicken Biryani", price: 300, description: "Aromatic basmati rice cooked with spicy chicken and traditional spices.", image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&q=80", category: "Traditional" },
-        { _id: "gour2", name: "Chicken Karahi (Single)", price: 420, description: "Traditional wok-cooked chicken with tomatoes, green chilies, and aromatic spices.", image: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&q=80", category: "Traditional" },
-        { _id: "gour3", name: "Club Sandwich", price: 280, description: "Gourmet's signature double-decker sandwich with chicken, egg, mayo, and lettuce.", image: "https://images.unsplash.com/photo-1567234669003-dce7a7a88821?w=500&q=80", category: "Fast Food" },
-        { _id: "gour4", name: "Gourmet Chicken Burger", price: 240, description: "Soft bun containing a chicken patty, signature sauce, and fresh vegetables.", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80", category: "Fast Food" },
-        { _id: "gour5", name: "Mango Shake", price: 220, description: "Thick, creamy blend of fresh sweet mangoes, milk, and vanilla ice cream.", image: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=500&q=80", category: "Beverages" },
-        { _id: "gour6", name: "Gourmet Mineral Water", price: 70, description: "Purified bottled drinking water.", image: "https://images.unsplash.com/photo-1608885898957-a599fb1b467a?w=500&q=80", category: "Beverages" },
-        { _id: "gour7", name: "Gourmet Chocolate Pastry", price: 120, description: "Rich chocolate layer cake slice topped with fudge icing.", image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500&q=80", category: "Desserts" },
-        { _id: "gour8", name: "Pineapple Cake Slice", price: 110, description: "Soft sponge cake layer with whipped cream and pineapple bits.", image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&q=80", category: "Desserts" }
-      ];
-    case 2: // Johnny & Jugnu
-      return [
-        { _id: "jj1", name: "Wehshi Burger", price: 390, description: "Johnny & Jugnu's famous crispy chicken fillet burger with Wehshi hot sauce.", image: "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500&q=80", category: "Fast Food" },
-        { _id: "jj2", name: "Mushroom Wrap", price: 350, description: "Tortilla wrap filled with crispy chicken strips, creamy mushroom sauce, and cheese.", image: "https://images.unsplash.com/photo-1626700051175-6518c4793f4f?w=500&q=80", category: "Fast Food" },
-        { _id: "jj3", name: "Pizza Fries", price: 290, description: "Crispy fries loaded with marinara sauce, diced chicken, melted mozzarella, and olives.", image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&q=80", category: "Fast Food" },
-        { _id: "jj4", name: "Chapli Kabab Burger", price: 260, description: "Fusion bun burger with a juicy, spiced beef chapli kabab patty.", image: "https://images.unsplash.com/photo-1550317138-10000687a72b?w=500&q=80", category: "Traditional" },
-        { _id: "jj5", name: "Mint Margarita", price: 180, description: "Refreshing blend of fresh mint leaves, lime juice, soda, and crushed ice.", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500&q=80", category: "Beverages" },
-        { _id: "jj6", name: "Soft Drink", price: 100, description: "Chilled canned soda.", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&q=80", category: "Beverages" },
-        { _id: "jj7", name: "Hot Fudge Brownie", price: 200, description: "Rich, dense chocolate brownie served warm with chocolate syrup.", image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&q=80", category: "Desserts" },
-        { _id: "jj8", name: "Nutella Waffle", price: 280, description: "Crispy waffle topped with generous Nutella spread and icing sugar.", image: "https://images.unsplash.com/photo-1562376502-6f769499c886?w=500&q=80", category: "Desserts" }
-      ];
-    case 3: // Dogar Restaurant
-      return [
-        { _id: "dog1", name: "Special Chicken Biryani", price: 320, description: "Lahori-style spicy chicken biryani with boiled egg and raita.", image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&q=80", category: "Traditional" },
-        { _id: "dog2", name: "Seekh Kabab (2 Pcs)", price: 240, description: "Minced beef skewers spiced with herbs and grilled over charcoal.", image: "https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=500&q=80", category: "Traditional" },
-        { _id: "dog3", name: "Dogar Haleem", price: 220, description: "Slow-cooked stew of wheat, barley, meat, and lentils, served with lemon and ginger.", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80", category: "Traditional" },
-        { _id: "dog4", name: "Chicken Shawarma", price: 180, description: "Shaved spiced chicken wrapped in pita bread with garlic sauce and pickles.", image: "https://images.unsplash.com/photo-1662143494793-1b9136fe9f33?w=500&q=80", category: "Fast Food" },
-        { _id: "dog5", name: "Chicken Paratha Roll", price: 230, description: "Juicy chicken tikka boti rolled in a crispy, flaky golden paratha.", image: "https://images.unsplash.com/photo-1626700051175-6518c4793f4f?w=500&q=80", category: "Fast Food" },
-        { _id: "dog6", name: "Doodh Patti Chai", price: 90, description: "Rich, strong Lahori tea brewed in pure milk.", image: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&q=80", category: "Beverages" },
-        { _id: "dog7", name: "Karak Chai", price: 110, description: "Spiced hot tea with cardamom and condensed milk.", image: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&q=80", category: "Beverages" },
-        { _id: "dog8", name: "Gulab Jamun (2 Pcs)", price: 130, description: "Warm, sweet milk-solid balls soaked in rose-flavored sugar syrup.", image: "https://images.unsplash.com/photo-1589135284962-d9f2d1591873?w=500&q=80", category: "Desserts" },
-        { _id: "dog9", name: "Ras Malai (2 Pcs)", price: 180, description: "Soft cottage cheese patties soaked in sweetened, saffron-infused milk.", image: "https://images.unsplash.com/photo-1589135284962-d9f2d1591873?w=500&q=80", category: "Desserts" }
-      ];
-    default:
-      return [];
-  }
-};
+
 
 const CAMPUS_LOCATIONS = [
   "CS Department (Ground Floor)",
@@ -131,7 +79,9 @@ export default function Canteen() {
   const [selectedVisualIndex, setSelectedVisualIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  // eslint-disable-next-line no-unused-vars
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(true);
+  // eslint-disable-next-line no-unused-vars
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
 
   // ── Delivery ────────────────────────────────────────────────────
@@ -148,6 +98,18 @@ export default function Canteen() {
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [promoError, setPromoError] = useState("");
+
+  const [toast, setToast] = useState(null);
+  const showToast = React.useCallback((message, type = "info") => {
+    setToast({ message, type, id: Date.now() });
+  }, []);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 5500);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   // ── Customization Modal ─────────────────────────────────────────
   const [customizingItem, setCustomizingItem] = useState(null);
@@ -298,6 +260,7 @@ export default function Canteen() {
     socket.on("order_status_update", (data) => {
       setActiveOrder((prev) => {
         if (prev && prev._id === data.orderId) {
+          showToast(`Order status updated to: ${data.status} 🛵`, "info");
           return { ...prev, status: data.status };
         }
         return prev;
@@ -307,7 +270,7 @@ export default function Canteen() {
     return () => {
       socket.disconnect();
     };
-  }, [user]);
+  }, [user, showToast]);
 
   // ── Avatar Upload ─────────────────────────────────────────────────
   const handleAvatarChange = async (e) => {
@@ -472,11 +435,11 @@ export default function Canteen() {
         setCart([]);
         setIsTrackingOpen(true);
         handleRemovePromo();
-        alert("Order placed successfully!");
+        showToast("Order placed successfully! 🛵 Delivery/pickup tracking is now active.", "success");
       }
     } catch (err) {
       console.error("Error creating order:", err);
-      alert(err.response?.data?.message || "Failed to place order. Please try again.");
+      showToast(err.response?.data?.message || "Failed to place order. Please try again.", "error");
     }
   };
 
@@ -520,24 +483,7 @@ export default function Canteen() {
     return matchCat && matchSearch;
   });
 
-  const getTrackingStep = (status) => {
-    switch (status) {
-      case "Pending":
-        return 1;
-      case "Preparing":
-        return 2;
-      case "Dispatched":
-        return 3;
-      case "Delivered":
-        return 4;
-      case "Cancelled":
-        return 0;
-      default:
-        return 1;
-    }
-  };
 
-  const trackingStep = getTrackingStep(activeOrder?.status || "Pending");
 
   if (!user) return null;
 
@@ -548,264 +494,264 @@ export default function Canteen() {
         <Sidebar />
 
         <main className="flex-1 flex flex-col min-w-0">
-        <Topbar
-          time={time}
-          user={user}
-          avatar={getPersonalizedAvatar(avatar)}
-          handleAvatarChange={handleAvatarChange}
-          isUploading={isUploading}
-        />
-
-        <div className="flex-1 px-8 py-7 flex flex-col gap-6 overflow-y-auto max-md:p-4">
-
-          {/* ── HERO / HEADER / TABS ── */}
-          <CanteenHero
+          <Topbar
+            time={time}
             user={user}
-            orderType={orderType}
-            setOrderType={setOrderType}
-            deliveryLocation={deliveryLocation}
-            setDeliveryLocation={setDeliveryLocation}
-            CAMPUS_LOCATIONS={CAMPUS_LOCATIONS}
-            isLocationDropdownOpen={isLocationDropdownOpen}
-            setIsLocationDropdownOpen={setIsLocationDropdownOpen}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            avatar={getPersonalizedAvatar(avatar)}
+            handleAvatarChange={handleAvatarChange}
+            isUploading={isUploading}
           />
 
-          {/* ── RESTAURANT CAROUSEL (Browse tab only) ── */}
-          {activeTab === "browse" && (
-            <RestaurantList
-              restaurants={restaurantsList}
-              activeRestaurant={activeRestaurant}
-              setActiveRestaurant={setActiveRestaurant}
-              setSelectedCategory={setSelectedCategory}
-              selectedVisualIndex={selectedVisualIndex}
-              setSelectedVisualIndex={setSelectedVisualIndex}
+          <div className="flex-1 px-8 py-7 flex flex-col gap-6 overflow-y-auto max-md:p-4">
+
+            {/* ── HERO / HEADER / TABS ── */}
+            <CanteenHero
+              user={user}
+              orderType={orderType}
+              setOrderType={setOrderType}
+              deliveryLocation={deliveryLocation}
+              setDeliveryLocation={setDeliveryLocation}
+              CAMPUS_LOCATIONS={CAMPUS_LOCATIONS}
+              isLocationDropdownOpen={isLocationDropdownOpen}
+              setIsLocationDropdownOpen={setIsLocationDropdownOpen}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
             />
-          )}
 
-          {/* ── MAIN CONTENT GRID ── */}
-          <div className="grid grid-cols-[1fr_330px] gap-8 max-[1100px]:grid-cols-1">
+            {/* ── RESTAURANT CAROUSEL (Browse tab only) ── */}
+            {activeTab === "browse" && (
+              <RestaurantList
+                restaurants={restaurantsList}
+                activeRestaurant={activeRestaurant}
+                setActiveRestaurant={setActiveRestaurant}
+                setSelectedCategory={setSelectedCategory}
+                selectedVisualIndex={selectedVisualIndex}
+                setSelectedVisualIndex={setSelectedVisualIndex}
+              />
+            )}
 
-            {/* LEFT: tab-gated content */}
-            <div className="flex flex-col gap-8">
+            {/* ── MAIN CONTENT GRID ── */}
+            <div className="grid grid-cols-[1fr_330px] gap-8 max-[1100px]:grid-cols-1">
 
-              {activeTab === "browse" && (
-                <MenuBoard
-                  popularDishes={POPULAR_DISHES}
-                  restaurants={restaurantsList}
-                  activeRestaurant={activeRestaurant}
-                  filteredMenu={filteredMenu}
-                  selectedCategory={selectedCategory}
-                  setSelectedCategory={setSelectedCategory}
-                  categories={CATEGORIES}
-                  favorites={favorites}
-                  toggleFavorite={toggleFavorite}
-                  handleAddToCartClick={handleAddToCartClick}
-                  deals={DEALS}
-                  setActiveRestaurant={setActiveRestaurant}
-                  selectedVisualIndex={selectedVisualIndex}
-                  setSelectedVisualIndex={setSelectedVisualIndex}
-                  POPULAR_CANTEENS={POPULAR_CANTEENS}
-                  cart={cart}
-                  handleAdjustQty={handleAdjustQty}
-                />
-              )}
+              {/* LEFT: tab-gated content */}
+              <div className="flex flex-col gap-8">
 
-              {activeTab === "deals" && (
-                <div className="flex flex-col gap-5">
-                  <div className="relative rounded-3xl overflow-hidden shadow-lg bg-gradient-to-r from-[#0a2342] to-[#1a3a6b] p-7 flex flex-col gap-3">
-                    <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#fbbf24] bg-[#fbbf24]/10 px-3 py-1 rounded-full w-fit">
-                      🏷️ Exclusive Deals
-                    </span>
-                    <h2 className="text-[22px] font-black text-white leading-tight">
-                      Save Big on Campus Eats!
-                    </h2>
-                    <p className="text-[12.5px] text-slate-300 font-medium">
-                      Use promo codes at checkout to unlock special student discounts.
-                    </p>
-                  </div>
+                {activeTab === "browse" && (
+                  <MenuBoard
+                    popularDishes={POPULAR_DISHES}
+                    restaurants={restaurantsList}
+                    activeRestaurant={activeRestaurant}
+                    filteredMenu={filteredMenu}
+                    selectedCategory={selectedCategory}
+                    setSelectedCategory={setSelectedCategory}
+                    categories={CATEGORIES}
+                    favorites={favorites}
+                    toggleFavorite={toggleFavorite}
+                    handleAddToCartClick={handleAddToCartClick}
+                    deals={DEALS}
+                    setActiveRestaurant={setActiveRestaurant}
+                    selectedVisualIndex={selectedVisualIndex}
+                    setSelectedVisualIndex={setSelectedVisualIndex}
+                    POPULAR_CANTEENS={POPULAR_CANTEENS}
+                    cart={cart}
+                    handleAdjustQty={handleAdjustQty}
+                  />
+                )}
 
-                  <h3 className="text-[14px] font-extrabold text-[#0a2342] uppercase tracking-wide">
-                    Active Promo Codes
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {[
-                      { code: "WELCOME50", desc: "Rs. 50 flat off on orders above Rs. 300", color: "from-[#e2725b]/10 to-[#e2725b]/5", border: "border-[#e2725b]/20", text: "text-[#e2725b]" },
-                      { code: "FREEPASS", desc: "Free delivery on orders above Rs. 200", color: "from-blue-50 to-indigo-50", border: "border-blue-100", text: "text-blue-700" },
-                      { code: "STUDENT15", desc: "15% off (max Rs. 150) on orders above Rs. 250", color: "from-orange-50 to-red-50", border: "border-orange-100", text: "text-orange-700" },
-                    ].map(({ code, desc, color, border, text }) => (
-                      <div
-                        key={code}
-                        className={`bg-gradient-to-br ${color} border ${border} rounded-2xl p-4 flex flex-col gap-2`}
-                      >
-                        <div className="flex justify-between items-start">
-                          <span className={`text-[13px] font-black tracking-wider ${text}`}>{code}</span>
-                          <button
-                            onClick={() => setPromoCode(code)}
-                            className={`text-[9.5px] font-extrabold uppercase tracking-wide bg-white border ${border} px-2 py-0.5 rounded-lg cursor-pointer hover:shadow-sm transition-all`}
-                          >
-                            Copy
-                          </button>
-                        </div>
-                        <p className="text-[10.5px] text-slate-500 font-medium">{desc}</p>
-                      </div>
-                    ))}
-                  </div>
+                {activeTab === "deals" && (
+                  <div className="flex flex-col gap-5">
+                    <div className="relative rounded-3xl overflow-hidden shadow-lg bg-gradient-to-r from-[#0a2342] to-[#1a3a6b] p-7 flex flex-col gap-3">
+                      <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#fbbf24] bg-[#fbbf24]/10 px-3 py-1 rounded-full w-fit">
+                        🏷️ Exclusive Deals
+                      </span>
+                      <h2 className="text-[22px] font-black text-white leading-tight">
+                        Save Big on Campus Eats!
+                      </h2>
+                      <p className="text-[12.5px] text-slate-300 font-medium">
+                        Use promo codes at checkout to unlock special student discounts.
+                      </p>
+                    </div>
 
-                  <h3 className="text-[14px] font-extrabold text-[#0a2342] uppercase tracking-wide mt-2">
-                    Today's Featured Deals
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {DEALS.map((deal) => (
-                      <div
-                        key={deal.id}
-                        className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group"
-                      >
-                        <div className="relative h-[130px] overflow-hidden">
-                          <img
-                            src={deal.image}
-                            alt={deal.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                          <span className="absolute top-3 left-3 bg-[#ef4444] text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase shadow">
-                            {deal.tag}
-                          </span>
-                        </div>
-                        <div className="p-4 flex flex-col gap-2">
-                          <h4 className="text-[13px] font-black text-[#0a2342]">{deal.title}</h4>
-                          <p className="text-[10.5px] text-slate-400 font-medium">{deal.desc}</p>
-                          <div className="flex justify-between items-center mt-1">
-                            <span className="text-[14px] font-black text-[#e2725b]">Rs. {deal.price}</span>
+                    <h3 className="text-[14px] font-extrabold text-[#0a2342] uppercase tracking-wide">
+                      Active Promo Codes
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {[
+                        { code: "WELCOME50", desc: "Rs. 50 flat off on orders above Rs. 300", color: "from-[#e2725b]/10 to-[#e2725b]/5", border: "border-[#e2725b]/20", text: "text-[#e2725b]" },
+                        { code: "FREEPASS", desc: "Free delivery on orders above Rs. 200", color: "from-blue-50 to-indigo-50", border: "border-blue-100", text: "text-blue-700" },
+                        { code: "STUDENT15", desc: "15% off (max Rs. 150) on orders above Rs. 250", color: "from-orange-50 to-red-50", border: "border-orange-100", text: "text-orange-700" },
+                      ].map(({ code, desc, color, border, text }) => (
+                        <div
+                          key={code}
+                          className={`bg-gradient-to-br ${color} border ${border} rounded-2xl p-4 flex flex-col gap-2`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <span className={`text-[13px] font-black tracking-wider ${text}`}>{code}</span>
                             <button
-                              onClick={() => {
-                                let targetResId = activeRestaurant;
-                                let visualIdx = selectedVisualIndex;
-                                if (restaurantsList && restaurantsList.length > 0) {
-                                  if (deal.restaurantId === "sav") { targetResId = restaurantsList[0]?._id; visualIdx = 0; }
-                                  else if (deal.restaurantId === "gour") { targetResId = restaurantsList[1 % restaurantsList.length]?._id; visualIdx = 1; }
-                                  else if (deal.restaurantId === "jj") { targetResId = restaurantsList[2 % restaurantsList.length]?._id; visualIdx = 2; }
-                                  else if (deal.restaurantId === "dog") { targetResId = restaurantsList[3 % restaurantsList.length]?._id; visualIdx = 3; }
-                                }
-                                setActiveRestaurant(targetResId);
-                                setSelectedVisualIndex(visualIdx);
-                                handleAddToCartClick({
-                                  id: deal.id,
-                                  name: deal.title,
-                                  price: deal.price,
-                                  category: deal.category,
-                                  desc: deal.desc,
-                                  image: deal.image
-                                });
-                                setActiveTab("browse");
-                              }}
-                              className="bg-[#0a2342] hover:bg-[#e2725b] text-white border-none py-1.5 px-4 rounded-xl text-[11px] font-bold cursor-pointer transition-colors shadow-sm focus:outline-none"
+                              onClick={() => setPromoCode(code)}
+                              className={`text-[9.5px] font-extrabold uppercase tracking-wide bg-white border ${border} px-2 py-0.5 rounded-lg cursor-pointer hover:shadow-sm transition-all`}
                             >
-                              Add to Cart
+                              Copy
                             </button>
                           </div>
+                          <p className="text-[10.5px] text-slate-500 font-medium">{desc}</p>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                      ))}
+                    </div>
 
-              {activeTab === "track" && (
-                <div className="flex flex-col gap-5">
-                  <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm text-center">
-                    <span className="text-5xl block mb-4">💬</span>
-                    <h3 className="text-[15px] font-black text-[#0a2342] uppercase tracking-wide mb-1">
-                      WhatsApp Order Tracking
+                    <h3 className="text-[14px] font-extrabold text-[#0a2342] uppercase tracking-wide mt-2">
+                      Today's Featured Deals
                     </h3>
-                    <p className="text-[11.5px] text-slate-400 font-semibold mb-6 max-w-md mx-auto leading-relaxed">
-                      Your order has been placed. Order tracking is handled directly via WhatsApp calls and messages. Click below to contact the restaurant canteen kitchen.
-                    </p>
-
-                    {activeOrder ? (
-                      <div className="max-w-md mx-auto bg-slate-50 border border-slate-100 p-5 rounded-2xl text-left mb-6">
-                        <div className="flex justify-between items-center pb-2.5 border-b border-slate-200">
-                          <span className="text-[10.5px] font-bold text-slate-400 uppercase">Order ID</span>
-                          <span className="text-[11px] font-black text-[#0a2342]">{activeOrder._id}</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {DEALS.map((deal) => (
+                        <div
+                          key={deal.id}
+                          className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group"
+                        >
+                          <div className="relative h-[130px] overflow-hidden">
+                            <img
+                              src={deal.image}
+                              alt={deal.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            <span className="absolute top-3 left-3 bg-[#ef4444] text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase shadow">
+                              {deal.tag}
+                            </span>
+                          </div>
+                          <div className="p-4 flex flex-col gap-2">
+                            <h4 className="text-[13px] font-black text-[#0a2342]">{deal.title}</h4>
+                            <p className="text-[10.5px] text-slate-400 font-medium">{deal.desc}</p>
+                            <div className="flex justify-between items-center mt-1">
+                              <span className="text-[14px] font-black text-[#e2725b]">Rs. {deal.price}</span>
+                              <button
+                                onClick={() => {
+                                  let targetResId = activeRestaurant;
+                                  let visualIdx = selectedVisualIndex;
+                                  if (restaurantsList && restaurantsList.length > 0) {
+                                    if (deal.restaurantId === "sav") { targetResId = restaurantsList[0]?._id; visualIdx = 0; }
+                                    else if (deal.restaurantId === "gour") { targetResId = restaurantsList[1 % restaurantsList.length]?._id; visualIdx = 1; }
+                                    else if (deal.restaurantId === "jj") { targetResId = restaurantsList[2 % restaurantsList.length]?._id; visualIdx = 2; }
+                                    else if (deal.restaurantId === "dog") { targetResId = restaurantsList[3 % restaurantsList.length]?._id; visualIdx = 3; }
+                                  }
+                                  setActiveRestaurant(targetResId);
+                                  setSelectedVisualIndex(visualIdx);
+                                  handleAddToCartClick({
+                                    id: deal.id,
+                                    name: deal.title,
+                                    price: deal.price,
+                                    category: deal.category,
+                                    desc: deal.desc,
+                                    image: deal.image
+                                  });
+                                  setActiveTab("browse");
+                                }}
+                                className="bg-[#0a2342] hover:bg-[#e2725b] text-white border-none py-1.5 px-4 rounded-xl text-[11px] font-bold cursor-pointer transition-colors shadow-sm focus:outline-none"
+                              >
+                                Add to Cart
+                              </button>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center py-2.5 border-b border-slate-200">
-                          <span className="text-[10.5px] font-bold text-slate-400 uppercase">Restaurant</span>
-                          <span className="text-[11.5px] font-black text-[#0a2342]">
-                            {restaurantsList.find(r => r._id === activeOrder.restaurant)?.name || "Campus Bites"}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center pt-2.5">
-                          <span className="text-[10.5px] font-bold text-slate-400 uppercase">Total Amount</span>
-                          <span className="text-xs font-black text-orange-600">Rs. {activeOrder.totalAmount}</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-xs font-bold text-slate-400 mb-6">No active order found.</p>
-                    )}
-
-                    <a
-                      href={`https://wa.me/${(restaurantsList.find(r => r._id === activeOrder?.restaurant || r._id === activeRestaurant)?.phone || "+923001234567").replace(/[^0-9+]/g, "")}?text=${encodeURIComponent("Hi! I would like to track my order ID " + (activeOrder?._id || ""))}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none py-3 px-8 rounded-2xl text-[12px] font-black tracking-wider uppercase cursor-pointer transition-all shadow-[0_8px_20px_-6px_rgba(16,185,129,0.4)] focus:outline-none"
-                    >
-                      💬 Track Order via WhatsApp
-                    </a>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
+                {activeTab === "track" && (
+                  <div className="flex flex-col gap-5">
+                    <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm text-center">
+                      <span className="text-5xl block mb-4">💬</span>
+                      <h3 className="text-[15px] font-black text-[#0a2342] uppercase tracking-wide mb-1">
+                        WhatsApp Order Tracking
+                      </h3>
+                      <p className="text-[11.5px] text-slate-400 font-semibold mb-6 max-w-md mx-auto leading-relaxed">
+                        Your order has been placed. Order tracking is handled directly via WhatsApp calls and messages. Click below to contact the restaurant canteen kitchen.
+                      </p>
+
+                      {activeOrder ? (
+                        <div className="max-w-md mx-auto bg-slate-50 border border-slate-100 p-5 rounded-2xl text-left mb-6">
+                          <div className="flex justify-between items-center pb-2.5 border-b border-slate-200">
+                            <span className="text-[10.5px] font-bold text-slate-400 uppercase">Order ID</span>
+                            <span className="text-[11px] font-black text-[#0a2342]">{activeOrder._id}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2.5 border-b border-slate-200">
+                            <span className="text-[10.5px] font-bold text-slate-400 uppercase">Restaurant</span>
+                            <span className="text-[11.5px] font-black text-[#0a2342]">
+                              {restaurantsList.find(r => r._id === activeOrder.restaurant)?.name || "Campus Bites"}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center pt-2.5">
+                            <span className="text-[10.5px] font-bold text-slate-400 uppercase">Total Amount</span>
+                            <span className="text-xs font-black text-orange-600">Rs. {activeOrder.totalAmount}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-xs font-bold text-slate-400 mb-6">No active order found.</p>
+                      )}
+
+                      <a
+                        href={`https://wa.me/${(restaurantsList.find(r => r._id === activeOrder?.restaurant || r._id === activeRestaurant)?.phone || "+923001234567").replace(/[^0-9+]/g, "")}?text=${encodeURIComponent("Hi! I would like to track my order ID " + (activeOrder?._id || ""))}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none py-3 px-8 rounded-2xl text-[12px] font-black tracking-wider uppercase cursor-pointer transition-all shadow-[0_8px_20px_-6px_rgba(16,185,129,0.4)] focus:outline-none"
+                      >
+                        💬 Track Order via WhatsApp
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
+              {/* RIGHT: Cart + Sidebar details (always visible) */}
+              <CheckoutCart
+                cart={cart}
+                cartSubtotal={cartSubtotal}
+                cartTotal={cartTotal}
+                gstTax={gstTax}
+                platformFee={platformFee}
+                discountAmount={discountAmount}
+                appliedPromo={appliedPromo}
+                promoCode={promoCode}
+                setPromoCode={setPromoCode}
+                promoError={promoError}
+                handleApplyPromo={handleApplyPromo}
+                handleRemovePromo={handleRemovePromo}
+                handleAdjustQty={handleAdjustQty}
+                handleClearCart={handleClearCart}
+                handleCheckout={handleCheckout}
+                isFreeDelivery={isFreeDelivery}
+                deliveryThreshold={deliveryThreshold}
+                studentPhone={studentPhone}
+                setStudentPhone={setStudentPhone}
+              />
             </div>
 
-            {/* RIGHT: Cart + Sidebar details (always visible) */}
-            <CheckoutCart
-              cart={cart}
-              cartSubtotal={cartSubtotal}
-              cartTotal={cartTotal}
-              gstTax={gstTax}
-              platformFee={platformFee}
-              discountAmount={discountAmount}
-              appliedPromo={appliedPromo}
-              promoCode={promoCode}
-              setPromoCode={setPromoCode}
-              promoError={promoError}
-              handleApplyPromo={handleApplyPromo}
-              handleRemovePromo={handleRemovePromo}
-              handleAdjustQty={handleAdjustQty}
-              handleClearCart={handleClearCart}
-              handleCheckout={handleCheckout}
-              isFreeDelivery={isFreeDelivery}
-              deliveryThreshold={deliveryThreshold}
-              studentPhone={studentPhone}
-              setStudentPhone={setStudentPhone}
-            />
+            {/* ── COMMUNITY REVIEWS SECTION ── */}
+            {activeTab === "browse" && (
+              <CanteenReview
+                reviews={reviews}
+                newReviewName={newReviewName}
+                newReviewComment={newReviewComment}
+                setNewReviewComment={setNewReviewComment}
+                newReviewRating={newReviewRating}
+                setNewReviewRating={setNewReviewRating}
+                handlePostReview={handlePostReview}
+              />
+            )}
+
+            {/* ── FOOTER ── */}
+            <footer className="mt-4 py-4 border-t border-slate-200 text-center">
+              <p className="text-[11.5px] text-slate-400 font-semibold tracking-wide">
+                © 2026 CampusConnect. An idea by{" "}
+                <span className="text-[#0a2342] font-black">Mr. Sagheer Ahmad</span> &{" "}
+                <span className="text-[#0a2342] font-black">Mr. Shujaat Ali Hashim</span>
+              </p>
+            </footer>
           </div>
-
-          {/* ── COMMUNITY REVIEWS SECTION ── */}
-          {activeTab === "browse" && (
-            <CanteenReview
-              reviews={reviews}
-              newReviewName={newReviewName}
-              newReviewComment={newReviewComment}
-              setNewReviewComment={setNewReviewComment}
-              newReviewRating={newReviewRating}
-              setNewReviewRating={setNewReviewRating}
-              handlePostReview={handlePostReview}
-            />
-          )}
-
-          {/* ── FOOTER ── */}
-          <footer className="mt-4 py-4 border-t border-slate-200 text-center">
-            <p className="text-[11.5px] text-slate-400 font-semibold tracking-wide">
-              © 2026 CampusConnect. An idea by{" "}
-              <span className="text-[#0a2342] font-black">Mr. Sagheer Ahmad</span> &{" "}
-              <span className="text-[#0a2342] font-black">Mr. Shujaat Ali Hashim</span>
-            </p>
-          </footer>
-        </div>
-      </main>
+        </main>
       </div>
 
       {/* ── MODALS ── */}
@@ -824,6 +770,27 @@ export default function Canteen() {
         restaurantPhone={restaurantsList.find(r => r._id === activeRestaurant || r.owner === activeRestaurant || r._id === activeOrder?.restaurant)?.phone || "+923001234567"}
         restaurantName={restaurantsList.find(r => r._id === activeRestaurant || r.owner === activeRestaurant || r._id === activeOrder?.restaurant)?.name || "Campus Bites"}
       />
+
+      {/* ── TOAST NOTIFICATION ── */}
+      {toast && (
+        <div className={`fixed top-24 right-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl z-[3000] flex gap-3 w-[360px] animate-modal-slide-in ${toast.type === 'warning' ? 'border-l-4 border-l-amber-500' : toast.type === 'error' ? 'border-l-4 border-l-red-500' : toast.type === 'success' ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-[#00c2cb]'}`}>
+          <div className="text-[18px] mt-0.5">
+            {toast.type === 'warning' && <span>⚠️</span>}
+            {toast.type === 'error' && <span>❌</span>}
+            {toast.type === 'success' && <span>✅</span>}
+            {toast.type === 'info' && <span>ℹ️</span>}
+          </div>
+          <div className="flex-1 flex flex-col gap-0.5">
+            <strong className="text-[13px] font-black text-[#0a2342]">
+              {toast.type === 'warning' ? 'AI Moderation Alert'
+                : toast.type === 'error' ? 'Error'
+                  : toast.type === 'success' ? 'Success' : 'Notice'}
+            </strong>
+            <p className="text-[12px] text-slate-500 leading-normal">{toast.message}</p>
+          </div>
+          <button className="text-[18px] text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1" onClick={() => setToast(null)}>×</button>
+        </div>
+      )}
     </div>
   );
 }

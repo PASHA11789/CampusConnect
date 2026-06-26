@@ -10,6 +10,7 @@ import ModerationRoom from './pages/Moderation/ModerationRoom';
 import LostFound from './pages/LostFound/LostFound';
 import VendorLogin from './pages/Canteen/VendorLogin';
 import VendorDashboard from './pages/Canteen/VendorDashboard';
+import VendorRegister from './pages/Canteen/VendorRegister';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/moderation" element={<ModerationRoom />} />
           <Route path="/lost-found" element={<LostFound />} />
           <Route path="/vendor/login" element={<VendorLogin />} />
+          <Route path="/vendor/register" element={<VendorRegister />} />
           <Route path="/vendor/dashboard" element={<VendorDashboard />} />
         </Routes>
       </div>

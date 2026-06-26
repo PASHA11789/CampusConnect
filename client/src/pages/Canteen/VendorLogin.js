@@ -219,9 +219,12 @@ export default function VendorLogin() {
             {/* Footer Navigation */}
             <div className="text-center mt-8 text-[11px] font-bold text-slate-400">
               Don't have an account?{" "}
-              <a href="#signup" className="text-teal-600 hover:text-teal-700 transition-colors">
+              <span
+                onClick={() => navigate("/vendor/register")}
+                className="text-teal-600 hover:text-teal-700 transition-colors cursor-pointer"
+              >
                 Sign up here
-              </a>
+              </span>
             </div>
           </div>
 

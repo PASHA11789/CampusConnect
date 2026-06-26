@@ -11,9 +11,19 @@ export default function VendorDashboard() {
   const [vendorUser, setVendorUser] = useState({ name: "Vendor", email: "" });
   const [orders, setOrders] = useState([]);
   const [menu, setMenu] = useState([]);
-  const [restaurantId, setRestaurantId] = useState("");
-  const [loading, setLoading] = useState(true);
   const [newNotifications, setNewNotifications] = useState(0);
+
+  const [toast, setToast] = useState(null);
+  const showToast = React.useCallback((message, type = "info") => {
+    setToast({ message, type, id: Date.now() });
+  }, []);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 5500);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   // Audio Notification Sound (double chime) using Web Audio API
   const playNotificationSound = () => {
@@ -41,14 +51,12 @@ export default function VendorDashboard() {
 
   const fetchDashboardData = async (token) => {
     try {
-      setLoading(true);
       // 1. Fetch vendor's restaurant profile
       const res = await axios.get("/api/vendor/restaurant", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.data.success) {
         const rest = res.data.restaurant;
-        setRestaurantId(rest._id);
         setSelectedRestaurant(rest.name);
         setRestaurantOpen(rest.isActive);
         
@@ -91,8 +99,6 @@ export default function VendorDashboard() {
       }
     } catch (err) {
       console.error("Error loading dashboard data", err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -152,12 +158,13 @@ export default function VendorDashboard() {
       setOrders(prev => [mapped, ...prev]);
       setNewNotifications(prev => prev + 1);
       playNotificationSound();
+      showToast(`New order received from ${newOrder.student?.name || "Student"}! 🍔`, "success");
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [navigate]);
+  }, [navigate, showToast]);
 
   // --- Menu Management Modal States ---
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
@@ -168,6 +175,7 @@ export default function VendorDashboard() {
   const [itemDescription, setItemDescription] = useState("");
   const [itemStatus, setItemStatus] = useState("Active");
   const [itemImage, setItemImage] = useState("");
+  const [itemImageFile, setItemImageFile] = useState(null);
 
   // Open modal to add a new item
   const handleAddNewItemClick = () => {
@@ -178,6 +186,7 @@ export default function VendorDashboard() {
     setItemDescription("");
     setItemStatus("Active");
     setItemImage("");
+    setItemImageFile(null);
     setIsMenuModalOpen(true);
   };
 
@@ -190,6 +199,7 @@ export default function VendorDashboard() {
     setItemDescription(item.description || "");
     setItemStatus(item.status);
     setItemImage(item.image || "");
+    setItemImageFile(null);
     setIsMenuModalOpen(true);
   };
 
@@ -204,11 +214,41 @@ export default function VendorDashboard() {
         if (data.success) {
           setMenu(menu.filter((item) => item.id !== itemId));
           setRestaurantOpen(false); // Closed for now since menu is updating
+          showToast("Menu item deleted successfully!", "success");
         }
       } catch (err) {
         console.error(err);
-        alert("Failed to delete menu item");
+        showToast("Failed to delete menu item", "error");
       }
+    }
+  };
+
+  // Handle avatar upload
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const token = sessionStorage.getItem("vendorToken");
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    try {
+      const { data } = await axios.put("/api/vendor/auth/update-avatar", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data"
+        }
+      });
+
+      if (data.avatar) {
+        const updatedUser = { ...vendorUser, avatar: data.avatar };
+        setVendorUser(updatedUser);
+        sessionStorage.setItem("vendorInfo", JSON.stringify(updatedUser));
+        showToast("Profile picture updated successfully!", "success");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to update profile picture.", "error");
     }
   };
 
@@ -216,7 +256,7 @@ export default function VendorDashboard() {
   const handleSaveMenuItem = async (e) => {
     e.preventDefault();
     if (!itemName || !itemPrice) {
-      alert("Name and Price are required.");
+      showToast("Name and Price are required.", "warning");
       return;
     }
 
@@ -231,50 +271,48 @@ export default function VendorDashboard() {
     const finalImage = itemImage || defaultImages[itemCategory] || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=150&auto=format&fit=crop";
     const token = sessionStorage.getItem("vendorToken");
 
-    const payload = {
-      name: itemName,
-      price: Number(itemPrice),
-      description: itemDescription,
-      category: itemCategory,
-      image: finalImage,
-      isAvailable: itemStatus === "Active"
-    };
+    const formData = new FormData();
+    formData.append("name", itemName);
+    formData.append("price", Number(itemPrice));
+    formData.append("description", itemDescription);
+    formData.append("category", itemCategory);
+    formData.append("isAvailable", itemStatus === "Active");
+
+    if (itemImageFile) {
+      formData.append("image", itemImageFile);
+    } else {
+      formData.append("image", finalImage);
+    }
 
     try {
       if (editingItem) {
-        const { data } = await axios.put(`/api/vendor/menu/${editingItem.id}`, payload, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (data.success) {
-          setMenu(
-            menu.map((item) =>
-              item.id === editingItem.id
-                ? {
-                    ...item,
-                    name: itemName,
-                    category: itemCategory,
-                    price: Number(itemPrice),
-                    description: itemDescription,
-                    status: itemStatus,
-                    image: finalImage
-                  }
-                : item
-            )
-          );
-          setRestaurantOpen(false); // Closed for now since menu is updating
-        }
-      } else {
-        const { data } = await axios.post("/api/vendor/menu", payload, {
-          headers: { Authorization: `Bearer ${token}` }
+        const { data } = await axios.put(`/api/vendor/menu/${editingItem.id}`, formData, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
         });
         if (data.success) {
           await fetchDashboardData(token);
+          setRestaurantOpen(false); // Closed for now since menu is updating
+          showToast("Menu item updated successfully!", "success");
+        }
+      } else {
+        const { data } = await axios.post("/api/vendor/menu", formData, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
+        });
+        if (data.success) {
+          await fetchDashboardData(token);
+          showToast("Menu item added successfully!", "success");
         }
       }
       setIsMenuModalOpen(false);
     } catch (err) {
       console.error(err);
-      alert("Failed to save menu item");
+      showToast("Failed to save menu item", "error");
     }
   };
 
@@ -290,10 +328,11 @@ export default function VendorDashboard() {
         setOrders(prev =>
           prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
         );
+        showToast(`Order status updated to: ${newStatus}`, "success");
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to update order status");
+      showToast("Failed to update order status", "error");
     }
   };
 
@@ -306,10 +345,11 @@ export default function VendorDashboard() {
       });
       if (data.success) {
         setRestaurantOpen(data.isActive);
+        showToast(`Restaurant is now ${data.isActive ? "Open" : "Closed"}! 🏪`, "success");
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to toggle restaurant status");
+      showToast("Failed to toggle restaurant status", "error");
     }
   };
 
@@ -808,7 +848,7 @@ export default function VendorDashboard() {
                       If you face any issues, our support team is here to help.
                     </p>
                     <button
-                      onClick={() => alert("Connecting to CampusConnect Canteen Support...")}
+                      onClick={() => showToast("Connecting to CampusConnect Canteen Support...", "info")}
                       className="w-full py-3 border border-teal-600 text-teal-600 hover:bg-teal-50 bg-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all duration-300"
                     >
                       <span>📞</span> Contact Support
@@ -1024,7 +1064,7 @@ export default function VendorDashboard() {
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  alert("Profile updated successfully!");
+                  showToast("Profile updated successfully!", "success");
                 }}
                 className="space-y-5"
               >
@@ -1037,9 +1077,16 @@ export default function VendorDashboard() {
                   <div>
                     <h4 className="text-sm font-black text-[#0a2342]">{vendorUser.name}</h4>
                     <p className="text-[11px] font-semibold text-slate-400">Owner of {selectedRestaurant}</p>
+                    <input
+                      type="file"
+                      id="vendor-avatar-upload"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                    />
                     <button
                       type="button"
-                      onClick={() => alert("Upload photo feature will be added soon!")}
+                      onClick={() => document.getElementById("vendor-avatar-upload").click()}
                       className="mt-2 text-xs font-bold text-teal-600 hover:underline"
                     >
                       Change Photo
@@ -1090,7 +1137,8 @@ export default function VendorDashboard() {
                     </label>
                     <input
                       type="text"
-                      defaultValue="+923001234567"
+                      value={vendorUser.phone || ""}
+                      onChange={(e) => setVendorUser({ ...vendorUser, phone: e.target.value })}
                       className="w-full px-4.5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
                     />
                   </div>
@@ -1240,14 +1288,26 @@ export default function VendorDashboard() {
 
               <div>
                 <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1.5">
-                  Image URL
+                  Menu Item Image File
                 </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setItemImageFile(e.target.files[0])}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
+                />
+                <div className="text-[10px] text-slate-400 mt-1 font-bold">
+                  Or paste an image URL instead:
+                </div>
                 <input
                   type="text"
                   value={itemImage}
-                  onChange={(e) => setItemImage(e.target.value)}
+                  onChange={(e) => {
+                    setItemImage(e.target.value);
+                    if (e.target.value) setItemImageFile(null);
+                  }}
                   placeholder="Paste an Unsplash image URL or leave empty"
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
+                  className="w-full mt-1.5 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
                 />
               </div>
 
@@ -1284,6 +1344,26 @@ export default function VendorDashboard() {
         </div>
       )}
 
+      {/* ── TOAST NOTIFICATION ── */}
+      {toast && (
+        <div className={`fixed top-24 right-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl z-[3000] flex gap-3 w-[360px] animate-modal-slide-in ${toast.type === 'warning' ? 'border-l-4 border-l-amber-500' : toast.type === 'error' ? 'border-l-4 border-l-red-500' : toast.type === 'success' ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-[#00c2cb]'}`}>
+          <div className="text-[18px] mt-0.5">
+            {toast.type === 'warning' && <span>⚠️</span>}
+            {toast.type === 'error' && <span>❌</span>}
+            {toast.type === 'success' && <span>✅</span>}
+            {toast.type === 'info' && <span>ℹ️</span>}
+          </div>
+          <div className="flex-1 flex flex-col gap-0.5">
+            <strong className="text-[13px] font-black text-[#0a2342]">
+              {toast.type === 'warning' ? 'AI Moderation Alert'
+                : toast.type === 'error' ? 'Error'
+                  : toast.type === 'success' ? 'Success' : 'Notice'}
+            </strong>
+            <p className="text-[12px] text-slate-500 leading-normal">{toast.message}</p>
+          </div>
+          <button className="text-[18px] text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1" onClick={() => setToast(null)}>×</button>
+        </div>
+      )}
     </div>
   );
 }
