@@ -24,7 +24,7 @@ const StudentCard = ({ user, avatar }) => {
   const initials = getInitials(user?.name);
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.1)] border border-slate-200 flex flex-col font-sans">
+    <div className="w-full md:w-[500px] md:h-[290px] min-h-[290px] bg-white rounded-xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.1)] border border-slate-200 flex flex-col font-sans shrink-0">
       {/* Top Header Bar */}
       <div className="bg-neutral-50 px-4 py-2 flex justify-between items-center border-b border-gray-100">
         <span className="text-[#C62828] font-extrabold text-[14px] tracking-wider">STUDENT CARD</span>
@@ -32,7 +32,7 @@ const StudentCard = ({ user, avatar }) => {
       </div>
 
       {/* Main Content Section */}
-      <div className="bg-gradient-to-br from-[#00838F] to-[#00acc1] px-7 py-6 flex-1 flex items-center gap-6 relative">
+      <div className="bg-gradient-to-br from-[#00838F] to-[#00acc1] px-7 py-4 md:py-5 flex-1 flex items-center gap-6 relative">
         <div className="flex flex-col gap-2 w-full z-[2]">
           <div className="flex items-baseline gap-3">
             <span className="text-[#E0F2F1] font-semibold text-[13px] min-w-[60px]">Name:</span>
