@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ["student", "alumni", "student_mod", "admin", "vendor"],
+      enum: ["student", "alumni", "student_mod", "admin", "vendor", "campus_admin"],
       default: "student",
     },
     department: { type: String, default: "" },
@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "https://ui-avatars.com/api/?name=User&background=random", // Nice fallback!
     },
+    isNameHidden: { type: Boolean, default: false },
     images: [String],
   },
   { timestamps: true },

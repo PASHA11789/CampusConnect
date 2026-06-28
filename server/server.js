@@ -20,6 +20,8 @@ import LostFoundRoutes from "./src/routes/lostfoundRoutes.js";
 import canteenRoutes from "./src/routes/canteenRoutes.js";
 import vendorRoutes from "./src/routes/vendorRoutes.js";
 import vendorAuthRoutes from "./src/routes/vendorAuthRoutes.js";
+import campusAdminRoutes from "./src/routes/campusAdminRoutes.js";
+import userRoutes from "./src/routes/userRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -70,6 +72,8 @@ app.use('/api/lost-found',LostFoundRoutes)
 app.use("/api/canteen", canteenRoutes);
 app.use("/api/vendor", vendorRoutes);
 app.use("/api/vendor/auth", vendorAuthRoutes);
+app.use("/api/campus-admin", campusAdminRoutes);
+app.use("/api/users", userRoutes);
 
 
 io.on("connection", (socket) => {

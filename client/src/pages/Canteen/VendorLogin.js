@@ -22,7 +22,6 @@ export default function VendorLogin() {
         password: password.trim()
       });
 
-      // Store vendor auth in sessionStorage to isolate it from standard student sessions
       sessionStorage.setItem("vendorToken", data.token);
       sessionStorage.setItem("vendorInfo", JSON.stringify(data));
 

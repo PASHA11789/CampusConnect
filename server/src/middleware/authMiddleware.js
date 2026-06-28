@@ -48,3 +48,23 @@ export const protectVendor = async (req, res, next) => {
     return res.status(401).json({ message: "not authorized token failed" });
   }
 };
+
+export const authorizeCampusRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "not authorized token failed" });
+    }
+    const hasRole = roles.some((role) => {
+      if (role === "campus_admin" || role === "admin") {
+        return req.user.role === "campus_admin" || req.user.role === "admin";
+      }
+      return req.user.role === role;
+    });
+    if (!hasRole) {
+      return res.status(403).json({
+        message: `User role ${req.user.role} is not authorized to access this route`,
+      });
+    }
+    next();
+  };
+};
