@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login/Login';
 import Home from './pages/Home/Home';
 import Dashboard from './pages/Dashboard/Dashboard';
@@ -13,7 +13,8 @@ import VendorDashboard from './pages/Canteen/VendorDashboard';
 import VendorRegister from './pages/Canteen/VendorRegister';
 import MyProfile from './pages/Profile/MyProfile';
 import PublicProfile from './pages/Profile/PublicProfile';
-
+import UsersManager from './pages/Admin/UsersManager';
+import RestaurantsManager from './pages/Admin/RestaurantsManager';
 function App() {
   return (
     <Router>
@@ -32,6 +33,11 @@ function App() {
           <Route path="/vendor/login" element={<VendorLogin />} />
           <Route path="/vendor/register" element={<VendorRegister />} />
           <Route path="/vendor/dashboard" element={<VendorDashboard />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
+          <Route path="/admin/users" element={<UsersManager />} />
+          <Route path="/admin/restaurants" element={<RestaurantsManager />} />
         </Routes>
       </div>
     </Router>

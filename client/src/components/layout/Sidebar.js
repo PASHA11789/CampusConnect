@@ -27,8 +27,8 @@ const Sidebar = () => {
   } catch (e) {
     console.error("Failed to parse user session in Sidebar", e);
   }
-  const isMod = user?.role === 'admin' || user?.role === 'student_mod';
-
+  const isMod = user?.role === 'admin' || user?.role === 'student_mod' || user?.role === 'campus_admin';
+  const isCampusAdmin = user?.role === 'campus_admin';
   const isActive = (path) => location.pathname === path;
 
   const getNavItemClass = (path) => {
@@ -60,15 +60,27 @@ const Sidebar = () => {
         <a href="/petitions"  className={getNavItemClass('/petitions')}><IconClipboard/> Petitions</a>
         <a href="/lost-found" className={getNavItemClass('/lost-found')}><IconSearch/> Lost &amp; Found</a>
 
-        <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">PERSONAL</div>
-        <a href="/profile" className={getNavItemClass('/profile')}><span className="text-[15px]">👤</span> My Profile</a>
-        <a href="/messages" className={getNavItemClass('/messages')}><IconMail/> Messages <span className="ml-auto bg-[#00c2cb] text-[#060e1c] text-[9px] font-extrabold px-1.5 py-[2px] rounded-full">3</span></a>
+
 
         {isMod && (
           <>
             <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">MODERATION</div>
             <a href="/moderation" className={getNavItemClass('/moderation')}><span className="text-[15px]">🛡️</span> Moderator Room</a>
           </>
+        )}
+
+        {isCampusAdmin && (
+          <>
+            <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">ADMINISTRATION</div>
+            <a href="/admin/users" className={getNavItemClass('/admin/users')}><span className="text-[15px]">👥</span> Manage Users</a>
+            <a href="/admin/restaurants" className={getNavItemClass('/admin/restaurants')}><span className="text-[15px]">🏬</span> Manage Restaurants</a>
+          </>
+        )}
+
+        <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">PERSONAL</div>
+        <a href="/profile" className={getNavItemClass('/profile')}><span className="text-[15px]">👤</span> My Profile</a>
+        {!isCampusAdmin && (
+          <a href="/messages" className={getNavItemClass('/messages')}><IconMail/> Messages <span className="ml-auto bg-[#00c2cb] text-[#060e1c] text-[9px] font-extrabold px-1.5 py-[2px] rounded-full">3</span></a>
         )}
       </nav>
 

@@ -3,44 +3,44 @@ import Restaurant from "../models/Restaurants.js"
 import Vendor from '../models/Vendor.js'
 import bcrypt from "bcryptjs"
 
-export const getAllUsers = async (req, res) =>{
-    try{
+export const getAllUsers = async (req, res) => {
+  try {
 
-        const users = await User.find({role: {$in: ["student", "student_mod"]}})
-        .select('-password')
-        .sort({createdAt: -1})
-       res.status(200).json({ success: true, count: users.length, users });
-    }catch(error){
+    const users = await User.find({ role: { $in: ["student", "student_mod"] } })
+      .select('-password')
+      .sort({ createdAt: -1 })
+    res.status(200).json({ success: true, count: users.length, users });
+  } catch (error) {
 
-     res.status(500).json({ message: "Error fetching users", error: error.message });   
+    res.status(500).json({ message: "Error fetching users", error: error.message });
+  }
+}
+
+export const updateUserRole = async (req, res) => {
+  try {
+    const { role } = req.body
+
+    if (!['student', 'student_mod', 'alumni', 'admin', 'campus_admin'].includes(role)) {
+      return res.status(400).json({ message: "Invalid role specified." })
     }
-}
+    const user = await User.findByIdAndUpdate(req.params.id,
 
-export const updateUserRole  = async (req, res) =>{
-    try{
-        const {role} = req.body
-
-        if(!['student', 'student_mod', 'alumni', 'admin', 'campus_admin'].includes(role)){
-            return res.status(400).json({message:"Invalid role specified."}) 
-        }
-        const user = await User.findByIdAndUpdate( req.params.id,
-
-        {role},
-        {new: true , runValidators: true}
+      { role },
+      { new: true, runValidators: true }
     ).select("-password")
-    if(!user) return res.status(404).json({message:"User not Found"})
-        res.status(200).json({ success: true, message: `User role updated to ${role}`, user });
-    }catch(error){res.status(500).json({ message: "Error updating user role", error: error.message });}
+    if (!user) return res.status(404).json({ message: "User not Found" })
+    res.status(200).json({ success: true, message: `User role updated to ${role}`, user });
+  } catch (error) { res.status(500).json({ message: "Error updating user role", error: error.message }); }
 }
 
 
-export const deleteUser = async (req,res)=>{
-    try{
-const user = await User.findByIdAndDelete(req.params.id);
+export const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.status(200).json({ success: true, message: "User permanently deleted."})
-    }catch(error){res.status(500).json({ message: "Error deleting user", error: error.message });}
+    res.status(200).json({ success: true, message: "User permanently deleted." })
+  } catch (error) { res.status(500).json({ message: "Error deleting user", error: error.message }); }
 }
 
 
@@ -76,13 +76,13 @@ export const createRestaurantAdmin = async (req, res) => {
       phone,
       registeration_number,
       password,
-      avatar: "" 
+      avatar: ""
     });
 
     const newRestaurant = await Restaurant.create({
       name: restaurantName, owner: newVendor._id, phone, address,
       deliveryRadiusKm: deliveryRadiusKm || 7,
-      isActive: true, menu: [] 
+      isActive: true, menu: []
     });
 
     res.status(201).json({ success: true, message: "Restaurant onboarded!", restaurantId: newRestaurant._id });
@@ -123,7 +123,7 @@ export const createUser = async (req, res) => {
     const newUser = await User.create({
       name,
       email,
-      password, 
+      password,
       role,
       registeration_number: registrationNumber || req.body.registeration_number || ""
     });
@@ -143,7 +143,7 @@ export const resetUserPassword = async (req, res) => {
 
     const adminUser = await User.findById(req.user._id);
     const isMatch = await bcrypt.compare(adminPassword, adminUser.password);
-    
+
     if (!isMatch) {
       return res.status(401).json({ message: "Admin authorization failed. Incorrect admin password." });
     }
@@ -153,7 +153,7 @@ export const resetUserPassword = async (req, res) => {
       return res.status(404).json({ message: "Target user not found." });
     }
 
-  targetUser.password = newStudentPassword;
+    targetUser.password = newStudentPassword;
     await targetUser.save();
 
     res.status(200).json({ success: true, message: "User password successfully reset." });

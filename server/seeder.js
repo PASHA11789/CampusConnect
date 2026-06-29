@@ -45,6 +45,18 @@ const seedUsers = async () => {
         program: "",
         section: "",
       },
+      // --- CAMPUS ADMIN ---
+      {
+        name: "Campus Admin",
+        email: "campusadmin@campusconnect.com",
+        registeration_number: "2020F-campusadmin-001",
+        password: hashedPassword,
+        role: "campus_admin",
+        department: "Administration",
+        semester: 0,
+        program: "",
+        section: "",
+      },
 
       // --- STUDENT MODS (Active Seniors) ---
       {

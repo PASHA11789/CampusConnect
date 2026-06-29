@@ -1,14 +1,14 @@
 import express from 'express';
 import { protect, authorizeCampusRoles } from '../middleware/authMiddleware.js';
-import { 
-  getAllUsers, 
-  updateUserRole, 
-  deleteUser, 
-  getAllRestaurants, 
-  createRestaurantAdmin, 
+import {
+  getAllUsers,
+  updateUserRole,
+  deleteUser,
+  getAllRestaurants,
+  createRestaurantAdmin,
   deleteRestaurant,
   createUser,
-  resetUserPassword 
+  resetUserPassword
 } from '../controller/campusAdminController.js';
 
 const router = express.Router();
@@ -34,6 +34,6 @@ router.route('/restaurants')
   .post(createRestaurantAdmin);
 
 router.route('/restaurants/:id')
-  .delete(deleteRestaurant);  
+  .delete(deleteRestaurant);
 
 export default router;
