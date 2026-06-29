@@ -6,7 +6,6 @@ import { io } from "socket.io-client";
 // Layout Components
 import Sidebar from "../../components/layout/Sidebar";
 import Topbar from "../../components/layout/Topbar";
-
 const t = (s) => s;
 
 export default function Petitions() {
@@ -39,6 +38,12 @@ export default function Petitions() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [sharePetition, setSharePetition] = useState(null);
   const [copied, setCopied] = useState(false);
+
+  const openPublicProfile = (userId) => {
+    if (userId) {
+      navigate(`/user/${userId}`);
+    }
+  };
 
   // Handle query parameter or state redirection for expansion/modal on mount/change
   useEffect(() => {
@@ -517,6 +522,7 @@ export default function Petitions() {
           <Topbar
             time={time}
             user={user}
+            setUser={setUser}
             avatar={getPersonalizedAvatar(avatar)}
             handleAvatarChange={handleAvatarChange}
             isUploading={isUploading}
@@ -637,14 +643,20 @@ export default function Petitions() {
                             </div>
 
                             {/* Creator Details */}
-                            <div className="flex items-center gap-3 py-1 border-t border-slate-100 mt-2">
+                            <div 
+                              className="flex items-center gap-3 py-1 border-t border-slate-100 mt-2 cursor-pointer hover:bg-slate-50 rounded-lg p-1 transition-colors -ml-1 -mr-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openPublicProfile(petition.creator?._id || petition.creator);
+                              }}
+                            >
                               <img
                                 src={getPersonalizedAvatar(petition.creator?.avatar)}
                                 alt={petition.creator?.registeration_number || "Creator"}
                                 className="w-8 h-8 rounded-full object-cover border border-slate-200"
                               />
                               <div className="flex flex-col">
-                                <span className="text-[11.5px] font-bold text-slate-800">
+                                <span className="text-[11.5px] font-bold text-slate-800 group-hover:text-[#00c2cb] transition-colors">
                                   {t("Started by")} {petition.creator?.registeration_number || t("Anonymous")}
                                 </span>
                                 <span className="text-[10px] text-slate-400 font-semibold">
@@ -1192,6 +1204,8 @@ export default function Petitions() {
           <button className="text-[18px] text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1" onClick={() => setToast(null)}>×</button>
         </div>
       )}
+
+
     </>
   );
 }

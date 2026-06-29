@@ -5,7 +5,8 @@ export default function ThreadListCard({
   isSelected,
   onClick,
   formatDate,
-  t
+  t,
+  onAvatarClick
 }) {
   const authorName = post.author?.registeration_number || post.author?.name || t('Student');
   const relativeTime = formatDate(post.createdAt);
@@ -18,7 +19,15 @@ export default function ThreadListCard({
       <div className="flex flex-col">
         <h3 className="text-[13px] font-bold text-[#0a2342] leading-[1.35] line-clamp-2">{post.title || t('Untitled Discussion')}</h3>
         <span className="text-[11px] text-slate-400 font-semibold mt-1 block">
-          {t('By')} {authorName} • {relativeTime}
+          {t('By')} <span 
+            className="hover:text-[#00c2cb] hover:underline cursor-pointer transition-colors"
+            onClick={(e) => {
+              if (onAvatarClick && post.author) {
+                e.stopPropagation();
+                onAvatarClick(typeof post.author === 'object' ? post.author._id : post.author);
+              }
+            }}
+          >{authorName}</span> • {relativeTime}
         </span>
       </div>
 

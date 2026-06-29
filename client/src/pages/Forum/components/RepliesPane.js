@@ -58,7 +58,8 @@ export default function RepliesPane({
   t,
   onClose,
   replyingTo,
-  setReplyingTo
+  setReplyingTo,
+  onAvatarClick
 }) {
   React.useEffect(() => {
     if (replyingTo) {
@@ -188,8 +189,9 @@ export default function RepliesPane({
             {/* Thread author row at the bottom of the card */}
             <div className="flex items-center gap-2.5 mt-2">
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-[12px] shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] shrink-0 overflow-hidden"
+                className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-[12px] shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] shrink-0 overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
                 style={showFallback ? { backgroundColor: avatarColor.bg, color: avatarColor.text } : {}}
+                onClick={() => onAvatarClick && activeThread.author && onAvatarClick(typeof activeThread.author === 'object' ? activeThread.author._id : activeThread.author)}
               >
                 {showFallback ? (
                   <span>{initials}</span>
@@ -245,6 +247,7 @@ export default function RepliesPane({
                             onReport={onReportContent}
                             t={t}
                             onReplyClick={(replyId, authorName) => setReplyingTo({ replyId, authorName })}
+                            onAvatarClick={onAvatarClick}
                           />
                           {children.length > 0 && (
                             <div className={`pl-4 flex flex-col gap-2 mt-1 mb-2 w-[85%] ${

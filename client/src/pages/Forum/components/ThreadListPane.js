@@ -13,7 +13,8 @@ export default function ThreadListPane({
   t,
   currentPage,
   totalPages,
-  onPageChange
+  onPageChange,
+  onAvatarClick
 }) {
   return (
     <div className={`w-full flex flex-col gap-3 self-start ${mobileView === "detail" ? "max-[768px]:hidden" : ""}`}>
@@ -38,6 +39,7 @@ export default function ThreadListPane({
               getCategoryTag={getCategoryTag}
               formatDate={formatDate}
               t={t}
+              onAvatarClick={onAvatarClick}
             />
           ))
         ) : (

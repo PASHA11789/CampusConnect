@@ -52,6 +52,12 @@ export default function Forum() {
   const [mobileView, setMobileView] = useState(location.state?.threadId ? "detail" : "list");
   const [replyingTo, setReplyingTo] = useState(null); // { replyId, authorName }
 
+  const openPublicProfile = (userId) => {
+    if (userId) {
+      navigate(`/user/${userId}`);
+    }
+  };
+
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -633,6 +639,7 @@ export default function Forum() {
         <Topbar
           time={time}
           user={user}
+          setUser={setUser}
           avatar={getPersonalizedAvatar(avatar)}
           handleAvatarChange={handleAvatarChange}
           isUploading={isUploading}
@@ -696,6 +703,7 @@ export default function Forum() {
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={setCurrentPage}
+              onAvatarClick={openPublicProfile}
             />
 
             {selectedThreadId && (
@@ -742,6 +750,7 @@ export default function Forum() {
                     navigate(location.pathname, { replace: true, state: {} });
                   }
                 }}
+                onAvatarClick={openPublicProfile}
               />
             )}
           </div>
@@ -788,6 +797,8 @@ export default function Forum() {
           <button className="text-[18px] text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1" onClick={() => setToast(null)}>×</button>
         </div>
       )}
+
+
     </div>
   );
 }

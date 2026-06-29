@@ -3,8 +3,7 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 
-
-const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
+const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }) => {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -12,6 +11,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState('all'); // 'all' or 'unread'
   const [subView, setSubView] = useState(null); // null, 'petitions', 'forums', 'others'
+
 
   const getPetitionNotifications = () => {
     return notifications.filter(notif => {
@@ -475,11 +475,11 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
 
         {/* User Info and Avatar */}
         <div className="flex items-center gap-4">
-          <div className="flex flex-col items-end">
-            <span className="text-[13px] font-extrabold text-[#0a2342]">{user?.name || ''}</span>
+          <div className="flex flex-col items-end cursor-pointer" onClick={() => navigate('/profile')} title="Go to Profile">
+            <span className="text-[13px] font-extrabold text-[#0a2342] hover:text-[#00c2cb] transition-colors">{user?.name || ''}</span>
             <span className="text-[10px] text-slate-400 font-semibold">{user?.registeration_number || user?.registration_no || ''}</span>
           </div>
-          <label className="relative w-[42px] h-[42px] rounded-full bg-gradient-to-br from-[#00c2cb] to-[#0079c2] p-[2px] cursor-pointer shadow-[0_4px_10px_rgba(0,194,203,0.2)] transition-transform duration-200 hover:scale-105" title="Change avatar">
+          <button onClick={() => navigate('/profile')} className="relative w-[42px] h-[42px] rounded-full bg-gradient-to-br from-[#00c2cb] to-[#0079c2] p-[2px] cursor-pointer shadow-[0_4px_10px_rgba(0,194,203,0.2)] transition-transform duration-200 hover:scale-105 border-none" title="Go to Profile">
             {showFallback ? (
               <span className="w-full h-full rounded-full bg-[#0a2342] flex items-center justify-center text-base font-black text-[#00c2cb]">{getInitials(user?.name)}</span>
             ) : (
@@ -490,14 +490,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading }) => {
                 onError={() => setImageError(true)} 
               />
             )}
-            {isUploading && (
-              <div className="absolute inset-[2px] rounded-full bg-[#0a2342]/75 flex items-center justify-center text-[#00c2cb] backdrop-blur-[1.5px] z-5">
-                <div className="w-4 h-4 border-[2.5px] border-[#00c2cb]/25 border-t-[#00c2cb] rounded-full animate-spin" />
-              </div>
-            )}
-            <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} disabled={isUploading} />
             <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#34d399] rounded-full border-2 border-white" />
-          </label>
+          </button>
         </div>
       </div>
     </header>

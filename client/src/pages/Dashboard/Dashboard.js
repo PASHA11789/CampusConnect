@@ -301,6 +301,7 @@ export default function Dashboard() {
         <Topbar
           time={time}
           user={user}
+          setUser={setUser}
           avatar={getPersonalizedAvatar(avatar)}
           handleAvatarChange={handleAvatarChange}
           isUploading={isUploading}

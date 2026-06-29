@@ -11,6 +11,8 @@ import LostFound from './pages/LostFound/LostFound';
 import VendorLogin from './pages/Canteen/VendorLogin';
 import VendorDashboard from './pages/Canteen/VendorDashboard';
 import VendorRegister from './pages/Canteen/VendorRegister';
+import MyProfile from './pages/Profile/MyProfile';
+import PublicProfile from './pages/Profile/PublicProfile';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<MyProfile />} />
+          <Route path="/user/:id" element={<PublicProfile />} />
           <Route path="/forum" element={<Forum />} />
           <Route path="/canteen" element={<Canteen />} />
           <Route path="/petitions" element={<Petitions />} />

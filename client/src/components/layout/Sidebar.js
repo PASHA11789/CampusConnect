@@ -61,7 +61,7 @@ const Sidebar = () => {
         <a href="/lost-found" className={getNavItemClass('/lost-found')}><IconSearch/> Lost &amp; Found</a>
 
         <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">PERSONAL</div>
-        <a href="/profile"  className={getNavItemClass('/profile')}><span className="text-[15px]">👤</span> My Profile</a>
+        <a href="/profile" className={getNavItemClass('/profile')}><span className="text-[15px]">👤</span> My Profile</a>
         <a href="/messages" className={getNavItemClass('/messages')}><IconMail/> Messages <span className="ml-auto bg-[#00c2cb] text-[#060e1c] text-[9px] font-extrabold px-1.5 py-[2px] rounded-full">3</span></a>
 
         {isMod && (

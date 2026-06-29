@@ -45,7 +45,8 @@ export default function ReplyBubble({
   onReport,
   t,
   isChild = false,
-  onReplyClick
+  onReplyClick,
+  onAvatarClick
 }) {
   const replyKey = reply._id;
   const isFlagged = reply.isHidden;
@@ -99,8 +100,9 @@ export default function ReplyBubble({
         <div className="flex justify-between items-center mb-0.5">
           <div className="flex items-center gap-2">
             <div
-              className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-[9.5px] shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] shrink-0 overflow-hidden"
+              className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[9.5px] shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] shrink-0 overflow-hidden ${onAvatarClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
               style={showFallback ? { backgroundColor: avatarColor.bg, color: avatarColor.text } : {}}
+              onClick={() => onAvatarClick && reply.author && onAvatarClick(typeof reply.author === 'object' ? reply.author._id : reply.author)}
             >
               {showFallback ? (
                 <span>{initials}</span>
