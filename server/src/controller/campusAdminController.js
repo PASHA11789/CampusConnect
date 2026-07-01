@@ -61,6 +61,10 @@ export const createRestaurantAdmin = async (req, res) => {
   try {
     const { restaurantName, phone, registeration_number, password, address, deliveryRadiusKm } = req.body;
 
+    if (!registeration_number) {
+      return res.status(400).json({ message: "Registration number is required." });
+    }
+
     const vendorExists = await Vendor.findOne({ registeration_number });
     if (vendorExists) {
       return res.status(400).json({ message: "A vendor with this registration number already exists." });

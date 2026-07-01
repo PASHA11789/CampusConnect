@@ -6,6 +6,7 @@ import Forum from "./src/models/Forum.js";
 import Petition from "./src/models/Petition.js";
 import Restaurant from "./src/models/Restaurants.js";
 import Order from "./src/models/Order.js";
+import CareerThread from "./src/models/CareerThread.js";
 import connectDB from "./utils/db.js";
 import bcryptjs from "bcryptjs";
 
@@ -29,6 +30,8 @@ const seedUsers = async () => {
     console.log("previous restaurants deleted");
     await Order.deleteMany();
     console.log("previous orders deleted");
+    await CareerThread.deleteMany();
+    console.log("previous career threads deleted");
     
     const Salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash("password123", Salt);

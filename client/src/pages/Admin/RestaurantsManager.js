@@ -18,7 +18,7 @@ const RestaurantsManager = () => {
 
   // Form state
   const [newRestaurantData, setNewRestaurantData] = useState({
-    name: '', email: '', password: '', restaurantName: '', phone: '', address: ''
+    name: '', email: '', password: '', registeration_number: '', restaurantName: '', phone: '', address: ''
   });
 
   const [editRestaurantData, setEditRestaurantData] = useState({
@@ -60,7 +60,7 @@ const RestaurantsManager = () => {
     try {
       await createRestaurantAdmin(newRestaurantData);
       setIsCreateModalOpen(false);
-      setNewRestaurantData({ name: '', email: '', password: '', restaurantName: '', phone: '', address: '' });
+      setNewRestaurantData({ name: '', email: '', password: '', registeration_number: '', restaurantName: '', phone: '', address: '' });
       fetchRestaurantsData();
     } catch (err) {
       alert(err.response?.data?.message || "Failed to create restaurant");
@@ -219,9 +219,15 @@ const RestaurantsManager = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-black text-[#00c2cb] uppercase">Initial Password</label>
-                <input required type="text" value={newRestaurantData.password} onChange={e => setNewRestaurantData({ ...newRestaurantData, password: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] font-semibold focus:outline-none focus:border-[#00c2cb]" placeholder="SecurePass123" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[11px] font-black text-[#00c2cb] uppercase">Initial Password</label>
+                  <input required type="text" value={newRestaurantData.password} onChange={e => setNewRestaurantData({ ...newRestaurantData, password: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] font-semibold focus:outline-none focus:border-[#00c2cb]" placeholder="SecurePass123" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[11px] font-black text-[#00c2cb] uppercase">Registration Number</label>
+                  <input required type="text" value={newRestaurantData.registeration_number} onChange={e => setNewRestaurantData({ ...newRestaurantData, registeration_number: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] font-semibold focus:outline-none focus:border-[#00c2cb]" placeholder="2020F-mulvendor-001" />
+                </div>
               </div>
 
               <div className="border-t border-slate-100 my-1"></div>
