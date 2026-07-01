@@ -54,6 +54,7 @@ const Sidebar = () => {
         <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">MAIN</div>
         <a href="/dashboard" className={getNavItemClass('/dashboard')}><IconZap/> Dashboard</a>
         <a href="/forum"     className={getNavItemClass('/forum')}><IconForum/> Forum</a>
+        <a href="/career"    className={getNavItemClass('/career')}><span className="text-[15px]">💼</span> Career Paths</a>
 
         <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">CAMPUS</div>
         <a href="/canteen"    className={getNavItemClass('/canteen')}><span className="text-[15px]">🍽️</span> Canteen</a>
