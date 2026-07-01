@@ -15,7 +15,7 @@ const seedUsers = async () => {
   try {
     await connectDB();
     console.log("📡 Seeder is connecting to:", process.env.MONGO_URI);
-    
+
     // Delete existing users, vendors, restaurants, orders, forum, and petitions
     await User.deleteMany();
     console.log("previous users deleted");
@@ -29,7 +29,7 @@ const seedUsers = async () => {
     console.log("previous restaurants deleted");
     await Order.deleteMany();
     console.log("previous orders deleted");
-    
+
     const Salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash("password123", Salt);
     const dummyUsers = [
@@ -497,7 +497,7 @@ const seedUsers = async () => {
       }
     }
     console.log("✅ 4 Dummy Restaurants seeded successfully!");
-    
+
     console.log("📡 Skipping forum threads and petitions seeding to focus on restaurants.");
     process.exit();
   } catch (error) {
