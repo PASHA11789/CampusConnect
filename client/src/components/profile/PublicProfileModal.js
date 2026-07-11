@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { getInitials } from '../../utils/helpers';
 
@@ -76,7 +77,7 @@ const PublicProfileModal = ({ isOpen, onClose, userId, currentUser }) => {
 
   const isDefaultAvatar = !profile?.avatar || profile.avatar.includes('ui-avatars.com');
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
       <div 
         className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm cursor-pointer" 
@@ -213,7 +214,8 @@ const PublicProfileModal = ({ isOpen, onClose, userId, currentUser }) => {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { getInitials, formatDate, SOCKET_URL } from '../../utils/helpers';
+import MyProfileModal from '../profile/MyProfileModal';
 
 const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }) => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [isMyProfileOpen, setIsMyProfileOpen] = useState(false);
   const [filter, setFilter] = useState('all'); // 'all' or 'unread'
   const [subView, setSubView] = useState(null); // null, 'petitions', 'forums', 'others'
 
@@ -456,11 +458,11 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
 
         {/* User Info and Avatar */}
         <div className="flex items-center gap-4">
-          <div className="flex flex-col items-end cursor-pointer" onClick={() => navigate('/profile')} title="Go to Profile">
+          <div className="flex flex-col items-end cursor-pointer" onClick={() => setIsMyProfileOpen(true)} title="My Profile">
             <span className="text-[13px] font-extrabold text-[#0a2342] hover:text-[#00c2cb] transition-colors">{user?.name || ''}</span>
             <span className="text-[10px] text-slate-400 font-semibold">{user?.registeration_number || user?.registration_no || ''}</span>
           </div>
-          <button onClick={() => navigate('/profile')} className="relative w-[42px] h-[42px] rounded-full bg-gradient-to-br from-[#00c2cb] to-[#0079c2] p-[2px] cursor-pointer shadow-[0_4px_10px_rgba(0,194,203,0.2)] transition-transform duration-200 hover:scale-105 border-none" title="Go to Profile">
+          <button onClick={() => setIsMyProfileOpen(true)} className="relative w-[42px] h-[42px] rounded-full bg-gradient-to-br from-[#00c2cb] to-[#0079c2] p-[2px] cursor-pointer shadow-[0_4px_10px_rgba(0,194,203,0.2)] transition-transform duration-200 hover:scale-105 border-none" title="My Profile">
             {showFallback ? (
               <span className="w-full h-full rounded-full bg-[#0a2342] flex items-center justify-center text-base font-black text-[#00c2cb]">{getInitials(user?.name)}</span>
             ) : (
@@ -475,6 +477,24 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
           </button>
         </div>
       </div>
+      <MyProfileModal
+        isOpen={isMyProfileOpen}
+        onClose={() => setIsMyProfileOpen(false)}
+        user={user}
+        onUpdateUser={(updatedUser) => {
+          if (setUser) {
+            setUser(updatedUser);
+          }
+          // Update local session storage
+          const userStr = sessionStorage.getItem("user");
+          if (userStr) {
+            try {
+              const parsed = JSON.parse(userStr);
+              sessionStorage.setItem("user", JSON.stringify({ ...parsed, ...updatedUser }));
+            } catch (e) {}
+          }
+        }}
+      />
     </header>
   );
 };

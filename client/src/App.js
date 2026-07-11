@@ -12,8 +12,8 @@ import Career from './pages/Career/Career';
 import VendorLogin from './pages/Canteen/VendorLogin';
 import VendorDashboard from './pages/Canteen/VendorDashboard';
 import VendorRegister from './pages/Canteen/VendorRegister';
-import MyProfile from './pages/Profile/MyProfile';
-import PublicProfile from './pages/Profile/PublicProfile';
+import BusRoutes from './pages/BusRoutes/BusRoutes';
+
 import UsersManager from './pages/Admin/UsersManager';
 import RestaurantsManager from './pages/Admin/RestaurantsManager';
 function App() {
@@ -24,18 +24,18 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<MyProfile />} />
-          <Route path="/user/:id" element={<PublicProfile />} />
+
           <Route path="/forum" element={<Forum />} />
           <Route path="/canteen" element={<Canteen />} />
           <Route path="/petitions" element={<Petitions />} />
           <Route path="/moderation" element={<ModerationRoom />} />
+          <Route path="/bus-routes" element={<BusRoutes />} />
           <Route path="/lost-found" element={<LostFound />} />
           <Route path="/career" element={<Career />} />
           <Route path="/vendor/login" element={<VendorLogin />} />
           <Route path="/vendor/register" element={<VendorRegister />} />
           <Route path="/vendor/dashboard" element={<VendorDashboard />} />
-          
+
           {/* Admin Routes */}
           <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
           <Route path="/admin/users" element={<UsersManager />} />

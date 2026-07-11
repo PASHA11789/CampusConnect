@@ -1,13 +1,17 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const t = (s) => s;
 
 export const BusRoutesWidget = ({ busRoutes = [] }) => {
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2">
-        <span className="text-[18px]">🚌</span>
-        <h4 className="text-[14px] font-bold text-[#0a2342]">{t('Bus Routes & Map')}</h4>
+      <div className="flex justify-between items-center w-full">
+        <div className="flex items-center gap-2">
+          <span className="text-[18px]">🚌</span>
+          <h4 className="text-[14px] font-bold text-[#0a2342]">{t('Bus Routes & Map')}</h4>
+        </div>
+        <Link to="/bus-routes" className="text-[11px] font-bold text-[#00c2cb] hover:text-[#0079c2] transition-colors">{t('View Live Map ➔')}</Link>
       </div>
       <div className="flex-1 bg-slate-50 rounded-xl p-0 flex flex-col gap-2.5 overflow-hidden">
         <div className="relative h-[100px] border-b border-[#eef2f6] bg-slate-200">

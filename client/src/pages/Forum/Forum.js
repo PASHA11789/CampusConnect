@@ -12,6 +12,8 @@ import Topbar from "../../components/layout/Topbar";
 import ThreadListPane from "./components/ThreadListPane";
 import RepliesPane from "./components/RepliesPane";
 import CreateThreadModal from "./components/CreateThreadModal";
+import PublicProfileModal from "../../components/profile/PublicProfileModal";
+import MyProfileModal from "../../components/profile/MyProfileModal";
 
 const t = (s) => s;
 
@@ -53,9 +55,18 @@ export default function Forum() {
   const [mobileView, setMobileView] = useState(location.state?.threadId ? "detail" : "list");
   const [replyingTo, setReplyingTo] = useState(null); // { replyId, authorName }
 
+  const [selectedPublicUserId, setSelectedPublicUserId] = useState(null);
+  const [isPublicProfileOpen, setIsPublicProfileOpen] = useState(false);
+  const [isMyProfileOpen, setIsMyProfileOpen] = useState(false);
+
   const openPublicProfile = (userId) => {
     if (userId) {
-      navigate(`/user/${userId}`);
+      if (userId === user?._id) {
+        setIsMyProfileOpen(true);
+      } else {
+        setSelectedPublicUserId(userId);
+        setIsPublicProfileOpen(true);
+      }
     }
   };
 
@@ -790,6 +801,32 @@ export default function Forum() {
       )}
 
 
+      {/* Profile Modals */}
+      <PublicProfileModal
+        isOpen={isPublicProfileOpen}
+        onClose={() => {
+          setIsPublicProfileOpen(false);
+          setSelectedPublicUserId(null);
+        }}
+        userId={selectedPublicUserId}
+        currentUser={user}
+      />
+      <MyProfileModal
+        isOpen={isMyProfileOpen}
+        onClose={() => setIsMyProfileOpen(false)}
+        user={user}
+        onUpdateUser={(updatedUser) => {
+          setUser(updatedUser);
+          // Sync with local session storage
+          const userStr = sessionStorage.getItem("user");
+          if (userStr) {
+            try {
+              const parsed = JSON.parse(userStr);
+              sessionStorage.setItem("user", JSON.stringify({ ...parsed, ...updatedUser }));
+            } catch (e) {}
+          }
+        }}
+      />
     </div>
   );
 }
