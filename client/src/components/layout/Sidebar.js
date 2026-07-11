@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 
 import logo from '../../assets/MUL-Logo.png';
 
@@ -52,36 +52,36 @@ const Sidebar = () => {
 
       <nav className="flex-1 px-3 flex flex-col gap-[2px]">
         <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">MAIN</div>
-        <a href="/dashboard" className={getNavItemClass('/dashboard')}><IconZap/> Dashboard</a>
-        <a href="/forum"     className={getNavItemClass('/forum')}><IconForum/> Forum</a>
-        <a href="/career"    className={getNavItemClass('/career')}><span className="text-[15px]">💼</span> Career Paths</a>
+        <Link to="/dashboard" className={getNavItemClass('/dashboard')}><IconZap/> Dashboard</Link>
+        <Link to="/forum"     className={getNavItemClass('/forum')}><IconForum/> Forum</Link>
+        <Link to="/career"    className={getNavItemClass('/career')}><span className="text-[15px]">💼</span> Career Paths</Link>
 
         <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">CAMPUS</div>
-        <a href="/canteen"    className={getNavItemClass('/canteen')}><span className="text-[15px]">🍽️</span> Canteen</a>
-        <a href="/petitions"  className={getNavItemClass('/petitions')}><IconClipboard/> Petitions</a>
-        <a href="/lost-found" className={getNavItemClass('/lost-found')}><IconSearch/> Lost &amp; Found</a>
+        <Link to="/canteen"    className={getNavItemClass('/canteen')}><span className="text-[15px]">🍽️</span> Canteen</Link>
+        <Link to="/petitions"  className={getNavItemClass('/petitions')}><IconClipboard/> Petitions</Link>
+        <Link to="/lost-found" className={getNavItemClass('/lost-found')}><IconSearch/> Lost &amp; Found</Link>
 
 
 
         {isMod && (
           <>
             <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">MODERATION</div>
-            <a href="/moderation" className={getNavItemClass('/moderation')}><span className="text-[15px]">🛡️</span> Moderator Room</a>
+            <Link to="/moderation" className={getNavItemClass('/moderation')}><span className="text-[15px]">🛡️</span> Moderator Room</Link>
           </>
         )}
 
         {isCampusAdmin && (
           <>
             <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">ADMINISTRATION</div>
-            <a href="/admin/users" className={getNavItemClass('/admin/users')}><span className="text-[15px]">👥</span> Manage Users</a>
-            <a href="/admin/restaurants" className={getNavItemClass('/admin/restaurants')}><span className="text-[15px]">🏬</span> Manage Restaurants</a>
+            <Link to="/admin/users" className={getNavItemClass('/admin/users')}><span className="text-[15px]">👥</span> Manage Users</Link>
+            <Link to="/admin/restaurants" className={getNavItemClass('/admin/restaurants')}><span className="text-[15px]">🏬</span> Manage Restaurants</Link>
           </>
         )}
 
         <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">PERSONAL</div>
-        <a href="/profile" className={getNavItemClass('/profile')}><span className="text-[15px]">👤</span> My Profile</a>
+        <Link to="/profile" className={getNavItemClass('/profile')}><span className="text-[15px]">👤</span> My Profile</Link>
         {!isCampusAdmin && (
-          <a href="/messages" className={getNavItemClass('/messages')}><IconMail/> Messages <span className="ml-auto bg-[#00c2cb] text-[#060e1c] text-[9px] font-extrabold px-1.5 py-[2px] rounded-full">3</span></a>
+          <Link to="/messages" className={getNavItemClass('/messages')}><IconMail/> Messages <span className="ml-auto bg-[#00c2cb] text-[#060e1c] text-[9px] font-extrabold px-1.5 py-[2px] rounded-full">3</span></Link>
         )}
       </nav>
 

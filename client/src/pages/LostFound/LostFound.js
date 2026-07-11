@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import axios from "axios";
+import { formatDate, SOCKET_URL } from "../../utils/helpers";
 import { io } from "socket.io-client";
 
 // Layout Components
@@ -53,17 +54,7 @@ export default function LostFound() {
     setTimeout(() => setToast(null), 5500);
   }, []);
 
-  const formatDate = (date) => {
-    if (!date) return t("some time ago");
-    const d = new Date(date);
-    const now = new Date();
-    const diff = Math.floor((now - d) / 1000);
 
-    if (diff < 60) return t("Just now");
-    if (diff < 3600) return `${Math.floor(diff / 60)}${t("m ago")}`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}${t("h ago")}`;
-    return `${Math.floor(diff / 86400)}${t("d ago")}`;
-  };
 
   const getPersonalizedAvatar = (url) => {
     if (!url) return `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=random`;
@@ -131,7 +122,7 @@ export default function LostFound() {
     if (user) {
       fetchItems();
 
-      const socket = io("http://localhost:5000");
+      const socket = io(SOCKET_URL);
 
       socket.on("connect", () => {
         console.log("⚡ Connected to Lost & Found socket updates");

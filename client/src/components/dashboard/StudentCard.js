@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import logo from '../../assets/MUL-Logo.png';
+import { getInitials } from '../../utils/helpers';
 
 const StudentCard = ({ user, avatar }) => {
   const [imageError, setImageError] = useState(false);
@@ -9,15 +10,7 @@ const StudentCard = ({ user, avatar }) => {
     setImageError(false);
   }, [avatar]);
 
-  // Helper to extract clean initials from the user's name
-  const getInitials = (name) => {
-    if (!name) return '?';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return parts[0][0].toUpperCase();
-  };
+
 
   const isDefaultAvatar = !avatar || avatar.includes('ui-avatars.com');
   const showFallback = isDefaultAvatar || imageError;

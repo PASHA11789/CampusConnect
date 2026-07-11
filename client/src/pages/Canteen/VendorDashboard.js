@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
+import { SOCKET_URL } from "../../utils/helpers";
 
 export default function VendorDashboard() {
   const navigate = useNavigate();
@@ -127,7 +128,7 @@ export default function VendorDashboard() {
     fetchDashboardData(token);
 
     // Initialize Socket.io connection
-    const socket = io("http://localhost:5000");
+    const socket = io(SOCKET_URL);
 
     socket.on("connect", () => {
       if (info._id) {

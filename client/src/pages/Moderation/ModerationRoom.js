@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { formatDate, SOCKET_URL } from "../../utils/helpers";
 import { io } from "socket.io-client";
 import { createPortal } from "react-dom";
 
@@ -32,18 +33,7 @@ export default function ModerationRoom() {
     setTimeout(() => setToast(null), 5500);
   }, []);
 
-  // Format date helper
-  const formatDate = (date) => {
-    if (!date) return t('some time ago');
-    const d = new Date(date);
-    const now = new Date();
-    const diff = Math.floor((now - d) / 1000);
 
-    if (diff < 60) return t('Just now');
-    if (diff < 3600) return `${Math.floor(diff / 60)}${t('m ago')}`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}${t('h ago')}`;
-    return `${Math.floor(diff / 86400)}${t('d ago')}`;
-  };
 
   // Helper for letter-based avatar
   const getPersonalizedAvatar = (url) => {
@@ -123,7 +113,7 @@ export default function ModerationRoom() {
     if (user && (user.role === "admin" || user.role === "student_mod" || user.role === "campus_admin")) {
       fetchQueue();
 
-      const socket = io("http://localhost:5000");
+      const socket = io(SOCKET_URL);
 
       socket.on("connect", () => {
         console.log("⚡ Connected to moderation updates socket");

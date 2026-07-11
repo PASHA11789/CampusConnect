@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
+import { SOCKET_URL } from "../../utils/helpers";
 
 // Layout
 import Sidebar from "../../components/layout/Sidebar";
@@ -251,7 +252,7 @@ export default function Canteen() {
   // ── WebSocket Real-Time Tracking ──
   useEffect(() => {
     if (!user) return;
-    const socket = io("http://localhost:5000");
+    const socket = io(SOCKET_URL);
 
     socket.on("connect", () => {
       socket.emit("join_user_room", user._id);

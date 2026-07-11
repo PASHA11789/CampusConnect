@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const ANNOUNCEMENTS = [
   { badge: 'URGENT', title: 'Mid-term exam schedule released',    desc: 'Check the portal for your full mid-term schedule.', color: '#f87171' },
@@ -13,7 +14,7 @@ const AnnouncementsWidget = () => {
     <section className="bg-white border border-slate-200 rounded-2xl p-[22px] flex flex-col transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-hidden hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)]">
       <div className="flex items-center justify-between mb-[18px]">
         <h3 className="text-[14px] font-extrabold text-[#0a2342]">{t('Announcements')}</h3>
-        <a href="/announcements" className="text-[12px] text-[#00c2cb] no-underline font-semibold transition-all duration-200 hover:opacity-70 hover:translate-x-[3px]">{t('View all →')}</a>
+        <Link to="/announcements" className="text-[12px] text-[#00c2cb] no-underline font-semibold transition-all duration-200 hover:opacity-70 hover:translate-x-[3px]">{t('View all →')}</Link>
       </div>
       <div className="flex flex-col gap-3">
         {ANNOUNCEMENTS.map((a, i) => (      

@@ -1,17 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { formatDate } from '../../utils/helpers';
 
 export const ForumsWidget = ({ forums = [], onThreadClick, onCreateClick }) => {
-  const formatDate = (date) => {
-    if (!date) return 'some time ago';
-    const d = new Date(date);
-    const now = new Date();
-    const diff = Math.floor((now - d) / 1000);
 
-    if (diff < 60) return 'Just now';
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
-  };
 
   const getCategoryTag = (title) => {
     const lower = (title || "").toLowerCase();
@@ -43,7 +35,7 @@ export const ForumsWidget = ({ forums = [], onThreadClick, onCreateClick }) => {
           <h3 className="text-[16px] font-extrabold text-[#0a2342]">Student Forums</h3>
           <p className="text-[11px] text-slate-500 mt-[2px] font-semibold">Engage, ask, and share with fellow classmates</p>
         </div>
-        <a href="/forum" className="text-[12px] text-[#00c2cb] no-underline font-semibold transition-all duration-200 hover:opacity-70 hover:translate-x-[3px]">View all →</a>
+        <Link to="/forum" className="text-[12px] text-[#00c2cb] no-underline font-semibold transition-all duration-200 hover:opacity-70 hover:translate-x-[3px]">View all →</Link>
       </div>
 
       <div className="flex-1 overflow-y-auto max-h-full pr-1 overflow-x-hidden">

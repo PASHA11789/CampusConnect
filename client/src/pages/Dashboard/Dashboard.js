@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
+import { SOCKET_URL } from "../../utils/helpers";
 // Layout Components
 
 import Sidebar from "../../components/layout/Sidebar";
@@ -95,7 +96,7 @@ export default function Dashboard() {
       fetchDashboardData();
 
       // Establish Socket.io connection for real-time updates
-      const socket = io("http://localhost:5000");
+      const socket = io(SOCKET_URL);
 
       socket.on("connect", () => {
         console.log("⚡ Connected to live updates socket");

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { getInitials } from '../../utils/helpers';
 import Sidebar from '../../components/layout/Sidebar';
 import Topbar from '../../components/layout/Topbar';
 import ReportModal from '../../components/ReportModal/ReportModal';
@@ -56,14 +57,7 @@ export default function PublicProfile() {
     return () => clearInterval(tick);
   }, [id, navigate]);
 
-  const getInitials = (name) => {
-    if (!name) return '?';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return parts[0][0].toUpperCase();
-  };
+
 
   const isDefaultAvatar = !profile?.avatar || profile.avatar.includes('ui-avatars.com');
 

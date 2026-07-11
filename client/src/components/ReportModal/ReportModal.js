@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { getInitials } from '../../utils/helpers';
 
 const ReportModal = ({ isOpen, onClose, userId, reportedName }) => {
   const [reason, setReason] = useState('Profile_Violation');
@@ -51,14 +52,7 @@ const ReportModal = ({ isOpen, onClose, userId, reportedName }) => {
     }
   };
 
-  const getInitials = (name) => {
-    if (!name) return '?';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return parts[0][0].toUpperCase();
-  };
+
 
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">

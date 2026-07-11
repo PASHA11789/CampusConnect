@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
+import { getInitials, formatDate, SOCKET_URL } from '../../utils/helpers';
 
 const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }) => {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
       fetchNotifications();
 
       // Establish Socket.io connection for real-time notifications
-      const socket = io("http://localhost:5000");
+      const socket = io(SOCKET_URL);
 
       socket.on("connect", () => {
         socket.emit("join_user_room", user._id);
@@ -166,27 +167,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
     }
   };
 
-  // Helper to extract clean initials from the user's name
-  const getInitials = (name) => {
-    if (!name) return '?';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return parts[0][0].toUpperCase();
-  };
 
-  const formatDate = (date) => {
-    if (!date) return 'some time ago';
-    const d = new Date(date);
-    const now = new Date();
-    const diff = Math.floor((now - d) / 1000);
-
-    if (diff < 60) return 'Just now';
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
-  };
 
   const getNotificationIcon = (type) => {
     switch (type) {
