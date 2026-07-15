@@ -17,7 +17,7 @@ const StudentCard = ({ user, avatar }) => {
   const initials = getInitials(user?.name);
 
   return (
-    <div className="w-full md:w-[500px] md:h-[290px] min-h-[290px] bg-white rounded-xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.1)] border border-slate-200 flex flex-col font-sans shrink-0">
+    <div className="w-full h-[290px] min-h-[290px] bg-white rounded-xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.1)] border border-slate-200 flex flex-col font-sans">
       {/* Top Header Bar */}
       <div className="bg-neutral-50 px-4 py-2 flex justify-between items-center border-b border-gray-100">
         <span className="text-[#C62828] font-extrabold text-[14px] tracking-wider">STUDENT CARD</span>

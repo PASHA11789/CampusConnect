@@ -30,6 +30,7 @@ export default function Dashboard() {
     forums: [],
     petitions: [],
     lostAndFound: [],
+    careers: [],
     busRoutes: []
   });
 
@@ -87,7 +88,14 @@ export default function Dashboard() {
         if (!token) return;
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const { data } = await axios.get("/api/dashboard/summary", config);
-        setDashboardData(data);
+        const serverPetitions = data.petitions || [];
+        const localPetitions = JSON.parse(localStorage.getItem("my_created_petitions") || "[]");
+        const filteredLocal = localPetitions.filter(lp => !serverPetitions.some(sp => sp._id === lp._id));
+        const mergedPetitions = [...filteredLocal, ...serverPetitions].slice(0, 3);
+        setDashboardData({
+          ...data,
+          petitions: mergedPetitions
+        });
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       }
@@ -222,6 +230,10 @@ export default function Dashboard() {
     navigate("/forum", { state: { threadId: id } });
   };
 
+  const handleCareerThreadClick = (id) => {
+    navigate("/career", { state: { threadId: id } });
+  };
+
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
@@ -309,25 +321,29 @@ export default function Dashboard() {
         />
 
         <div className="flex-1 px-8 py-7 flex flex-col gap-6 overflow-y-auto max-md:p-4 [&>*]:animate-fade-in">
-          {/* Render separated StudentCard and CareerPath widgets */}
-          <div className="grid grid-cols-[1.4fr_1fr] gap-6 max-[1100px]:grid-cols-1 items-start">
+          {/* Render separated StudentCard and LostFound widgets */}
+          <div className="grid grid-cols-[1.1fr_1fr] gap-4 max-[1100px]:grid-cols-1 items-start">
             <StudentCard user={user} avatar={getPersonalizedAvatar(avatar)} />
-            <CareerPathExplorer user={user} />
+            <LostFoundWidget items={dashboardData.lostAndFound} />
           </div>
           <CanteenWidget />
 
-          <div className="grid grid-cols-[0.9fr_1.1fr] gap-6 max-[1200px]:grid-cols-1">
-            <div className="flex flex-col gap-6 min-w-0">
-              <ForumsWidget
-                forums={dashboardData.forums}
-                onThreadClick={handleThreadClick}
-              />
-            </div>
+          <div className="grid grid-cols-[1.1fr_1fr_1.2fr] gap-6 max-[1100px]:grid-cols-1 items-stretch">
+            <ForumsWidget
+              forums={dashboardData.forums}
+              onThreadClick={handleThreadClick}
+            />
 
-            <div className="flex flex-col gap-6 min-w-0">
-              <PetitionsWidget petitions={dashboardData.petitions} />
-              <div className="bg-white border border-slate-200 rounded-2xl p-[22px] grid grid-cols-2 gap-5 transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)]">
-                <LostFoundWidget items={dashboardData.lostAndFound} />
+            <PetitionsWidget petitions={dashboardData.petitions} />
+
+            <div className="flex flex-col gap-6 h-full justify-between">
+              <div className="bg-white border border-slate-200 rounded-2xl p-[22px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] flex-1 flex flex-col justify-between">
+                <CareerPathExplorer
+                  careers={dashboardData.careers}
+                  onThreadClick={handleCareerThreadClick}
+                />
+              </div>
+              <div className="bg-white border border-slate-200 rounded-2xl p-[22px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] flex-1 flex flex-col justify-between">
                 <BusRoutesWidget busRoutes={dashboardData.busRoutes} />
               </div>
             </div>

@@ -2,6 +2,7 @@ import Forum from "../models/Forum.js";
 import Petition from "../models/Petition.js";
 import LostFound from "../models/lostFound.js";
 import Notification from "../models/Notification.js";
+import CareerThread from "../models/CareerThread.js";
 
 export const getModerationQueue = async (req, res) => {
   try {
@@ -9,49 +10,81 @@ export const getModerationQueue = async (req, res) => {
       return res.status(403).json({ message: "Access denied. Mod Room is restricted." });
     }
 
-    const flaggedForums = await Forum.find({
-      $or: [
-        { isHidden: true },
-        { "reportedBy.0": { $exists: true } },
-        { "replies.isHidden": true },
-        { "replies.reportedBy.0": { $exists: true } },
-      ],
-    })
-      .populate("author", "name registeration_number avatar")
-      .populate("replies.author", "name registeration_number avatar")
-      .sort({ updatedAt: -1 });
+    const [flaggedForums, flaggedCareers, pendingPetitions, flaggedLostFound, unreadNotifications] =
+      await Promise.all([
+        Forum.find({
+          $or: [
+            { isHidden: true },
+            { "reportedBy.0": { $exists: true } },
+            { "replies.isHidden": true },
+            { "replies.reportedBy.0": { $exists: true } },
+          ],
+        })
+          .populate("author", "name registeration_number avatar")
+          .populate("replies.author", "name registeration_number avatar")
+          .sort({ updatedAt: -1 }),
 
-    let petitionQuery = { status: "Pending Mod Approval" };
-    if (req.user.role === "student_mod") {
-      petitionQuery.$or = [
-        { level: "Campus" },
-        { level: "Department", targetGroup: req.user.department },
-      ];
-    }
+        CareerThread.find({
+          $or: [
+            { isHidden: true },
+            { "reportedBy.0": { $exists: true } },
+            { "replies.isHidden": true },
+            { "replies.reportedBy.0": { $exists: true } },
+          ],
+        })
+          .populate("author", "name registeration_number avatar")
+          .populate("replies.author", "name registeration_number avatar")
+          .sort({ updatedAt: -1 }),
 
-    const pendingPetitions = await Petition.find(petitionQuery)
-      .populate("creator", "name registeration_number avatar")
-      .sort({ createdAt: 1 });
+        Petition.find(
+          req.user.role === "student_mod"
+            ? {
+                status: "Pending Mod Approval",
+                $or: [
+                  { level: "Campus" },
+                  { level: "Department", targetGroup: req.user.department },
+                ],
+              }
+            : { status: "Pending Mod Approval" }
+        )
+          .populate("creator", "name registeration_number avatar")
+          .sort({ createdAt: 1 }),
 
-    const flaggedLostFound = await LostFound.find({
-      $or: [
-        { isHidden: true },
-        { "reportedBy.0": { $exists: true } },
-      ],
-    })
-      .populate("reporter", "name registeration_number avatar")
-      .sort({ createdAt: -1 });
+        LostFound.find({
+          $or: [
+            { isHidden: true },
+            { "reportedBy.0": { $exists: true } },
+          ],
+        })
+          .populate("reporter", "name registeration_number avatar")
+          .sort({ createdAt: -1 }),
+
+        Notification.find({ recipient: req.user._id, isRead: false }).select("type"),
+      ]);
+
+    const notificationCounts = {
+      forums: unreadNotifications.filter((n) => n.type === "FORUM").length,
+      petitions: unreadNotifications.filter((n) => n.type === "PETITION").length,
+      updates: unreadNotifications.filter((n) => n.type === "ANNOUNCEMENT" || n.type === "GENERAL").length,
+    };
+
+    const forumsCount = flaggedForums.length;
+    const careersCount = flaggedCareers.length;
+    const petitionsCount = pendingPetitions.length;
+    const lostFoundCount = flaggedLostFound.length;
 
     res.status(200).json({
       success: true,
       counts: {
-        forums: flaggedForums.length,
-        petitions: pendingPetitions.length,
-        lostFound: flaggedLostFound.length,
-        total: flaggedForums.length + pendingPetitions.length + flaggedLostFound.length,
+        forums: forumsCount,
+        careers: careersCount,
+        petitions: petitionsCount,
+        lostFound: lostFoundCount,
+        total: forumsCount + careersCount + petitionsCount + lostFoundCount,
       },
       queue: {
         forums: flaggedForums,
+        careers: flaggedCareers,
         petitions: pendingPetitions,
         lostFound: flaggedLostFound,
       },
@@ -137,6 +170,28 @@ export const moderateItem = async (req, res) => {
       }
     }
 
+    else if (contentType === "career") {
+      const thread = await CareerThread.findById(id);
+      if (!thread) return res.status(404).json({ message: "Thread not found" });
+
+      if (action === "Approve") {
+        thread.isHidden = false;
+        thread.reportedBy = [];
+        thread.moderatedBy = req.user._id;
+        await thread.save();
+
+        return res.status(200).json({ success: true, message: "Career thread restored." });
+      } else if (action === "Reject") {
+        await thread.deleteOne();
+        await Notification.create({
+          recipient: thread.author,
+          type: "GENERAL",
+          message: `Your career thread "${thread.title}" was removed by moderation.`,
+        });
+        return res.status(200).json({ success: true, message: "Career thread deleted." });
+      }
+    }
+
     else if (contentType === "reply") {
       if (!threadId) {
         return res.status(400).json({ message: "threadId is required to moderate a reply" });
@@ -161,6 +216,35 @@ export const moderateItem = async (req, res) => {
           recipient: replyAuthor,
           type: "GENERAL",
           message: "One of your forum replies was removed by moderation.",
+        });
+        return res.status(200).json({ success: true, message: "Reply deleted." });
+      }
+    }
+
+    else if (contentType === "career_reply") {
+      if (!threadId) {
+        return res.status(400).json({ message: "threadId is required to moderate a reply" });
+      }
+      const thread = await CareerThread.findById(threadId);
+      if (!thread) return res.status(404).json({ message: "Thread not found" });
+
+      const reply = thread.replies.id(id);
+      if (!reply) return res.status(404).json({ message: "Reply not found" });
+
+      if (action === "Approve") {
+        reply.isHidden = false;
+        reply.reportedBy = [];
+        reply.moderatedBy = req.user._id;
+        await thread.save();
+        return res.status(200).json({ success: true, message: "Reply restored." });
+      } else if (action === "Reject") {
+        const replyAuthor = reply.author;
+        reply.deleteOne();
+        await thread.save();
+        await Notification.create({
+          recipient: replyAuthor,
+          type: "GENERAL",
+          message: "One of your career path replies was removed by moderation.",
         });
         return res.status(200).json({ success: true, message: "Reply deleted." });
       }

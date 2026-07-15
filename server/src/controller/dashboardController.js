@@ -2,10 +2,11 @@ import Forum from "../models/Forum.js";
 import Petition from "../models/Petition.js";
 import LostFound from "../models/lostFound.js";
 import Notification from "../models/Notification.js";
+import CareerThread from "../models/CareerThread.js";
 
 export const getDashboardSummary = async (req, res) => {
   try {
-    const [recentForums, activePetitions, recentLostFound, unreadNotifications] =
+    const [recentForums, activePetitions, recentLostFound, unreadNotifications, recentCareers] =
       await Promise.all([
         Forum.find()
           .sort({ createdAt: -1 })
@@ -23,6 +24,11 @@ export const getDashboardSummary = async (req, res) => {
         Notification.find({ recipient: req.user._id, isRead: false }).select(
           "type",
         ),
+        CareerThread.find({ isFlagged: false, isActive: true })
+          .sort({ createdAt: -1 })
+          .limit(3)
+          .populate("author", "name avatar role registeration_number")
+          .select("title category replies createdAt author"),
       ]);
     const notificationCounts = {
       forums: unreadNotifications.filter((n) => n.type === "FORUM").length,
@@ -38,6 +44,7 @@ export const getDashboardSummary = async (req, res) => {
       forums: recentForums,
       petitions: activePetitions,
       lostAndFound: recentLostFound,
+      careers: recentCareers,
 
       busRoutes: [
         { route: "Route A", status: "On Time", time: "5m" },

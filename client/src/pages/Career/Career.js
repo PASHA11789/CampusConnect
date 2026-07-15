@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 // Layout Components
@@ -10,11 +10,13 @@ import Topbar from "../../components/layout/Topbar";
 import CareerThreadListPane from "./components/CareerThreadListPane";
 import CareerRepliesPane from "./components/CareerRepliesPane";
 import CreateCareerThreadModal from "./components/CreateCareerThreadModal";
+import PublicProfileModal from "../../components/profile/PublicProfileModal";
 
 const t = (s) => s;
 
 export default function Career() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [avatar, setAvatar] = useState(null);
   const [isUploading] = useState(false);
@@ -29,6 +31,10 @@ export default function Career() {
   const [activeThread, setActiveThread] = useState(null);
 
   const [toast, setToast] = useState(null);
+
+  // Profile modal states
+  const [selectedPublicUserId, setSelectedPublicUserId] = useState(null);
+  const [isPublicProfileOpen, setIsPublicProfileOpen] = useState(false);
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -86,6 +92,19 @@ export default function Career() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (threads.length > 0) {
+      const threadIdFromState = location.state?.threadId;
+      if (threadIdFromState) {
+        const found = threads.find((t) => t._id === threadIdFromState);
+        if (found) {
+          setSelectedThreadId(found._id);
+          setActiveThread(found);
+        }
+      }
+    }
+  }, [threads, location.state]);
+
   const showToast = useCallback((message, type = 'info') => {
     setToast({ message, type, id: Date.now() });
     setTimeout(() => setToast(null), 5500);
@@ -112,12 +131,60 @@ export default function Career() {
   };
 
   const handleAvatarChange = async (e) => {
-    // Simplified stub for profile picture changing to match forum
+    // Stub
   };
 
   const getPersonalizedAvatar = (url) => {
     if (!url) return `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=random`;
     return url;
+  };
+
+  const openPublicProfile = (userId) => {
+    if (userId) {
+      setSelectedPublicUserId(userId);
+      setIsPublicProfileOpen(true);
+    }
+  };
+
+  const handleReportThread = async (threadId) => {
+    try {
+      const token = sessionStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const { data } = await axios.post(`/api/careers/${threadId}/report`, {}, config);
+      showToast(data.message || "Thread reported successfully.", "success");
+      setThreads(prev => prev.filter(t => t._id !== threadId));
+      setSelectedThreadId(null);
+      setActiveThread(null);
+    } catch (error) {
+      console.error("Failed to report career thread:", error);
+      showToast(error.response?.data?.message || "Failed to report thread.", "error");
+    }
+  };
+
+  const handleReportReply = async (threadId, replyId) => {
+    try {
+      const token = sessionStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const { data } = await axios.post(`/api/careers/${threadId}/replies/${replyId}/report`, {}, config);
+      showToast(data.message || "Reply reported successfully.", "success");
+      
+      setActiveThread(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          replies: prev.replies.filter(r => r._id !== replyId)
+        };
+      });
+      setThreads(prev => prev.map(t => {
+        if (t._id === threadId) {
+          return { ...t, replies: t.replies.filter(r => r._id !== replyId) };
+        }
+        return t;
+      }));
+    } catch (error) {
+      console.error("Failed to report reply:", error);
+      showToast(error.response?.data?.message || "Failed to report reply.", "error");
+    }
   };
 
   const filteredThreads = threads.filter((post) => {
@@ -214,6 +281,9 @@ export default function Career() {
                 }}
                 showToast={showToast}
                 onReplyAdded={handleReplyAdded}
+                onAvatarClick={openPublicProfile}
+                onReportThread={handleReportThread}
+                onReportReply={handleReportReply}
               />
             )}
           </div>
@@ -226,6 +296,13 @@ export default function Career() {
         onCreated={handleThreadCreated}
         showToast={showToast}
         user={user}
+      />
+
+      <PublicProfileModal
+        isOpen={isPublicProfileOpen}
+        onClose={() => setIsPublicProfileOpen(false)}
+        userId={selectedPublicUserId}
+        showToast={showToast}
       />
 
       {toast && (

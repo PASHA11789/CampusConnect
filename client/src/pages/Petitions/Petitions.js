@@ -160,7 +160,10 @@ export default function Petitions() {
         if (!token) return;
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const { data } = await axios.get("/api/petitions", config);
-        setPetitions(data.petitions || []);
+        const serverPetitions = data.petitions || [];
+        const localPetitions = JSON.parse(localStorage.getItem("my_created_petitions") || "[]");
+        const filteredLocal = localPetitions.filter(lp => !serverPetitions.some(sp => sp._id === lp._id));
+        setPetitions([...filteredLocal, ...serverPetitions]);
       } catch (error) {
         console.error("Error fetching petitions:", error);
         showToast("Failed to fetch petitions list.", "error");
@@ -396,16 +399,31 @@ export default function Petitions() {
         config
       );
 
+      const created = data.petition || {
+        _id: `temp-${Date.now()}`,
+        title: newTitle,
+        description: newDescription,
+        level: newLevel,
+        targetGroup,
+        milestone: newMilestone === "" || newMilestone === null ? null : Number(newMilestone),
+        status: data.underReview ? "Under Review" : "Pending Mod Approval",
+        creator: { _id: user._id, name: user.name, avatar: user.avatar, registeration_number: user.registeration_number },
+        signatures: [user._id],
+        createdAt: new Date().toISOString()
+      };
+
+      const localPetitions = JSON.parse(localStorage.getItem("my_created_petitions") || "[]");
+      localStorage.setItem("my_created_petitions", JSON.stringify([created, ...localPetitions]));
+
       if (data.underReview) {
         showToast("Your petition was flagged by AI moderation and sent for review.", "warning");
-      } else if (data.petition?.status === "Pending Mod Approval") {
+      } else if (created.status === "Pending Mod Approval") {
         showToast("Petition submitted and awaiting student moderator approval.", "info");
       } else {
         showToast("Class petition published instantly!", "success");
-        if (data.petition) {
-          setPetitions((prev) => [data.petition, ...prev]);
-        }
       }
+
+      setPetitions((prev) => [created, ...prev]);
 
       // Reset form
       setNewTitle("");

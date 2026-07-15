@@ -6,10 +6,10 @@ import gourmetImg from '../../assets/gourmet.png';
 import savourImg from '../../assets/savour.png';
 
 const RESTAURANTS = [
-  { id: 'gourmet', name: 'Gourmet Café', distance: '0.2 km', image: gourmetImg },
-  { id: 'savour', name: 'Savour Foods', distance: '0.5 km', image: savourImg },
-  { id: 'bbq', name: 'Bundu Khan BBQ', distance: '1.1 km', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80' },
-  { id: 'pizza', name: 'Pizza Online', distance: '0.8 km', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80' },
+  { id: 'gourmet', name: 'Gourmet', distance: '0.2 km', image: gourmetImg },
+  { id: 'savour', name: 'Savour', distance: '0.5 km', image: savourImg },
+  { id: 'bbq', name: 'Cafe Crunch', distance: '1.1 km', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80' },
+  { id: 'pizza', name: 'Spice Route', distance: '0.8 km', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80' },
 ];
 
 const CanteenWidget = () => {
@@ -17,7 +17,15 @@ const CanteenWidget = () => {
 
   return (
     <section className="w-full mt-6">
-      <h3 className="text-[14px] font-extrabold text-[#0a2342] tracking-wide mb-3.5">Campus Canteen & Nearby Eateries</h3>
+      <div className="flex justify-between items-center mb-3.5">
+        <h3 className="text-[14px] font-extrabold text-[#0a2342] tracking-wide m-0">Campus Canteen & Nearby Eateries</h3>
+        <button 
+          onClick={() => navigate('/canteen')}
+          className="bg-transparent border-none text-[12px] text-[#00c2cb] no-underline font-semibold transition-all duration-200 hover:opacity-70 hover:translate-x-[3px] cursor-pointer"
+        >
+          View all →
+        </button>
+      </div>
       <div className="grid grid-cols-4 gap-4 max-[1024px]:grid-cols-2 max-[600px]:grid-cols-1">
         {RESTAURANTS.map((res, i) => (
           <div 

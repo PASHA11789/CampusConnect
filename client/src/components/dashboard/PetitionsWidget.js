@@ -5,7 +5,7 @@ export const PetitionsWidget = ({ petitions = [] }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-[22px] flex flex-col transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-hidden hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)]">
+    <div className="bg-white border border-slate-200 rounded-2xl p-[22px] flex flex-col transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-hidden hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] h-full">
       <div className="flex items-center justify-between mb-[18px]">
         <h3 className="text-[14px] font-extrabold text-[#0a2342]">Active Petitions</h3>
         <button 
@@ -53,7 +53,18 @@ export const PetitionsWidget = ({ petitions = [] }) => {
             </div>
           );
         }) : (
-          <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b' }}>No active petitions</div>
+          <div className="flex flex-col items-center justify-center py-6 px-4 text-center mt-2 flex-1">
+            {/* Clipboard Illustration */}
+            <div className="w-14 h-14 mb-3 text-slate-350">
+              <svg className="w-full h-full" fill="none" stroke="currentColor" strokeWidth="1.25" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div className="text-[12.5px] font-extrabold text-[#0a2342] mb-1">No active petitions</div>
+            <p className="text-[10px] text-slate-400 font-semibold leading-normal max-w-[180px]">
+              Be the change. Start a petition for a cause you care about.
+            </p>
+          </div>
         )}
       </div>
     </div>

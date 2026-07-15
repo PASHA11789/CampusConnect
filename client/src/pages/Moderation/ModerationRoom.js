@@ -221,14 +221,54 @@ export default function ModerationRoom() {
     }
   };
 
+  // Restore Flagged Career Thread
+  const handleRestoreCareerThread = async (threadId) => {
+    setActioningId(threadId);
+    try {
+      const token = sessionStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const { data } = await axios.put(`/api/moderation/career/${threadId}/moderate`, { action: "Approve" }, config);
+      showToast(data.message || "Career thread restored successfully.", "success");
+      fetchQueue();
+    } catch (error) {
+      console.error("Failed to restore career thread:", error);
+      showToast(error.response?.data?.message || "Failed to restore career thread.", "error");
+    } finally {
+      setActioningId(null);
+    }
+  };
+
+  // Restore Flagged Comment/Reply (unify Forums and Career comments)
+  const handleRestoreReply = async (threadId, replyId, replyType) => {
+    setActioningId(replyId);
+    try {
+      const token = sessionStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const endpoint = replyType === 'forum_reply' ? 'reply' : 'career_reply';
+      const { data } = await axios.put(`/api/moderation/${endpoint}/${replyId}/moderate`, { action: "Approve", threadId }, config);
+      showToast(data.message || "Comment restored successfully.", "success");
+      fetchQueue();
+    } catch (error) {
+      console.error("Failed to restore reply:", error);
+      showToast(error.response?.data?.message || "Failed to restore comment.", "error");
+    } finally {
+      setActioningId(null);
+    }
+  };
+
   // Trigger delete confirmation modal for threads
-  const handleDeleteThread = (threadId) => {
-    setDeleteConfirm({ isOpen: true, type: "thread", targetId: threadId });
+  const handleDeleteThread = (threadId, isCareer = false) => {
+    setDeleteConfirm({ isOpen: true, type: isCareer ? "career" : "thread", targetId: threadId });
   };
 
   // Trigger delete confirmation modal for replies/comments
-  const handleDeleteReply = (threadId, replyId) => {
-    setDeleteConfirm({ isOpen: true, type: "comment", targetId: replyId, extraId: threadId });
+  const handleDeleteReply = (threadId, replyId, replyType = 'forum_reply') => {
+    setDeleteConfirm({ 
+      isOpen: true, 
+      type: replyType === 'forum_reply' ? "comment" : "career_reply", 
+      targetId: replyId, 
+      extraId: threadId 
+    });
   };
 
   // Perform actual deletion of flagged thread or comment
@@ -243,9 +283,15 @@ export default function ModerationRoom() {
       if (type === "thread") {
         await axios.delete(`/api/forums/${targetId}`, config);
         showToast("Thread permanently deleted.", "success");
+      } else if (type === "career") {
+        await axios.put(`/api/moderation/career/${targetId}/moderate`, { action: "Reject" }, config);
+        showToast("Career post permanently deleted.", "success");
       } else if (type === "comment") {
         await axios.delete(`/api/forums/${extraId}/replies/${targetId}`, config);
         showToast("Comment permanently deleted.", "success");
+      } else if (type === "career_reply") {
+        await axios.delete(`/api/careers/${extraId}/replies/${targetId}`, config);
+        showToast("Career reply permanently deleted.", "success");
       }
       fetchQueue();
     } catch (error) {
@@ -299,26 +345,52 @@ export default function ModerationRoom() {
     );
   }
 
-  // Helper to retrieve formatted item reports
+  // Helper to retrieve formatted item reports (Forum & Careers)
   const getFlaggedReplies = () => {
     const repliesList = [];
-    queue.forums.forEach((thread) => {
-      if (thread.replies && thread.replies.length > 0) {
-        thread.replies.forEach((reply) => {
-          if (reply.isHidden || (reply.reportedBy && reply.reportedBy.length > 0)) {
-            repliesList.push({
-              threadId: thread._id,
-              threadTitle: thread.title,
-              reply: reply,
-            });
-          }
-        });
-      }
-    });
+    
+    // Forum replies
+    if (queue.forums) {
+      queue.forums.forEach((thread) => {
+        if (thread.replies && thread.replies.length > 0) {
+          thread.replies.forEach((reply) => {
+            if (reply.isHidden || (reply.reportedBy && reply.reportedBy.length > 0)) {
+              repliesList.push({
+                threadId: thread._id,
+                threadTitle: thread.title,
+                reply: reply,
+                type: 'forum_reply'
+              });
+            }
+          });
+        }
+      });
+    }
+
+    // Career path replies
+    if (queue.careers) {
+      queue.careers.forEach((thread) => {
+        if (thread.replies && thread.replies.length > 0) {
+          thread.replies.forEach((reply) => {
+            if (reply.isHidden || (reply.reportedBy && reply.reportedBy.length > 0)) {
+              repliesList.push({
+                threadId: thread._id,
+                threadTitle: thread.title,
+                reply: reply,
+                type: 'career_reply'
+              });
+            }
+          });
+        }
+      });
+    }
+    
     return repliesList;
   };
 
   const flaggedReplies = getFlaggedReplies();
+  const reportedForums = queue.forums?.filter(thread => thread.isHidden || (thread.reportedBy && thread.reportedBy.length > 0)) || [];
+  const reportedCareers = queue.careers?.filter(thread => thread.isHidden || (thread.reportedBy && thread.reportedBy.length > 0)) || [];
 
   return (
     <div className="flex min-h-screen bg-[#f0f4f8] font-sans text-slate-800 animate-fade-in">
@@ -364,7 +436,7 @@ export default function ModerationRoom() {
                   : "border-transparent text-slate-500 hover:text-slate-700"
               }`}
             >
-              Flagged Discussions ({queue.forums.length} Threads, {flaggedReplies.length} Comments)
+              Flagged Discussions ({reportedForums.length + reportedCareers.length} Threads, {flaggedReplies.length} Comments)
             </button>
             <button
               onClick={() => setActiveTab("petitions")}
@@ -401,14 +473,14 @@ export default function ModerationRoom() {
               {activeTab === "forums" && (
                 <div className="flex flex-col gap-8">
                   
-                  {/* Flagged Threads */}
+                  {/* Flagged Forum Threads */}
                   <div className="flex flex-col gap-4">
                     <h3 className="text-[16px] font-black text-[#0a2342] flex items-center gap-2">
-                      📁 Reported Discussion Threads ({queue.forums.length})
+                      📁 Reported Discussion Threads ({reportedForums.length})
                     </h3>
-                    {queue.forums.length > 0 ? (
+                    {reportedForums.length > 0 ? (
                       <div className="grid grid-cols-1 gap-4">
-                        {queue.forums.map((thread) => (
+                        {reportedForums.map((thread) => (
                           <div
                             key={thread._id}
                             className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col gap-3.5 relative overflow-hidden"
@@ -416,7 +488,7 @@ export default function ModerationRoom() {
                             <div className="flex justify-between items-start">
                               <div className="flex items-center gap-2">
                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-600 border border-rose-100 uppercase">
-                                  Flagged Thread
+                                  Flagged Forum Thread
                                 </span>
                                 <span className="text-[11px] text-slate-400 font-medium">
                                   Started by <strong className="text-slate-600">{thread.author?.registeration_number || thread.author?.name}</strong> • {formatDate(thread.createdAt)}
@@ -432,7 +504,7 @@ export default function ModerationRoom() {
                                 </button>
                                 <button
                                   disabled={actioningId === thread._id}
-                                  onClick={() => handleDeleteThread(thread._id)}
+                                  onClick={() => handleDeleteThread(thread._id, false)}
                                   className="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-3.5 py-1.5 rounded-xl text-[12px] font-bold transition-all disabled:opacity-50 cursor-pointer"
                                 >
                                   🗑️ Delete Post
@@ -460,6 +532,65 @@ export default function ModerationRoom() {
                     )}
                   </div>
 
+                  {/* Flagged Career Threads */}
+                  <div className="flex flex-col gap-4">
+                    <h3 className="text-[16px] font-black text-[#0a2342] flex items-center gap-2">
+                      💼 Reported Career Threads ({reportedCareers.length})
+                    </h3>
+                    {reportedCareers.length > 0 ? (
+                      <div className="grid grid-cols-1 gap-4">
+                        {reportedCareers.map((thread) => (
+                          <div
+                            key={thread._id}
+                            className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col gap-3.5 relative overflow-hidden"
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-600 border border-rose-100 uppercase">
+                                  Flagged Career Thread
+                                </span>
+                                <span className="text-[11px] text-slate-400 font-medium">
+                                  Started by <strong className="text-slate-600">{thread.author?.registeration_number || thread.author?.name}</strong> • {formatDate(thread.createdAt)}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  disabled={actioningId === thread._id}
+                                  onClick={() => handleRestoreCareerThread(thread._id)}
+                                  className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3.5 py-1.5 rounded-xl text-[12px] font-bold transition-all disabled:opacity-50 cursor-pointer"
+                                >
+                                  ✅ Keep & Restore
+                                </button>
+                                <button
+                                  disabled={actioningId === thread._id}
+                                  onClick={() => handleDeleteThread(thread._id, true)}
+                                  className="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-3.5 py-1.5 rounded-xl text-[12px] font-bold transition-all disabled:opacity-50 cursor-pointer"
+                                >
+                                  🗑️ Delete Post
+                                </button>
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="text-[15px] font-extrabold text-[#0a2342]">{thread.title}</h4>
+                              <p className="text-[12.5px] text-slate-600 mt-2 bg-slate-50 p-3 rounded-xl border border-slate-100 leading-relaxed max-h-[120px] overflow-y-auto custom-scrollbar">
+                                {thread.content}
+                              </p>
+                            </div>
+                            {thread.reportedBy && thread.reportedBy.length > 0 && (
+                              <div className="text-[10.5px] font-semibold text-slate-400 bg-amber-500/5 border border-amber-500/10 px-3 py-1.5 rounded-lg w-fit">
+                                Reported by community ({thread.reportedBy.length} report)
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-400 font-semibold shadow-sm">
+                        No reported career threads in the queue.
+                      </div>
+                    )}
+                  </div>
+
                   {/* Flagged Comments */}
                   <div className="flex flex-col gap-4">
                     <h3 className="text-[16px] font-black text-[#0a2342] flex items-center gap-2">
@@ -467,7 +598,7 @@ export default function ModerationRoom() {
                     </h3>
                     {flaggedReplies.length > 0 ? (
                       <div className="grid grid-cols-1 gap-4">
-                        {flaggedReplies.map(({ threadId, threadTitle, reply }) => (
+                        {flaggedReplies.map(({ threadId, threadTitle, reply, type }) => (
                           <div
                             key={reply._id}
                             className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col gap-3 relative overflow-hidden"
@@ -475,7 +606,7 @@ export default function ModerationRoom() {
                             <div className="flex justify-between items-start">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-100 uppercase">
-                                  Flagged Comment
+                                  {type === 'forum_reply' ? 'Forum Flagged Comment' : 'Career Flagged Comment'}
                                 </span>
                                 <span className="text-[11px] text-slate-400 font-medium">
                                   Under discussion: <strong className="text-slate-600">"{threadTitle}"</strong> • {formatDate(reply.createdAt)}
@@ -484,7 +615,14 @@ export default function ModerationRoom() {
                               <div className="flex items-center gap-2">
                                 <button
                                   disabled={actioningId === reply._id}
-                                  onClick={() => handleDeleteReply(threadId, reply._id)}
+                                  onClick={() => handleRestoreReply(threadId, reply._id, type)}
+                                  className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3.5 py-1.5 rounded-xl text-[12px] font-bold transition-all disabled:opacity-50 cursor-pointer"
+                                >
+                                  ✅ Keep Comment
+                                </button>
+                                <button
+                                  disabled={actioningId === reply._id}
+                                  onClick={() => handleDeleteReply(threadId, reply._id, type)}
                                   className="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-3.5 py-1.5 rounded-xl text-[12px] font-bold transition-all disabled:opacity-50 cursor-pointer"
                                 >
                                   🗑️ Delete Comment

@@ -10,45 +10,55 @@ const t = (s) => s;
 
 const ROUTES_DATA = [
   {
-    id: "route-a",
-    name: "Route A",
-    displayName: "Township (Green Line)",
-    color: "#10b981", // Emerald
-    bgColor: "bg-emerald-500/10",
-    textColor: "text-emerald-600",
+    id: "route-1",
+    name: "Route 1",
+    displayName: "Route - 1 [MUL - Qartaba Chowk - MUL]",
+    color: "#EAB308", // Yellow
+    bgColor: "bg-yellow-500/10",
+    textColor: "text-yellow-600",
     status: "On Time",
     eta: "07:30 AM",
     busNo: "LH-7890",
     driver: {
       name: "Sagheer Ahmad",
-      phone: "+92 300 1234567",
+      phone: "0301-2312584",
       avatar: "SA",
       status: "Active",
       rating: "4.9 ⭐",
       capacity: "70% Full"
     },
     stops: [
-      { name: "Minhaj University Campus", time: "07:30 AM", dist: "0 km", desc: "Main Terminal Gate" },
-      { name: "Hamdard Chowk", time: "07:45 AM", dist: "3.2 km", desc: "Main Intersection Point" },
-      { name: "Bagrian Stop", time: "08:00 AM", dist: "5.5 km", desc: "Near Bagrian Chowk" },
-      { name: "Township Market", time: "08:15 AM", dist: "7.8 km", desc: "Opposite Commercial Hub" },
-      { name: "Akbar Chowk Terminal", time: "08:30 AM", dist: "10.4 km", desc: "Final Route Stop" }
+      { name: "MUL (Main Campus)", time: "07:30 AM", dist: "0 km", desc: "Administration Office" },
+      { name: "PINDI STOP", time: "07:38 AM", dist: "2.1 km", desc: "Main Stop Point" },
+      { name: "PECO ROAD", time: "07:44 AM", dist: "3.8 km", desc: "Industrial Area Approach" },
+      { name: "KOT LAKHPAT", time: "07:50 AM", dist: "5.5 km", desc: "Crossing Station" },
+      { name: "MODEL TOWN KACHEHRI", time: "07:56 AM", dist: "7.0 km", desc: "Court Crossing" },
+      { name: "ITTEFAQ HOSPITAL", time: "08:02 AM", dist: "8.5 km", desc: "Medical Ward Stop" },
+      { name: "NASEER ABBAD", time: "08:08 AM", dist: "10.2 km", desc: "Naseer Abbad Chowk" },
+      { name: "MODEL TOWN", time: "08:14 AM", dist: "11.8 km", desc: "Commercial Market" },
+      { name: "KALMA CHOWK", time: "08:20 AM", dist: "13.5 km", desc: "Underpass Metro Link" },
+      { name: "QADAFI STADIUM", time: "08:25 AM", dist: "15.0 km", desc: "Sports Complex Gate" },
+      { name: "MUSLIM TOWN (CANAL BRIDGE)", time: "08:31 AM", dist: "16.8 km", desc: "Canal Bridge Point" },
+      { name: "WAHDAT ROAD", time: "08:37 AM", dist: "18.2 km", desc: "Wahdat Road Intersection" },
+      { name: "ICHRA", time: "08:43 AM", dist: "19.9 km", desc: "Ichra Bazaar Stop" },
+      { name: "SHAMA STATION", time: "08:49 AM", dist: "21.5 km", desc: "Metro Station Stop" },
+      { name: "QARTABA CHOWK", time: "08:55 AM", dist: "23.0 km", desc: "Final Terminal Stop" }
     ],
     path: "M 20 80 Q 60 40 100 80 T 180 80"
   },
   {
-    id: "route-b",
-    name: "Route B",
-    displayName: "Johar Town (Teal Line)",
-    color: "#00c2cb", // Teal
-    bgColor: "bg-teal-500/10",
-    textColor: "text-teal-600",
+    id: "route-2",
+    name: "Route 2",
+    displayName: "Route - 2 [Township - MUL]",
+    color: "#10b981", // Emerald
+    bgColor: "bg-emerald-500/10",
+    textColor: "text-emerald-600",
     status: "Delayed",
-    eta: "07:15 AM (5m delay)",
+    eta: "07:15 AM",
     busNo: "MN-1234",
     driver: {
       name: "Shujaat Ali",
-      phone: "+92 321 7654321",
+      phone: "0300-4697574",
       avatar: "SA",
       status: "Active",
       rating: "4.8 ⭐",
@@ -62,33 +72,6 @@ const ROUTES_DATA = [
       { name: "Emporium Mall Terminal", time: "08:20 AM", dist: "11.5 km", desc: "Final Route Stop" }
     ],
     path: "M 20 80 Q 40 110 90 70 T 180 30"
-  },
-  {
-    id: "route-c",
-    name: "Route C",
-    displayName: "Gulberg (Blue Line)",
-    color: "#3b82f6", // Blue
-    bgColor: "bg-blue-500/10",
-    textColor: "text-blue-600",
-    status: "On Time",
-    eta: "07:00 AM",
-    busNo: "LHR-5555",
-    driver: {
-      name: "Muhammad Rizwan",
-      phone: "+92 333 1122334",
-      avatar: "MR",
-      status: "Active",
-      rating: "5.0 ⭐",
-      capacity: "90% Full"
-    },
-    stops: [
-      { name: "Minhaj University Campus", time: "07:00 AM", dist: "0 km", desc: "Main Terminal Gate" },
-      { name: "Kalma Chowk Underpass", time: "07:20 AM", dist: "6.5 km", desc: "Metro Station Connection" },
-      { name: "Liberty Roundabout", time: "07:35 AM", dist: "8.7 km", desc: "Liberty Plaza Stop" },
-      { name: "Main Boulevard", time: "07:50 AM", dist: "10.2 km", desc: "Opposite MM Alam Road" },
-      { name: "Ghalib Road Terminal", time: "08:05 AM", dist: "12.0 km", desc: "Final Route Stop" }
-    ],
-    path: "M 20 20 Q 80 50 110 30 T 180 90"
   }
 ];
 
@@ -100,7 +83,7 @@ export default function BusRoutes() {
   const [time, setTime] = useState(new Date());
 
   // Page States
-  const [selectedRouteId, setSelectedRouteId] = useState("route-a");
+  const [selectedRouteId, setSelectedRouteId] = useState("route-1");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
 
@@ -287,28 +270,45 @@ export default function BusRoutes() {
                 </div>
               </div>
 
-              {/* Driver info block */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-[0_10px_25px_rgba(0,0,0,0.02)] flex flex-col gap-4 text-left">
-                <h3 className="text-[13px] font-black text-[#0a2342] mb-0.5 uppercase tracking-wide">{t("Active Vehicle & Crew")}</h3>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center font-black text-[#0a2342] border-2 border-slate-200 shrink-0 text-[14px]">
-                    {activeRoute.driver.avatar}
-                  </div>
+
+
+              {/* Official Yellow Board Replication */}
+              <div className="bg-[#FACC15] border-2 border-black rounded-2xl p-5 shadow-md text-left flex flex-col gap-4 text-black font-sans relative overflow-hidden">
+                <div className="flex justify-between items-start">
                   <div className="flex flex-col">
-                    <span className="text-[13px] font-extrabold text-[#0a2342]">{activeRoute.driver.name}</span>
-                    <a href={`tel:${activeRoute.driver.phone}`} className="text-[10px] text-[#00c2cb] font-bold mt-0.5 hover:underline flex items-center gap-1">
-                      <span>📞</span> {activeRoute.driver.phone}
-                    </a>
+                    <h2 className="text-[14px] font-black tracking-tight leading-none text-black uppercase">MUL BUS SERVICE</h2>
+                    <span className="text-[9px] font-black text-black tracking-widest uppercase mt-1">FOR STUDENTS</span>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 border border-black shadow-sm">
+                    <span className="text-[10px] font-black">MUL</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100 text-[11px] font-bold text-slate-500">
-                  <div className="flex flex-col gap-0.5">
-                    <span>BUS PLATE:</span>
-                    <strong className="text-[#0a2342] text-[12.5px] font-black">{activeRoute.busNo}</strong>
+
+                <div className="bg-black text-white text-center py-1.5 px-3 rounded-lg text-[9.5px] font-black uppercase tracking-wider">
+                  Official Transit Info
+                </div>
+
+                <div className="flex flex-col gap-2 pt-2 border-t border-black/15 text-[11px] font-bold text-black/80">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] text-black">📞</span>
+                    <div>
+                      <span className="text-[9px] text-black/55 block font-bold leading-none">CONTACT NUMBERS</span>
+                      <strong className="text-black text-[11.5px] font-black">0301-2312584 | 0300-4697574</strong>
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-0.5">
-                    <span>CAPACITY:</span>
-                    <strong className="text-[#0a2342] text-[12.5px] font-black">{activeRoute.driver.capacity}</strong>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] text-black">✉️</span>
+                    <div>
+                      <span className="text-[9px] text-black/55 block font-bold leading-none">EMAIL ADDRESS</span>
+                      <strong className="text-black text-[11.5px] font-black">talha.admin@mul.edu.pk</strong>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] text-black">🏢</span>
+                    <div>
+                      <span className="text-[9px] text-black/55 block font-bold leading-none">OFFICE LOCATION</span>
+                      <strong className="text-black text-[11.5px] font-black">Administration Office, MUL</strong>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -330,11 +330,9 @@ export default function BusRoutes() {
                   <iframe
                     title="Google Map Directions"
                     src={
-                      selectedRouteId === "route-a"
-                        ? "https://maps.google.com/maps?q=Minhaj%20University%20Lahore%20to%20Township%20Lahore&t=&z=13&ie=UTF8&iwloc=&output=embed"
-                        : selectedRouteId === "route-b"
-                        ? "https://maps.google.com/maps?q=Minhaj%20University%20Lahore%20to%20Johar%20Town%20Lahore&t=&z=13&ie=UTF8&iwloc=&output=embed"
-                        : "https://maps.google.com/maps?q=Minhaj%20University%20Lahore%20to%20Gulberg%20Lahore&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                      selectedRouteId === "route-1"
+                        ? "https://maps.google.com/maps?q=Minhaj%20University%20Lahore%20to%20Qartaba%20Chowk%20Lahore&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                        : "https://maps.google.com/maps?q=Minhaj%20University%20Lahore%20to%20Johar%20Town%20Lahore&t=&z=13&ie=UTF8&iwloc=&output=embed"
                     }
                     width="100%"
                     height="100%"
