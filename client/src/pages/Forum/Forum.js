@@ -9,9 +9,9 @@ import Sidebar from "../../components/layout/Sidebar";
 import Topbar from "../../components/layout/Topbar";
 
 // Subcomponents
-import ThreadListPane from "./components/ThreadListPane";
-import RepliesPane from "./components/RepliesPane";
-import CreateThreadModal from "./components/CreateThreadModal";
+import ThreadListPane from "../../components/discussion/DiscussionThreadListPane";
+import RepliesPane from "../../components/discussion/DiscussionRepliesPane";
+import CreateThreadModal from "../../components/discussion/CreateDiscussionThreadModal";
 import PublicProfileModal from "../../components/profile/PublicProfileModal";
 import MyProfileModal from "../../components/profile/MyProfileModal";
 

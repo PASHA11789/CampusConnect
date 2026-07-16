@@ -1,10 +1,10 @@
 import React from "react";
-import { getInitials, getAvatarColor } from "../../../utils/helpers";
+import { getInitials, getAvatarColor } from "../../utils/helpers";
 
-export default function ReplyBubble({
+export default function DiscussionReplyBubble({
   reply,
   user,
-  revealedReplies,
+  revealedReplies = new Set(),
   onReveal,
   editingReplyId,
   setEditingReplyId,
@@ -17,7 +17,7 @@ export default function ReplyBubble({
   activeDropdown,
   setActiveDropdown,
   onReport,
-  t,
+  t = (s) => s,
   isChild = false,
   onReplyClick,
   onAvatarClick
@@ -198,9 +198,18 @@ export default function ReplyBubble({
           ) : (
             <>
               {isFlagged && !isRevealed ? (
-                <p className="whitespace-pre-wrap leading-relaxed select-none filter blur-[5px]">
-                  {reply.content}
-                </p>
+                <div className="flex flex-col items-start gap-1">
+                  <p className="whitespace-pre-wrap leading-relaxed select-none filter blur-[5px]">
+                    {reply.content}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => onReveal(replyKey)}
+                    className="text-[10px] font-extrabold text-[#00c2cb] hover:underline cursor-pointer bg-transparent border-none mt-1"
+                  >
+                    {t('Show content anyway')}
+                  </button>
+                </div>
               ) : (
                 <>
                   {isFlagged && <span className="inline-block text-[9.5px] font-extrabold text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded-full mb-1.5 uppercase">⚠️ {t('Flagged')}</span>}

@@ -1,7 +1,7 @@
 import React from "react";
-import ThreadListCard from "./ThreadListCard";
+import DiscussionThreadListCard from "./DiscussionThreadListCard";
 
-export default function ThreadListPane({
+export default function DiscussionThreadListPane({
   mobileView,
   filteredThreads,
   selectedThreadId,
@@ -10,12 +10,45 @@ export default function ThreadListPane({
   onStartDiscussion,
   getCategoryTag,
   formatDate,
-  t,
+  t = (s) => s,
   currentPage,
   totalPages,
   onPageChange,
-  onAvatarClick
+  onAvatarClick,
+  variant = "forum",
+  getCategoryLabel
 }) {
+  if (variant === "career") {
+    if (!filteredThreads || filteredThreads.length === 0) {
+      return (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-center p-10 text-center">
+          <span className="text-[40px] mb-4">📭</span>
+          <h3 className="text-[16px] font-bold text-[#0a2342] mb-1">{t("No career paths found")}</h3>
+          <p className="text-[13px] text-slate-500">{t("Be the first to share an opportunity or ask for mentorship!")}</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className={`bg-white rounded-2xl shadow-sm border border-slate-200 overflow-y-auto flex flex-col h-full ${selectedThreadId ? "border-r" : ""}`}>
+        {filteredThreads.map((thread) => (
+          <DiscussionThreadListCard
+            key={thread._id}
+            post={thread}
+            isSelected={selectedThreadId === thread._id}
+            onClick={() => onThreadClick(thread)}
+            formatDate={formatDate}
+            t={t}
+            onAvatarClick={onAvatarClick}
+            variant="career"
+            getCategoryLabel={getCategoryLabel}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // Default: forum variant
   return (
     <div className={`w-full flex flex-col gap-3 self-start ${mobileView === "detail" ? "max-[768px]:hidden" : ""}`}>
       <button 
@@ -28,7 +61,7 @@ export default function ThreadListPane({
       <div className={selectedThreadId ? "flex flex-col gap-2.5" : "grid grid-cols-2 gap-4 max-md:grid-cols-1"}>
         {filteredThreads.length > 0 ? (
           filteredThreads.map((post) => (
-            <ThreadListCard
+            <DiscussionThreadListCard
               key={post._id}
               post={post}
               isSelected={selectedThreadId === post._id}
@@ -36,14 +69,14 @@ export default function ThreadListPane({
                 onThreadClick(post._id);
                 setMobileView("detail");
               }}
-              getCategoryTag={getCategoryTag}
               formatDate={formatDate}
               t={t}
               onAvatarClick={onAvatarClick}
+              variant="forum"
             />
           ))
         ) : (
-          <div className="flex flex-col items-center justify-center py-8 px-4 text-center bg-white border-2 border-dashed border-slate-300 rounded-xl">
+          <div className="flex flex-col items-center justify-center py-8 px-4 text-center bg-white border-2 border-dashed border-slate-300 rounded-xl w-full col-span-2">
             <span className="text-[28px] mb-2.5">💬</span>
             <h3 className="text-[13px] font-extrabold text-[#0a2342] mb-1">{t("No discussions found")}</h3>
             <p className="text-[11.5px] text-slate-500">{t("Be the first to share an idea!")}</p>

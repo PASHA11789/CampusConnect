@@ -214,7 +214,6 @@ export default function VendorDashboard() {
         });
         if (data.success) {
           setMenu(menu.filter((item) => item.id !== itemId));
-          setRestaurantOpen(false); // Closed for now since menu is updating
           showToast("Menu item deleted successfully!", "success");
         }
       } catch (err) {
@@ -295,7 +294,6 @@ export default function VendorDashboard() {
         });
         if (data.success) {
           await fetchDashboardData(token);
-          setRestaurantOpen(false); // Closed for now since menu is updating
           showToast("Menu item updated successfully!", "success");
         }
       } else {

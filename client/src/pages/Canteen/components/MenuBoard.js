@@ -15,12 +15,11 @@ export default function MenuBoard({
   setActiveRestaurant,
   selectedVisualIndex = 0,
   setSelectedVisualIndex = () => {},
-  POPULAR_CANTEENS = [],
   cart = [],
   handleAdjustQty = () => {},
 }) {
   // Get currently selected visual restaurant name
-  const selectedCanteenName = POPULAR_CANTEENS[selectedVisualIndex]?.name || "Cafe Aroma";
+  const selectedCanteenName = (restaurants && restaurants[selectedVisualIndex]?.name) || "Cafe Aroma";
 
   return (
     <div className="flex flex-col gap-8">

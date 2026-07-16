@@ -10,7 +10,7 @@ import Topbar from "../../components/layout/Topbar";
 
 // Canteen Subcomponents
 import CanteenHero from "./components/CanteenHero";
-import RestaurantList, { POPULAR_CANTEENS } from "./components/RestaurantList";
+import RestaurantList from "./components/RestaurantList";
 import MenuBoard from "./components/MenuBoard";
 import CheckoutCart from "./components/CheckoutCart";
 import OrderTracker from "./components/OrderTracker";
@@ -448,7 +448,7 @@ export default function Canteen() {
   const handlePostReview = (e) => {
     e.preventDefault();
     if (!newReviewComment.trim()) return;
-    const canteenName = POPULAR_CANTEENS[selectedVisualIndex]?.name || "Cafe Aroma";
+    const canteenName = restaurantsList[selectedVisualIndex]?.name || "Cafe Aroma";
     setReviews([
       {
         name: newReviewName || "Anonymous Student",
@@ -556,7 +556,6 @@ export default function Canteen() {
                     setActiveRestaurant={setActiveRestaurant}
                     selectedVisualIndex={selectedVisualIndex}
                     setSelectedVisualIndex={setSelectedVisualIndex}
-                    POPULAR_CANTEENS={POPULAR_CANTEENS}
                     cart={cart}
                     handleAdjustQty={handleAdjustQty}
                   />

@@ -1,43 +1,49 @@
 import React from "react";
 
-const POPULAR_CANTEENS = [
-  {
-    name: "Savour Foods",
+const METADATA_MAP = {
+  "savour foods": {
     rating: "4.8",
     prepTime: "15-20 min",
-    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80",
     tags: "Traditional • Pulao • Kebab",
-    address: "Township Sector C, Lahore (2.8 km from MUL)",
-    status: "Open"
+    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80",
   },
-  {
-    name: "Gourmet Restaurant",
+  "gourmet restaurant": {
     rating: "4.6",
     prepTime: "20-25 min",
-    image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=500&q=80",
     tags: "Fast Food • Traditional • Cakes",
-    address: "Main Boulevard Township, Lahore (1.5 km from MUL)",
-    status: "Open"
+    image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=500&q=80",
   },
-  {
-    name: "Johnny & Jugnu",
+  "johnny & jugnu": {
     rating: "4.7",
     prepTime: "25-30 min",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&q=80",
     tags: "Fast Food • Wehshi Burgers • Fries",
-    address: "Johar Town, Lahore (4.2 km from MUL)",
-    status: "Open"
+    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&q=80",
   },
-  {
-    name: "Dogar Restaurant",
+  "dogar restaurant": {
     rating: "4.5",
     prepTime: "10-15 min",
-    image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&q=80",
     tags: "Traditional • Biryani • Chai",
-    address: "Main Market Township, Lahore (1.2 km from MUL)",
-    status: "Open"
+    image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&q=80",
   }
-];
+};
+
+const getCanteenDisplayInfo = (res) => {
+  const nameLower = (res.name || "").toLowerCase();
+  const meta = METADATA_MAP[nameLower] || {
+    rating: "4.5",
+    prepTime: "15-25 min",
+    tags: "Campus Favorite",
+    image: res.coverImage || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80",
+  };
+  return {
+    name: res.name,
+    rating: meta.rating,
+    prepTime: meta.prepTime,
+    tags: meta.tags,
+    image: res.coverImage || meta.image,
+    status: res.isActive ? "Open" : "Closed"
+  };
+};
 
 export default function RestaurantList({
   restaurants,
@@ -47,6 +53,8 @@ export default function RestaurantList({
   selectedVisualIndex,
   setSelectedVisualIndex,
 }) {
+  const displayRestaurants = restaurants && restaurants.length > 0 ? restaurants : [];
+
   return (
     <section className="flex flex-col gap-4">
       {/* Header */}
@@ -55,29 +63,22 @@ export default function RestaurantList({
           Popular Canteens
         </h3>
         <span className="text-[10px] font-black text-slate-400">
-          4 Locations Nearby
+          {displayRestaurants.length} Locations Nearby
         </span>
       </div>
 
-      {/* Grid Layout of 4 Popular Canteens */}
+      {/* Grid Layout of Dynamic Canteens */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {POPULAR_CANTEENS.map((canteen, index) => {
-          // Map to backend restaurant ID if available
-          let backendId = "";
-          if (restaurants && restaurants.length > 0) {
-            const res = restaurants[index % restaurants.length];
-            backendId = res._id || res.id;
-          }
-
-          const isSelected = selectedVisualIndex === index;
+        {displayRestaurants.map((res, index) => {
+          const backendId = res._id || res.id;
+          const isSelected = activeRestaurant === backendId;
+          const displayInfo = getCanteenDisplayInfo(res);
 
           return (
             <button
-              key={index}
+              key={backendId}
               onClick={() => {
-                if (backendId) {
-                  setActiveRestaurant(backendId);
-                }
+                setActiveRestaurant(backendId);
                 setSelectedVisualIndex(index);
                 setSelectedCategory("All");
               }}
@@ -90,8 +91,8 @@ export default function RestaurantList({
               {/* Image Container with Rating Badge */}
               <div className="h-32 w-full overflow-hidden relative shrink-0">
                 <img
-                  src={canteen.image}
-                  alt={canteen.name}
+                  src={displayInfo.image}
+                  alt={displayInfo.name}
                   className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
@@ -99,26 +100,30 @@ export default function RestaurantList({
                 {/* Rating Badge */}
                 <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full flex items-center gap-0.5 text-[10px] font-extrabold text-[#0a2342] shadow-sm">
                   <span className="text-amber-500">★</span>
-                  <span>{canteen.rating}</span>
+                  <span>{displayInfo.rating}</span>
                 </div>
               </div>
 
               {/* Card Details */}
               <div className="p-4 flex flex-col gap-1 flex-1">
                 <h4 className="text-xs font-black text-[#0a2342] truncate leading-tight">
-                  {canteen.name}
+                  {displayInfo.name}
                 </h4>
                 
                 <p className="text-[9.5px] font-semibold text-slate-400 truncate">
-                  {canteen.tags}
+                  {displayInfo.tags}
                 </p>
 
                 <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5">
                   <span className="text-[9.5px] font-black text-slate-500">
-                    🛵 {canteen.prepTime}
+                    🛵 {displayInfo.prepTime}
                   </span>
-                  <span className="rounded-full bg-emerald-50 border border-emerald-100/50 px-2 py-0.5 text-[8.5px] font-extrabold text-emerald-600 uppercase tracking-wider">
-                    {canteen.status}
+                  <span className={`rounded-full border px-2 py-0.5 text-[8.5px] font-extrabold uppercase tracking-wider ${
+                    displayInfo.status === "Open" 
+                      ? "bg-emerald-50 border-emerald-100/50 text-emerald-600" 
+                      : "bg-rose-50 border-rose-100/50 text-rose-600"
+                  }`}>
+                    {displayInfo.status}
                   </span>
                 </div>
               </div>
@@ -129,4 +134,3 @@ export default function RestaurantList({
     </section>
   );
 }
-export { POPULAR_CANTEENS };
