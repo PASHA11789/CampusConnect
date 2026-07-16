@@ -6,7 +6,8 @@ import {
     getLostFoundItems,
     reportItem,
     resolveItem,
-    deleteItem
+    deleteItem,
+    claimFoundItem
 } from "../controller/lostAndFoundController.js"
 
 const router = express.Router()
@@ -17,6 +18,9 @@ router.route("/")
 
 router.route("/:id/resolve")
 .put(protect, resolveItem)
+
+router.route("/:id/claim-found")
+.put(protect, claimFoundItem)
 
 router.route("/:id")
 .delete(protect, deleteItem)

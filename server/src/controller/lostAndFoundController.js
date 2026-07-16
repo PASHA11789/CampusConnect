@@ -6,11 +6,15 @@ export const getLostFoundItems = async (req, res)=>{
 
         const query = {
             isHidden : false,
-            status : { $in: ["Open", "At Office"] }
+            $or: [
+                { status : { $in: ["Open", "At Office"] } },
+                { reporter: req.user._id }
+            ]
         }
 
         const items = await LostFound.find(query)
         .populate("reporter", "name avatar registeration_number")
+        .populate("foundBy", "name avatar registeration_number")
         .sort({ createdAt: -1})
 
         res.status(200).json({success: true, count: items.length, items})
@@ -131,3 +135,58 @@ export const deleteItem = async (req, res) =>{
      res.status(500).json({ message: "Server error deleting item", error: error.message });
          }
 }
+
+export const claimFoundItem = async (req, res) => {
+    try {
+        const { foundLocation, submittedTo } = req.body;
+        if (!foundLocation || !submittedTo) {
+            return res.status(400).json({ message: "Please provide where you found the item and to whom you submitted it." });
+        }
+
+        const item = await LostFound.findById(req.params.id);
+        if (!item) {
+            return res.status(404).json({ message: "Item not found" });
+        }
+
+        if (item.type !== "LOST") {
+            return res.status(400).json({ message: "Only lost items can be reported as found." });
+        }
+
+        if (item.status === "Claimed" || item.status === "Returned") {
+            return res.status(400).json({ message: "This item has already been resolved or claimed." });
+        }
+
+        item.status = "Claimed";
+        item.foundBy = req.user._id;
+        item.foundLocation = foundLocation;
+        item.submittedTo = submittedTo;
+        item.foundAt = new Date();
+        await item.save();
+
+        const populatedItem = await LostFound.findById(item._id)
+            .populate("reporter", "name avatar")
+            .populate("foundBy", "name avatar registeration_number");
+
+        const io = req.app.get("socketio");
+
+        // Notify the owner (reporter)
+        const notificationMessage = `Great news! ${req.user.name} reported they found your lost item "${item.itemName}" at ${foundLocation} and submitted it to ${submittedTo}.`;
+        
+        const ownerNotification = await Notification.create({
+            recipient: item.reporter,
+            type: "GENERAL",
+            message: notificationMessage
+        });
+
+        io.to(item.reporter.toString()).emit("new_notification", ownerNotification);
+        io.emit("item_resolved", { itemId: item._id, status: "Claimed", item: populatedItem });
+
+        res.status(200).json({
+            success: true,
+            message: "Misplaced item report updated. The owner has been notified!",
+            item: populatedItem
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error reporting found item", error: error.message });
+    }
+};

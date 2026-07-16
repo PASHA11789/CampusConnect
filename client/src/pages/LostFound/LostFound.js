@@ -43,6 +43,13 @@ export default function LostFound() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
+  // Claim report form states
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
+  const [claimTargetItem, setClaimTargetItem] = useState(null);
+  const [foundLocationInput, setFoundLocationInput] = useState("");
+  const [submittedToInput, setSubmittedToInput] = useState("");
+  const [isClaimSubmitting, setIsClaimSubmitting] = useState(false);
+
   // UI toast notification state
   const [toast, setToast] = useState(null);
   const [resolvingIds, setResolvingIds] = useState(new Set());
@@ -193,7 +200,7 @@ export default function LostFound() {
 
   // Prevent background scroll when modal detail is active
   useEffect(() => {
-    if (isDetailOpen || isModalOpen) {
+    if (isDetailOpen || isModalOpen || isClaimModalOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
@@ -201,7 +208,7 @@ export default function LostFound() {
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [isDetailOpen, isModalOpen]);
+  }, [isDetailOpen, isModalOpen, isClaimModalOpen]);
 
   const handleCardClick = (item) => {
     setSelectedItem(item);
@@ -366,6 +373,55 @@ export default function LostFound() {
     }
   };
 
+  const handleClaimSubmit = async (e) => {
+    e.preventDefault();
+    if (!foundLocationInput.trim() || !submittedToInput.trim()) {
+      showToast("Please fill in where you found it and to whom you submitted it.", "warning");
+      return;
+    }
+
+    setIsClaimSubmitting(true);
+    try {
+      const token = sessionStorage.getItem("token");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const { data } = await axios.put(
+        `/api/lost-found/${claimTargetItem._id}/claim-found`,
+        {
+          foundLocation: foundLocationInput,
+          submittedTo: submittedToInput,
+        },
+        config
+      );
+
+      showToast(data.message || "Claim submitted successfully!", "success");
+      
+      // Update item in local state
+      setItems((prev) =>
+        prev.map((item) => (item._id === claimTargetItem._id ? data.item : item))
+      );
+
+      // Close modal and reset inputs
+      setIsClaimModalOpen(false);
+      setClaimTargetItem(null);
+      setFoundLocationInput("");
+      setSubmittedToInput("");
+
+      if (isDetailOpen && selectedItem?._id === claimTargetItem?._id) {
+        setSelectedItem(data.item);
+      }
+    } catch (error) {
+      console.error("Error submitting claim for found item:", error);
+      showToast(error.response?.data?.message || "Failed to submit found report.", "error");
+    } finally {
+      setIsClaimSubmitting(false);
+    }
+  };
+
   // Filter listings based on selections
   const filteredItems = items.filter((item) => {
     if (item.isHidden) return false;
@@ -383,7 +439,9 @@ export default function LostFound() {
     const matchesStatus = filterStatus === "ALL" || item.status === filterStatus;
 
     // Mine / All tab filter
-    const matchesTab = selectedTab === "all" || (selectedTab === "mine" && item.reporter?._id === user?._id);
+    const matchesTab = selectedTab === "all"
+      ? (item.status === "Open" || item.status === "At Office")
+      : (item.reporter?._id === user?._id);
 
     // Categories filter (Mock category mapping based on keywords)
     let matchesCategory = true;
@@ -659,9 +717,23 @@ export default function LostFound() {
                                 )}
                               </button>
                             ) : (
-                              <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-500">
-                                {t(item.status)}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                {item.type === "LOST" && (item.status === "Open" || item.status === "At Office") && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setClaimTargetItem(item);
+                                      setIsClaimModalOpen(true);
+                                    }}
+                                    className="bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-100 px-3 py-1.5 rounded-xl text-[10px] font-black transition-all active:scale-95 cursor-pointer"
+                                  >
+                                    {t("Found It?")}
+                                  </button>
+                                )}
+                                <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-500">
+                                  {t(item.status)}
+                                </span>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -746,10 +818,39 @@ export default function LostFound() {
               <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 mt-2">
                 <p className="text-[13px] text-slate-600 font-medium leading-relaxed">{selectedItem.description}</p>
               </div>
+
+              {selectedItem.status === "Claimed" && selectedItem.foundBy && (
+                <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 mt-3 flex flex-col gap-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[16px]">🎉</span>
+                    <strong className="text-[13px] text-emerald-800 font-black">{t("Misplaced Item Has Been Located!")}</strong>
+                  </div>
+                  <div className="flex flex-col gap-1.5 text-[12px] text-emerald-700 font-semibold pl-6">
+                    <div>
+                      <span>🔍 {t("Found by")}: </span>
+                      <strong className="text-emerald-900">{selectedItem.foundBy.name} ({selectedItem.foundBy.registeration_number || t("Student")})</strong>
+                    </div>
+                    <div>
+                      <span>📍 {t("Where it was found")}: </span>
+                      <strong className="text-emerald-900">{selectedItem.foundLocation}</strong>
+                    </div>
+                    <div>
+                      <span>🏢 {t("Where it was submitted")}: </span>
+                      <strong className="text-emerald-900">{selectedItem.submittedTo}</strong>
+                    </div>
+                    {selectedItem.foundAt && (
+                      <div>
+                        <span>📅 {t("When")}: </span>
+                        <strong className="text-emerald-900">{formatDate(selectedItem.foundAt)}</strong>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Footer with reporter identity */}
-            <div className="flex justify-between items-center border-t border-slate-100 pt-4">
+            <div className="flex justify-between items-center border-t border-slate-100 pt-4 flex-wrap gap-3">
               <div className="flex items-center gap-3">
                 <img
                   src={selectedItem.reporter?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedItem.reporter?.name || "User")}`}
@@ -764,7 +865,7 @@ export default function LostFound() {
                 </div>
               </div>
 
-              {selectedItem.reporter?._id === user?._id && (
+              {selectedItem.reporter?._id === user?._id && (selectedItem.status === "Open" || selectedItem.status === "At Office") && (
                 <button
                   onClick={() => handleResolveItem(selectedItem._id)}
                   disabled={resolvingIds.has(selectedItem._id)}
@@ -775,6 +876,18 @@ export default function LostFound() {
                   ) : (
                     t("Mark Claimed")
                   )}
+                </button>
+              )}
+
+              {selectedItem.reporter?._id !== user?._id && selectedItem.type === "LOST" && (selectedItem.status === "Open" || selectedItem.status === "At Office") && (
+                <button
+                  onClick={() => {
+                    setClaimTargetItem(selectedItem);
+                    setIsClaimModalOpen(true);
+                  }}
+                  className="bg-sky-500 hover:bg-sky-600 text-white px-5 py-2.5 rounded-xl text-xs font-black transition-all shadow-md hover:shadow-sky-500/20 active:scale-95 cursor-pointer"
+                >
+                  {t("I Found This")}
                 </button>
               )}
             </div>
@@ -909,6 +1022,77 @@ export default function LostFound() {
                   </>
                 ) : (
                   <span>{t("Publish Report")}</span>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Claim Found Modal overlay */}
+      {isClaimModalOpen && claimTargetItem && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[2200] p-4 animate-fade-in">
+          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-[450px] shadow-2xl relative animate-modal-slide-in overflow-hidden">
+            {/* Header */}
+            <div className="bg-sky-900 text-white p-6 flex justify-between items-center">
+              <h2 className="text-[17px] font-black">{t("Report Found Item")}</h2>
+              <button
+                type="button"
+                className="text-white/70 hover:text-white text-[16px] font-bold cursor-pointer"
+                onClick={() => {
+                  setIsClaimModalOpen(false);
+                  setClaimTargetItem(null);
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleClaimSubmit} className="p-6 flex flex-col gap-4">
+              <p className="text-[12.5px] text-slate-500 font-medium leading-relaxed">
+                {t("You are reporting that you found")} <strong className="text-[#0a2342]">"{claimTargetItem.itemName}"</strong>. {t("Please provide details so the owner can retrieve it.")}
+              </p>
+
+              {/* Where did you find it? */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{t("Where did you find this item?")} *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder={t("e.g. Library 2nd floor, Cafeteria side table")}
+                  value={foundLocationInput}
+                  onChange={(e) => setFoundLocationInput(e.target.value)}
+                  className="border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#00c2cb] focus:ring-1 focus:ring-[#00c2cb]"
+                />
+              </div>
+
+              {/* To whom did you submit it? */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{t("To whom/where did you submit it?")} *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder={t("e.g. Front desk security office, keeping it with me")}
+                  value={submittedToInput}
+                  onChange={(e) => setSubmittedToInput(e.target.value)}
+                  className="border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#00c2cb] focus:ring-1 focus:ring-[#00c2cb]"
+                />
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={isClaimSubmitting}
+                className="bg-sky-600 text-white py-3 rounded-xl text-xs font-black transition-all hover:bg-sky-700 active:scale-95 disabled:opacity-50 mt-2 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {isClaimSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>{t("Submitting...")}</span>
+                  </>
+                ) : (
+                  <span>{t("Submit Report")}</span>
                 )}
               </button>
             </form>

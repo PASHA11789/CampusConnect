@@ -10,7 +10,7 @@ export const getModerationQueue = async (req, res) => {
       return res.status(403).json({ message: "Access denied. Mod Room is restricted." });
     }
 
-    const [flaggedForums, flaggedCareers, pendingPetitions, flaggedLostFound, unreadNotifications] =
+    const [flaggedForums, flaggedCareers, pendingPetitions, flaggedLostFound, oldUnclaimedLostFound, unreadNotifications] =
       await Promise.all([
         Forum.find({
           $or: [
@@ -59,6 +59,13 @@ export const getModerationQueue = async (req, res) => {
           .populate("reporter", "name registeration_number avatar")
           .sort({ createdAt: -1 }),
 
+        LostFound.find({
+          status: { $in: ["Open", "At Office"] },
+          createdAt: { $lt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) }
+        })
+          .populate("reporter", "name registeration_number avatar")
+          .sort({ createdAt: -1 }),
+
         Notification.find({ recipient: req.user._id, isRead: false }).select("type"),
       ]);
 
@@ -72,6 +79,7 @@ export const getModerationQueue = async (req, res) => {
     const careersCount = flaggedCareers.length;
     const petitionsCount = pendingPetitions.length;
     const lostFoundCount = flaggedLostFound.length;
+    const oldUnclaimedCount = oldUnclaimedLostFound.length;
 
     res.status(200).json({
       success: true,
@@ -80,13 +88,15 @@ export const getModerationQueue = async (req, res) => {
         careers: careersCount,
         petitions: petitionsCount,
         lostFound: lostFoundCount,
-        total: forumsCount + careersCount + petitionsCount + lostFoundCount,
+        oldUnclaimed: oldUnclaimedCount,
+        total: forumsCount + careersCount + petitionsCount + lostFoundCount + oldUnclaimedCount,
       },
       queue: {
         forums: flaggedForums,
         careers: flaggedCareers,
         petitions: pendingPetitions,
         lostFound: flaggedLostFound,
+        oldUnclaimed: oldUnclaimedLostFound,
       },
     });
   } catch (error) {

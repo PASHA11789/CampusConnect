@@ -21,7 +21,12 @@ const lostFoundSchema = new mongoose.Schema(
     isHidden: { type: Boolean, default: false },
 
     reportedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // For manual student reports
-    moderatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null } // The "Approved by" stamp
+    moderatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // The "Approved by" stamp
+
+    foundBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    foundLocation: { type: String, default: "" },
+    submittedTo: { type: String, default: "" },
+    foundAt: { type: Date, default: null }
   },
   { timestamps: true }
 );

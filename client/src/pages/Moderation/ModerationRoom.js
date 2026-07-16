@@ -336,6 +336,23 @@ export default function ModerationRoom() {
     }
   };
 
+  // Delete Old Unclaimed Lost & Found Item
+  const handleDeleteOldUnclaimed = async (itemId) => {
+    setActioningId(itemId);
+    try {
+      const token = sessionStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      await axios.delete(`/api/lost-found/${itemId}`, config);
+      showToast("Old unclaimed item successfully removed to clear clutter.", "success");
+      fetchQueue();
+    } catch (error) {
+      console.error("Failed to delete unclaimed item:", error);
+      showToast(error.response?.data?.message || "Failed to delete unclaimed item.", "error");
+    } finally {
+      setActioningId(null);
+    }
+  };
+
   if (!user) {
     return (
       <div className="flex items-center justify-center h-screen flex-col gap-3.5 bg-[#f0f4f8]">
@@ -457,6 +474,16 @@ export default function ModerationRoom() {
               }`}
             >
               Flagged Lost & Found ({queue.lostFound?.length || 0})
+            </button>
+            <button
+              onClick={() => setActiveTab("oldUnclaimed")}
+              className={`pb-3 px-1 text-[13.5px] font-bold border-b-2 transition-all cursor-pointer ${
+                activeTab === "oldUnclaimed"
+                  ? "border-[#00c2cb] text-[#00c2cb]"
+                  : "border-transparent text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              Old Unclaimed (10d+) ({queue.oldUnclaimed?.length || 0})
             </button>
           </div>
 
@@ -785,6 +812,81 @@ export default function ModerationRoom() {
                   ) : (
                     <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-400 font-semibold shadow-sm">
                       No Lost & Found items awaiting moderation approval.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "oldUnclaimed" && (
+                <div className="flex flex-col gap-4">
+                  <h3 className="text-[16px] font-black text-[#0a2342] flex items-center gap-2">
+                    🧹 Unclaimed Posts Older than 10 Days ({queue.oldUnclaimed?.length || 0})
+                  </h3>
+                  <p className="text-[13px] text-slate-500 font-semibold mb-2">
+                    These are unclaimed Lost & Found items that have been open for more than 10 days. You can delete them to clear clutter.
+                  </p>
+                  {queue.oldUnclaimed && queue.oldUnclaimed.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-4">
+                      {queue.oldUnclaimed.map((item) => {
+                        const ageInDays = Math.floor((Date.now() - new Date(item.createdAt).getTime()) / (1000 * 60 * 60 * 24));
+                        return (
+                          <div
+                            key={item._id}
+                            className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col gap-4 relative overflow-hidden"
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${
+                                    item.type === "LOST" 
+                                      ? "bg-rose-50 text-rose-600 border-rose-100" 
+                                      : "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                  }`}>
+                                    {item.type}
+                                  </span>
+                                  <span className="text-[11px] text-slate-400 font-medium">
+                                    Reported by <strong className="text-slate-600">{item.reporter?.registeration_number || item.reporter?.name}</strong> • {formatDate(item.createdAt)}
+                                  </span>
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                                    {ageInDays} days old
+                                  </span>
+                                </div>
+                                <span className="text-[11px] text-slate-500 font-semibold">
+                                  Location: {item.location} {item.surrenderedAt ? `• Surrendered at: ${item.surrenderedAt}` : ""}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  disabled={actioningId === item._id}
+                                  onClick={() => handleDeleteOldUnclaimed(item._id)}
+                                  className="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-4 py-2 rounded-xl text-[12.5px] font-bold transition-all disabled:opacity-50 cursor-pointer"
+                                >
+                                  🗑️ Delete to Clear Clutter
+                                </button>
+                              </div>
+                            </div>
+                            <div className="flex gap-4 items-start max-sm:flex-col">
+                              {item.image && (
+                                <img 
+                                  src={item.image} 
+                                  alt={item.itemName} 
+                                  className="w-24 h-24 object-cover rounded-xl border border-slate-100"
+                                />
+                              )}
+                              <div className="flex-1">
+                                <h4 className="text-[15.5px] font-extrabold text-[#0a2342]">{item.itemName}</h4>
+                                <p className="text-[12.5px] text-slate-600 mt-2 bg-slate-50 p-3.5 rounded-xl border border-slate-100 leading-relaxed">
+                                  {item.description}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-400 font-semibold shadow-sm">
+                      No unclaimed items older than 10 days in the system.
                     </div>
                   )}
                 </div>

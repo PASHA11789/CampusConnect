@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs";
 
 // Resolve paths
-const serverDir = "c:/Users/Syed Usama/Desktop/CampusConnect/server";
+const serverDir = path.resolve(".");
 dotenv.config();
 
 // Import models
