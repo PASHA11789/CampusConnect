@@ -45,33 +45,6 @@ const ROUTES_DATA = [
       { name: "QARTABA CHOWK", time: "08:55 AM", dist: "23.0 km", desc: "Final Terminal Stop" }
     ],
     path: "M 20 80 Q 60 40 100 80 T 180 80"
-  },
-  {
-    id: "route-2",
-    name: "Route 2",
-    displayName: "Route - 2 [Township - MUL]",
-    color: "#10b981", // Emerald
-    bgColor: "bg-emerald-500/10",
-    textColor: "text-emerald-600",
-    status: "Delayed",
-    eta: "07:15 AM",
-    busNo: "MN-1234",
-    driver: {
-      name: "Shujaat Ali",
-      phone: "0300-4697574",
-      avatar: "SA",
-      status: "Active",
-      rating: "4.8 ⭐",
-      capacity: "45% Full"
-    },
-    stops: [
-      { name: "Minhaj University Campus", time: "07:15 AM", dist: "0 km", desc: "Main Terminal Gate" },
-      { name: "Shadiwal Chowk", time: "07:35 AM", dist: "4.1 km", desc: "Junction Crossing" },
-      { name: "G1 Market Stop", time: "07:50 AM", dist: "6.2 km", desc: "Commercial Center Stop" },
-      { name: "Doctors Hospital", time: "08:05 AM", dist: "8.9 km", desc: "Canal Road Approach" },
-      { name: "Emporium Mall Terminal", time: "08:20 AM", dist: "11.5 km", desc: "Final Route Stop" }
-    ],
-    path: "M 20 80 Q 40 110 90 70 T 180 30"
   }
 ];
 
@@ -103,7 +76,7 @@ export default function BusRoutes() {
         if (parsedUser.avatar) {
           setAvatar(parsedUser.avatar);
         }
-      } catch (e) {}
+      } catch (e) { }
     }
 
     const fetchUserProfile = async () => {
@@ -180,11 +153,6 @@ export default function BusRoutes() {
               <h1 className="text-[22px] font-black text-[#0a2342] tracking-tight">{t("Bus Routes & Live Map")}</h1>
               <p className="text-[12px] text-slate-500 mt-1 font-semibold">{t("Track campus shuttle services, timelines, and live status")}</p>
             </div>
-            {/* Live Indicator */}
-            <div className="flex items-center gap-2 bg-[#0a2342] text-white px-4 py-2 rounded-full shadow-sm">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse inline-block"></span>
-              <span className="text-[11px] font-black tracking-wider uppercase">{t("Live GPS System Connected")}</span>
-            </div>
           </div>
 
           <div className="grid grid-cols-[1fr_2.5fr] gap-6 max-[1100px]:grid-cols-1 items-start">
@@ -245,11 +213,10 @@ export default function BusRoutes() {
                       <div
                         key={route.id}
                         onClick={() => setSelectedRouteId(route.id)}
-                        className={`p-4 rounded-2xl border cursor-pointer transition-all duration-200 text-left flex justify-between items-center ${
-                          isSelected
-                            ? "bg-[#0a2342] border-[#0a2342] text-white shadow-lg shadow-[#0a2342]/10"
-                            : "bg-white border-slate-200 text-slate-800 hover:border-[#00c2cb] hover:translate-x-1"
-                        }`}
+                        className={`p-4 rounded-2xl border cursor-pointer transition-all duration-200 text-left flex justify-between items-center ${isSelected
+                          ? "bg-[#0a2342] border-[#0a2342] text-white shadow-lg shadow-[#0a2342]/10"
+                          : "bg-white border-slate-200 text-slate-800 hover:border-[#00c2cb] hover:translate-x-1"
+                          }`}
                       >
                         <div className="flex flex-col gap-1">
                           <span className="text-[13px] font-extrabold leading-none">{route.displayName}</span>
@@ -257,11 +224,10 @@ export default function BusRoutes() {
                             {route.stops[0].name} ➔ {route.stops[route.stops.length - 1].name}
                           </span>
                         </div>
-                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                          isDelayed 
-                            ? "bg-red-500/10 text-red-500" 
-                            : isSelected ? "bg-white/10 text-emerald-300" : "bg-emerald-500/10 text-emerald-600"
-                        }`}>
+                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${isDelayed
+                          ? "bg-red-500/10 text-red-500"
+                          : isSelected ? "bg-white/10 text-emerald-300" : "bg-emerald-500/10 text-emerald-600"
+                          }`}>
                           {route.status}
                         </span>
                       </div>

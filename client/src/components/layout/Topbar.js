@@ -232,34 +232,37 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
             
             {/* Sliding Sub-Bells (Three Balls) */}
             <div
-              className={`absolute right-full top-1/2 -translate-y-1/2 mr-3 flex items-center gap-3 transition-all duration-300 ease-out z-[99] ${
+              className={`absolute right-full top-1/2 -translate-y-1/2 mr-2.5 flex items-center gap-2 transition-all duration-300 ease-out z-[99] ${
                 isOpen
                   ? "opacity-100 translate-x-0 scale-100"
-                  : "opacity-0 translate-x-12 scale-90 pointer-events-none"
+                  : "opacity-0 translate-x-10 scale-90 pointer-events-none"
               }`}
             >
               {/* Petitions Ball */}
               <div className="group relative">
                 <button
                   onClick={() => setSubView('petitions')}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
+                  title="Petitions Notifications"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
                     subView === 'petitions'
                       ? "bg-emerald-500 text-white border-emerald-500"
                       : "bg-emerald-50 text-emerald-500 border-emerald-100/60 hover:bg-emerald-100/50"
                   }`}
                 >
-                  <svg className="w-5 h-5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  <svg className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
                   </svg>
                   {unreadPetitions > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
                       {unreadPetitions}
                     </span>
                   )}
                 </button>
                 {/* Tooltip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 hidden group-hover:block bg-[#0a2342] text-white text-[9px] font-black py-1 px-2.5 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#0a2342] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
                   Petitions
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#0a2342]"></div>
                 </div>
@@ -269,24 +272,24 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
               <div className="group relative">
                 <button
                   onClick={() => setSubView('forums')}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
+                  title="Forums Notifications"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
                     subView === 'forums'
                       ? "bg-sky-500 text-white border-sky-500"
                       : "bg-sky-50 text-sky-500 border-sky-100/60 hover:bg-sky-100/50"
                   }`}
                 >
-                  <svg className="w-5 h-5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  <svg className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
                   {unreadForums > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
                       {unreadForums}
                     </span>
                   )}
                 </button>
                 {/* Tooltip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 hidden group-hover:block bg-[#0a2342] text-white text-[9px] font-black py-1 px-2.5 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#0a2342] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
                   Forums
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#0a2342]"></div>
                 </div>
@@ -296,24 +299,25 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
               <div className="group relative">
                 <button
                   onClick={() => setSubView('others')}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
+                  title="Other Notifications"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
                     subView === 'others'
                       ? "bg-amber-500 text-white border-amber-500"
                       : "bg-amber-50 text-amber-600 border-amber-100/60 hover:bg-amber-100/50"
                   }`}
                 >
-                  <svg className="w-5 h-5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-3.5 h-3.5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                   </svg>
                   {unreadOthers > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
                       {unreadOthers}
                     </span>
                   )}
                 </button>
                 {/* Tooltip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 hidden group-hover:block bg-[#0a2342] text-white text-[9px] font-black py-1 px-2.5 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#0a2342] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
                   Others
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#0a2342]"></div>
                 </div>
@@ -326,19 +330,19 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                 setIsOpen(!isOpen);
                 setSubView(null);
               }}
-              className={`relative p-2.5 rounded-full transition-all duration-200 cursor-pointer border flex items-center justify-center ${
+              className={`relative w-9 h-9 rounded-full transition-all duration-200 cursor-pointer border flex items-center justify-center ${
                 isOpen 
                   ? "bg-[#00c2cb]/10 border-[#00c2cb]/30 text-[#00c2cb]" 
                   : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-400 hover:text-slate-600"
               }`}
               title="Notifications"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
               {unreadCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-pulse shadow-sm">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white animate-pulse shadow-sm">
                   {unreadCount}
                 </span>
               )}
