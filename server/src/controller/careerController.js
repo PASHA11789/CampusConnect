@@ -415,21 +415,26 @@ export const deleteCareerThread = async (req, res) => {
 // POST /api/careers/:id/report - Report thread
 export const reportCareerThread = async (req, res) => {
   try {
+    const { reason } = req.body;
     const thread = await CareerThread.findById(req.params.id);
     if (!thread) return res.status(404).json({ message: "Thread not found" });
 
     if (thread.reportedBy.some((id) => id.toString() === req.user._id.toString())) {
       return res.status(400).json({ message: "You have already reported this thread" });
     }
+    const reportReason = reason || "Inappropriate or offensive content";
     thread.reportedBy.push(req.user._id);
+    if (!thread.reports) thread.reports = [];
+    thread.reports.push({ user: req.user._id, reason: reportReason });
     thread.isHidden = true;
     await thread.save();
 
     const io = req.app.get("socketio");
     if (io) {
       io.to("mod_room").emit("new_reported_content", {
-        message: "A student manually reported a career thread",
+        message: `A student reported a career thread: "${reportReason}"`,
         threadId: thread._id,
+        reason: reportReason,
       });
     }
 
@@ -442,6 +447,7 @@ export const reportCareerThread = async (req, res) => {
 // POST /api/careers/:threadId/replies/:replyId/report - Report reply
 export const reportCareerReply = async (req, res) => {
   try {
+    const { reason } = req.body;
     const thread = await CareerThread.findById(req.params.threadId);
     if (!thread) return res.status(404).json({ message: "Thread not found" });
 
@@ -451,16 +457,20 @@ export const reportCareerReply = async (req, res) => {
     if (reply.reportedBy.some((id) => id.toString() === req.user._id.toString())) {
       return res.status(400).json({ message: "You have already reported this reply" });
     }
+    const reportReason = reason || "Inappropriate or offensive content";
     reply.reportedBy.push(req.user._id);
+    if (!reply.reports) reply.reports = [];
+    reply.reports.push({ user: req.user._id, reason: reportReason });
     reply.isHidden = true;
     await thread.save();
 
     const io = req.app.get("socketio");
     if (io) {
       io.to("mod_room").emit("new_reported_content", {
-        message: "A student manually reported a career reply",
+        message: `A student reported a career reply: "${reportReason}"`,
         threadId: thread._id,
         replyId: reply._id,
+        reason: reportReason,
       });
     }
 

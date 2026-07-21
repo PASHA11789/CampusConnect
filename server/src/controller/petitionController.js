@@ -245,3 +245,36 @@ export const moderatePetition = async (req, res) => {
     res.status(500).json({ message: "Server error during moderation", error: error.message });
   }
 };
+
+export const reportPetition = async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const petition = await Petition.findById(req.params.id);
+    if (!petition) return res.status(404).json({ success: false, message: "Petition not found" });
+
+    if (petition.reportedBy && petition.reportedBy.some(id => id.toString() === req.user._id.toString())) {
+      return res.status(400).json({ success: false, message: "You have already reported this petition" });
+    }
+
+    const reportReason = reason || "Inappropriate petition content";
+    if (!petition.reportedBy) petition.reportedBy = [];
+    if (!petition.reports) petition.reports = [];
+    petition.reportedBy.push(req.user._id);
+    petition.reports.push({ user: req.user._id, reason: reportReason });
+    petition.isHidden = true;
+    await petition.save();
+
+    const io = req.app.get("socketio");
+    if (io) {
+      io.to("mod_room").emit("new_reported_content", {
+        message: `A student reported a petition: "${reportReason}"`,
+        petitionId: petition._id,
+        reason: reportReason,
+      });
+    }
+
+    return res.status(200).json({ success: true, message: "Petition reported and sent to moderators." });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Server error reporting petition", error: error.message });
+  }
+};

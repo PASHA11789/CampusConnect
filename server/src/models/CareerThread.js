@@ -5,6 +5,13 @@ const replySchema = new mongoose.Schema({
     content: { type: String, required: true },
     isHidden: { type: Boolean, default: false },
     reportedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] }],
+    reports: [
+        {
+            user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+            reason: { type: String, default: "Inappropriate or offensive content" },
+            createdAt: { type: Date, default: Date.now }
+        }
+    ],
     moderatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
     createdAt: { type: Date, default: Date.now }
 });
@@ -39,6 +46,13 @@ const careerThreadSchema = new mongoose.Schema({
     flagReason: { type: String, default: null },
     isHidden: { type: Boolean, default: false },
     reportedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] }],
+    reports: [
+        {
+            user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+            reason: { type: String, default: "Inappropriate or offensive content" },
+            createdAt: { type: Date, default: Date.now }
+        }
+    ],
     moderatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
     
     replies: [replySchema],

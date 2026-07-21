@@ -361,40 +361,47 @@ export const getForumThreadById = async (req, res) => {
   }
 };
 
-export const reportForumThread = async (req,res)=>{
-  try{
-    const thread = await Forum.findById(req.params.id)
-    if(!thread) return res.status(404).json({message:"Thread not found"})
+export const reportForumThread = async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const thread = await Forum.findById(req.params.id);
+    if (!thread) return res.status(404).json({ message: "Thread not found" });
     
     if (thread.reportedBy.some(id => id.toString() === req.user._id.toString())) {
       return res.status(400).json({ message: "You have already reported this thread" });
     }
-    thread.reportedBy.push(req.user._id)
-    thread.isHidden = true
-    await thread.save()
+    const reportReason = reason || "Inappropriate or offensive content";
+    thread.reportedBy.push(req.user._id);
+    if (!thread.reports) thread.reports = [];
+    thread.reports.push({ user: req.user._id, reason: reportReason });
+    thread.isHidden = true;
+    await thread.save();
 
-    const io= req.app.get("socketio")
-    io.to("mod_room").emit("new_reported_content",{
-      message: `A student manually reported a forum thread`,
-      threadId : thread._id
-    })
+    const io = req.app.get("socketio");
+    if (io) {
+      io.to("mod_room").emit("new_reported_content", {
+        message: `A student reported a forum thread: "${reportReason}"`,
+        threadId: thread._id,
+        reason: reportReason,
+      });
+    }
 
     await Notification.create({
       recipient: thread.author,
       type: "GENERAL",
-      message: "Your forum post was flagged by the commuinity and is temporarily hidden and pending for moderator review",
+      message: "Your forum post was flagged by the community and is temporarily hidden and pending for moderator review",
       relatedItem: thread._id,
-      onModel:"Forum"
-    })
-    res.status(200).json({success: true, message: "Thread reported and send to the moderators. "})
-  }catch(error){
-    res.status(500).json({message:"Server error reporting thread", error: error.message
-    })
+      onModel: "Forum"
+    });
+    res.status(200).json({ success: true, message: "Thread reported and sent to the moderators." });
+  } catch (error) {
+    res.status(500).json({ message: "Server error reporting thread", error: error.message });
   }
-}
+};
 
 export const reportThreadReply = async (req, res) => {
   try {
+    const { reason } = req.body;
     const thread = await Forum.findById(req.params.threadId);
     if (!thread) return res.status(404).json({ message: "Thread not found" });
 
@@ -404,16 +411,20 @@ export const reportThreadReply = async (req, res) => {
     if (reply.reportedBy.some(id => id.toString() === req.user._id.toString())) {
       return res.status(400).json({ message: "You have already reported this reply" });
     }
+    const reportReason = reason || "Inappropriate or offensive content";
     reply.reportedBy.push(req.user._id);
+    if (!reply.reports) reply.reports = [];
+    reply.reports.push({ user: req.user._id, reason: reportReason });
     reply.isHidden = true;
     await thread.save();
 
     const io = req.app.get("socketio");
     if (io) {
       io.to("mod_room").emit("new_reported_content", {
-        message: "A student manually reported a reply",
+        message: `A student reported a reply: "${reportReason}"`,
         threadId: thread._id,
         replyId: reply._id,
+        reason: reportReason,
       });
     }
 

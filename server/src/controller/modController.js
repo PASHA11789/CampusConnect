@@ -3,6 +3,8 @@ import Petition from "../models/Petition.js";
 import LostFound from "../models/lostFound.js";
 import Notification from "../models/Notification.js";
 import CareerThread from "../models/CareerThread.js";
+import Report from "../models/Report.js";
+import User from "../models/User.js";
 
 export const getModerationQueue = async (req, res) => {
   try {
@@ -10,7 +12,7 @@ export const getModerationQueue = async (req, res) => {
       return res.status(403).json({ message: "Access denied. Mod Room is restricted." });
     }
 
-    const [flaggedForums, flaggedCareers, pendingPetitions, flaggedLostFound, oldUnclaimedLostFound, unreadNotifications] =
+    const [flaggedForums, flaggedCareers, pendingPetitions, flaggedLostFound, oldUnclaimedLostFound, profileReports, unreadNotifications] =
       await Promise.all([
         Forum.find({
           $or: [
@@ -22,6 +24,8 @@ export const getModerationQueue = async (req, res) => {
         })
           .populate("author", "name registeration_number avatar")
           .populate("replies.author", "name registeration_number avatar")
+          .populate("reports.user", "name registeration_number avatar")
+          .populate("replies.reports.user", "name registeration_number avatar")
           .sort({ updatedAt: -1 }),
 
         CareerThread.find({
@@ -34,6 +38,8 @@ export const getModerationQueue = async (req, res) => {
         })
           .populate("author", "name registeration_number avatar")
           .populate("replies.author", "name registeration_number avatar")
+          .populate("reports.user", "name registeration_number avatar")
+          .populate("replies.reports.user", "name registeration_number avatar")
           .sort({ updatedAt: -1 }),
 
         Petition.find(
@@ -48,6 +54,7 @@ export const getModerationQueue = async (req, res) => {
             : { status: "Pending Mod Approval" }
         )
           .populate("creator", "name registeration_number avatar")
+          .populate("reports.user", "name registeration_number avatar")
           .sort({ createdAt: 1 }),
 
         LostFound.find({
@@ -66,6 +73,11 @@ export const getModerationQueue = async (req, res) => {
           .populate("reporter", "name registeration_number avatar")
           .sort({ createdAt: -1 }),
 
+        Report.find({ status: "Pending" })
+          .populate("reportedBy", "name registeration_number avatar")
+          .populate("targetUser", "name registeration_number avatar avatar email")
+          .sort({ createdAt: -1 }),
+
         Notification.find({ recipient: req.user._id, isRead: false }).select("type"),
       ]);
 
@@ -80,6 +92,7 @@ export const getModerationQueue = async (req, res) => {
     const petitionsCount = pendingPetitions.length;
     const lostFoundCount = flaggedLostFound.length;
     const oldUnclaimedCount = oldUnclaimedLostFound.length;
+    const profileReportsCount = profileReports.length;
 
     res.status(200).json({
       success: true,
@@ -89,7 +102,8 @@ export const getModerationQueue = async (req, res) => {
         petitions: petitionsCount,
         lostFound: lostFoundCount,
         oldUnclaimed: oldUnclaimedCount,
-        total: forumsCount + careersCount + petitionsCount + lostFoundCount + oldUnclaimedCount,
+        profileReports: profileReportsCount,
+        total: forumsCount + careersCount + petitionsCount + lostFoundCount + oldUnclaimedCount + profileReportsCount,
       },
       queue: {
         forums: flaggedForums,
@@ -97,6 +111,7 @@ export const getModerationQueue = async (req, res) => {
         petitions: pendingPetitions,
         lostFound: flaggedLostFound,
         oldUnclaimed: oldUnclaimedLostFound,
+        profileReports: profileReports,
       },
     });
   } catch (error) {
@@ -280,6 +295,34 @@ export const moderateItem = async (req, res) => {
           message: `Your Lost & Found report for "${item.itemName}" was rejected by moderation.`,
         });
         return res.status(200).json({ success: true, message: "Item rejected and deleted." });
+      }
+    }
+
+    else if (contentType === "report" || contentType === "profile_report") {
+      const report = await Report.findById(id).populate("targetUser");
+      if (!report) return res.status(404).json({ message: "Report not found" });
+
+      if (action === "Approve") {
+        report.status = "Resolved";
+        await report.save();
+
+        if (report.targetUser) {
+          // Reset avatar to fallback if reported for explicit picture
+          report.targetUser.avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(report.targetUser.name)}&background=random`;
+          await report.targetUser.save();
+
+          await Notification.create({
+            recipient: report.targetUser._id,
+            type: "GENERAL",
+            message: "Your profile image/content was flagged and removed due to a community policy violation.",
+          });
+        }
+
+        return res.status(200).json({ success: true, message: "Profile report resolved and offending content removed." });
+      } else if (action === "Reject") {
+        report.status = "Dismissed";
+        await report.save();
+        return res.status(200).json({ success: true, message: "Profile report dismissed." });
       }
     } else {
       return res.status(400).json({ message: "Invalid content type." });

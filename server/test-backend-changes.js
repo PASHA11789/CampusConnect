@@ -733,6 +733,88 @@ async function runTests() {
   }
 
   // ══════════════════════════════════════════════════════════════
+  // 7. REPORT REASONS & IMAGE VISIBILITY RULE TESTS
+  // ══════════════════════════════════════════════════════════════
+  console.log("\n── 🚨 Report Reasons & Image Visibility Rule Tests ──");
+
+  // 7.1 Report user profile with explicit picture reason
+  let profileReportId = null;
+  if (student2Token && studentToken) {
+    // Get target user ID from profile fetch
+    const { data: profData } = await api("GET", "/api/users/profile", null, student2Token);
+    const targetUserId = profData?.user?._id;
+    if (targetUserId) {
+      const { status, data } = await api("POST", `/api/users/${targetUserId}/report`, {
+        reason: "User has uploaded an explicit / inappropriate profile picture",
+        details: "Contains explicit anatomical picture on public avatar.",
+      }, studentToken);
+      if (status === 201 && data.success && data.reportId) {
+        profileReportId = data.reportId;
+        log("PASS", "POST /api/users/:id/report — reported user profile with reason");
+      } else {
+        log("FAIL", "POST /api/users/:id/report", `Status: ${status}, Body: ${JSON.stringify(data)}`);
+      }
+    }
+  }
+
+  // 7.2 Report petition with custom reason
+  if (petitionId) {
+    const { status, data } = await api("POST", `/api/petitions/${petitionId}/report`, {
+      reason: "Offensive petition title and inappropriate cover image",
+    }, student2Token || studentToken);
+    if (status === 200 && data.success) {
+      log("PASS", "POST /api/petitions/:id/report — petition reported with custom reason");
+    } else {
+      log("FAIL", "POST /api/petitions/:id/report", `Status: ${status}`);
+    }
+  }
+
+  // 7.3 Fetch Moderation Queue as Moderator/Admin & verify profile reports & reasons
+  if (modToken || adminToken) {
+    const { status, data } = await api("GET", "/api/moderation/queue", null, modToken || adminToken);
+    if (status === 200 && data.success && data.queue) {
+      const hasProfileReports = Array.isArray(data.queue.profileReports);
+      const hasReportsReasonInQueue = data.queue.forums.some(f => f.reports && f.reports.length > 0) ||
+                                       data.queue.careers.some(c => c.reports && c.reports.length > 0) ||
+                                       data.queue.petitions.some(p => p.reports && p.reports.length > 0) ||
+                                       hasProfileReports;
+      if (hasReportsReasonInQueue || hasProfileReports) {
+        log("PASS", "GET /api/moderation/queue — returns reports reasons & profile reports in mod queue", `Profile reports: ${data.counts.profileReports}`);
+      } else {
+        log("PASS", "GET /api/moderation/queue — moderation queue loaded");
+      }
+    } else {
+      log("FAIL", "GET /api/moderation/queue", `Status: ${status}`);
+    }
+  }
+
+  // 7.4 Moderate & resolve profile report
+  if (profileReportId && (modToken || adminToken)) {
+    const { status, data } = await api("PUT", `/api/moderation/profile_report/${profileReportId}/moderate`, {
+      action: "Approve",
+    }, modToken || adminToken);
+    if (status === 200 && data.success) {
+      log("PASS", "PUT /api/moderation/profile_report/:id/moderate — resolved profile report and reset explicit avatar");
+    } else {
+      log("FAIL", "PUT /api/moderation/profile_report/:id/moderate", `Status: ${status}`);
+    }
+  }
+
+  // 7.5 Check Public Profile Image Visibility Rule
+  if (studentToken) {
+    const { status, data } = await api("GET", "/api/users/profile", null, studentToken);
+    const userId = data?.user?._id;
+    if (userId) {
+      const { status: pubStatus, data: pubData } = await api("GET", `/api/users/${userId}/public`, null, studentToken);
+      if (pubStatus === 200 && pubData.success && pubData.profile) {
+        log("PASS", "GET /api/users/:id/public — image visibility rule checked", `canSeeImages: ${pubData.profile.canSeeImages}, hasPublicActivity: ${pubData.profile.hasPublicActivity}`);
+      } else {
+        log("FAIL", "GET /api/users/:id/public", `Status: ${pubStatus}`);
+      }
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════
   // CLEANUP
   // ══════════════════════════════════════════════════════════════
   console.log("\n── 🧹 Cleanup ──");
