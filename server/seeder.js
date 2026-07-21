@@ -7,6 +7,7 @@ import Petition from "./src/models/Petition.js";
 import Restaurant from "./src/models/Restaurants.js";
 import Order from "./src/models/Order.js";
 import CareerThread from "./src/models/CareerThread.js";
+import LostFound from "./src/models/lostFound.js";
 import connectDB from "./utils/db.js";
 import bcryptjs from "bcryptjs";
 
@@ -32,6 +33,8 @@ const seedUsers = async () => {
     console.log("previous orders deleted");
     await CareerThread.deleteMany();
     console.log("previous career threads deleted");
+    await LostFound.deleteMany();
+    console.log("previous lost and found items deleted");
     
     const Salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash("password123", Salt);
@@ -501,7 +504,88 @@ const seedUsers = async () => {
     }
     console.log("✅ 4 Dummy Restaurants seeded successfully!");
 
-    console.log("📡 Skipping forum threads and petitions seeding to focus on restaurants.");
+    // --- CAREER THREADS SEEDING ---
+    const alumniJaveria = await User.findOne({ email: "javeria@alumni.com" });
+    const alumniAzam = await User.findOne({ email: "azam@alumni.com" });
+    const studentHamza = await User.findOne({ email: "hamza@student.com" });
+    const studentZoya = await User.findOne({ email: "zoya@student.com" });
+
+    const dummyCareerThreads = [
+      {
+        title: "Junior Frontend Engineer (React) – Systems Limited",
+        content: "Systems Limited is hiring Junior Frontend Engineers for our Lahore office. Candidates with strong React, JavaScript, and Tailwind CSS skills are encouraged to apply. Great tech stack and mentorship for fresh graduates!",
+        category: "job_opportunity",
+        location: "Lahore, Pakistan",
+        jobType: "Full-time",
+        qualification: "BSCS / Software Engineering",
+        company: "Systems Limited",
+        companyLogo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=120&auto=format&fit=crop&q=80",
+        author: alumniJaveria ? alumniJaveria._id : studentHamza._id,
+        likesCount: 24,
+        viewsCount: 145,
+        replies: [
+          {
+            author: studentHamza ? studentHamza._id : alumniAzam._id,
+            content: "Is this position open for fresh 2026 graduates? I have built 3 full-stack MERN projects.",
+          },
+          {
+            author: alumniJaveria ? alumniJaveria._id : studentHamza._id,
+            content: "Yes! Fresh graduates with good portfolio projects are warmly welcomed to apply.",
+          },
+        ],
+      },
+      {
+        title: "Which tech stack & skills are most in demand for 2026 CS graduates?",
+        content: "Let's discuss the most in-demand tech stack and roadmap for next year. What are top software houses looking for in fresh CS graduates? AI integration, MERN, or Cloud DevOps?",
+        category: "general_discussion",
+        author: studentHamza ? studentHamza._id : alumniAzam._id,
+        likesCount: 31,
+        viewsCount: 210,
+        replies: [
+          {
+            author: alumniAzam ? alumniAzam._id : studentHamza._id,
+            content: "Strong problem solving with DSA + solid fundamentals in Node/React or Python AI libraries will make you stand out easily.",
+          },
+        ],
+      },
+      {
+        title: "Software Engineering Internship Opportunity – Techlogix",
+        content: "Techlogix is offering 3-month paid summer software engineering internships for CS/IT undergraduates. Work on real enterprise web apps and cloud services. Apply before 31st July.",
+        category: "internship",
+        location: "Lahore, Pakistan",
+        jobType: "Paid Internship",
+        qualification: "BSCS / 3rd or 4th Year",
+        company: "Techlogix",
+        companyLogo: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=120&auto=format&fit=crop&q=80",
+        author: alumniAzam ? alumniAzam._id : studentHamza._id,
+        likesCount: 19,
+        viewsCount: 128,
+        replies: [
+          {
+            author: studentZoya ? studentZoya._id : studentHamza._id,
+            content: "Thank you for sharing! Just submitted my resume.",
+          },
+        ],
+      },
+      {
+        title: "How to prepare for Technical System Design & DSA Interviews?",
+        content: "Looking for top recommended courses, books, and practice problems to prepare for technical coding interviews and System Design rounds. Please share your suggestions!",
+        category: "mentorship_qa",
+        author: studentZoya ? studentZoya._id : studentHamza._id,
+        likesCount: 14,
+        viewsCount: 98,
+        replies: [
+          {
+            author: alumniJaveria ? alumniJaveria._id : studentHamza._id,
+            content: "Start with LeetCode Mediums on Trees, Graphs, and Dynamic Programming. For System Design, check out ByteByteGo on YouTube!",
+          },
+        ],
+      },
+    ];
+
+    await CareerThread.insertMany(dummyCareerThreads);
+    console.log("✅ 4 Dummy Career Threads seeded successfully!");
+
     process.exit();
   } catch (error) {
     console.error(`❌ Error seeding data: ${error.stack || error.message}`);

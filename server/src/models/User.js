@@ -22,6 +22,23 @@ const userSchema = new mongoose.Schema(
     },
     isNameHidden: { type: Boolean, default: false },
     images: [String],
+    careerBio: {
+      type: String,
+      default: "Aspiring Software Engineer & Full-Stack Developer | Passionate about DSA, Web Dev & AI | Lifelong learner.",
+    },
+    careerDept: { type: String, default: "" },
+    careerSkills: [
+      {
+        name: { type: String, required: true },
+        level: { type: Number, default: 70 },
+      },
+    ],
+    savedCareerPosts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "CareerThread",
+      },
+    ],
   },
   { timestamps: true },
 );

@@ -3,10 +3,10 @@ import Notification from "../models/Notification.js"
 
 export const getForumSummary = async (_req, res) => {
   try {
-    const threads = await Forum.find()
+    const threads = await Forum.find({ isHidden: false })
       .sort({ createdAt: -1 })
-      .populate('author', 'registeration_number avatar')
-      .select('title repliesCount createdAt')
+      .populate('author', 'registeration_number avatar name')
+      .select('title content image repliesCount createdAt author')
 
     res.status(200).json({
       success: true,
@@ -24,19 +24,22 @@ export const getForumSummary = async (_req, res) => {
 
 export const createForumThread = async (req, res) => {
   try {
-    const { title, content, isFlagged } = req.body
+    const { title, content, image, postImage, isFlagged } = req.body
     if (!title || !content) return res.status(400).json({ message: 'Title and content are required' })
+
+    const imageUrl = image || postImage || ""
 
     const newThread = await Forum.create({
       title,
       content,
+      image: imageUrl,
       author: req.user._id,
       isHidden: isFlagged || false
     })
 
     const populatedThread = await Forum.findById(newThread._id)
-      .populate('author', 'registeration_number avatar')
-      .select("title repliesCount createdAt")
+      .populate('author', 'registeration_number avatar name')
+      .select("title content image repliesCount createdAt author")
 
     const io = req.app.get("socketio")
 
@@ -82,7 +85,7 @@ export const createForumThread = async (req, res) => {
 
 export const updateForumThread = async (req, res) => {
   try {
-    const { title, content, isFlagged } = req.body
+    const { title, content, image, postImage, isFlagged } = req.body
     const thread = await Forum.findById(req.params.id)
 
     if (!thread) return res.status(404).json({ message: "Thread not found" })
@@ -92,6 +95,8 @@ export const updateForumThread = async (req, res) => {
     
     thread.title = title || thread.title
     thread.content = content || thread.content
+    const newImg = image !== undefined ? image : postImage
+    if (newImg !== undefined) thread.image = newImg
     thread.isHidden = isFlagged || false
     await thread.save()
 
@@ -181,18 +186,20 @@ export const toggleHideThread = async (req, res) => {
 
 export const addThreadReply = async (req, res) => {
   try {
-    const { content, isFlagged, parentId } = req.body
+    const { content, image, replyImage, postImage, isFlagged, parentId } = req.body
     if (!content) return res.status(400).json({ message: "Reply content can not be empty" })
 
     const thread = await Forum.findById(req.params.id)
     if (!thread) return res.status(404).json({ message: "Thread not found" })
 
-    const newReply = { author: req.user._id, content, isHidden: isFlagged || false, parentId: parentId || null }
+    const imageUrl = image || replyImage || postImage || ""
+
+    const newReply = { author: req.user._id, content, image: imageUrl, isHidden: isFlagged || false, parentId: parentId || null }
     thread.replies.push(newReply)
     thread.repliesCount = thread.replies.length
     await thread.save()
 
-    const updatedThread = await Forum.findById(thread._id).populate("replies.author", "registeration_number avatar")
+    const updatedThread = await Forum.findById(thread._id).populate("replies.author", "registeration_number avatar name")
     const savedReply = updatedThread.replies.at(-1);
 
     const io = req.app.get("socketio")
@@ -245,7 +252,7 @@ export const addThreadReply = async (req, res) => {
 
 export const updateThreadReply = async (req, res) => {
   try {
-    const { content, isFlagged } = req.body
+    const { content, image, replyImage, postImage, isFlagged } = req.body
     const thread = await Forum.findById(req.params.threadId)
     if (!thread) return res.status(404).json({ message: "Thread not found" })
 
@@ -258,6 +265,8 @@ export const updateThreadReply = async (req, res) => {
     }
 
     reply.content = content || reply.content
+    const newImg = image !== undefined ? image : (replyImage !== undefined ? replyImage : postImage)
+    if (newImg !== undefined) reply.image = newImg
     reply.isHidden = isFlagged || false
     await thread.save()
 

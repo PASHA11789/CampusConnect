@@ -64,46 +64,42 @@ export const aiModeration = async (req, res, next) => {
         let result = null;
         let success = false;
 
-        // Try Groq First
         if (groq) {
-            // First attempt with user's model "llama3-8b-8192"
             try {
-                console.log("Attempting moderation with Groq using llama3-8b-8192...");
+                console.log("Attempting moderation with Groq using llama-3.1-8b-instant...");
                 const response = await groq.chat.completions.create({
                     messages: [
                         { role: "system", content: systemPrompt },
                         { role: "user", content: `Text to analyze: ${textToAnalyze}` }
                     ],
-                    model: "llama3-8b-8192", 
+                    model: "llama-3.1-8b-instant", 
                     response_format: { type: "json_object" } 
                 });
                 result = JSON.parse(response.choices[0].message.content);
                 success = true;
-                console.log("Moderated successfully with Groq model llama3-8b-8192.");
+                console.log("Moderated successfully with Groq model llama-3.1-8b-instant.");
             } catch (groqErr) {
-                console.warn("Groq with model llama3-8b-8192 failed/decommissioned. Error: ", groqErr.message);
+                console.warn("Groq with model llama-3.1-8b-instant failed. Error: ", groqErr.message);
                 
-                // Second attempt: Fallback to llama-3.1-8b-instant
                 try {
-                    console.log("Attempting moderation with Groq using fallback model llama-3.1-8b-instant...");
+                    console.log("Attempting moderation with Groq using fallback model llama-3.3-70b-specdec...");
                     const response = await groq.chat.completions.create({
                         messages: [
                             { role: "system", content: systemPrompt },
                             { role: "user", content: `Text to analyze: ${textToAnalyze}` }
                         ],
-                        model: "llama-3.1-8b-instant",
+                        model: "llama-3.3-70b-specdec",
                         response_format: { type: "json_object" }
                     });
                     result = JSON.parse(response.choices[0].message.content);
                     success = true;
-                    console.log("Moderated successfully with Groq model llama-3.1-8b-instant.");
+                    console.log("Moderated successfully with Groq model llama-3.3-70b-specdec.");
                 } catch (fallbackGroqErr) {
-                    console.error("Groq fallback model llama-3.1-8b-instant also failed. Error: ", fallbackGroqErr.message);
+                    console.error("Groq fallback model llama-3.3-70b-specdec also failed. Error: ", fallbackGroqErr.message);
                 }
             }
         }
 
-        // Try Gemini Fallback if Groq failed or was not configured
         if (!success && ai) {
             try {
                 console.log("Attempting moderation with Gemini using gemini-2.5-flash...");
@@ -128,7 +124,6 @@ export const aiModeration = async (req, res, next) => {
             return next();
         }
 
-        // If both failed, throw error to trigger safety fallback/bypass
         throw new Error("All AI moderation services failed/busy.");
 
     } catch (error) {

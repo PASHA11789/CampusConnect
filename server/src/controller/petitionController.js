@@ -33,7 +33,7 @@ export const getPetitions = async (req, res) => {
 
 export const createPetition = async (req, res) => {
   try {
-    const { title, description, level, targetGroup, milestone, isFlagged } = req.body;
+    const { title, description, image, postImage, level, targetGroup, milestone, isFlagged } = req.body;
 
     if (!title || !description || !level) {
       return res.status(400).json({ success: false, message: "Missing required petition fields (title, description, level)" });
@@ -55,9 +55,12 @@ export const createPetition = async (req, res) => {
       initialStatus = "Pending Mod Approval";
     }
 
+    const imageUrl = image || postImage || "";
+
     const newPetition = await Petition.create({
       title,
       description,
+      image: imageUrl,
       creator: req.user._id,
       level,
       targetGroup: derivedTargetGroup,

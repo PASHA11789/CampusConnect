@@ -232,13 +232,22 @@ export default function Career() {
     });
   };
 
-  const handleSaveCareerProfile = ({ bio, department, skills }) => {
+  const handleSaveCareerProfile = async ({ bio, department, skills }) => {
     setCareerBio(bio);
     setCareerDept(department);
     setCareerSkills(skills);
     localStorage.setItem("career_bio", bio);
     localStorage.setItem("career_dept", department);
     localStorage.setItem("career_skills", JSON.stringify(skills));
+    try {
+      const token = sessionStorage.getItem("token");
+      if (token) {
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        await axios.put("/api/careers/profile", { bio, department, skills }, config);
+      }
+    } catch (e) {
+      console.error("Error saving career profile to backend:", e);
+    }
     showToast("Career profile and skills updated successfully.", "success");
   };
 
@@ -311,7 +320,23 @@ export default function Career() {
         console.error("Failed to fetch latest user profile:", error);
       }
     };
+
+    const fetchCareerProfile = async () => {
+      try {
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const { data } = await axios.get("/api/careers/profile", config);
+        if (data.success && data.profile) {
+          if (data.profile.bio) setCareerBio(data.profile.bio);
+          if (data.profile.department) setCareerDept(data.profile.department);
+          if (data.profile.skills && data.profile.skills.length > 0) setCareerSkills(data.profile.skills);
+        }
+      } catch (error) {
+        console.error("Error fetching career profile from backend:", error);
+      }
+    };
+
     fetchUserProfile();
+    fetchCareerProfile();
 
     const tick = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(tick);
@@ -327,6 +352,11 @@ export default function Career() {
         const fetched = data.threads || data || [];
         if (fetched.length > 0) {
           setThreads(fetched);
+          const initialSavedMap = {};
+          fetched.forEach((t) => {
+            if (t.isSaved) initialSavedMap[t._id] = true;
+          });
+          setSavedPosts(initialSavedMap);
         } else {
           setThreads(SAMPLE_MOCK_POSTS);
         }
@@ -369,18 +399,86 @@ export default function Career() {
     setTimeout(() => setToast(null), 5500);
   }, []);
 
-  const handleThreadClick = useCallback((thread) => {
+  const handleThreadClick = useCallback(async (thread) => {
     setSelectedThreadId(thread._id);
     setActiveThread(thread);
+    try {
+      const token = sessionStorage.getItem("token");
+      if (token && thread._id && !thread._id.startsWith("mock-")) {
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const { data } = await axios.get(`/api/careers/${thread._id}`, config);
+        if (data.success && data.thread) {
+          setActiveThread(data.thread);
+          setThreads((prev) =>
+            prev.map((t) => (t._id === thread._id ? data.thread : t))
+          );
+        }
+      }
+    } catch (e) {
+      console.error("Error fetching thread detail:", e);
+    }
   }, []);
 
-  const toggleSavePost = (postId, e) => {
+  const toggleSavePost = async (postId, e) => {
     if (e) e.stopPropagation();
+    const isCurrentlySaved = !!savedPosts[postId];
+
     setSavedPosts((prev) => ({
       ...prev,
-      [postId]: !prev[postId],
+      [postId]: !isCurrentlySaved,
     }));
-    showToast(savedPosts[postId] ? "Post removed from bookmarks." : "Post saved to bookmarks.", "success");
+
+    try {
+      const token = sessionStorage.getItem("token");
+      if (token && !postId.startsWith("mock-")) {
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const { data } = await axios.post(`/api/careers/${postId}/save`, {}, config);
+        showToast(data.message || (isCurrentlySaved ? "Post removed from bookmarks." : "Post saved to bookmarks."), "success");
+        return;
+      }
+    } catch (err) {
+      console.error("Error toggling bookmark on backend:", err);
+    }
+    showToast(isCurrentlySaved ? "Post removed from bookmarks." : "Post saved to bookmarks.", "success");
+  };
+
+  const toggleLikePost = async (postId, e) => {
+    if (e) e.stopPropagation();
+    try {
+      const token = sessionStorage.getItem("token");
+      if (token && !postId.startsWith("mock-")) {
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const { data } = await axios.post(`/api/careers/${postId}/like`, {}, config);
+        if (data.success) {
+          setThreads((prev) =>
+            prev.map((t) =>
+              t._id === postId
+                ? { ...t, likesCount: data.likesCount, isLiked: data.isLiked }
+                : t
+            )
+          );
+        }
+        return;
+      }
+    } catch (err) {
+      console.error("Error toggling like on backend:", err);
+    }
+
+    // Local toggle fallback
+    setThreads((prev) =>
+      prev.map((t) => {
+        if (t._id === postId) {
+          const currentlyLiked = t.isLiked;
+          const currentCount = t.likesCount || 24;
+          return {
+            ...t,
+            isLiked: !currentlyLiked,
+            likesCount: currentlyLiked ? Math.max(0, currentCount - 1) : currentCount + 1,
+          };
+        }
+        return t;
+      })
+    );
   };
 
   const handleCreateThreadSubmit = async (e) => {
@@ -389,7 +487,7 @@ export default function Career() {
 
     const isAlumni = user?.role === "alumni" || user?.role === "admin" || user?.role === "campus_admin";
     if (category === "job_opportunity" && !isAlumni) {
-      showToast("Only alumni can post Job Opportunities.", "error");
+      showToast("Only alumni and campus admins can post Job Opportunities.", "error");
       return;
     }
 
@@ -404,6 +502,7 @@ export default function Career() {
           title: newThreadTitle,
           content: newThreadContent,
           category,
+          companyLogo: postImage || undefined,
         },
         config
       );
@@ -422,9 +521,6 @@ export default function Career() {
           createdAt: new Date().toISOString(),
           replies: [],
         };
-        if (data.thread && postImage) {
-          newThread.companyLogo = postImage;
-        }
         setThreads([newThread, ...threads]);
       }
 
@@ -941,9 +1037,16 @@ export default function Career() {
                             <span className="flex items-center gap-1.5 hover:text-slate-700 cursor-pointer">
                               <span>💬</span> {post.replies?.length || 0}
                             </span>
-                            <span className="flex items-center gap-1.5 hover:text-slate-700 cursor-pointer">
-                              <span>👍</span> {post.likesCount || 24}
-                            </span>
+                            <button
+                              type="button"
+                              className={`flex items-center gap-1.5 border-none bg-transparent cursor-pointer transition-colors ${
+                                post.isLiked ? "text-[#00c2cb] font-bold" : "text-slate-500 hover:text-slate-700"
+                              }`}
+                              onClick={(e) => toggleLikePost(post._id, e)}
+                              title={post.isLiked ? "Unlike" : "Like"}
+                            >
+                              <span>👍</span> {post.likesCount || 0}
+                            </button>
                             <span className="flex items-center gap-1.5 text-slate-400">
                               <span>👁️</span> {post.viewsCount || 145}
                             </span>

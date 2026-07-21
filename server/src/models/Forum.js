@@ -12,6 +12,10 @@ const replySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    image: {
+      type: String,
+      default: "",
+    },
     isHidden: {
       type: Boolean,
       default: false,
@@ -41,6 +45,10 @@ const forumSchema = new mongoose.Schema(
     content: {
       type: String,
       required: true,
+    },
+    image: {
+      type: String,
+      default: "",
     },
     repliesCount: {
       type: Number,

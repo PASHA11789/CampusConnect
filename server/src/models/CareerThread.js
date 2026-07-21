@@ -19,10 +19,21 @@ const careerThreadSchema = new mongoose.Schema({
         enum: [
             "job_opportunity",
             "mentorship_qa",
-            "general_discussion"
+            "general_discussion",
+            "internship"
         ],
         required : true
     },
+
+    location: { type: String, default: "" },
+    jobType: { type: String, default: "" },
+    qualification: { type: String, default: "" },
+    company: { type: String, default: "" },
+    companyLogo: { type: String, default: "" },
+
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] }],
+    likesCount: { type: Number, default: 0 },
+    viewsCount: { type: Number, default: 0 },
 
     isFlagged: { type: Boolean, default: false },
     flagReason: { type: String, default: null },
