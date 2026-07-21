@@ -59,67 +59,91 @@ export default function DiscussionRepliesPane({
     if (!activeThread) return null;
 
     const isThreadDropdownActive = activeDropdown.type === 'thread' && activeDropdown.id === activeThread._id;
+    const authorId = activeThread.author?._id || activeThread.author;
+    const authorName = activeThread.author?.name || "Community Member";
 
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full animate-fade-in relative text-left">
+      <div className="bg-white rounded-3xl flex flex-col h-full relative text-left overflow-hidden border-none">
+        {/* Header decoration banner */}
+        <div className="h-1.5 bg-gradient-to-r from-[#00c2cb] to-[#0079c2] w-full shrink-0" />
+
         {/* Pane Header */}
-        <div className="p-5 border-b border-slate-100 flex justify-between items-start sticky top-0 bg-white/90 backdrop-blur-md z-10 rounded-t-2xl">
-          <div className="flex-1 min-w-0 pr-4">
-            <div className="flex items-center gap-2 mb-2">
-              <img
-                src={activeThread.author?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(activeThread.author?.name || "User")}&background=random`}
-                alt={activeThread.author?.name}
-                className="w-8 h-8 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => onAvatarClick && onAvatarClick(activeThread.author?._id || activeThread.author)}
-              />
-              <div>
-                <div 
-                  className="text-[13px] font-bold text-[#0a2342] leading-none cursor-pointer hover:underline"
-                  onClick={() => onAvatarClick && onAvatarClick(activeThread.author?._id || activeThread.author)}
-                >
-                  {activeThread.author?.name}
-                </div>
-                <div className="text-[11px] text-slate-400 font-medium mt-1">
-                  {new Date(activeThread.createdAt).toLocaleString()}
+        <div className="p-5 border-b border-slate-100 flex justify-between items-start sticky top-0 bg-white/95 backdrop-blur-md z-10">
+          <div className="flex-1 min-w-0 pr-3">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2.5">
+                <img
+                  src={
+                    activeThread.author?.avatar ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random`
+                  }
+                  alt={authorName}
+                  className="w-9 h-9 rounded-full object-cover border border-slate-200 cursor-pointer hover:opacity-85 transition-opacity"
+                  onClick={() => onAvatarClick && onAvatarClick(authorId)}
+                />
+                <div className="flex flex-col">
+                  <span
+                    className="text-xs font-bold text-slate-900 leading-none cursor-pointer hover:text-[#00c2cb] transition-colors"
+                    onClick={() => onAvatarClick && onAvatarClick(authorId)}
+                  >
+                    {authorName}
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-medium mt-1">
+                    {new Date(activeThread.createdAt).toLocaleString()}
+                  </span>
                 </div>
               </div>
             </div>
-            <h2 className="text-[18px] font-black text-[#0a2342] mt-3 leading-snug">{activeThread.title}</h2>
+
+            <h2 className="text-base font-extrabold text-slate-900 mt-2 leading-snug">{activeThread.title}</h2>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
             {/* Thread Actions Dropdown */}
-            {!isThreadOwner && (
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setActiveDropdown(prev => prev.type === 'thread' ? { type: null, id: null } : { type: 'thread', id: activeThread._id })}
-                  className="text-slate-400 hover:text-slate-650 bg-slate-50 hover:bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer text-[14px] font-bold border-none"
-                >
-                  ⋮
-                </button>
-                {isThreadDropdownActive && (
-                  <div className="absolute right-0 top-9 z-20">
-                    <div className="bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden py-1 w-[130px]">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveDropdown({ type: null, id: null });
-                          onReportThread && onReportThread(activeThread._id);
-                        }}
-                        className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-bold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-red-50 text-red-600"
-                      >
-                        🛡️ Report Post
-                      </button>
-                    </div>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveDropdown(prev => prev.type === 'thread' && prev.id === activeThread._id ? { type: null, id: null } : { type: 'thread', id: activeThread._id });
+                }}
+                className="text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200/80 w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer text-sm font-bold border-none"
+                title="Post Actions"
+              >
+                ⋮
+              </button>
+              {isThreadDropdownActive && (
+                <div className="absolute right-0 top-9 z-30 animate-modal-slide-in">
+                  <div className="bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden py-1 w-[160px] text-left">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveDropdown({ type: null, id: null });
+                        onAvatarClick && onAvatarClick(authorId);
+                      }}
+                      className="w-full text-left bg-none border-none px-3.5 py-2 text-xs font-semibold cursor-pointer flex items-center gap-2 transition-all hover:bg-slate-50 text-slate-700"
+                    >
+                      <span>👤</span> {t("View Profile")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveDropdown({ type: null, id: null });
+                        onReportThread && onReportThread(activeThread._id);
+                      }}
+                      className="w-full text-left bg-none border-none px-3.5 py-2 text-xs font-semibold cursor-pointer flex items-center gap-2 transition-all hover:bg-red-50 text-red-600"
+                    >
+                      <span>🛡️</span> {t("Report Post")}
+                    </button>
                   </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
 
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center transition-all border-none cursor-pointer"
+              className="text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200/80 w-8 h-8 rounded-full flex items-center justify-center transition-all border-none cursor-pointer"
+              title="Close Drawer"
             >
               ✕
             </button>
@@ -127,92 +151,117 @@ export default function DiscussionRepliesPane({
         </div>
 
         {/* Pane Content */}
-        <div className="p-5 overflow-y-auto flex-1">
-          <div className="text-[14px] text-slate-600 leading-relaxed whitespace-pre-wrap mb-8">
-            {activeThread.content}
+        <div className="p-5 overflow-y-auto flex-1 flex flex-col gap-6">
+          <div className="flex flex-col gap-3">
+            <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">
+              {activeThread.content}
+            </p>
+
+            {(activeThread.companyLogo || activeThread.image) && (
+              <div className="mt-2 rounded-2xl overflow-hidden border border-slate-200/80 w-full h-[220px]">
+                <img
+                  src={activeThread.companyLogo || activeThread.image}
+                  alt={activeThread.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
           </div>
 
-          <div className="border-t border-slate-100 pt-6">
-            <h3 className="text-[13px] font-bold text-[#0a2342] mb-4 tracking-wide uppercase">
-              Replies ({activeThread.replies?.length || 0})
-            </h3>
-            
-            <div className="flex flex-col gap-4 mb-6">
+          <div className="border-t border-slate-100 pt-5">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
+                {t("Replies")} ({activeThread.replies?.length || 0})
+              </h3>
+            </div>
+
+            <div className="flex flex-col gap-3.5 mb-6">
               {activeThread.replies && activeThread.replies.map((reply) => {
-                const isReplyOwner = reply.author && (
-                  (typeof reply.author === 'string' && reply.author === user._id) ||
-                  (typeof reply.author === 'object' && reply.author._id === user._id)
-                );
-                const authorId = reply.author?._id || reply.author;
-                const authorName = reply.author?.name || "Student";
+                const rAuthorId = reply.author?._id || reply.author;
+                const rAuthorName = reply.author?.name || t("Community Member");
                 const isRepDropdownActive = activeDropdown.type === 'reply' && activeDropdown.id === reply._id;
 
                 return (
-                  <div key={reply._id} className="bg-slate-50 p-4 rounded-xl border border-slate-100/60 relative">
+                  <div key={reply._id} className="bg-slate-50/90 hover:bg-slate-100/70 p-4 rounded-xl border border-slate-200/70 relative transition-all">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-2">
                         <img
-                          src={reply.author?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random`}
-                          alt={authorName}
-                          className="w-6 h-6 rounded-full object-cover cursor-pointer hover:opacity-85"
-                          onClick={() => onAvatarClick && onAvatarClick(authorId)}
+                          src={
+                            reply.author?.avatar ||
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(rAuthorName)}&background=random`
+                          }
+                          alt={rAuthorName}
+                          className="w-7 h-7 rounded-full object-cover border border-slate-200 cursor-pointer hover:opacity-85 shrink-0"
+                          onClick={() => onAvatarClick && onAvatarClick(rAuthorId)}
                         />
-                        <span 
-                          className="text-[12px] font-bold text-[#0a2342] cursor-pointer hover:underline"
-                          onClick={() => onAvatarClick && onAvatarClick(authorId)}
-                        >
-                          {authorName}
-                        </span>
+                        <div className="flex flex-col">
+                          <span
+                            className="text-xs font-bold text-slate-900 cursor-pointer hover:text-[#00c2cb] transition-colors"
+                            onClick={() => onAvatarClick && onAvatarClick(rAuthorId)}
+                          >
+                            {rAuthorName}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-medium">
+                            {new Date(reply.createdAt).toLocaleDateString() === new Date().toLocaleDateString()
+                              ? new Date(reply.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                              : new Date(reply.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] text-slate-400 font-medium">
-                          {new Date(reply.createdAt).toLocaleDateString() === new Date().toLocaleDateString()
-                            ? new Date(reply.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                            : new Date(reply.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })
-                          }
-                        </span>
-
-                        {/* Reply Actions Trigger */}
-                        {!isReplyOwner && (
-                          <div className="relative">
-                            <button
-                              type="button"
-                              onClick={() => setActiveDropdown(prev => prev.id === reply._id ? { type: null, id: null } : { type: 'reply', id: reply._id })}
-                              className="bg-transparent border-none text-[13px] font-bold text-slate-400 hover:text-slate-650 cursor-pointer p-0.5 rounded-full"
-                            >
-                              ⋮
-                            </button>
-                            {isRepDropdownActive && (
-                              <div className="absolute right-0 top-5 z-20">
-                                <div className="bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden py-1 w-[130px]">
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setActiveDropdown({ type: null, id: null });
-                                      onReportReply && onReportReply(activeThread._id, reply._id);
-                                    }}
-                                    className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-bold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-red-50 text-red-600"
-                                  >
-                                    🛡️ Report Comment
-                                  </button>
-                                </div>
-                              </div>
-                            )}
+                      {/* Reply 3-Dots Dropdown Trigger */}
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveDropdown(prev => prev.id === reply._id ? { type: null, id: null } : { type: 'reply', id: reply._id });
+                          }}
+                          className="bg-transparent border-none text-xs font-bold text-slate-400 hover:text-slate-700 cursor-pointer p-1 rounded-full"
+                          title="Comment Options"
+                        >
+                          ⋮
+                        </button>
+                        {isRepDropdownActive && (
+                          <div className="absolute right-0 top-6 z-30 animate-modal-slide-in">
+                            <div className="bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden py-1 w-[150px] text-left">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActiveDropdown({ type: null, id: null });
+                                  onAvatarClick && onAvatarClick(rAuthorId);
+                                }}
+                                className="w-full text-left bg-none border-none px-3.5 py-2 text-xs font-semibold cursor-pointer flex items-center gap-2 transition-all hover:bg-slate-50 text-slate-700"
+                              >
+                                <span>👤</span> {t("View Profile")}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActiveDropdown({ type: null, id: null });
+                                  onReportReply && onReportReply(activeThread._id, reply._id);
+                                }}
+                                className="w-full text-left bg-none border-none px-3.5 py-2 text-xs font-semibold cursor-pointer flex items-center gap-2 transition-all hover:bg-red-50 text-red-600"
+                              >
+                                <span>🛡️</span> {t("Report Comment")}
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
                     </div>
-                    <div className="text-[13px] text-slate-655 pl-8 whitespace-pre-wrap leading-relaxed">
+
+                    <div className="text-xs text-slate-700 pl-9 whitespace-pre-wrap leading-relaxed">
                       {reply.content}
                     </div>
                   </div>
                 );
               })}
-              
+
               {(!activeThread.replies || activeThread.replies.length === 0) && (
-                <div className="text-center py-6 text-[13px] text-slate-400 font-semibold border border-dashed border-slate-200 rounded-xl">
-                  {t("No replies yet. Be the first to join the conversation!")}
+                <div className="text-center py-8 text-xs text-slate-400 font-semibold border border-dashed border-slate-200 rounded-xl flex flex-col items-center gap-1.5">
+                  <span className="text-lg">💬</span>
+                  <span>{t("No replies yet. Be the first to join the conversation!")}</span>
                 </div>
               )}
             </div>
@@ -220,22 +269,38 @@ export default function DiscussionRepliesPane({
         </div>
 
         {/* Reply input form */}
-        <div className="p-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl sticky bottom-0">
-          <form onSubmit={onReplySubmit} className="relative">
-            <textarea
-              placeholder={t("Write a reply...")}
-              className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-[13px] font-medium text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#00c2cb] focus:ring-1 focus:ring-[#00c2cb] resize-none pr-[90px]"
-              rows="3"
-              value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-            />
-            <button
-              type="submit"
-              disabled={isSubmittingReply || !replyContent.trim()}
-              className="absolute bottom-3 right-3 bg-[#0a2342] text-white px-4 py-1.5 rounded-lg text-[12px] font-bold transition-all hover:bg-[#00c2cb] disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer"
-            >
-              {isSubmittingReply ? t("Posting...") : t("Post")}
-            </button>
+        <div className="p-4 border-t border-slate-100 bg-slate-50/90 rounded-b-2xl sticky bottom-0">
+          <form onSubmit={onReplySubmit} className="flex flex-col gap-2 relative">
+            <div className="flex items-center gap-2">
+              <img
+                src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=random`}
+                alt={user?.name}
+                className="w-7 h-7 rounded-full object-cover border border-slate-200 shrink-0"
+              />
+              <span className="text-xs font-bold text-slate-700">{user?.name || "You"}</span>
+            </div>
+
+            <div className="relative flex items-center">
+              <textarea
+                placeholder={t("Write a response or answer...")}
+                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/20 resize-none pr-[100px] min-h-[60px]"
+                rows="2"
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                required
+              />
+              <button
+                type="submit"
+                disabled={isSubmittingReply || !replyContent.trim()}
+                className="absolute bottom-2.5 right-2.5 bg-[#00c2cb] hover:bg-[#00a3ab] text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer shadow-xs flex items-center gap-1"
+              >
+                {isSubmittingReply ? (
+                  <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                ) : (
+                  <span>{t("Post →")}</span>
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>

@@ -16,7 +16,9 @@ export default function CreateDiscussionThreadModal({
   // Career variant props
   category = "general_discussion",
   setCategory = () => {},
-  isAlumni = false
+  isAlumni = false,
+  postImage = "",
+  setPostImage = () => {}
 }) {
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -113,6 +115,48 @@ export default function CreateDiscussionThreadModal({
                   onChange={(e) => setContent(e.target.value)}
                   required
                 />
+              </div>
+
+              {/* Image / Media Attachment */}
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] font-extrabold text-[#0a2342] uppercase tracking-wide ml-1">
+                  📷 {t("Attach Image (Optional)")}
+                </label>
+
+                {postImage ? (
+                  <div className="relative w-full max-h-[180px] rounded-xl overflow-hidden border border-slate-200 bg-slate-50 group">
+                    <img src={postImage} alt="Attachment Preview" className="w-full h-[180px] object-cover" />
+                    <button
+                      type="button"
+                      className="absolute top-2 right-2 bg-slate-900/70 hover:bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold transition-all border-none cursor-pointer"
+                      onClick={() => setPostImage("")}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <label className="flex-1 flex items-center justify-center gap-2 border-2 border-dashed border-slate-200 hover:border-[#00c2cb] bg-slate-50/50 hover:bg-slate-100/50 rounded-xl p-3 text-xs font-semibold text-slate-600 cursor-pointer transition-all">
+                      <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>{t("Upload Image File")}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (evt) => setPostImage(evt.target.result);
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                )}
               </div>
 
             </form>
