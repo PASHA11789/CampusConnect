@@ -18,12 +18,37 @@ import AskQuestionModal from "../../components/discussion/AskQuestionModal";
 const t = (s) => s;
 
 const DEFAULT_CS_SKILLS = [
-  { name: "Full-Stack Web Development", level: 90 },
-  { name: "Data Structures & Algorithms", level: 85 },
-  { name: "Python & AI / Machine Learning", level: 80 },
-  { name: "Database Management (SQL & NoSQL)", level: 75 },
-  { name: "DevOps & Cloud (Git, Docker, AWS)", level: 65 },
+  { name: "Full-Stack Web Development", level: "Expert" },
+  { name: "Data Structures & Algorithms", level: "Advanced" },
+  { name: "Python & AI / Machine Learning", level: "Advanced" },
+  { name: "Database Management (SQL & NoSQL)", level: "Intermediate" },
+  { name: "DevOps & Cloud (Git, Docker, AWS)", level: "Intermediate" },
 ];
+
+const formatSkillLevel = (level) => {
+  if (typeof level === "number") {
+    if (level >= 90) return "Expert";
+    if (level >= 75) return "Advanced";
+    if (level >= 50) return "Intermediate";
+    return "Beginner";
+  }
+  return level || "Intermediate";
+};
+
+const getSkillLevelBadgeStyle = (level) => {
+  const lvl = formatSkillLevel(level);
+  switch (lvl) {
+    case "Expert":
+      return "bg-amber-50 text-amber-700 border-amber-200/80";
+    case "Advanced":
+      return "bg-purple-50 text-purple-700 border-purple-200/80";
+    case "Intermediate":
+      return "bg-blue-50 text-blue-700 border-blue-200/80";
+    case "Beginner":
+    default:
+      return "bg-emerald-50 text-emerald-700 border-emerald-200/80";
+  }
+};
 
 const CS_DAILY_PROBLEMS = [
   {
@@ -1046,19 +1071,16 @@ export default function Career() {
                   </button>
                 </div>
 
-                <div className="flex flex-col gap-2.5">
+                <div className="flex flex-col gap-2">
                   {careerSkills.length === 0 ? (
                     <p className="text-xs text-slate-400 italic py-1">{t("No skills added.")}</p>
                   ) : (
                     careerSkills.map((skill, index) => (
-                      <div key={index}>
-                        <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                          <span>{skill.name}</span>
-                          <span>{skill.level}%</span>
-                        </div>
-                        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-[#00c2cb] rounded-full transition-all duration-300" style={{ width: `${Math.min(100, Math.max(0, skill.level))}%` }}></div>
-                        </div>
+                      <div key={index} className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-all">
+                        <span className="text-xs font-bold text-slate-800">{skill.name}</span>
+                        <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border ${getSkillLevelBadgeStyle(skill.level)}`}>
+                          {formatSkillLevel(skill.level)}
+                        </span>
                       </div>
                     ))
                   )}

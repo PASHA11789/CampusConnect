@@ -29,6 +29,16 @@ export default function EditCareerProfileModal({
 
   if (!isOpen) return null;
 
+  const formatSkillLevel = (level) => {
+    if (typeof level === "number") {
+      if (level >= 90) return "Expert";
+      if (level >= 75) return "Advanced";
+      if (level >= 50) return "Intermediate";
+      return "Beginner";
+    }
+    return level || "Intermediate";
+  };
+
   const handleSkillNameChange = (index, newName) => {
     const updated = [...localSkills];
     updated[index].name = newName;
@@ -37,12 +47,12 @@ export default function EditCareerProfileModal({
 
   const handleSkillLevelChange = (index, newLevel) => {
     const updated = [...localSkills];
-    updated[index].level = Number(newLevel);
+    updated[index].level = newLevel;
     setLocalSkills(updated);
   };
 
   const handleAddSkill = () => {
-    setLocalSkills([...localSkills, { name: "", level: 70 }]);
+    setLocalSkills([...localSkills, { name: "", level: "Intermediate" }]);
   };
 
   const handleRemoveSkill = (index) => {
@@ -117,10 +127,10 @@ export default function EditCareerProfileModal({
             />
           </div>
 
-          {/* Skills & Proficiency Sliders */}
+          {/* Skills & Levels */}
           <div className="flex flex-col gap-3 pt-2 border-t border-slate-100">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-black text-slate-800 uppercase tracking-wider">{t("Skills & Proficiency (%)")}</label>
+              <label className="text-xs font-black text-slate-800 uppercase tracking-wider">{t("Skills & Levels")}</label>
               <button
                 type="button"
                 className="text-xs font-bold text-[#00c2cb] hover:text-[#009da5] hover:underline flex items-center gap-1 cursor-pointer bg-none border-none"
@@ -135,38 +145,33 @@ export default function EditCareerProfileModal({
                 <p className="text-xs text-slate-400 italic py-2">{t("No skills added yet. Click '+ Add Skill' to add your skills.")}</p>
               ) : (
                 localSkills.map((skill, index) => (
-                  <div key={index} className="bg-slate-50/80 border border-slate-200 rounded-xl p-3 flex flex-col gap-2 relative">
-                    <div className="flex justify-between items-center gap-2">
-                      <input
-                        type="text"
-                        placeholder={t("Skill Name (e.g. React.js, Python, DSA)")}
-                        className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c2cb]"
-                        value={skill.name}
-                        onChange={(e) => handleSkillNameChange(index, e.target.value)}
-                        required
-                      />
-                      <span className="text-xs font-extrabold text-[#00c2cb] w-12 text-right shrink-0">{skill.level}%</span>
-                      <button
-                        type="button"
-                        className="text-slate-400 hover:text-red-500 p-1 text-sm border-none bg-transparent cursor-pointer transition-colors shrink-0 ml-1"
-                        onClick={() => handleRemoveSkill(index)}
-                        title="Remove Skill"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-
-                    <div className="flex items-center gap-3 pt-1">
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="5"
-                        value={skill.level}
-                        onChange={(e) => handleSkillLevelChange(index, e.target.value)}
-                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#00c2cb]"
-                      />
-                    </div>
+                  <div key={index} className="bg-slate-50/80 border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-2">
+                    <input
+                      type="text"
+                      placeholder={t("Skill Name (e.g. React.js, Python, DSA)")}
+                      className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c2cb]"
+                      value={skill.name}
+                      onChange={(e) => handleSkillNameChange(index, e.target.value)}
+                      required
+                    />
+                    <select
+                      className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c2cb] cursor-pointer"
+                      value={formatSkillLevel(skill.level)}
+                      onChange={(e) => handleSkillLevelChange(index, e.target.value)}
+                    >
+                      <option value="Beginner">{t("Beginner")}</option>
+                      <option value="Intermediate">{t("Intermediate")}</option>
+                      <option value="Advanced">{t("Advanced")}</option>
+                      <option value="Expert">{t("Expert")}</option>
+                    </select>
+                    <button
+                      type="button"
+                      className="text-slate-400 hover:text-red-500 p-1 text-sm border-none bg-transparent cursor-pointer transition-colors shrink-0 ml-1"
+                      onClick={() => handleRemoveSkill(index)}
+                      title="Remove Skill"
+                    >
+                      🗑️
+                    </button>
                   </div>
                 ))
               )}
