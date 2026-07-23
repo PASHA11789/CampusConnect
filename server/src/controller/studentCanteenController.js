@@ -23,37 +23,7 @@ export const getRestaurantMenu = async (req, res) => {
   }
 };
 
-export const createOrder = async (req, res) => {
-  try {
-    const { restaurantId, items, totalAmount, studentPhone } = req.body;
-
-    if (!items || items.length === 0) {
-      return res.status(400).json({ message: "No order items provided" });
-    }
-
-    const restaurant = await Restaurant.findById(restaurantId);
-    if (!restaurant) return res.status(404).json({ message: "Restaurant not found" });
-    if (!restaurant.isActive) return res.status(400).json({ message: "Restaurant is currently closed" });
-
-    const order = await Order.create({
-      student: req.user._id,
-      studentPhone,
-      restaurant: restaurantId,
-      items,
-      totalAmount
-    });
-
-    const populatedOrder = await Order.findById(order._id)
-      .populate('student', 'name registeration_number');
-
-    const io = req.app.get("socketio");
-    io.to(restaurant.owner.toString()).emit("new_vendor_order", populatedOrder);
-
-    res.status(201).json({ success: true, message: "Order placed successfully!", order: populatedOrder });
-  } catch (error) {
-    res.status(500).json({ message: "Error creating order", error: error.message });
-  }
-};
+export { createOrder } from './orderController.js';
 
 export const getMyOrders = async (req, res) => {
   try {

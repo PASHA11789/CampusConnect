@@ -23,6 +23,7 @@ import vendorAuthRoutes from "./src/routes/vendorAuthRoutes.js";
 import campusAdminRoutes from "./src/routes/campusAdminRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
 import careerRoutes from "./src/routes/careerRoutes.js";
+import orderRoutes from "./src/routes/orderRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -76,6 +77,7 @@ app.use("/api/vendor/auth", vendorAuthRoutes);
 app.use("/api/campus-admin", campusAdminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/careers", careerRoutes);
+app.use("/api/orders", orderRoutes);
 
 
 io.on("connection", (socket) => {
