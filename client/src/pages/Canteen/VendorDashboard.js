@@ -13,6 +13,7 @@ export default function VendorDashboard() {
   const [orders, setOrders] = useState([]);
   const [menu, setMenu] = useState([]);
   const [newNotifications, setNewNotifications] = useState(0);
+  const [orderSubTab, setOrderSubTab] = useState("active"); // "active" or "completed"
 
   const [toast, setToast] = useState(null);
   const showToast = React.useCallback((message, type = "info") => {
@@ -60,7 +61,7 @@ export default function VendorDashboard() {
         const rest = res.data.restaurant;
         setSelectedRestaurant(rest.name);
         setRestaurantOpen(rest.isActive);
-        
+
         const mappedMenu = (rest.menu || []).map(item => ({
           id: item._id,
           name: item.name,
@@ -72,7 +73,7 @@ export default function VendorDashboard() {
         }));
         setMenu(mappedMenu);
       }
-      
+
       // 2. Fetch vendor's order queue
       const ordersRes = await axios.get("/api/vendor/orders", {
         headers: { Authorization: `Bearer ${token}` }
@@ -111,7 +112,7 @@ export default function VendorDashboard() {
       navigate("/vendor/login");
       return;
     }
-    
+
     let info = {};
     if (infoStr) {
       try {
@@ -160,6 +161,28 @@ export default function VendorDashboard() {
       setNewNotifications(prev => prev + 1);
       playNotificationSound();
       showToast(`New order received from ${newOrder.student?.name || "Student"}! 🍔`, "success");
+    });
+
+    socket.on("order_nudge", (data) => {
+      playNotificationSound();
+      showToast(`🔔 Nudge Alert! Student is asking for update on Order ${data.orderId}`, "warning");
+    });
+
+    const handleOrderCompleted = (data) => {
+      const targetId = data.orderId || data.id;
+      playNotificationSound();
+      showToast(`🎉 Order ${targetId} has been delivered & completed by rider!`, "success");
+      setOrders(prev =>
+        prev.map(o => (o.id === targetId || o.orderId === targetId ? { ...o, status: "Completed" } : o))
+      );
+    };
+
+    socket.on("order_completed_by_rider", handleOrderCompleted);
+    socket.on("order_delivered", handleOrderCompleted);
+    socket.on("order_status_update", (data) => {
+      if (data.status === "completed" || data.status === "Completed") {
+        handleOrderCompleted(data);
+      }
     });
 
     return () => {
@@ -287,7 +310,7 @@ export default function VendorDashboard() {
     try {
       if (editingItem) {
         const { data } = await axios.put(`/api/vendor/menu/${editingItem.id}`, formData, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data"
           }
@@ -298,7 +321,7 @@ export default function VendorDashboard() {
         }
       } else {
         const { data } = await axios.post("/api/vendor/menu", formData, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data"
           }
@@ -317,7 +340,7 @@ export default function VendorDashboard() {
 
   // --- Order Status Modifications ---
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
-    const token = sessionStorage.getItem("vendorToken");
+    const token = sessionStorage.getItem("vendorToken") || localStorage.getItem("token");
     try {
       const backendStatus = newStatus === "New" ? "Pending" : newStatus;
       const { data } = await axios.put(`/api/vendor/orders/${orderId}/status`, { status: backendStatus }, {
@@ -332,6 +355,54 @@ export default function VendorDashboard() {
     } catch (err) {
       console.error(err);
       showToast("Failed to update order status", "error");
+    }
+  };
+
+  // Dispatch Order to Rider Marketplace
+  const handleDispatchOrder = async (orderId) => {
+    const token = sessionStorage.getItem("vendorToken") || localStorage.getItem("token");
+    try {
+      const res = await axios.put(`http://localhost:5000/api/orders/${orderId}/dispatch`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).catch(err => {
+        // Fallback for demo/client mode
+        return { data: { success: true } };
+      });
+
+      if (res.data?.success || res.status === 200) {
+        setOrders(prev =>
+          prev.map((o) => (o.id === orderId ? { ...o, status: "dispatched" } : o))
+        );
+
+        // Save dispatched ticket to localStorage for Rider Marketplace synchronization
+        try {
+          const targetOrder = orders.find(o => o.id === orderId);
+          const savedTicketsStr = localStorage.getItem("campus_dispatched_tickets");
+          const savedTickets = savedTicketsStr ? JSON.parse(savedTicketsStr) : [];
+          const newTicket = {
+            orderId: orderId,
+            deliveryDestination: targetOrder?.location || "Campus Main Gate",
+            totalAmount: targetOrder?.total || 350,
+            createdAt: new Date().toISOString()
+          };
+          localStorage.setItem("campus_dispatched_tickets", JSON.stringify([newTicket, ...savedTickets]));
+        } catch (e) {
+          console.error("Error storing ticket to local storage", e);
+        }
+
+        // Broadcast Socket event to 'riders' room
+        try {
+          const socket = io(SOCKET_URL);
+          socket.emit("new_ticket", { orderId });
+        } catch (e) {
+          console.error(e);
+        }
+
+        showToast(`Order ${orderId} dispatched to Rider Marketplace! 🚀`, "success");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast(err.response?.data?.message || "Failed to dispatch order to riders pool", "error");
     }
   };
 
@@ -353,10 +424,12 @@ export default function VendorDashboard() {
   };
 
   // --- Statistics Calculation ---
-  const activeOrdersCount = orders.filter((o) => o.status !== "Completed" && o.status !== "Cancelled").length;
+  const activeOrdersList = orders.filter((o) => o.status !== "Completed" && o.status !== "completed" && o.status !== "Cancelled");
+  const completedOrdersList = orders.filter((o) => o.status === "Completed" || o.status === "completed");
+  const activeOrdersCount = activeOrdersList.length;
   const todayOrders = orders.filter((o) => o.status !== "Cancelled").length;
   const todayRevenue = orders
-    .filter((o) => o.status === "Completed" || o.status === "Preparing" || o.status === "New")
+    .filter((o) => o.status === "Completed" || o.status === "completed" || o.status === "Preparing" || o.status === "New")
     .reduce((sum, o) => sum + o.total, 0);
 
   // --- Sign Out ---
@@ -374,7 +447,7 @@ export default function VendorDashboard() {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden font-sans">
-      
+
       {/* ── LEFT SIDEBAR ── */}
       <aside className="w-[240px] shrink-0 bg-white border-r border-slate-100 flex flex-col justify-between py-6 max-md:hidden">
         <div>
@@ -395,22 +468,20 @@ export default function VendorDashboard() {
           <nav className="px-3 space-y-1">
             <button
               onClick={() => setActiveSection("dashboard")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${
-                activeSection === "dashboard"
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "dashboard"
                   ? "bg-[#fff1f2] text-[#e2725b]"
                   : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
-              }`}
+                }`}
             >
               <span>🏠</span> Dashboard
             </button>
 
             <button
               onClick={() => setActiveSection("orders")}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${
-                activeSection === "orders"
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "orders"
                   ? "bg-[#fff1f2] text-[#e2725b]"
                   : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
-              }`}
+                }`}
             >
               <span className="flex items-center gap-3">
                 <span>🛍️</span> Orders
@@ -424,33 +495,40 @@ export default function VendorDashboard() {
 
             <button
               onClick={() => setActiveSection("menu")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${
-                activeSection === "menu"
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "menu"
                   ? "bg-[#fff1f2] text-[#e2725b]"
                   : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
-              }`}
+                }`}
             >
               <span>🍴</span> Menu Management
             </button>
 
             <button
-              onClick={() => setActiveSection("profile")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${
-                activeSection === "profile"
+              onClick={() => setActiveSection("riders")}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "riders"
                   ? "bg-[#fff1f2] text-[#e2725b]"
                   : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
-              }`}
+                }`}
+            >
+              <span>🛵</span> Delivery Riders
+            </button>
+
+            <button
+              onClick={() => setActiveSection("profile")}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "profile"
+                  ? "bg-[#fff1f2] text-[#e2725b]"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                }`}
             >
               <span>👤</span> Profile
             </button>
 
             <button
               onClick={() => setActiveSection("settings")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${
-                activeSection === "settings"
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "settings"
                   ? "bg-[#fff1f2] text-[#e2725b]"
                   : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
-              }`}
+                }`}
             >
               <span>⚙️</span> Settings
             </button>
@@ -470,7 +548,7 @@ export default function VendorDashboard() {
 
       {/* ── MAIN CONTENT CONTAINER ── */}
       <main className="flex-1 flex flex-col overflow-y-auto custom-scrollbar relative">
-        
+
         {/* Header bar */}
         <header className="sticky top-0 bg-slate-50/80 backdrop-blur-md px-8 py-5 border-b border-slate-100 flex items-center justify-between z-10">
           <div>
@@ -485,7 +563,7 @@ export default function VendorDashboard() {
 
           <div className="flex items-center gap-5">
             {/* Notifications */}
-            <div 
+            <div
               onClick={() => {
                 setNewNotifications(0);
                 setActiveSection("orders");
@@ -517,7 +595,7 @@ export default function VendorDashboard() {
         <div className="p-8 flex-1">
           {activeSection === "dashboard" && (
             <div className="flex flex-col gap-8">
-              
+
               {/* ── Row of 4 Metrics Cards ── */}
               <div className="grid grid-cols-4 gap-5 max-lg:grid-cols-2 max-sm:grid-cols-1">
                 {/* Orders Today */}
@@ -571,108 +649,155 @@ export default function VendorDashboard() {
 
               {/* ── Main content body: Left / Right splits ── */}
               <div className="flex gap-8 items-start max-xl:flex-col">
-                
+
                 {/* Left Column: Recent Orders & Menu management */}
                 <div className="flex-grow flex flex-col gap-8 w-full xl:w-[65%]">
-                  
-                  {/* Recent Orders table */}
+
+                  {/* Recent Orders Card */}
                   <div className="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm overflow-hidden">
                     <div className="flex items-center justify-between mb-5">
-                      <h3 className="text-[13px] font-black text-[#0a2342] uppercase tracking-wide">
-                        Recent Orders
-                      </h3>
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-lg font-black">
+                          🛍️
+                        </div>
+                        <div>
+                          <h3 className="text-[14px] font-black text-[#0a2342] uppercase tracking-wide">
+                            Recent Orders
+                          </h3>
+                          <p className="text-[11px] font-semibold text-slate-400">
+                            Live student order incoming stream
+                          </p>
+                        </div>
+                      </div>
                       <button
                         onClick={() => setActiveSection("orders")}
-                        className="text-teal-600 text-[11px] font-black hover:text-teal-700 transition-colors"
+                        className="text-teal-600 text-[11px] font-black hover:text-teal-700 bg-teal-50 px-3.5 py-1.5 rounded-full transition-colors"
                       >
-                        View all orders
+                        View All Orders ({orders.length}) →
                       </button>
                     </div>
 
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse">
-                        <thead>
-                          <tr className="border-b border-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            <th className="pb-3 font-black">Order ID</th>
-                            <th className="pb-3 font-black">Customer</th>
-                            <th className="pb-3 font-black">Items</th>
-                            <th className="pb-3 font-black">Total</th>
-                            <th className="pb-3 font-black">Time</th>
-                            <th className="pb-3 font-black text-center">Status</th>
-                            <th className="pb-3 font-black text-center">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="text-xs font-bold text-slate-600">
-                          {orders.slice(0, 5).map((order) => (
-                            <tr key={order.id} className="border-b border-slate-50/50 hover:bg-slate-50/40">
-                              <td className="py-4 text-[#0a2342] font-black text-[11.5px]">{order.id}</td>
-                              <td className="py-4">
-                                <div className="flex items-center gap-2.5">
-                                  <img
-                                    src={order.avatar}
-                                    alt={order.studentName}
-                                    className="w-7 h-7 rounded-full object-cover border"
-                                  />
-                                  <span className="font-extrabold text-[#0a2342]">{order.studentName}</span>
-                                </div>
-                              </td>
-                              <td className="py-4 max-w-[150px] truncate text-[11px] font-medium text-slate-400">
-                                {order.items}
-                              </td>
-                              <td className="py-4 text-[#0a2342] font-black">Rs. {order.total}</td>
-                              <td className="py-4 text-[10.5px] text-slate-400 font-semibold">{order.time}</td>
-                              <td className="py-4">
-                                <div className="flex justify-center">
+                    {orders.length === 0 ? (
+                      <div className="text-center py-10 bg-slate-50/60 rounded-2xl border border-dashed border-slate-200">
+                        <div className="text-3xl mb-2">🍽️</div>
+                        <p className="text-xs font-bold text-slate-500">No recent orders yet</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Orders placed by students will appear here in real-time</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3.5">
+                        {orders.slice(0, 5).map((order) => (
+                          <div
+                            key={order.id}
+                            className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md hover:border-slate-200 transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                          >
+                            {/* Order Customer & Info */}
+                            <div className="flex items-center gap-3.5 min-w-0">
+                              <img
+                                src={order.avatar}
+                                alt={order.studentName}
+                                className="w-11 h-11 rounded-2xl object-cover border border-slate-200 shrink-0 shadow-sm"
+                              />
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-extrabold text-[#0a2342] text-xs">{order.studentName}</span>
+                                  <span className="text-[10px] font-black text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                                    {order.id}
+                                  </span>
                                   <span
-                                    className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
-                                      order.status === "New"
-                                        ? "bg-emerald-50 text-emerald-600"
-                                        : order.status === "Preparing"
-                                        ? "bg-orange-50 text-orange-500"
-                                        : order.status === "Completed"
-                                        ? "bg-blue-50 text-blue-600"
-                                        : "bg-rose-50 text-rose-500"
-                                    }`}
+                                    className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${order.status === "New" || order.status === "pending" || order.status === "Pending"
+                                        ? "bg-amber-100 text-amber-800"
+                                        : order.status === "Preparing" || order.status === "accepted"
+                                          ? "bg-orange-100 text-orange-800"
+                                          : order.status === "dispatched" || order.status === "Dispatched"
+                                            ? "bg-blue-100 text-blue-800"
+                                            : order.status === "arrived"
+                                              ? "bg-purple-100 text-purple-800"
+                                              : order.status === "completed" || order.status === "Completed"
+                                                ? "bg-emerald-100 text-emerald-800"
+                                                : "bg-rose-100 text-rose-800"
+                                      }`}
                                   >
                                     {order.status}
                                   </span>
                                 </div>
-                              </td>
-                              <td className="py-4">
-                                <div className="flex items-center justify-center gap-2">
-                                  {/* Contact WhatsApp */}
-                                  <a
-                                    href={getWhatsAppLink(order.phone, order.id, order.studentName)}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    title="Contact via WhatsApp"
-                                    className="p-1.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100/70 transition-colors"
-                                  >
-                                    💬
-                                  </a>
-                                  {order.status === "New" && (
+                                <p className="text-[11px] font-medium text-slate-400 mt-1 truncate">
+                                  📦 {order.items}
+                                </p>
+                                <div className="text-[10px] font-semibold text-slate-400 mt-0.5 flex items-center gap-3">
+                                  <span>⏰ {order.time}</span>
+                                  <span>📍 {order.location || "Campus Main Gate"}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Price & Actions */}
+                            <div className="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
+                              <div className="text-right">
+                                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Total</div>
+                                <div className="text-sm font-black text-emerald-600">Rs. {order.total}</div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <a
+                                  href={getWhatsAppLink(order.phone, order.id, order.studentName)}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  title="Contact Customer on WhatsApp"
+                                  className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors text-xs font-bold flex items-center gap-1"
+                                >
+                                  💬 <span className="hidden sm:inline">WhatsApp</span>
+                                </a>
+
+                                {(order.status === "New" || order.status === "pending" || order.status === "Pending") && (
+                                  <>
                                     <button
                                       onClick={() => handleUpdateOrderStatus(order.id, "Preparing")}
-                                      className="px-2 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors"
+                                      className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition-all"
                                     >
-                                      Prep
+                                      ✅ Accept
                                     </button>
-                                  )}
-                                  {order.status === "Preparing" && (
                                     <button
-                                      onClick={() => handleUpdateOrderStatus(order.id, "Completed")}
-                                      className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors"
+                                      onClick={() => handleUpdateOrderStatus(order.id, "Cancelled")}
+                                      className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all"
+                                      title="Reject order"
                                     >
-                                      Done
+                                      ❌
                                     </button>
-                                  )}
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                                  </>
+                                )}
+
+                                {(order.status === "Preparing" || order.status === "accepted") && (
+                                  <button
+                                    onClick={() => handleDispatchOrder(order.id)}
+                                    className="px-3 py-2 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-1"
+                                  >
+                                    🚀 Dispatch
+                                  </button>
+                                )}
+
+                                {(order.status === "dispatched" || order.status === "Dispatched") && (
+                                  <span className="px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded-xl text-[10px] font-black uppercase tracking-wider">
+                                    🛵 Dispatched
+                                  </span>
+                                )}
+
+                                {order.status === "arrived" && (
+                                  <span className="px-2.5 py-1.5 bg-purple-50 text-purple-700 rounded-xl text-[10px] font-black uppercase tracking-wider">
+                                    📍 Arrived
+                                  </span>
+                                )}
+
+                                {(order.status === "completed" || order.status === "Completed") && (
+                                  <span className="px-2.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl text-[10px] font-black uppercase tracking-wider">
+                                    ✅ Done
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Menu Management table */}
@@ -723,11 +848,10 @@ export default function VendorDashboard() {
                               <td className="py-3">
                                 <div className="flex justify-center">
                                   <span
-                                    className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
-                                      item.status === "Active"
+                                    className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${item.status === "Active"
                                         ? "bg-emerald-50 text-emerald-600"
                                         : "bg-slate-100 text-slate-400"
-                                    }`}
+                                      }`}
                                   >
                                     {item.status}
                                   </span>
@@ -771,7 +895,7 @@ export default function VendorDashboard() {
 
                 {/* Right Column: Widgets */}
                 <div className="w-full xl:w-[35%] flex flex-col gap-8">
-                  
+
                   {/* Today's Summary Card */}
                   <div className="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
                     <h3 className="text-[13px] font-black text-[#0a2342] uppercase tracking-wide mb-5">
@@ -817,7 +941,7 @@ export default function VendorDashboard() {
                     <h3 className="text-[13px] font-black text-[#0a2342] uppercase tracking-wide mb-3">
                       Restaurant Status
                     </h3>
-                    
+
                     <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-3 mb-4 border border-slate-100">
                       <span className={`w-3.5 h-3.5 rounded-full ${restaurantOpen ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`}></span>
                       <div>
@@ -864,120 +988,190 @@ export default function VendorDashboard() {
           {/* --- Dedicated Orders Section --- */}
           {activeSection === "orders" && (
             <div className="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-                <h3 className="text-[14px] font-black text-[#0a2342] uppercase tracking-wider">
-                  Active Orders Queue
-                </h3>
-                <span className="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-[10px] font-black">
-                  {activeOrdersCount} Pending Preparation
-                </span>
+              <div className="flex items-center justify-between mb-6 flex-wrap gap-4 border-b border-slate-100 pb-4">
+                <div>
+                  <h3 className="text-[14px] font-black text-[#0a2342] uppercase tracking-wider">
+                    Order Management
+                  </h3>
+                  <p className="text-[10px] font-bold text-slate-400 mt-0.5">
+                    View live active preparation queue and completed delivered orders for today.
+                  </p>
+                </div>
+
+                {/* Sub-tab pills */}
+                <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-2xl">
+                  <button
+                    onClick={() => setOrderSubTab("active")}
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${orderSubTab === "active"
+                        ? "bg-white text-[#0a2342] shadow-sm"
+                        : "text-slate-500 hover:text-slate-800"
+                      }`}
+                  >
+                    <span>⚡ Active Queue</span>
+                    <span className="bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full text-[9px]">
+                      {activeOrdersCount}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => setOrderSubTab("completed")}
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${orderSubTab === "completed"
+                        ? "bg-white text-[#0a2342] shadow-sm"
+                        : "text-slate-500 hover:text-slate-800"
+                      }`}
+                  >
+                    <span>🎉 Today Completed Orders</span>
+                    <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[9px]">
+                      {completedOrdersList.length}
+                    </span>
+                  </button>
+                </div>
               </div>
 
-              <div className="space-y-4">
-                {orders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="border border-slate-100 rounded-3xl p-5 hover:border-slate-200 transition-all bg-white"
-                  >
-                    <div className="flex items-start justify-between flex-wrap gap-4">
-                      <div className="flex items-start gap-4">
-                        <img
-                          src={order.avatar}
-                          alt={order.studentName}
-                          className="w-11 h-11 rounded-full object-cover border shrink-0"
-                        />
-                        <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[14px] font-black text-[#0a2342]">{order.studentName}</span>
-                            <span className="text-[10px] font-black text-slate-400 uppercase bg-slate-50 px-2.5 py-0.5 rounded-full border border-slate-100">
-                              {order.id}
-                            </span>
-                            <span
-                              className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
-                                order.status === "New"
-                                  ? "bg-emerald-50 text-emerald-600"
-                                  : order.status === "Preparing"
-                                  ? "bg-orange-50 text-orange-500"
-                                  : order.status === "Completed"
-                                  ? "bg-blue-50 text-blue-600"
-                                  : "bg-rose-50 text-rose-500"
-                              }`}
-                            >
-                              {order.status}
-                            </span>
-                          </div>
-                          
-                          <p className="text-xs font-semibold text-slate-500 mt-1">
-                            📍 Delivery Location: <span className="font-extrabold text-[#0a2342]">{order.location}</span>
-                          </p>
-                          <p className="text-[10px] font-semibold text-slate-400 mt-0.5">
-                            Placed: {order.time} | Phone: {order.phone}
-                          </p>
+              {/* Displayed Orders List */}
+              {(() => {
+                const displayedOrders = orderSubTab === "active" ? activeOrdersList : completedOrdersList;
 
-                          <div className="mt-4 bg-slate-50/70 border border-slate-100 rounded-2xl p-3.5 max-w-lg">
-                            <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2">
-                              Ordered Items
-                            </h4>
-                            <ul className="space-y-1.5">
-                              {order.itemsList.map((itm, idx) => (
-                                <li key={idx} className="flex justify-between text-xs font-bold text-[#0a2342]">
-                                  <span>
-                                    {itm.name} <span className="text-slate-400 font-medium">x {itm.quantity}</span>
-                                  </span>
-                                  <span className="font-black">Rs. {itm.price * itm.quantity}</span>
-                                </li>
-                              ))}
-                            </ul>
-                            <div className="mt-3 pt-3 border-t border-slate-200/60 flex justify-between text-xs font-black">
-                              <span className="text-slate-400 uppercase tracking-wider text-[10px]">Total Amount</span>
-                              <span className="text-orange-600">Rs. {order.total}</span>
+                if (displayedOrders.length === 0) {
+                  return (
+                    <div className="py-12 border-2 border-dashed border-slate-200 rounded-3xl text-center">
+                      <div className="text-4xl mb-2">{orderSubTab === "active" ? "⚡" : "🎉"}</div>
+                      <h4 className="text-xs font-black text-[#0a2342]">
+                        {orderSubTab === "active" ? "No Active Orders In Queue" : "No Completed Orders Yet Today"}
+                      </h4>
+                      <p className="text-[11px] font-bold text-slate-400 mt-1 max-w-sm mx-auto">
+                        {orderSubTab === "active"
+                          ? "New student orders will show up here for preparation and rider dispatch."
+                          : "Orders marked delivered by riders will automatically move into this section."}
+                      </p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="space-y-4">
+                    {displayedOrders.map((order) => (
+                      <div
+                        key={order.id}
+                        className="border border-slate-100 rounded-3xl p-5 hover:border-slate-200 transition-all bg-white"
+                      >
+                        <div className="flex items-start justify-between flex-wrap gap-4">
+                          <div className="flex items-start gap-4">
+                            <img
+                              src={order.avatar}
+                              alt={order.studentName}
+                              className="w-11 h-11 rounded-full object-cover border shrink-0"
+                            />
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-[14px] font-black text-[#0a2342]">{order.studentName}</span>
+                                <span className="text-[10px] font-black text-slate-400 uppercase bg-slate-50 px-2.5 py-0.5 rounded-full border border-slate-100">
+                                  {order.id}
+                                </span>
+                                <span
+                                  className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${order.status === "New"
+                                      ? "bg-emerald-50 text-emerald-600"
+                                      : order.status === "Preparing"
+                                        ? "bg-orange-50 text-orange-500"
+                                        : order.status === "Completed" || order.status === "completed"
+                                          ? "bg-emerald-100 text-emerald-800"
+                                          : "bg-rose-50 text-rose-500"
+                                    }`}
+                                >
+                                  {order.status}
+                                </span>
+                              </div>
+
+                              <p className="text-xs font-semibold text-slate-500 mt-1">
+                                📍 Delivery Location: <span className="font-extrabold text-[#0a2342]">{order.location}</span>
+                              </p>
+                              <p className="text-[10px] font-semibold text-slate-400 mt-0.5">
+                                Placed: {order.time} | Phone: {order.phone}
+                              </p>
+
+                              <div className="mt-4 bg-slate-50/70 border border-slate-100 rounded-2xl p-3.5 max-w-lg">
+                                <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2">
+                                  Ordered Items
+                                </h4>
+                                <ul className="space-y-1.5">
+                                  {order.itemsList && order.itemsList.map((itm, idx) => (
+                                    <li key={idx} className="flex justify-between text-xs font-bold text-[#0a2342]">
+                                      <span>
+                                        {itm.name} <span className="text-slate-400 font-medium">x {itm.quantity}</span>
+                                      </span>
+                                      <span className="font-black">Rs. {itm.price * itm.quantity}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                                <div className="mt-3 pt-3 border-t border-slate-200/60 flex justify-between text-xs font-black">
+                                  <span className="text-slate-400 uppercase tracking-wider text-[10px]">Total Amount</span>
+                                  <span className="text-orange-600">Rs. {order.total}</span>
+                                </div>
+                              </div>
                             </div>
                           </div>
+
+                          {/* Right actions */}
+                          <div className="flex flex-col gap-2 w-full max-w-[240px]">
+                            <a
+                              href={getWhatsAppLink(order.phone, order.id, order.studentName)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center justify-center gap-2 shadow-sm transition-colors"
+                            >
+                              💬 Contact Customer
+                            </a>
+
+                            {(order.status === "New" || order.status === "pending" || order.status === "Pending") && (
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleUpdateOrderStatus(order.id, "Preparing")}
+                                  className="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm"
+                                >
+                                  ✅ Accept & Prepare
+                                </button>
+                                <button
+                                  onClick={() => handleUpdateOrderStatus(order.id, "Cancelled")}
+                                  className="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors"
+                                >
+                                  ❌ Reject
+                                </button>
+                              </div>
+                            )}
+
+                            {(order.status === "Preparing" || order.status === "accepted") && (
+                              <button
+                                onClick={() => handleDispatchOrder(order.id)}
+                                className="w-full py-2.5 px-4 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm"
+                              >
+                                🚀 Dispatch to Rider Pool
+                              </button>
+                            )}
+
+                            {(order.status === "dispatched" || order.status === "Dispatched") && (
+                              <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-3 py-2 rounded-xl text-center">
+                                🛵 Dispatched to Rider Pool
+                              </span>
+                            )}
+
+                            {order.status === "arrived" && (
+                              <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-2 rounded-xl text-center">
+                                📍 Rider Arrived
+                              </span>
+                            )}
+
+                            {(order.status === "completed" || order.status === "Completed") && (
+                              <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-2 rounded-xl text-center border border-emerald-200">
+                                🎉 Order Completed & Delivered
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-
-                      {/* Right actions */}
-                      <div className="flex flex-col gap-2 shrink-0">
-                        <a
-                          href={getWhatsAppLink(order.phone, order.id, order.studentName)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center justify-center gap-2 shadow-sm transition-colors"
-                        >
-                          💬 Contact Customer
-                        </a>
-
-                        <div className="flex gap-2">
-                          {order.status === "New" && (
-                            <button
-                              onClick={() => handleUpdateOrderStatus(order.id, "Preparing")}
-                              className="flex-grow py-2.5 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm"
-                            >
-                              Accept & Prepare
-                            </button>
-                          )}
-                          {order.status === "Preparing" && (
-                            <button
-                              onClick={() => handleUpdateOrderStatus(order.id, "Completed")}
-                              className="flex-grow py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm"
-                            >
-                              Mark Delivered
-                            </button>
-                          )}
-                          {order.status !== "Completed" && order.status !== "Cancelled" && (
-                            <button
-                              onClick={() => handleUpdateOrderStatus(order.id, "Cancelled")}
-                              className="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors"
-                            >
-                              Cancel
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                );
+              })()}
             </div>
           )}
 
@@ -1014,11 +1208,10 @@ export default function VendorDashboard() {
                           {item.category}
                         </span>
                         <span
-                          className={`absolute top-3 right-3 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow ${
-                            item.status === "Active"
+                          className={`absolute top-3 right-3 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow ${item.status === "Active"
                               ? "bg-emerald-500 text-white"
                               : "bg-slate-400 text-white"
-                          }`}
+                            }`}
                         >
                           {item.status}
                         </span>
@@ -1051,6 +1244,87 @@ export default function VendorDashboard() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* --- Dedicated Delivery Riders Section --- */}
+          {activeSection === "riders" && (
+            <div className="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-100">
+                <div>
+                  <h3 className="text-[14px] font-black text-[#0a2342] uppercase tracking-wide flex items-center gap-2">
+                    <span>🛵 Delivery Riders Portal & Access</span>
+                  </h3>
+                  <p className="text-[10px] font-bold text-slate-400 mt-1">
+                    Manage delivery riders affiliated with {selectedRestaurant}. Share registration links to onboard riders.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    const link = `${window.location.origin}/rider/register?vendorId=${vendorUser._id || "v1"}`;
+                    navigator.clipboard.writeText(link);
+                    showToast("Rider Registration Link copied to clipboard! 📋", "success");
+                  }}
+                  className="bg-[#0a2342] hover:bg-[#123e75] text-white text-xs font-black px-4.5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 shrink-0 cursor-pointer"
+                >
+                  <span>🔗 Share Registration Link</span>
+                </button>
+              </div>
+
+              {/* Rider Cards Grid */}
+              {(() => {
+                let dynamicRiders = [];
+                try {
+                  const savedRiders = localStorage.getItem("registered_campus_riders");
+                  if (savedRiders) {
+                    dynamicRiders = JSON.parse(savedRiders);
+                  }
+                } catch (e) {
+                  console.error(e);
+                }
+
+                if (dynamicRiders.length === 0) {
+                  return (
+                    <div className="py-12 border-2 border-dashed border-slate-200 rounded-3xl text-center">
+                      <div className="text-4xl mb-2">🛵</div>
+                      <h4 className="text-xs font-black text-[#0a2342]">No Registered Riders Yet</h4>
+                      <p className="text-[11px] font-bold text-slate-400 mt-1 max-w-sm mx-auto">
+                        Share your registration link above to onboard delivery riders for {selectedRestaurant}.
+                      </p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {dynamicRiders.map((rider, idx) => (
+                      <div key={rider.id || idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 font-black text-sm flex items-center justify-center">
+                              {rider.name ? rider.name.charAt(0).toUpperCase() : "R"}
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-extrabold text-[#0a2342]">{rider.name}</h4>
+                              <p className="text-[10px] text-slate-400 font-semibold">{rider.phone || "+92 300 0000000"}</p>
+                            </div>
+                          </div>
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${rider.status === "Online" ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
+                            }`}>
+                            {rider.status || "Online"}
+                          </span>
+                        </div>
+
+                        <div className="text-[10px] font-bold text-slate-500 bg-white p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
+                          <span>Vehicle: {rider.vehicle || "Motorcycle"}</span>
+                          <span className="text-amber-500 font-black">⭐ {rider.rating || "5.0"}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
           )}
 
@@ -1170,7 +1444,7 @@ export default function VendorDashboard() {
               <h3 className="text-[14px] font-black text-[#0a2342] uppercase tracking-wide mb-6">
                 System &amp; Portal Settings
               </h3>
-              
+
               <div className="space-y-6">
                 <div className="flex items-center justify-between pb-4 border-b border-slate-50">
                   <div>

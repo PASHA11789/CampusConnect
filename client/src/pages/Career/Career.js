@@ -107,79 +107,7 @@ const CS_DAILY_PROBLEMS = [
   },
 ];
 
-// Sample mock posts for visual fidelity if backend feed is empty or initial
-const SAMPLE_MOCK_POSTS = [
-  {
-    _id: "mock-1",
-    title: "Junior Frontend Engineer (React) – Systems Limited",
-    content: "Systems Limited is hiring Junior Frontend Engineers for our Lahore office. Candidates with strong React, JavaScript, and Tailwind CSS skills are encouraged to apply. Great tech stack and mentorship...",
-    category: "job_opportunity",
-    location: "Lahore, Pakistan",
-    jobType: "Full-time",
-    qualification: "BSCS / Software Engineering",
-    company: "Systems Limited",
-    companyLogo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=120&auto=format&fit=crop&q=80",
-    author: {
-      name: "Ali Raza",
-      roleTitle: "Alumni • Senior Software Engineer",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-    },
-    createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-    replies: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    likesCount: 24,
-    viewsCount: 145
-  },
-  {
-    _id: "mock-2",
-    title: "Which tech stack & skills are most in demand for 2026 CS graduates?",
-    content: "Let's discuss the most in-demand tech stack and roadmap for next year. What are top software houses looking for in fresh CS graduates? AI integration, MERN, or Cloud?",
-    category: "general_discussion",
-    author: {
-      name: "Sara Khan",
-      roleTitle: "CS Graduate • Full Stack Dev",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
-    },
-    createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
-    replies: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
-    likesCount: 31,
-    viewsCount: 210
-  },
-  {
-    _id: "mock-3",
-    title: "Software Engineering Internship Opportunity – Techlogix",
-    content: "Techlogix is offering 3-month paid summer software engineering internships for CS/IT undergraduates. Work on real enterprise web apps and cloud services. Apply before 31st July.",
-    category: "internship",
-    location: "Lahore, Pakistan",
-    jobType: "Paid Internship",
-    qualification: "BSCS / 3rd or 4th Year",
-    company: "Techlogix",
-    companyLogo: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=120&auto=format&fit=crop&q=80",
-    author: {
-      name: "Bilal Ahmed",
-      roleTitle: "Alumni • Tech Lead at Techlogix",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
-    },
-    createdAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-    replies: [1, 2, 3, 4, 5, 6, 7, 8],
-    likesCount: 19,
-    viewsCount: 128
-  },
-  {
-    _id: "mock-4",
-    title: "Best resources for mastering System Design & DSA?",
-    content: "Looking for top recommended courses, books, and practice problems to prepare for technical coding interviews and System Design rounds. Please share your suggestions!",
-    category: "general_discussion",
-    author: {
-      name: "Mariam Fatima",
-      roleTitle: "BSCS 6th Semester",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80"
-    },
-    createdAt: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
-    replies: [1, 2, 3, 4, 5, 6],
-    likesCount: 14,
-    viewsCount: 98
-  }
-];
+
 
 export default function Career() {
   const navigate = useNavigate();
@@ -375,19 +303,15 @@ export default function Career() {
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const { data } = await axios.get("/api/careers", config);
         const fetched = data.threads || data || [];
-        if (fetched.length > 0) {
-          setThreads(fetched);
-          const initialSavedMap = {};
-          fetched.forEach((t) => {
-            if (t.isSaved) initialSavedMap[t._id] = true;
-          });
-          setSavedPosts(initialSavedMap);
-        } else {
-          setThreads(SAMPLE_MOCK_POSTS);
-        }
+        setThreads(fetched);
+        const initialSavedMap = {};
+        fetched.forEach((t) => {
+          if (t.isSaved) initialSavedMap[t._id] = true;
+        });
+        setSavedPosts(initialSavedMap);
       } catch (error) {
         console.error("Error fetching career threads:", error);
-        setThreads(SAMPLE_MOCK_POSTS);
+        setThreads([]);
       }
     };
 
@@ -1144,25 +1068,7 @@ export default function Career() {
                   </button>
                 </div>
 
-                {/* STATS GRID */}
-                <div className="grid grid-cols-4 gap-2 pt-3 border-t border-slate-100 text-center">
-                  <div className="flex flex-col">
-                    <span className="text-xs text-slate-400 font-semibold">{t("Posts")}</span>
-                    <span className="text-sm font-black text-slate-900">24</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs text-slate-400 font-semibold">{t("Connections")}</span>
-                    <span className="text-sm font-black text-slate-900">156</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs text-slate-400 font-semibold">{t("Saved")}</span>
-                    <span className="text-sm font-black text-slate-900">18</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs text-slate-400 font-semibold">{t("Apps")}</span>
-                    <span className="text-sm font-black text-slate-900">7</span>
-                  </div>
-                </div>
+
               </div>
 
               {/* SKILLS CARD */}

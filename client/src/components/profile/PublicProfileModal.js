@@ -27,7 +27,7 @@ const PublicProfileModal = ({ isOpen, onClose, userId, currentUser }) => {
       setDetails('');
 
       try {
-        const token = sessionStorage.getItem('token');
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const { data } = await axios.get(`/api/users/${userId}/public`, config);
         
@@ -52,7 +52,7 @@ const PublicProfileModal = ({ isOpen, onClose, userId, currentUser }) => {
     setError(null);
 
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
       const { data } = await axios.post(`/api/users/${userId}/report`, {

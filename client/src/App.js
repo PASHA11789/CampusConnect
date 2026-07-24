@@ -12,8 +12,10 @@ import Career from './pages/Career/Career';
 import VendorLogin from './pages/Canteen/VendorLogin';
 import VendorDashboard from './pages/Canteen/VendorDashboard';
 import VendorRegister from './pages/Canteen/VendorRegister';
+import RiderLogin from './pages/Canteen/RiderLogin';
+import RiderRegister from './pages/Canteen/RiderRegister';
+import RiderMarketplace from './pages/Canteen/RiderMarketplace';
 import BusRoutes from './pages/BusRoutes/BusRoutes';
-
 import UsersManager from './pages/Admin/UsersManager';
 import RestaurantsManager from './pages/Admin/RestaurantsManager';
 function App() {
@@ -27,6 +29,14 @@ function App() {
 
           <Route path="/forum" element={<Forum />} />
           <Route path="/canteen" element={<Canteen />} />
+          {/* Rider Routes & Spelling Aliases */}
+          <Route path="/rider/login" element={<RiderLogin />} />
+          <Route path="/rider/register" element={<RiderRegister />} />
+          <Route path="/rider/rigerster" element={<RiderRegister />} />
+          <Route path="/rider/registar" element={<RiderRegister />} />
+          <Route path="/rider/regestir" element={<RiderRegister />} />
+          <Route path="/rider/dashboard" element={<RiderMarketplace />} />
+          <Route path="/rider" element={<RiderMarketplace />} />
           <Route path="/petitions" element={<Petitions />} />
           <Route path="/moderation" element={<ModerationRoom />} />
           <Route path="/bus-routes" element={<BusRoutes />} />
@@ -35,6 +45,13 @@ function App() {
           <Route path="/vendor/login" element={<VendorLogin />} />
           <Route path="/vendor/register" element={<VendorRegister />} />
           <Route path="/vendor/dashboard" element={<VendorDashboard />} />
+          <Route path="/vendor" element={<Navigate to="/vendor/dashboard" replace />} />
+
+          {/* Alias support for common URL typos like /vender/* */}
+          <Route path="/vender/login" element={<VendorLogin />} />
+          <Route path="/vender/register" element={<VendorRegister />} />
+          <Route path="/vender/dashboard" element={<VendorDashboard />} />
+          <Route path="/vender" element={<Navigate to="/vendor/dashboard" replace />} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<Navigate to="/admin/users" replace />} />

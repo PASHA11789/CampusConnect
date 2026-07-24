@@ -28,7 +28,7 @@ const ReportModal = ({ isOpen, onClose, userId, reportedName }) => {
     setError(null);
 
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
       const { data } = await axios.post(`/api/users/${userId}/report`, {
