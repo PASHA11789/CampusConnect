@@ -157,13 +157,15 @@ export default function RiderMarketplace() {
           console.error("Error updating local tickets on accept:", e);
         }
 
-        // Emit Socket event to Student
-        const socket = io(SOCKET_URL);
-        socket.emit("order_status_update", {
-          orderId,
-          status: "on_the_way",
-          message: `Order ready & on the way with Rider ${rider?.name || 'Partner'}`
-        });
+        // Emit Socket event & BroadcastChannel to Student & Vendor
+        try {
+          const socket = io(SOCKET_URL);
+          const msg = `🛵 Rider On The Way! Rider ${rider?.name || 'Partner'} has picked up your food.`;
+          socket.emit("order_status_update", { orderId, status: "on_the_way", message: msg });
+
+          const channel = new BroadcastChannel("campus_connect_orders");
+          channel.postMessage({ type: "ORDER_STATUS_UPDATE", orderId, status: "on_the_way", message: msg });
+        } catch (e) {}
       }
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to accept ticket";
@@ -195,12 +197,15 @@ export default function RiderMarketplace() {
         setMessage(`🔔 Arrival alert sent to student for order ${orderId}!`);
         setActiveClaimedOrder(prev => ({ ...prev, status: "arrived" }));
 
-        // Emit Direct Socket Ping to Student
-        const socket = io(SOCKET_URL);
-        socket.emit("order_arrived", {
-          orderId,
-          message: `Rider ${rider?.name || 'Partner'} has reached your location! Please meet them to receive your food.`
-        });
+        // Emit Direct Socket Ping & BroadcastChannel to Student
+        try {
+          const socket = io(SOCKET_URL);
+          const msg = `📍 Rider Arrived! Rider ${rider?.name || 'Partner'} has reached your location. Please meet them to receive your food.`;
+          socket.emit("order_arrived", { orderId, message: msg });
+
+          const channel = new BroadcastChannel("campus_connect_orders");
+          channel.postMessage({ type: "ORDER_ARRIVED", orderId, status: "arrived", message: msg });
+        } catch (e) {}
       }
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to mark arrival";
@@ -231,11 +236,19 @@ export default function RiderMarketplace() {
       if (res.data.success) {
         setMessage(`🎉 Order ${orderId} delivered successfully! Reward earned.`);
 
-        // Socket emissions: Notify Student (triggers Rating Modal) & Vendor (auto-completes vendor view)
-        const socket = io(SOCKET_URL);
-        socket.emit("order_delivered", { orderId });
-        socket.emit("order_status_update", { orderId, status: "completed" });
-        socket.emit("order_completed_by_rider", { orderId });
+        // Socket & BroadcastChannel & Storage emissions: Notify Student & Vendor
+        try {
+          const socket = io(SOCKET_URL);
+          const msg = "✅ Order Delivered! Enjoy your meal.";
+          socket.emit("order_delivered", { orderId, message: msg });
+          socket.emit("order_status_update", { orderId, status: "completed", message: msg });
+          socket.emit("order_completed_by_rider", { orderId, message: msg });
+
+          const channel = new BroadcastChannel("campus_connect_orders");
+          channel.postMessage({ type: "ORDER_DELIVERED", orderId, status: "completed", message: msg });
+
+          localStorage.setItem("order_delivered_signal", JSON.stringify({ orderId, timestamp: Date.now() }));
+        } catch (e) {}
 
         if (activeClaimedOrder) {
           setCompletedDeliveries((prev) => [

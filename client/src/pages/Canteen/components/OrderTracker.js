@@ -18,9 +18,19 @@ export default function OrderTracker({
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [showRatingModal, setShowRatingModal] = useState(false);
 
-  // Handle Socket listener for order status updates & arrival pings
+  // Handle Socket & BroadcastChannel listener for order status updates & arrival pings
   useEffect(() => {
-    if (!orderId || !isTrackingOpen) return;
+    if (!isTrackingOpen) return;
+
+    const updateStatusLocally = (newStatus, msg) => {
+      setLiveStatus(newStatus);
+      if (newStatus === "arrived") {
+        setArrivalMessage(msg || "Rider has arrived at your location!");
+      }
+      if (newStatus === "completed" || newStatus === "delivered") {
+        setShowRatingModal(true);
+      }
+    };
 
     const socket = io(SOCKET_URL);
 
@@ -28,33 +38,40 @@ export default function OrderTracker({
       if (studentId) {
         socket.emit("join_room", studentId);
       }
+      socket.emit("join_user_room", studentId);
     });
 
     socket.on("order_status_update", (data) => {
-      if (data.orderId === orderId) {
-        setLiveStatus(data.status);
-        if (data.status === "completed" || data.status === "delivered") {
-          setShowRatingModal(true);
-        }
+      if (!orderId || data.orderId === orderId) {
+        updateStatusLocally(data.status, data.message);
       }
     });
 
     socket.on("order_arrived", (data) => {
-      if (data.orderId === orderId) {
-        setLiveStatus("arrived");
-        setArrivalMessage(data.message || "Rider has arrived at your location!");
+      if (!orderId || data.orderId === orderId) {
+        updateStatusLocally("arrived", data.message);
       }
     });
 
     socket.on("order_delivered", (data) => {
-      if (data.orderId === orderId) {
-        setLiveStatus("completed");
-        setShowRatingModal(true);
+      if (!orderId || data.orderId === orderId) {
+        updateStatusLocally("completed", data.message);
       }
     });
 
+    let channel;
+    try {
+      channel = new BroadcastChannel("campus_connect_orders");
+      channel.onmessage = (event) => {
+        if (event.data && event.data.status) {
+          updateStatusLocally(event.data.status, event.data.message);
+        }
+      };
+    } catch (e) {}
+
     return () => {
       socket.disconnect();
+      if (channel) channel.close();
     };
   }, [orderId, isTrackingOpen, studentId]);
 
@@ -166,11 +183,10 @@ export default function OrderTracker({
             <button
               onClick={handleNudgeVendor}
               disabled={cooldown > 0}
-              className={`w-full py-3.5 rounded-2xl text-xs font-black tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-md ${
-                cooldown > 0
-                  ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                  : "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20 cursor-pointer"
-              }`}
+              className={`w-full py-3.5 rounded-2xl text-xs font-black tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-md ${cooldown > 0
+                ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                : "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20 cursor-pointer"
+                }`}
             >
               🔔 {cooldown > 0 ? `Nudge Cooldown (${cooldown}s)` : "Nudge Vendor for Update"}
             </button>

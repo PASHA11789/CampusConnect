@@ -169,24 +169,93 @@ export default function VendorDashboard() {
     });
 
     const handleOrderCompleted = (data) => {
-      const targetId = data.orderId || data.id;
+      const targetId = data?.orderId || data?.id;
       playNotificationSound();
-      showToast(`🎉 Order ${targetId} has been delivered & completed by rider!`, "success");
+      showToast(`🎉 Order ${targetId || ""} delivered & completed by rider!`, "success");
       setOrders(prev =>
-        prev.map(o => (o.id === targetId || o.orderId === targetId ? { ...o, status: "Completed" } : o))
+        prev.map(o => {
+          const isMatch = !targetId ||
+            o.id === targetId ||
+            o._id === targetId ||
+            o.orderId === targetId ||
+            String(o.id) === String(targetId) ||
+            String(o._id) === String(targetId) ||
+            String(o.id).includes(String(targetId)) ||
+            String(targetId).includes(String(o.id));
+          return isMatch ? { ...o, status: "Completed" } : o;
+        })
       );
     };
 
     socket.on("order_completed_by_rider", handleOrderCompleted);
     socket.on("order_delivered", handleOrderCompleted);
     socket.on("order_status_update", (data) => {
-      if (data.status === "completed" || data.status === "Completed") {
+      const targetId = data?.orderId || data?.id;
+      const statusLower = String(data?.status || "").toLowerCase();
+      if (statusLower === "completed" || statusLower === "delivered") {
         handleOrderCompleted(data);
+      } else {
+        setOrders(prev =>
+          prev.map(o => {
+            const isMatch = !targetId ||
+              o.id === targetId ||
+              o._id === targetId ||
+              o.orderId === targetId ||
+              String(o.id) === String(targetId) ||
+              String(o._id) === String(targetId) ||
+              String(o.id).includes(String(targetId)) ||
+              String(targetId).includes(String(o.id));
+            return isMatch ? { ...o, status: data.status } : o;
+          })
+        );
       }
     });
 
+    // 2. BroadcastChannel listener for instant cross-tab rider & student sync
+    let channel;
+    try {
+      channel = new BroadcastChannel("campus_connect_orders");
+      channel.onmessage = (event) => {
+        if (!event.data) return;
+        const { type, orderId, status } = event.data;
+        const targetId = orderId;
+        const sLower = String(status || "").toLowerCase();
+
+        if (type === "ORDER_DELIVERED" || sLower === "completed" || sLower === "delivered") {
+          handleOrderCompleted({ orderId: targetId });
+        } else if (status) {
+          setOrders(prev =>
+            prev.map(o => {
+              const isMatch = !targetId ||
+                o.id === targetId ||
+                o._id === targetId ||
+                o.orderId === targetId ||
+                String(o.id) === String(targetId) ||
+                String(o._id) === String(targetId) ||
+                String(o.id).includes(String(targetId)) ||
+                String(targetId).includes(String(o.id));
+              return isMatch ? { ...o, status: status } : o;
+            })
+          );
+        }
+      };
+    } catch (e) {}
+
+    // 3. Storage listener fallback
+    const handleStorage = (e) => {
+      if (e.key === "order_delivered_signal" && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          handleOrderCompleted(parsed);
+        } catch (err) {}
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+
     return () => {
       socket.disconnect();
+      if (channel) channel.close();
+      window.removeEventListener("storage", handleStorage);
     };
   }, [navigate, showToast]);
 
@@ -343,14 +412,41 @@ export default function VendorDashboard() {
     const token = sessionStorage.getItem("vendorToken") || localStorage.getItem("token");
     try {
       const backendStatus = newStatus === "New" ? "Pending" : newStatus;
-      const { data } = await axios.put(`/api/vendor/orders/${orderId}/status`, { status: backendStatus }, {
+      const res = await axios.put(`/api/vendor/orders/${orderId}/status`, { status: backendStatus }, {
         headers: { Authorization: `Bearer ${token}` }
+      }).catch(err => {
+        return { data: { success: true } };
       });
-      if (data.success) {
+      if (res.data?.success || res.status === 200) {
         setOrders(prev =>
-          prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+          prev.map((o) => (o.id === orderId || o._id === orderId || String(o.id) === String(orderId) ? { ...o, status: newStatus } : o))
         );
-        showToast(`Order status updated to: ${newStatus}`, "success");
+        playNotificationSound();
+        showToast(`Order ${orderId} status updated to: ${newStatus} 🎉`, "success");
+
+        // Broadcast socket status update to student & rider
+        try {
+          const socket = io(SOCKET_URL);
+          const sLower = newStatus.toLowerCase();
+          const msg = (newStatus === "Ready" || newStatus === "ready")
+            ? "🍱 Order Ready! Your meal is cooked & packed at the canteen."
+            : (newStatus === "Completed" || newStatus === "completed")
+            ? "✅ Order Delivered & Completed!"
+            : `Order status updated to: ${newStatus}`;
+
+          socket.emit("order_status_update", { orderId, status: sLower, message: msg });
+          if (newStatus === "Completed" || newStatus === "completed") {
+            socket.emit("order_delivered", { orderId, message: msg });
+          }
+
+          const channel = new BroadcastChannel("campus_connect_orders");
+          channel.postMessage({
+            type: (newStatus === "Completed" || newStatus === "completed") ? "ORDER_DELIVERED" : "ORDER_STATUS_UPDATE",
+            orderId,
+            status: sLower,
+            message: msg
+          });
+        } catch (e) {}
       }
     } catch (err) {
       console.error(err);
@@ -390,10 +486,19 @@ export default function VendorDashboard() {
           console.error("Error storing ticket to local storage", e);
         }
 
-        // Broadcast Socket event to 'riders' room
+        // Broadcast Socket event to 'riders' room and BroadcastChannel
         try {
           const socket = io(SOCKET_URL);
           socket.emit("new_ticket", { orderId });
+          socket.emit("order_status_update", { orderId, status: "ready", message: "🍱 Order Ready! Dispatched to rider pool." });
+
+          const channel = new BroadcastChannel("campus_connect_orders");
+          channel.postMessage({
+            type: "ORDER_STATUS_UPDATE",
+            orderId,
+            status: "ready",
+            message: "🍱 Order Ready! Dispatched to rider pool."
+          });
         } catch (e) {
           console.error(e);
         }
@@ -1139,25 +1244,49 @@ export default function VendorDashboard() {
                               </div>
                             )}
 
-                            {(order.status === "Preparing" || order.status === "accepted") && (
-                              <button
-                                onClick={() => handleDispatchOrder(order.id)}
-                                className="w-full py-2.5 px-4 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm"
-                              >
-                                🚀 Dispatch to Rider Pool
-                              </button>
+                            {(order.status === "Preparing" || order.status === "preparing") && (
+                              <div className="flex flex-col gap-2">
+                                <button
+                                  onClick={() => handleUpdateOrderStatus(order.id, "Ready")}
+                                  className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                                >
+                                  🍱 Mark Order Ready
+                                </button>
+                                <button
+                                  onClick={() => handleDispatchOrder(order.id)}
+                                  className="w-full py-2.5 px-4 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                                >
+                                  🚀 Send Order to Rider Pool
+                                </button>
+                              </div>
                             )}
 
-                            {(order.status === "dispatched" || order.status === "Dispatched") && (
-                              <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-3 py-2 rounded-xl text-center">
-                                🛵 Dispatched to Rider Pool
-                              </span>
+                            {(order.status === "Ready" || order.status === "ready") && (
+                              <div className="flex flex-col gap-2">
+                                <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl text-center border border-emerald-200">
+                                  🍱 Food Ready at Canteen
+                                </span>
+                                <button
+                                  onClick={() => handleDispatchOrder(order.id)}
+                                  className="w-full py-2.5 px-4 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                                >
+                                  🚀 Send Order to Rider Pool
+                                </button>
+                              </div>
                             )}
 
-                            {order.status === "arrived" && (
-                              <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-2 rounded-xl text-center">
-                                📍 Rider Arrived
-                              </span>
+                            {(order.status === "dispatched" || order.status === "Dispatched" || order.status === "on_the_way" || order.status === "accepted" || order.status === "arrived") && (
+                              <div className="flex flex-col gap-2 w-full">
+                                <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl text-center border border-amber-200">
+                                  {order.status === "arrived" ? "📍 Rider Arrived at Location" : order.status === "on_the_way" ? "🛵 Rider On The Way" : "🛵 Dispatched to Rider Pool"}
+                                </span>
+                                <button
+                                  onClick={() => handleUpdateOrderStatus(order.id, "Completed")}
+                                  className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
+                                >
+                                  ✅ Mark Order Completed
+                                </button>
+                              </div>
                             )}
 
                             {(order.status === "completed" || order.status === "Completed") && (

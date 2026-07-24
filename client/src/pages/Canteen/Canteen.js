@@ -249,27 +249,75 @@ export default function Canteen() {
     }
   }, [user]);
 
-  // ── WebSocket Real-Time Tracking ──
+  // ── WebSocket & Cross-Tab Real-Time Tracking ──
   useEffect(() => {
     if (!user) return;
-    const socket = io(SOCKET_URL);
 
+    const handleIncomingStatus = (status, msg) => {
+      const sKey = getNormalizedStatus(status);
+      setActiveOrder((prev) => {
+        const updated = { ...(prev || {}), status: sKey };
+        localStorage.setItem("active_canteen_order", JSON.stringify(updated));
+        return updated;
+      });
+
+      if (sKey === "ready") {
+        showToast(msg || "🍱 Order Ready! Your food is cooked & packed at the canteen.", "success");
+      } else if (sKey === "on_the_way") {
+        showToast(msg || "🛵 Rider On The Way! Rider has picked up your food.", "info");
+      } else if (sKey === "arrived") {
+        showToast(msg || "📍 Rider Arrived! Rider has reached your location. Please receive your food.", "info");
+      } else if (sKey === "completed") {
+        showToast(msg || "✅ Order Delivered! Enjoy your meal.", "success");
+      }
+    };
+
+    // 1. Socket.io
+    const socket = io(SOCKET_URL);
     socket.on("connect", () => {
       socket.emit("join_user_room", user._id);
     });
 
     socket.on("order_status_update", (data) => {
-      setActiveOrder((prev) => {
-        if (prev && prev._id === data.orderId) {
-          showToast(`Order status updated to: ${data.status} 🛵`, "info");
-          return { ...prev, status: data.status };
-        }
-        return prev;
-      });
+      handleIncomingStatus(data.status, data.message);
     });
+
+    socket.on("order_arrived", (data) => {
+      handleIncomingStatus("arrived", data.message);
+    });
+
+    socket.on("order_delivered", (data) => {
+      handleIncomingStatus("completed", data.message);
+    });
+
+    // 2. BroadcastChannel for Instant Cross-Tab Communication
+    let channel;
+    try {
+      channel = new BroadcastChannel("campus_connect_orders");
+      channel.onmessage = (event) => {
+        if (event.data && event.data.status) {
+          handleIncomingStatus(event.data.status, event.data.message);
+        }
+      };
+    } catch (e) {}
+
+    // 3. Storage event for cross-tab local storage changes
+    const handleStorageChange = (e) => {
+      if (e.key === "active_canteen_order" && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (parsed.status) {
+            handleIncomingStatus(parsed.status);
+          }
+        } catch (err) {}
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
 
     return () => {
       socket.disconnect();
+      if (channel) channel.close();
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, [user, showToast]);
 
@@ -471,8 +519,19 @@ export default function Canteen() {
     if (nameLower.match(/(burger|sandwich|pizza|zinger|fries|roll|patties|nugget)/) || descLower.match(/(burger|sandwich|pizza|zinger|fries|roll|patties|nugget)/)) return "Fast Food";
     if (nameLower.match(/(pulao|biryani|kabab|roast|naan|raita|gravy|karahi|daal|sabzi)/) || descLower.match(/(pulao|biryani|kabab|roast|naan|raita|gravy|karahi|daal|sabzi)/)) return "Traditional";
     if (nameLower.match(/(tea|coffee|coke|sprite|fanta|water|juice|soda|drink|shake)/) || descLower.match(/(tea|coffee|coke|sprite|fanta|water|juice|soda|drink|shake)/)) return "Beverages";
-    if (nameLower.match(/(pastry|cake|brownie|dessert|sweet|ice cream)/) || descLower.match(/(pastry|cake|brownie|dessert|sweet|ice cream)/)) return "Desserts";
     return "Fast Food";
+  };
+
+  // Helper to normalize status strings to standardized keys
+  const getNormalizedStatus = (rawStatus) => {
+    if (!rawStatus) return "preparing";
+    const s = String(rawStatus).toLowerCase().trim();
+    if (s === "pending" || s === "preparing" || s === "placed" || s === "new") return "preparing";
+    if (s === "ready" || s === "dispatched" || s === "food_ready" || s === "order_ready") return "ready";
+    if (s === "on_the_way" || s === "on-the-way" || s === "in_transit" || s === "on the way" || s === "accepted") return "on_the_way";
+    if (s === "arrived" || s === "at_location" || s === "rider_arrived" || s === "location") return "arrived";
+    if (s === "completed" || s === "delivered") return "completed";
+    return s;
   };
 
   // ── Filtered Menu ─────────────────────────────────────────────────
@@ -661,46 +720,204 @@ export default function Canteen() {
                 )}
 
                 {activeTab === "track" && (
-                  <div className="flex flex-col gap-5">
-                    <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm text-center">
-                      <span className="text-5xl block mb-4">💬</span>
-                      <h3 className="text-[15px] font-black text-[#0a2342] uppercase tracking-wide mb-1">
-                        WhatsApp Order Tracking
-                      </h3>
-                      <p className="text-[11.5px] text-slate-400 font-semibold mb-6 max-w-md mx-auto leading-relaxed">
-                        Your order has been placed. Order tracking is handled directly via WhatsApp calls and messages. Click below to contact the restaurant canteen kitchen.
-                      </p>
+                  <div className="flex flex-col gap-6 animate-fade-in">
+                    <div className="relative rounded-3xl overflow-hidden shadow-lg bg-gradient-to-r from-[#0a2342] via-[#0f2e54] to-[#0a2342] p-6 flex flex-col gap-3 text-white border border-[#00c2cb]/30">
+                      <div className="flex justify-between items-center flex-wrap gap-2">
+                        <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#00c2cb] bg-[#00c2cb]/15 px-3 py-1 rounded-full border border-[#00c2cb]/30">
+                          🛵 Live Active Order Tracking
+                        </span>
+                        {activeOrder && (
+                          <span className="text-xs font-black text-[#00c2cb]">
+                            #{activeOrder._id ? String(activeOrder._id).slice(-6).toUpperCase() : "LIVE"}
+                          </span>
+                        )}
+                      </div>
 
-                      {activeOrder ? (
-                        <div className="max-w-md mx-auto bg-slate-50 border border-slate-100 p-5 rounded-2xl text-left mb-6">
-                          <div className="flex justify-between items-center pb-2.5 border-b border-slate-200">
-                            <span className="text-[10.5px] font-bold text-slate-400 uppercase">Order ID</span>
-                            <span className="text-[11px] font-black text-[#0a2342]">{activeOrder._id}</span>
+                      <h2 className="text-[20px] font-black text-white leading-tight">
+                        {activeOrder ? (activeOrder.canteenName || activeOrder.restaurantName || "Campus Canteen") : "Canteen Active Order"}
+                      </h2>
+                      <p className="text-[12px] text-slate-300 font-medium">
+                        Real-time status updates: Kitchen Preparation → Food Ready → Rider Picked Up → Arrival at Location
+                      </p>
+                    </div>
+
+                    {activeOrder ? (
+                      <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-sm flex flex-col gap-6">
+                        {/* Order Info Header */}
+                        <div className="flex flex-wrap justify-between items-center gap-4 pb-4 border-b border-slate-100">
+                          <div>
+                            <div className="text-[11px] font-bold text-slate-400 uppercase">Canteen Vendor</div>
+                            <div className="text-base font-black text-[#0a2342]">
+                              {activeOrder.canteenName || activeOrder.restaurantName || "Cafe Aroma"}
+                            </div>
+                            <div className="text-xs text-slate-500 font-semibold mt-0.5">
+                              {activeOrder.items && activeOrder.items.length > 0
+                                ? activeOrder.items.map(it => `${it.quantity || 1}x ${it.name}`).join(", ")
+                                : "Canteen Meal Items"}
+                            </div>
                           </div>
-                          <div className="flex justify-between items-center py-2.5 border-b border-slate-200">
-                            <span className="text-[10.5px] font-bold text-slate-400 uppercase">Restaurant</span>
-                            <span className="text-[11.5px] font-black text-[#0a2342]">
-                              {restaurantsList.find(r => r._id === activeOrder.restaurant)?.name || "Campus Bites"}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center pt-2.5">
-                            <span className="text-[10.5px] font-bold text-slate-400 uppercase">Total Amount</span>
-                            <span className="text-xs font-black text-orange-600">Rs. {activeOrder.totalAmount}</span>
+
+                          <div className="text-right max-sm:text-left">
+                            <div className="text-[11px] font-bold text-slate-400 uppercase">Total Amount</div>
+                            <div className="text-xl font-black text-[#00c2cb]">
+                              Rs. {activeOrder.totalAmount || activeOrder.total || 350}
+                            </div>
                           </div>
                         </div>
-                      ) : (
-                        <p className="text-xs font-bold text-slate-400 mb-6">No active order found.</p>
-                      )}
 
-                      <a
-                        href={`https://wa.me/${(restaurantsList.find(r => r._id === activeOrder?.restaurant || r._id === activeRestaurant)?.phone || "+923001234567").replace(/[^0-9+]/g, "")}?text=${encodeURIComponent("Hi! I would like to track my order ID " + (activeOrder?._id || ""))}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none py-3 px-8 rounded-2xl text-[12px] font-black tracking-wider uppercase cursor-pointer transition-all shadow-[0_8px_20px_-6px_rgba(16,185,129,0.4)] focus:outline-none"
-                      >
-                        💬 Track Order via WhatsApp
-                      </a>
-                    </div>
+                        {/* ── Status Progress Bar Timeline ── */}
+                        <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
+                          <div className="grid grid-cols-4 gap-2">
+                            {[
+                              { id: "preparing", label: "Preparing", icon: "🍳" },
+                              { id: "ready", label: "Order Ready", icon: "🍱" },
+                              { id: "on_the_way", label: "Rider On Way", icon: "🛵" },
+                              { id: "arrived", label: "Rider at Location", icon: "📍" },
+                            ].map((step, idx) => {
+                              const currentKey = getNormalizedStatus(activeOrder.status);
+                              const getStepIdx = (st) => {
+                                if (st === "preparing") return 0;
+                                if (st === "ready") return 1;
+                                if (st === "on_the_way") return 2;
+                                if (st === "arrived" || st === "completed") return 3;
+                                return 0;
+                              };
+                              const activeIdx = getStepIdx(currentKey);
+                              const isActive = idx === activeIdx;
+                              const isPassed = idx < activeIdx;
+
+                              return (
+                                <div key={step.id} className="flex flex-col items-center text-center">
+                                  <div
+                                    className={`w-10 h-10 rounded-2xl flex items-center justify-center text-base font-bold transition-all duration-300 ${
+                                      isActive
+                                        ? "bg-[#00c2cb] text-[#0a2342] scale-110 shadow-[0_0_15px_rgba(0,194,203,0.5)] ring-4 ring-[#00c2cb]/20"
+                                        : isPassed
+                                        ? "bg-emerald-500 text-white"
+                                        : "bg-slate-200 text-slate-400"
+                                    }`}
+                                  >
+                                    {isPassed ? "✓" : step.icon}
+                                  </div>
+                                  <span
+                                    className={`text-[11px] font-bold mt-2 ${
+                                      isActive ? "text-[#00c2cb] font-black" : isPassed ? "text-emerald-600" : "text-slate-400"
+                                    }`}
+                                  >
+                                    {step.label}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Current Live Status Banner */}
+                        <div className="p-4 rounded-2xl bg-gradient-to-r from-[#0a2342] to-[#0f2e54] text-white flex items-center gap-4 shadow-md">
+                          <div className="text-3xl animate-bounce">
+                            {getNormalizedStatus(activeOrder.status) === "preparing" && "🍳"}
+                            {getNormalizedStatus(activeOrder.status) === "ready" && "🍱"}
+                            {getNormalizedStatus(activeOrder.status) === "on_the_way" && "🛵"}
+                            {getNormalizedStatus(activeOrder.status) === "arrived" && "📍"}
+                            {getNormalizedStatus(activeOrder.status) === "completed" && "✅"}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-black uppercase text-[#00c2cb]">Current Status:</span>
+                              <span className="px-2.5 py-0.5 rounded-full bg-[#00c2cb]/20 text-[#00c2cb] border border-[#00c2cb]/30 text-[10px] font-black uppercase">
+                                {getNormalizedStatus(activeOrder.status) === "preparing" && "Preparing Food"}
+                                {getNormalizedStatus(activeOrder.status) === "ready" && "Order Ready!"}
+                                {getNormalizedStatus(activeOrder.status) === "on_the_way" && "Rider On The Way"}
+                                {getNormalizedStatus(activeOrder.status) === "arrived" && "Rider Arrived at Location!"}
+                                {getNormalizedStatus(activeOrder.status) === "completed" && "Delivered"}
+                              </span>
+                            </div>
+                            <p className="text-xs font-semibold text-slate-200 mt-1 m-0">
+                              {getNormalizedStatus(activeOrder.status) === "preparing" && "Kitchen has received your order and is currently preparing your meal."}
+                              {getNormalizedStatus(activeOrder.status) === "ready" && "Khana canteen par ready ho gaya hai! Waiting for rider pickup."}
+                              {getNormalizedStatus(activeOrder.status) === "on_the_way" && "Rider order le kar aap ki location ki taraf aa raha hai! 🛵"}
+                              {getNormalizedStatus(activeOrder.status) === "arrived" && "Rider aap ki location par pohnch gaya hai! 📍 Kripya food receive karein."}
+                              {getNormalizedStatus(activeOrder.status) === "completed" && "Order has been delivered successfully. Enjoy your meal!"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Interactive Status Switcher (Test Toolbar) */}
+                        <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-wrap items-center justify-between gap-2">
+                          <div className="text-[10px] font-black text-slate-400 uppercase">
+                            ⚡ Test Status Updates (Simulator):
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {[
+                              { id: "preparing", label: "🍳 Preparing" },
+                              { id: "ready", label: "🍱 Order Ready" },
+                              { id: "on_the_way", label: "🛵 Rider On Way" },
+                              { id: "arrived", label: "📍 Rider at Location" },
+                              { id: "completed", label: "✅ Delivered" },
+                            ].map(st => (
+                              <button
+                                key={st.id}
+                                onClick={() => {
+                                  setActiveOrder(prev => (prev ? { ...prev, status: st.id } : prev));
+                                }}
+                                className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold cursor-pointer border transition-all ${
+                                  getNormalizedStatus(activeOrder.status) === st.id
+                                    ? "bg-[#00c2cb] text-[#0a2342] border-[#00c2cb]"
+                                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
+                                }`}
+                              >
+                                {st.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                          <a
+                            href={`https://wa.me/${(restaurantsList.find(r => r._id === activeOrder?.restaurant || r._id === activeRestaurant)?.phone || "+923001234567").replace(/[^0-9+]/g, "")}?text=${encodeURIComponent("Hi! I would like to track my order ID " + (activeOrder?._id || ""))}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none py-2.5 px-5 rounded-xl text-xs font-black tracking-wider uppercase cursor-pointer transition-all shadow-md no-underline"
+                          >
+                            💬 Contact via WhatsApp
+                          </a>
+
+                          <button
+                            onClick={() => setIsTrackingOpen(true)}
+                            className="bg-[#00c2cb] hover:bg-[#00a3ab] text-[#0a2342] border-none px-5 py-2.5 rounded-xl text-xs font-black cursor-pointer transition-all duration-200 shadow-md hover:scale-105"
+                          >
+                            Open Full Modal Tracker →
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-white border border-slate-200 rounded-3xl p-8 text-center flex flex-col items-center gap-3 shadow-sm">
+                        <span className="text-4xl">🛵</span>
+                        <h3 className="text-base font-black text-[#0a2342]">No Active Order Currently</h3>
+                        <p className="text-xs text-slate-500 font-semibold max-w-sm m-0">
+                          You don't have an active canteen order right now. Place an order from the Browse Menu tab or click below to generate a test order!
+                        </p>
+                        <button
+                          onClick={() => {
+                            const demo = {
+                              _id: "ORD-9842",
+                              restaurantName: "Cafe Aroma",
+                              canteenName: "Cafe Aroma",
+                              items: [{ name: "Special Zinger Burger", quantity: 2, price: 350 }],
+                              totalAmount: 700,
+                              status: "preparing",
+                              createdAt: new Date().toISOString()
+                            };
+                            setActiveOrder(demo);
+                            setOrderId(demo._id);
+                          }}
+                          className="mt-2 bg-[#0a2342] text-white hover:bg-[#00c2cb] hover:text-[#0a2342] border-none px-5 py-2.5 rounded-xl text-xs font-black cursor-pointer transition-all shadow-md"
+                        >
+                          + Generate Demo Active Order
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
 
