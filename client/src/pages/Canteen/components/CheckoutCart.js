@@ -24,12 +24,17 @@ export default function CheckoutCart({
   return (
     <aside className="sticky top-6 h-fit flex flex-col gap-5 w-full max-[1100px]:static">
       {/* Main Cart Card Container */}
-      <div className="rounded-[32px] border border-slate-200/80 bg-white p-6 shadow-[0_12px_40px_rgba(0,0,0,0.015)]">
+      <div className="rounded-[32px] border border-slate-200/90 bg-white p-6 shadow-xl">
         {/* Header */}
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-[13px] font-black text-[#0a2342] uppercase tracking-wide">
-            Your Cart
-          </h2>
+          <div className="flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-white text-[11px] font-black shadow-sm">
+              3
+            </span>
+            <h2 className="text-[13px] font-black text-[#0a2342] uppercase tracking-wide">
+              Your Order Cart
+            </h2>
+          </div>
           {cart.length > 0 && (
             <button
               onClick={handleClearCart}
@@ -208,9 +213,14 @@ export default function CheckoutCart({
         <button
           onClick={handleCheckout}
           disabled={cart.length === 0 || !studentPhone || !studentPhone.trim()}
-          className="mt-5 w-full rounded-[20px] bg-[#0a2342] hover:bg-[#e87a5d] py-4 text-xs font-black tracking-widest uppercase text-white disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(10,35,66,0.3)] hover:shadow-[0_8px_20px_-6px_rgba(232,122,93,0.3)] cursor-pointer focus:outline-none"
+          className={`mt-5 w-full rounded-[20px] py-4 text-xs font-black tracking-widest uppercase text-white transition-all duration-300 shadow-md cursor-pointer focus:outline-none flex items-center justify-center gap-2 ${
+            cart.length > 0 && studentPhone && studentPhone.trim()
+              ? "bg-[#e87a5d] hover:bg-[#d5674b] shadow-[0_8px_25px_rgba(232,122,93,0.4)] animate-pulse scale-[1.01]"
+              : "bg-[#0a2342] disabled:cursor-not-allowed disabled:opacity-50"
+          }`}
         >
-          Place Order
+          <span>🚀 Place Order</span>
+          {cart.length > 0 && <span>(Rs. {cartTotal})</span>}
         </button>
       </div>
 

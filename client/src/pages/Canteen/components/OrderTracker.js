@@ -5,21 +5,20 @@ import { SOCKET_URL } from "../../../utils/helpers";
 import OrderRatingModal from "../../../components/canteen/OrderRatingModal";
 
 const STEPS = [
-  { id: "accepted", label: "Accepted" },
   { id: "preparing", label: "Preparing" },
   { id: "ready", label: "Ready" },
-  { id: "picked_up", label: "En Route" },
+  { id: "on_the_way", label: "On Way" },
   { id: "arrived", label: "Arrived" },
-  { id: "completed", label: "Delivered" },
 ];
 
 const STATUS_MESSAGES = {
   pending:    { emoji: "⏳", text: "Waiting for the vendor to accept your order..." },
-  accepted:   { emoji: "✅", text: "Order accepted! We're finding a rider for you." },
+  accepted:   { emoji: "✅", text: "Order accepted! Kitchen is preparing your meal." },
   preparing:  { emoji: "🍳", text: "Your food is being freshly prepared!" },
-  ready:      { emoji: "🍔", text: "Food is ready! The rider is picking it up now." },
-  picked_up:  { emoji: "🛵", text: "Your order is on its way to you!" },
-  arrived:    { emoji: "📍", text: "Your rider has arrived at the delivery point!" },
+  ready:      { emoji: "🍱", text: "Food is ready! Rider is picking it up now." },
+  picked_up:  { emoji: "🛵", text: "Your order is on its way to your location!" },
+  on_the_way: { emoji: "🛵", text: "Your order is on its way to your location!" },
+  arrived:    { emoji: "📍", text: "Your rider has arrived at the location!" },
   completed:  { emoji: "🎉", text: "Delivered! Enjoy your meal." },
   cancelled:  { emoji: "❌", text: "Your order was cancelled. We're sorry for the inconvenience." },
 };
@@ -34,20 +33,18 @@ export default function OrderTracker({
 }) {
   const [nudgeStatus, setNudgeStatus] = useState(null);
   const [cooldown, setCooldown] = useState(0);
-  const [liveStatus, setLiveStatus] = useState("pending");
+  const [liveStatus, setLiveStatus] = useState("preparing");
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [riderNudgeSent, setRiderNudgeSent] = useState(false);
 
   const getCurrentStep = (status) => {
-    const s = (status || "").toLowerCase();
-    if (s === "accepted") return 0;
-    if (s === "preparing") return 1;
-    if (s === "ready") return 2;
-    if (s === "picked_up") return 3;
-    if (s === "arrived") return 4;
-    if (s === "completed" || s === "delivered") return 5;
-    return -1; // pending or unknown
+    const s = (status || "").toLowerCase().trim();
+    if (s === "pending" || s === "preparing" || s === "placed" || s === "new") return 0;
+    if (s === "ready" || s === "dispatched" || s === "food_ready" || s === "order_ready") return 1;
+    if (s === "on_the_way" || s === "on-the-way" || s === "in_transit" || s === "picked_up" || s === "accepted") return 2;
+    if (s === "arrived" || s === "completed" || s === "delivered") return 3;
+    return 0;
   };
   const currentStep = getCurrentStep(liveStatus);
 
@@ -168,114 +165,120 @@ export default function OrderTracker({
     }
   };
 
+  if (!isTrackingOpen) return null;
+
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 animate-fade-in">
-        <div className="w-full max-w-md rounded-[32px] bg-white p-7 shadow-2xl border border-slate-100 text-center">
-          {/* Header */}
-          <div className="flex justify-end">
-            <button
-              onClick={() => setIsTrackingOpen(false)}
-              className="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-lg font-black transition-colors cursor-pointer"
-            >
-              ×
-            </button>
-          </div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-fade-in">
+        <div className="relative w-full max-w-md rounded-[32px] bg-white p-6 md:p-7 shadow-2xl border border-slate-100 text-center overflow-hidden">
+          {/* Top Right Absolute Close Button */}
+          <button
+            onClick={() => setIsTrackingOpen(false)}
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 text-sm font-black transition-all flex items-center justify-center cursor-pointer border border-slate-200/60 z-20"
+            title="Close Tracker"
+          >
+            ✕
+          </button>
 
-          <div className="mb-4">
-            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-50 text-[#00c2cb] text-2xl shadow-inner">
-              📍
+          {/* Modal Header */}
+          <div className="mb-5 text-center">
+            <div className="mx-auto mb-2.5 flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-50 text-[#00c2cb] text-xl shadow-xs border border-cyan-100">
+              🛵
             </div>
-            <h3 className="text-xl font-black text-[#0a2342] tracking-tight">Order Status Tracker</h3>
-            <p className="text-xs font-bold text-slate-400 mt-1">Live pipeline progression for your food order</p>
+            <h3 className="text-lg font-extrabold text-[#0a2342] tracking-tight">Order Status Tracker</h3>
+            <p className="text-[11px] font-semibold text-slate-400 mt-0.5">Live progression updates for your food order</p>
           </div>
 
-          {/* Stepper Progression */}
-          <div className="mb-6 flex items-center justify-between px-2">
-            {STEPS.map((step, idx) => {
-              const isCompleted = idx < currentStep;
-              const isCurrent = idx === currentStep;
+          {/* Stepper Progression with Connecting Bar */}
+          <div className="mb-6 px-2">
+            <div className="relative flex items-center justify-between">
+              {/* Connector Progress Bar */}
+              <div className="absolute left-4 right-4 top-4 h-1 bg-slate-100 -z-0">
+                <div
+                  className="h-full bg-[#00c2cb] transition-all duration-500 rounded-full"
+                  style={{ width: `${(currentStep / (STEPS.length - 1)) * 100}%` }}
+                />
+              </div>
 
-              return (
-                <div key={step.id} className="flex-1 flex flex-col items-center relative">
-                  <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-xs transition-all duration-300 z-10 ${isCompleted
-                      ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
-                      : isCurrent
-                        ? "bg-[#00c2cb] text-white ring-4 ring-[#00c2cb]/20 scale-110 shadow-lg"
-                        : "bg-slate-100 text-slate-400 border border-slate-200"
+              {STEPS.map((step, idx) => {
+                const isCompleted = idx <= currentStep;
+                const isCurrent = idx === currentStep;
+
+                return (
+                  <div key={step.id} className="relative z-10 flex flex-col items-center">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs transition-all duration-300 ${
+                        isCurrent
+                          ? "bg-[#00c2cb] text-white ring-4 ring-[#00c2cb]/20 scale-110 shadow-md"
+                          : isCompleted
+                          ? "bg-[#0a2342] text-white"
+                          : "bg-white text-slate-400 border-2 border-slate-200"
                       }`}
-                  >
-                    {isCompleted ? "✓" : idx + 1}
+                    >
+                      {isCompleted && idx < currentStep ? "✓" : idx + 1}
+                    </div>
+                    <span className={`text-[10px] font-black mt-1.5 ${isCurrent ? "text-[#0a2342]" : "text-slate-400"}`}>
+                      {step.label}
+                    </span>
                   </div>
-                  <span className={`text-[10px] font-extrabold mt-2 whitespace-nowrap ${isCurrent ? "text-[#0a2342]" : "text-slate-400"
-                    }`}>
-                    {step.label}
-                  </span>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
           {/* Status Message Card */}
           {liveStatus === "cancelled" ? (
-            <div className="mb-5 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-center animate-fade-in">
-              <div className="text-2xl mb-1">❌</div>
+            <div className="mb-4 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-center animate-fade-in">
+              <div className="text-xl mb-0.5">❌</div>
               <p className="text-xs font-black text-rose-700">Order Cancelled</p>
-              <p className="text-[10px] text-rose-500 mt-1">Your order from {restaurantName} was cancelled. We're sorry for the inconvenience.</p>
+              <p className="text-[10px] text-rose-500 mt-0.5">Your order from {restaurantName} was cancelled.</p>
             </div>
           ) : (
-            <div className="mb-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/60 text-center">
-              <div className="text-xl mb-0.5">{STATUS_MESSAGES[liveStatus]?.emoji || "⏳"}</div>
-              <p className="text-[11px] font-black text-[#0a2342]">{STATUS_MESSAGES[liveStatus]?.text || "Processing your order..."}</p>
+            <div className="mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-slate-900 to-[#0a2342] text-white text-center shadow-sm">
+              <div className="text-xl mb-1">{STATUS_MESSAGES[liveStatus]?.emoji || "⏳"}</div>
+              <p className="text-[11.5px] font-black tracking-wide text-cyan-300">{STATUS_MESSAGES[liveStatus]?.text || "Processing your order..."}</p>
             </div>
           )}
 
           {/* Details Card */}
-          <div className="rounded-2xl bg-slate-50 p-4 mb-5 border border-slate-200/60 text-left text-xs font-semibold text-slate-500 space-y-2">
+          <div className="rounded-2xl bg-slate-50 p-4 mb-4 border border-slate-200/80 text-left text-xs font-semibold text-slate-500 space-y-2">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
               <span>Order ID</span>
-              <span className="text-[#0a2342] font-black">{orderId}</span>
+              <span className="text-[#0a2342] font-black bg-white px-2.5 py-0.5 rounded-lg border border-slate-200">{orderId || "ORD-LIVE"}</span>
             </div>
             <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
               <span>Status</span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
                 liveStatus === "cancelled" ? "bg-rose-100 text-rose-700" :
                 liveStatus === "completed" ? "bg-emerald-100 text-emerald-800" :
                 liveStatus === "arrived" ? "bg-purple-100 text-purple-800" :
-                liveStatus === "picked_up" ? "bg-blue-100 text-blue-800" :
                 "bg-amber-100 text-amber-800"
               }`}>
                 {liveStatus.replace("_", " ")}
               </span>
             </div>
-            <div className="flex justify-between items-center pt-1">
+            <div className="flex justify-between items-center pt-0.5">
               <span>Canteen / Vendor</span>
               <span className="text-[#0a2342] font-black">{restaurantName}</span>
             </div>
           </div>
 
-          {/* ARRIVAL NUDGE OPTION FOR STUDENT — only when rider has arrived */}
+          {/* ARRIVAL NUDGE OPTION FOR STUDENT */}
           {liveStatus === "arrived" && (
-            <div className="mb-5 p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col gap-2.5 items-center text-center animate-pulse">
-              <div className="flex items-center gap-1.5 text-amber-900 font-extrabold text-xs">
+            <div className="mb-4 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col gap-2 items-center text-center animate-pulse">
+              <div className="flex items-center gap-1 text-amber-900 font-extrabold text-xs">
                 <span>📍 Rider Has Arrived at Location!</span>
               </div>
               <p className="text-[11px] text-amber-700 font-medium leading-tight">
-                Your delivery rider is waiting at the campus meetup point. Let them know you're on your way!
+                {arrivalMessage || "Your delivery rider is waiting at the campus meetup point."}
               </p>
               <button
                 onClick={handleNudgeRiderArrival}
                 disabled={riderNudgeSent}
-                className="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-2.5 px-4 rounded-xl text-xs transition-all shadow-md active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-60"
+                className="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-2 px-4 rounded-xl text-xs transition-all shadow-sm active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-60"
               >
                 <span>🏃‍♂️ Nudge Rider: "I'm on my way!"</span>
               </button>
-              {riderNudgeSent && (
-                <span className="text-[10px] font-black text-emerald-600 animate-bounce mt-1">
-                  ✅ Arrival alert sent! Rider notified that you are heading over.
-                </span>
-              )}
             </div>
           )}
 
@@ -287,36 +290,34 @@ export default function OrderTracker({
           )}
 
           {/* Actions */}
-          <div className="space-y-2.5">
-            {/* Vendor Nudge Button — only visible in early stages */}
+          <div className="space-y-2">
             {["pending", "accepted", "preparing"].includes(liveStatus) && (
               <button
                 onClick={handleNudgeVendor}
                 disabled={cooldown > 0}
-                className={`w-full py-3.5 rounded-2xl text-xs font-black tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-md ${cooldown > 0
+                className={`w-full py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-xs ${cooldown > 0
                   ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                  : "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20 cursor-pointer"
+                  : "bg-amber-500 hover:bg-amber-600 text-white cursor-pointer"
                   }`}
               >
                 🔔 {cooldown > 0 ? `Vendor Nudge Cooldown (${cooldown}s)` : "Nudge Vendor for Update"}
               </button>
             )}
 
-            {/* WhatsApp Action */}
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 shadow-[0_8px_20px_-6px_rgba(16,185,129,0.4)] transition-all duration-300"
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black tracking-wider uppercase flex items-center justify-center gap-2 shadow-xs transition-all duration-300"
             >
               💬 Track on WhatsApp
             </a>
 
             <button
               onClick={() => setIsTrackingOpen(false)}
-              className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-[#0a2342] rounded-xl text-xs font-extrabold transition-all duration-200 cursor-pointer"
+              className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-black transition-all duration-200 cursor-pointer"
             >
-              Close Dialog
+              Close Window
             </button>
           </div>
         </div>

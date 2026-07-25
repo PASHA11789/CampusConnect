@@ -138,7 +138,6 @@ export default function CanteenHero({
         <div className="flex gap-2 shrink-0 overflow-x-auto pb-1 md:pb-0">
           {[
             { id: "browse", label: "Browse Menu", icon: "🍽️" },
-            { id: "deals", label: "Student Deals", icon: "🏷️" },
             { id: "track", label: "Active Order", icon: "🛵" },
           ].map((tab) => {
             const isActive = activeTab === tab.id;

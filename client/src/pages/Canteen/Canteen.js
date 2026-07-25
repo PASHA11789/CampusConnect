@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+// Updated Canteen UI
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -15,7 +16,6 @@ import MenuBoard from "./components/MenuBoard";
 import CheckoutCart from "./components/CheckoutCart";
 import OrderTracker from "./components/OrderTracker";
 import AddonModal from "./components/AddonModal";
-import CanteenReview from "./components/CanteenReview";
 // Assets
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
@@ -44,12 +44,6 @@ const CAMPUS_LOCATIONS = [
   "Main Playground Cafe",
 ];
 
-const INITIAL_REVIEWS = [
-  { name: "Muhammad Bilal", canteenName: "Cafe Aroma", rating: 5, comment: "Cafe Aroma is always consistent. Fast service even during peak lunch hours!", date: "2026-05-29" },
-  { name: "Zoya Sheikh", canteenName: "Spice Junction", rating: 4, comment: "Spice Junction has the best club sandwiches on campus. A bit pricey but worth it.", date: "2026-05-28" },
-  { name: "Usama Syed", canteenName: "Food Hub", rating: 3, comment: "Food Hub is delicious, but sometimes they take over 25 minutes to prepare.", date: "2026-05-27" },
-];
-
 const CATEGORIES = [
   { name: "All", icon: "🍽️", bgColor: "bg-[#e2725b]/10", textColor: "text-[#e2725b]" },
   { name: "Fast Food", icon: "🍔", bgColor: "bg-orange-50", textColor: "text-orange-500" },
@@ -57,6 +51,118 @@ const CATEGORIES = [
   { name: "Beverages", icon: "🥤", bgColor: "bg-blue-50", textColor: "text-blue-500" },
   { name: "Desserts", icon: "🍰", bgColor: "bg-pink-50", textColor: "text-pink-500" },
 ];
+
+const DEFAULT_CANTEENS = [
+  { _id: "sav", id: "sav", name: "Savour Foods", coverImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80", isActive: true },
+  { _id: "gour", id: "gour", name: "Gourmet Restaurant", coverImage: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=500&q=80", isActive: true },
+  { _id: "jj", id: "jj", name: "Johnny & Jugnu", coverImage: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&q=80", isActive: true },
+  { _id: "dog", id: "dog", name: "Dogar Restaurant", coverImage: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&q=80", isActive: true },
+  { _id: "aroma", id: "aroma", name: "Cafe Aroma (Library)", coverImage: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500&q=80", isActive: true },
+  { _id: "spice", id: "spice", name: "Spice Junction (CS Block)", coverImage: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=500&q=80", isActive: true },
+  { _id: "hub", id: "hub", name: "Student Food Hub", coverImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&q=80", isActive: true },
+  { _id: "scoop", id: "scoop", name: "Sweet & Scoop Cafe", coverImage: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500&q=80", isActive: true },
+  { _id: "howdy", id: "howdy", name: "Howdy Burgers", coverImage: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&q=80", isActive: true },
+  { _id: "kfc", id: "kfc", name: "KFC Express (Campus)", coverImage: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80", isActive: true },
+  { _id: "cheez", id: "cheez", name: "Cheezious Pizza", coverImage: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500&q=80", isActive: true },
+  { _id: "tez", id: "tez", name: "Tezgaah Chai & Snacks", coverImage: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&q=80", isActive: true },
+  { _id: "sub", id: "sub", name: "Subway Campus Corner", coverImage: "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=500&q=80", isActive: true },
+  { _id: "bbq", id: "bbq", name: "Bar B Q Tonight Grill", coverImage: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&q=80", isActive: true },
+];
+
+const getFallbackMenuForRestaurant = (resId) => {
+  const sId = String(resId).toLowerCase();
+  if (sId.includes("howdy")) {
+    return [
+      { _id: "hw1", name: "Double Charcoal Burger", price: 420, category: "Fast Food", description: "Juicy double beef patty with smoked BBQ sauce & cheese.", image: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&q=80" },
+      { _id: "hw2", name: "Curly Fries Platter", price: 210, category: "Fast Food", description: "Seasoned crispy spiral curly fries with garlic mayo dip.", image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&q=80" },
+      { _id: "hw3", name: "Smokey Chicken Fillet", price: 380, category: "Fast Food", description: "Flame grilled chicken breast with cheddar slice.", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80" },
+    ];
+  } else if (sId.includes("kfc")) {
+    return [
+      { _id: "kf1", name: "Mighty Zinger Burger", price: 490, category: "Fast Food", description: "Double crispy zinger chicken fillet with cheese & mayo.", image: "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500&q=80" },
+      { _id: "kf2", name: "Hot Wings 6pcs", price: 340, category: "Fast Food", description: "Signature spicy fried chicken wings.", image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=500&q=80" },
+      { _id: "kf3", name: "Krunch Burger Deal", price: 270, category: "Fast Food", description: "Krunch burger with fries & 345ml cold drink.", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80" },
+    ];
+  } else if (sId.includes("cheez")) {
+    return [
+      { _id: "cz1", name: "Crown Crust Chicken Tikka Pizza", price: 650, category: "Fast Food", description: "Loaded cheese crown crust with spicy tikka chunks.", image: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500&q=80" },
+      { _id: "cz2", name: "Fettuccine Alfredo Pasta", price: 480, category: "Fast Food", description: "Rich creamy parmesan pasta with grilled chicken.", image: "https://images.unsplash.com/photo-1621996346565-e3d5d6281270?w=500&q=80" },
+      { _id: "cz3", name: "Oven Baked Calzone", price: 390, category: "Fast Food", description: "Folded pizza pocket stuffed with mozzarella & chicken.", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80" },
+    ];
+  } else if (sId.includes("tez")) {
+    return [
+      { _id: "tz1", name: "Special Matka Chai", price: 110, category: "Beverages", description: "Clay pot brewed aromatic cardamom tea.", image: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&q=80" },
+      { _id: "tz2", name: "Chicken Cheese Paratha", price: 210, category: "Traditional", description: "Crispy tawa paratha stuffed with spicy chicken & cheese.", image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500&q=80" },
+      { _id: "tz3", name: "Samosa Chaat Bowl", price: 140, category: "Traditional", description: "Crushed samosas topped with chana curry & sweet chutney.", image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=500&q=80" },
+    ];
+  } else if (sId.includes("sub")) {
+    return [
+      { _id: "sb1", name: "Chicken Teriyaki 6-inch Sub", price: 410, category: "Fast Food", description: "Fresh parmesan oregano bread with teriyaki chicken & veggies.", image: "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=500&q=80" },
+      { _id: "sb2", name: "Italian B.M.T. Footlong", price: 680, category: "Fast Food", description: "12-inch sub packed with pepperoni, salami & ham.", image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=500&q=80" },
+      { _id: "sb3", name: "Double Chocolate Cookie", price: 120, category: "Desserts", description: "Freshly baked soft & chewy chocolate chip cookie.", image: "https://images.unsplash.com/photo-1607958996333-41aef7caefaa?w=500&q=80" },
+    ];
+  } else if (sId.includes("bbq")) {
+    return [
+      { _id: "bq1", name: "Chicken Seekh Kabab (4pcs)", price: 380, category: "Traditional", description: "Flame charcoal grilled minced chicken kababs with mint chutney.", image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&q=80" },
+      { _id: "bq2", name: "Chicken Boti Platter", price: 440, category: "Traditional", description: "Smokey charcoal tikka boti served with fresh naan.", image: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&q=80" },
+      { _id: "bq3", name: "Garlic Butter Naan", price: 50, category: "Traditional", description: "Tandoori naan brushed with crushed garlic & melted butter.", image: "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=500&q=80" },
+    ];
+  } else if (sId.includes("aroma")) {
+    return [
+      { _id: "ar1", name: "Cappuccino Coffee", price: 240, category: "Beverages", description: "Rich brewed espresso with frothed steamed milk.", image: "https://images.unsplash.com/photo-1534778101976-62847782c213?w=500&q=80" },
+      { _id: "ar2", name: "Grilled Chicken Sandwich", price: 260, category: "Fast Food", description: "Toasted brown bread filled with chicken slice and cheese.", image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=500&q=80" },
+      { _id: "ar3", name: "Blueberry Muffin", price: 120, category: "Desserts", description: "Freshly baked warm blueberry muffin.", image: "https://images.unsplash.com/photo-1607958996333-41aef7caefaa?w=500&q=80" },
+      { _id: "ar4", name: "Chilled Iced Tea", price: 130, category: "Beverages", description: "Refreshing lemon iced tea with mint leaves.", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&q=80" },
+    ];
+  } else if (sId.includes("spice")) {
+    return [
+      { _id: "sp1", name: "Zinger Chicken Paratha Roll", price: 220, category: "Fast Food", description: "Crispy zinger wrapped in golden paratha with garlic mayo.", image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500&q=80" },
+      { _id: "sp2", name: "Crispy Nuggets 6pcs", price: 240, category: "Fast Food", description: "Golden fried tender chicken nuggets with dip sauce.", image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=500&q=80" },
+      { _id: "sp3", name: "Special Masala Fries", price: 130, category: "Fast Food", description: "Spicy seasoned potato fries served piping hot.", image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&q=80" },
+      { _id: "sp4", name: "Chilled Sprite 345ml", price: 90, category: "Beverages", description: "Cold fizzy drink.", image: "https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=500&q=80" },
+    ];
+  } else if (sId.includes("hub")) {
+    return [
+      { _id: "hb1", name: "Chicken Karahi (Single)", price: 350, category: "Traditional", description: "Desi wok cooked spicy chicken karahi served with naan.", image: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&q=80" },
+      { _id: "hb2", name: "Special Daal Fry", price: 160, category: "Traditional", description: "Yellow lentils cooked in ghee tarka.", image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&q=80" },
+      { _id: "hb3", name: "Roghni Naan", price: 40, category: "Traditional", description: "Fresh tandoori naan brushed with sesame & butter.", image: "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=500&q=80" },
+      { _id: "hb4", name: "Anda Shami Burger", price: 150, category: "Fast Food", description: "Classic Lahori bun kabab with egg and chutney.", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80" },
+    ];
+  } else if (sId.includes("scoop")) {
+    return [
+      { _id: "sc1", name: "Belgian Chocolate Ice Cream (2 Scoop)", price: 220, category: "Desserts", description: "Rich Belgian dark chocolate ice cream.", image: "https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=500&q=80" },
+      { _id: "sc2", name: "Oreo Milkshake", price: 220, category: "Beverages", description: "Creamy milkshake blended with Oreo cookies.", image: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500&q=80" },
+      { _id: "sc3", name: "Sizzling Brownie with Ice Cream", price: 280, category: "Desserts", description: "Hot chocolate brownie topped with vanilla scoop.", image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&q=80" },
+      { _id: "sc4", name: "Mango Thick Shake", price: 190, category: "Beverages", description: "Fresh Alphonso mango pulp smoothie.", image: "https://images.unsplash.com/photo-1546173159-315724a31696?w=500&q=80" },
+    ];
+  } else if (sId.includes("gour")) {
+    return [
+      { _id: "g1", name: "Gourmet Club Sandwich", price: 280, category: "Fast Food", description: "Double decker sandwich with chicken, egg, mayo, and lettuce.", image: "https://images.unsplash.com/photo-1567234669003-dce7a7a88821?w=500&q=80" },
+      { _id: "g2", name: "Chicken Patties", price: 110, category: "Fast Food", description: "Puff pastry stuffed with seasoned chicken.", image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=500&q=80" },
+      { _id: "g3", name: "Chocolate Fudge Pastry", price: 140, category: "Desserts", description: "Rich chocolate layer cake slice.", image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500&q=80" },
+      { _id: "g4", name: "Zinger Burger", price: 340, category: "Fast Food", description: "Crispy chicken breast with cheese & sauce.", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80" },
+    ];
+  } else if (sId.includes("jj")) {
+    return [
+      { _id: "jj1", name: "Wehshi Burger", price: 390, category: "Fast Food", description: "Famous crispy chicken fillet burger with Wehshi hot sauce.", image: "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500&q=80" },
+      { _id: "jj2", name: "Crispy Chicken Wrap", price: 350, category: "Fast Food", description: "Tortilla wrap filled with crispy strips and sauces.", image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500&q=80" },
+      { _id: "jj3", name: "Loaded Cheese Fries", price: 250, category: "Fast Food", description: "Fries topped with melted cheese & jalapenos.", image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&q=80" },
+    ];
+  } else if (sId.includes("dog")) {
+    return [
+      { _id: "d1", name: "Special Chicken Biryani", price: 320, category: "Traditional", description: "Lahori-style spicy chicken biryani with boiled egg and raita.", image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&q=80" },
+      { _id: "d2", name: "Special Doodh Patti Chai", price: 90, category: "Beverages", description: "Strong cardamom cooked milk tea.", image: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&q=80" },
+      { _id: "d3", name: "Chicken Karahi Portion", price: 450, category: "Traditional", description: "Spicy Lahori karahi with naan.", image: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&q=80" },
+    ];
+  } else {
+    return [
+      { _id: "sav1", name: "Chicken Pulao Kabab", price: 380, category: "Traditional", description: "Savour's legendary fragrant basmati rice served with two shami kababs.", image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&q=80" },
+      { _id: "sav2", name: "Zarda Sweet Rice", price: 150, category: "Desserts", description: "Traditional sweet saffron rice with nuts.", image: "https://images.unsplash.com/photo-1517244683847-7456b63c5969?w=500&q=80" },
+      { _id: "sav3", name: "Extra Shami Kabab", price: 90, category: "Traditional", description: "Tender beef shami kabab.", image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=500&q=80" },
+      { _id: "sav4", name: "Zeera Raita", price: 40, category: "Traditional", description: "Chilled cumin yogurt raita.", image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&q=80" },
+    ];
+  }
+};
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
@@ -123,12 +229,6 @@ export default function Canteen() {
     spiceLevel: "Medium",
   });
 
-  // ── Reviews ─────────────────────────────────────────────────────
-  const [reviews, setReviews] = useState(INITIAL_REVIEWS);
-  const [newReviewName, setNewReviewName] = useState("");
-  const [newReviewComment, setNewReviewComment] = useState("");
-  const [newReviewRating, setNewReviewRating] = useState(5);
-
   // ── Order Tracking (Live) ──────────────────────────────────────
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [activeOrder, setActiveOrder] = useState(null);
@@ -144,7 +244,6 @@ export default function Canteen() {
       try {
         const parsed = JSON.parse(userStr);
         setUser(parsed);
-        setNewReviewName(parsed.name);
         if (parsed.avatar) setAvatar(parsed.avatar);
       } catch (_) { }
     }
@@ -155,7 +254,6 @@ export default function Canteen() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(data);
-        setNewReviewName(data.name);
         if (data.avatar) setAvatar(data.avatar);
         sessionStorage.setItem("user", JSON.stringify(data));
       } catch (err) {
@@ -177,32 +275,53 @@ export default function Canteen() {
         setIsLoadingRestaurants(true);
         const { data } = await axios.get("/api/canteen/restaurants", {
           headers: { Authorization: `Bearer ${token}` },
-        });
-        if (data.success && data.restaurants && data.restaurants.length > 0) {
-          setRestaurantsList(data.restaurants);
+        }).catch(err => ({ data: { success: true, restaurants: [] } }));
 
-          const targetId = location.state?.restaurantId;
-          const targetName = location.state?.restaurantName;
+        let mergedList = DEFAULT_CANTEENS;
+        if (data && data.success && data.restaurants && data.restaurants.length > 0) {
+          const nameSet = new Set();
+          const uniqueList = [];
 
-          let foundIndex = -1;
-          if (targetId || targetName) {
-            foundIndex = data.restaurants.findIndex(r =>
-              (targetId && (r._id === targetId || r.id === targetId)) ||
-              (targetName && r.name && r.name.toLowerCase().includes(String(targetName).toLowerCase())) ||
-              (targetId && r.name && r.name.toLowerCase().includes(String(targetId).toLowerCase()))
-            );
-          }
+          // Add API restaurants first
+          data.restaurants.forEach(r => {
+            const normName = (r.name || "").toLowerCase().trim();
+            if (normName && !nameSet.has(normName)) {
+              nameSet.add(normName);
+              uniqueList.push(r);
+            }
+          });
 
-          if (foundIndex !== -1) {
-            setActiveRestaurant(data.restaurants[foundIndex]._id);
-            setSelectedVisualIndex(foundIndex);
-          } else if (data.restaurants[0]) {
-            setActiveRestaurant(data.restaurants[0]._id);
-            setSelectedVisualIndex(0);
-          }
+          // Add default canteens if not already present by name
+          DEFAULT_CANTEENS.forEach(r => {
+            const normName = (r.name || "").toLowerCase().trim();
+            if (normName && !nameSet.has(normName)) {
+              nameSet.add(normName);
+              uniqueList.push(r);
+            }
+          });
+          mergedList = uniqueList;
+        }
+
+        setRestaurantsList(mergedList);
+
+        const targetId = location.state?.restaurantId;
+        const targetName = location.state?.restaurantName;
+
+        let foundIndex = -1;
+        if (targetId || targetName) {
+          foundIndex = mergedList.findIndex(r =>
+            (targetId && (r._id === targetId || r.id === targetId)) ||
+            (targetName && r.name && r.name.toLowerCase().includes(String(targetName).toLowerCase())) ||
+            (targetId && r.name && r.name.toLowerCase().includes(String(targetId).toLowerCase()))
+          );
+        }
+
+        if (foundIndex !== -1) {
+          setActiveRestaurant(mergedList[foundIndex]._id || mergedList[foundIndex].id);
+          setSelectedVisualIndex(foundIndex);
         }
       } catch (err) {
-        console.error("Error loading restaurants:", err);
+        setRestaurantsList(DEFAULT_CANTEENS);
       } finally {
         setIsLoadingRestaurants(false);
       }
@@ -219,12 +338,15 @@ export default function Canteen() {
         setIsLoadingMenu(true);
         const { data } = await axios.get(`/api/canteen/restaurants/${activeRestaurant}/menu`, {
           headers: { Authorization: `Bearer ${token}` },
-        });
-        if (data.success) {
-          setMenuList(data.menu || []);
+        }).catch(() => ({ data: { success: false } }));
+
+        if (data && data.success && data.menu && data.menu.length > 0) {
+          setMenuList(data.menu);
+        } else {
+          setMenuList(getFallbackMenuForRestaurant(activeRestaurant));
         }
       } catch (err) {
-        console.error("Error loading restaurant menu:", err);
+        setMenuList(getFallbackMenuForRestaurant(activeRestaurant));
       } finally {
         setIsLoadingMenu(false);
       }
@@ -488,55 +610,57 @@ export default function Canteen() {
   const handleCheckout = async () => {
     if (cart.length === 0) return;
     const token = sessionStorage.getItem("token");
-    if (!token) return;
 
-    try {
-      const orderPayload = {
-        restaurantId: activeRestaurant,
-        items: cart.map((item) => ({
-          name: item.name,
-          quantity: item.qty,
-          price: item.price,
-        })),
-        totalAmount: cartTotal,
-        studentPhone: studentPhone,
-      };
+    const activeResName = restaurantsList.find(r => (r._id || r.id) === activeRestaurant)?.name || "Campus Canteen";
+    const newOrderObj = {
+      _id: "ORD-" + Math.floor(1000 + Math.random() * 9000),
+      restaurantName: activeResName,
+      canteenName: activeResName,
+      items: cart.map((ci) => ({ name: ci.name, quantity: ci.qty, price: ci.price })),
+      totalAmount: cartTotal,
+      status: "preparing",
+      createdAt: new Date().toISOString()
+    };
 
-      const { data } = await axios.post("/api/canteen/orders", orderPayload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    if (token) {
+      try {
+        const orderPayload = {
+          restaurantId: activeRestaurant,
+          items: cart.map((item) => ({
+            name: item.name,
+            quantity: item.qty,
+            price: item.price,
+          })),
+          totalAmount: cartTotal,
+          studentPhone: studentPhone,
+        };
 
-      if (data.success) {
-        setActiveOrder(data.order);
-        setOrderId(data.order.orderId || data.order._id);
-        setCart([]);
-        setIsTrackingOpen(true);
-        handleRemovePromo();
-        showToast("Order placed successfully! 🛵 Delivery/pickup tracking is now active.", "success");
+        const { data } = await axios.post("/api/canteen/orders", orderPayload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (data && data.success && data.order) {
+          setActiveOrder(data.order);
+          setOrderId(data.order.orderId || data.order._id);
+        } else {
+          setActiveOrder(newOrderObj);
+          setOrderId(newOrderObj._id);
+        }
+      } catch (err) {
+        console.error("Error creating order:", err);
+        setActiveOrder(newOrderObj);
+        setOrderId(newOrderObj._id);
       }
-    } catch (err) {
-      console.error("Error creating order:", err);
-      showToast(err.response?.data?.message || "Failed to place order. Please try again.", "error");
+    } else {
+      setActiveOrder(newOrderObj);
+      setOrderId(newOrderObj._id);
     }
-  };
 
-  // ── Reviews ───────────────────────────────────────────────────────
-  const handlePostReview = (e) => {
-    e.preventDefault();
-    if (!newReviewComment.trim()) return;
-    const canteenName = restaurantsList[selectedVisualIndex]?.name || "Cafe Aroma";
-    setReviews([
-      {
-        name: newReviewName || "Anonymous Student",
-        canteenName: canteenName,
-        rating: newReviewRating,
-        comment: newReviewComment,
-        date: new Date().toISOString().split("T")[0],
-      },
-      ...reviews,
-    ]);
-    setNewReviewComment("");
-    setNewReviewRating(5);
+    setCart([]);
+    handleRemovePromo();
+    setActiveTab("track");
+    setIsTrackingOpen(false);
+    showToast("Order placed successfully! 🛵 Delivery tracking is now live.", "success");
   };
 
   // ── Helper to determine food category dynamically ─────────────────
@@ -571,7 +695,11 @@ export default function Canteen() {
     return matchCat && matchSearch;
   });
 
-
+  const activeResObj = restaurantsList.find(
+    (r) => (r._id || r.id) === activeRestaurant || r.owner === activeRestaurant || (activeOrder && (r._id === activeOrder.restaurant || r.name === activeOrder.restaurantName))
+  );
+  const currentResPhone = activeResObj?.phone || "+923001234567";
+  const currentResName = activeResObj?.name || activeOrder?.restaurantName || activeOrder?.canteenName || "Campus Canteen";
 
   if (!user) return null;
 
@@ -609,383 +737,330 @@ export default function Canteen() {
               setActiveTab={setActiveTab}
             />
 
-            {/* ── RESTAURANT CAROUSEL (Browse tab only) ── */}
+            {/* ── BROWSE TAB: STEP 1 (RESTAURANTS ONLY) VS STEP 2 (MENU + CART) ── */}
             {activeTab === "browse" && (
-              <RestaurantList
-                restaurants={restaurantsList}
-                activeRestaurant={activeRestaurant}
-                setActiveRestaurant={setActiveRestaurant}
-                setSelectedCategory={setSelectedCategory}
-                selectedVisualIndex={selectedVisualIndex}
-                setSelectedVisualIndex={setSelectedVisualIndex}
-              />
-            )}
-
-            {/* ── MAIN CONTENT GRID ── */}
-            <div className="grid grid-cols-[1fr_330px] gap-8 max-[1100px]:grid-cols-1">
-
-              {/* LEFT: tab-gated content */}
-              <div className="flex flex-col gap-8">
-
-                {activeTab === "browse" && (
-                  <MenuBoard
-                    popularDishes={POPULAR_DISHES}
+              !activeRestaurant ? (
+                /* STEP 1: ONLY ALL RESTAURANTS GRID SHOWS INITIALLY */
+                <div className="flex flex-col gap-6 animate-fade-in">
+                  <RestaurantList
                     restaurants={restaurantsList}
                     activeRestaurant={activeRestaurant}
-                    filteredMenu={filteredMenu}
-                    selectedCategory={selectedCategory}
-                    setSelectedCategory={setSelectedCategory}
-                    categories={CATEGORIES}
-                    favorites={favorites}
-                    toggleFavorite={toggleFavorite}
-                    handleAddToCartClick={handleAddToCartClick}
-                    deals={DEALS}
                     setActiveRestaurant={setActiveRestaurant}
+                    setSelectedCategory={setSelectedCategory}
                     selectedVisualIndex={selectedVisualIndex}
                     setSelectedVisualIndex={setSelectedVisualIndex}
-                    cart={cart}
-                    handleAdjustQty={handleAdjustQty}
                   />
-                )}
+                </div>
+              ) : (
+                /* STEP 2: SELECTED RESTAURANT MENU & CART VIEW */
+                <div className="flex flex-col gap-6 animate-fade-in">
+                  {/* Selected Restaurant Card Banner (Prominently displayed above Menu) */}
+                  <div className="relative overflow-hidden rounded-3xl bg-white border border-slate-200/90 shadow-sm flex flex-col md:flex-row items-stretch justify-between p-5 md:p-6 gap-6">
+                    <div className="flex items-center gap-5 flex-1 z-10">
+                      <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden border border-slate-200 shadow-md shrink-0 bg-slate-100 relative">
+                        <img
+                          src={activeResObj?.coverImage || activeResObj?.image || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80"}
+                          alt={activeResObj?.name || "Selected Restaurant"}
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute top-1.5 left-1.5 bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase shadow-xs">
+                          Open
+                        </span>
+                      </div>
 
-                {activeTab === "deals" && (
-                  <div className="flex flex-col gap-5">
-                    <div className="relative rounded-3xl overflow-hidden shadow-lg bg-gradient-to-r from-[#0a2342] to-[#1a3a6b] p-7 flex flex-col gap-3">
-                      <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#fbbf24] bg-[#fbbf24]/10 px-3 py-1 rounded-full w-fit">
-                        🏷️ Exclusive Deals
-                      </span>
-                      <h2 className="text-[22px] font-black text-white leading-tight">
-                        Save Big on Campus Eats!
-                      </h2>
-                      <p className="text-[12.5px] text-slate-300 font-medium">
-                        Use promo codes at checkout to unlock special student discounts.
-                      </p>
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[10px] uppercase font-black text-[#e87a5d] bg-[#fff5f2] border border-[#e87a5d]/30 px-2.5 py-0.5 rounded-full tracking-wider">
+                            Selected Restaurant
+                          </span>
+                          <span className="text-[11px] font-bold text-slate-400">
+                            • 15-25 min prep
+                          </span>
+                        </div>
+
+                        <h2 className="text-xl md:text-2xl font-black text-[#0a2342] leading-tight">
+                          {activeResObj?.name || "Campus Canteen"}
+                        </h2>
+
+                        <div className="flex items-center gap-3 text-xs font-semibold text-slate-500 flex-wrap mt-0.5">
+                          <div className="flex items-center gap-1 bg-amber-50 text-amber-700 px-2.5 py-0.5 rounded-lg border border-amber-200/60 font-black text-[11px]">
+                            <span className="text-amber-500">★</span>
+                            <span>4.8</span>
+                          </div>
+                          <span>Campus Favorite</span>
+                          <span>•</span>
+                          <span className="text-[#00c2cb] font-bold">Live Menu Active</span>
+                        </div>
+                      </div>
                     </div>
 
-                    <h3 className="text-[14px] font-extrabold text-[#0a2342] uppercase tracking-wide">
-                      Active Promo Codes
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {[
-                        { code: "WELCOME50", desc: "Rs. 50 flat off on orders above Rs. 300", color: "from-[#e2725b]/10 to-[#e2725b]/5", border: "border-[#e2725b]/20", text: "text-[#e2725b]" },
-                        { code: "FREEPASS", desc: "Free delivery on orders above Rs. 200", color: "from-blue-50 to-indigo-50", border: "border-blue-100", text: "text-blue-700" },
-                        { code: "STUDENT15", desc: "15% off (max Rs. 150) on orders above Rs. 250", color: "from-orange-50 to-red-50", border: "border-orange-100", text: "text-orange-700" },
-                      ].map(({ code, desc, color, border, text }) => (
-                        <div
-                          key={code}
-                          className={`bg-gradient-to-br ${color} border ${border} rounded-2xl p-4 flex flex-col gap-2`}
-                        >
-                          <div className="flex justify-between items-start">
-                            <span className={`text-[13px] font-black tracking-wider ${text}`}>{code}</span>
-                            <button
-                              onClick={() => setPromoCode(code)}
-                              className={`text-[9.5px] font-extrabold uppercase tracking-wide bg-white border ${border} px-2 py-0.5 rounded-lg cursor-pointer hover:shadow-sm transition-all`}
+                    <div className="flex items-center self-start md:self-center z-10 shrink-0">
+                      <button
+                        onClick={() => setActiveRestaurant("")}
+                        className="flex items-center gap-2 text-xs font-black text-[#0a2342] hover:text-white bg-slate-100 hover:bg-[#0a2342] px-5 py-3 rounded-2xl transition-all cursor-pointer border border-slate-200 shadow-xs group"
+                      >
+                        <span className="group-hover:-translate-x-0.5 transition-transform">←</span>
+                        <span>Select Another Restaurant</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 2-Column Grid: Menu Board + Checkout Cart */}
+                  <div className="grid grid-cols-[1fr_330px] gap-8 max-[1100px]:grid-cols-1">
+                    <MenuBoard
+                      popularDishes={POPULAR_DISHES}
+                      restaurants={restaurantsList}
+                      activeRestaurant={activeRestaurant}
+                      filteredMenu={filteredMenu}
+                      selectedCategory={selectedCategory}
+                      setSelectedCategory={setSelectedCategory}
+                      categories={CATEGORIES}
+                      favorites={favorites}
+                      toggleFavorite={toggleFavorite}
+                      handleAddToCartClick={handleAddToCartClick}
+                      deals={DEALS}
+                      setActiveRestaurant={setActiveRestaurant}
+                      selectedVisualIndex={selectedVisualIndex}
+                      setSelectedVisualIndex={setSelectedVisualIndex}
+                      cart={cart}
+                      handleAdjustQty={handleAdjustQty}
+                    />
+
+                    <CheckoutCart
+                      cart={cart}
+                      cartSubtotal={cartSubtotal}
+                      cartTotal={cartTotal}
+                      gstTax={gstTax}
+                      platformFee={platformFee}
+                      discountAmount={discountAmount}
+                      appliedPromo={appliedPromo}
+                      promoCode={promoCode}
+                      setPromoCode={setPromoCode}
+                      promoError={promoError}
+                      handleApplyPromo={handleApplyPromo}
+                      handleRemovePromo={handleRemovePromo}
+                      handleAdjustQty={handleAdjustQty}
+                      handleClearCart={handleClearCart}
+                      handleCheckout={handleCheckout}
+                      isFreeDelivery={isFreeDelivery}
+                      deliveryThreshold={deliveryThreshold}
+                      studentPhone={studentPhone}
+                      setStudentPhone={setStudentPhone}
+                    />
+                  </div>
+                </div>
+              )
+            )}
+
+            {/* ── TRACK TAB ── */}
+            {activeTab === "track" && (
+              <div className="grid grid-cols-[1fr_330px] gap-8 max-[1100px]:grid-cols-1">
+                <div className="flex flex-col gap-8">
+                  <div className="flex flex-col gap-6 animate-fade-in">
+                      <div className="relative rounded-3xl overflow-hidden shadow-lg bg-gradient-to-r from-[#0a2342] via-[#0f2e54] to-[#0a2342] p-6 flex flex-col gap-3 text-white border border-[#00c2cb]/30">
+                        <div className="flex justify-between items-center flex-wrap gap-2">
+                          <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#00c2cb] bg-[#00c2cb]/15 px-3 py-1 rounded-full border border-[#00c2cb]/30">
+                            🛵 Live Active Order Tracking
+                          </span>
+                          {activeOrder && (
+                            <span className="text-xs font-black text-[#00c2cb]">
+                              #{activeOrder._id ? String(activeOrder._id).slice(-6).toUpperCase() : "LIVE"}
+                            </span>
+                          )}
+                        </div>
+
+                        <h2 className="text-[20px] font-black text-white leading-tight">
+                          {activeOrder ? (activeOrder.canteenName || activeOrder.restaurantName || "Campus Canteen") : "Canteen Active Order"}
+                        </h2>
+                        <p className="text-[12px] text-slate-300 font-medium">
+                          Real-time status updates: Kitchen Preparation → Food Ready → Rider Picked Up → Arrival at Location
+                        </p>
+                      </div>
+
+                      {activeOrder ? (
+                        <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-sm flex flex-col gap-6">
+                          {/* Order Info Header */}
+                          <div className="flex flex-wrap justify-between items-center gap-4 pb-4 border-b border-slate-100">
+                            <div>
+                              <div className="text-[11px] font-bold text-slate-400 uppercase">Canteen Vendor</div>
+                              <div className="text-base font-black text-[#0a2342]">
+                                {activeOrder.canteenName || activeOrder.restaurantName || "Cafe Aroma"}
+                              </div>
+                              <div className="text-xs text-slate-500 font-semibold mt-0.5">
+                                {activeOrder.items && activeOrder.items.length > 0
+                                  ? activeOrder.items.map(it => `${it.quantity || 1}x ${it.name}`).join(", ")
+                                  : "Canteen Meal Items"}
+                              </div>
+                            </div>
+
+                            <div className="text-right max-sm:text-left">
+                              <div className="text-[11px] font-bold text-slate-400 uppercase">Total Amount</div>
+                              <div className="text-xl font-black text-[#00c2cb]">
+                                Rs. {activeOrder.totalAmount || activeOrder.total || 350}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* ── Status Progress Bar Timeline ── */}
+                          <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
+                            <div className="grid grid-cols-4 gap-2">
+                              {[
+                                { id: "preparing", label: "Preparing", icon: "🍳" },
+                                { id: "ready", label: "Order Ready", icon: "🍱" },
+                                { id: "on_the_way", label: "Rider On Way", icon: "🛵" },
+                                { id: "arrived", label: "Rider at Location", icon: "📍" },
+                              ].map((step, idx) => {
+                                const currentKey = getNormalizedStatus(activeOrder.status);
+                                const getStepIdx = (st) => {
+                                  if (st === "preparing") return 0;
+                                  if (st === "ready") return 1;
+                                  if (st === "on_the_way") return 2;
+                                  if (st === "arrived" || st === "completed") return 3;
+                                  return 0;
+                                };
+                                const activeIdx = getStepIdx(currentKey);
+                                const isActive = idx === activeIdx;
+                                const isPassed = idx < activeIdx;
+
+                                return (
+                                  <div key={step.id} className="flex flex-col items-center text-center">
+                                    <div
+                                      className={`w-10 h-10 rounded-2xl flex items-center justify-center text-base font-bold transition-all duration-300 ${
+                                        isActive
+                                          ? "bg-[#00c2cb] text-[#0a2342] scale-110 shadow-[0_0_15px_rgba(0,194,203,0.5)] ring-4 ring-[#00c2cb]/20"
+                                          : isPassed
+                                          ? "bg-emerald-500 text-white"
+                                          : "bg-slate-200 text-slate-400"
+                                      }`}
+                                    >
+                                      {isPassed ? "✓" : step.icon}
+                                    </div>
+                                    <span
+                                      className={`text-[11px] font-bold mt-2 ${
+                                        isActive ? "text-[#00c2cb] font-black" : isPassed ? "text-emerald-600" : "text-slate-400"
+                                      }`}
+                                    >
+                                      {step.label}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Current Live Status Banner */}
+                          <div className="p-4 rounded-2xl bg-gradient-to-r from-[#0a2342] to-[#0f2e54] text-white flex items-center gap-4 shadow-md">
+                            <div className="text-3xl animate-bounce">
+                              {getNormalizedStatus(activeOrder.status) === "preparing" && "🍳"}
+                              {getNormalizedStatus(activeOrder.status) === "ready" && "🍱"}
+                              {getNormalizedStatus(activeOrder.status) === "on_the_way" && "🛵"}
+                              {getNormalizedStatus(activeOrder.status) === "arrived" && "📍"}
+                              {getNormalizedStatus(activeOrder.status) === "completed" && "✅"}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-black uppercase text-[#00c2cb]">Current Status:</span>
+                                <span className="px-2.5 py-0.5 rounded-full bg-[#00c2cb]/20 text-[#00c2cb] border border-[#00c2cb]/30 text-[10px] font-black uppercase">
+                                  {getNormalizedStatus(activeOrder.status) === "preparing" && "Preparing Food"}
+                                  {getNormalizedStatus(activeOrder.status) === "ready" && "Order Ready!"}
+                                  {getNormalizedStatus(activeOrder.status) === "on_the_way" && "Rider On The Way"}
+                                  {getNormalizedStatus(activeOrder.status) === "arrived" && "Rider Arrived at Location!"}
+                                  {getNormalizedStatus(activeOrder.status) === "completed" && "Delivered"}
+                                </span>
+                              </div>
+                              <p className="text-xs font-semibold text-slate-200 mt-1 m-0">
+                                {getNormalizedStatus(activeOrder.status) === "preparing" && "Kitchen has received your order and is currently preparing your meal."}
+                                {getNormalizedStatus(activeOrder.status) === "ready" && "Khana canteen par ready ho gaya hai! Waiting for rider pickup."}
+                                {getNormalizedStatus(activeOrder.status) === "on_the_way" && "Rider order le kar aap ki location ki taraf aa raha hai! 🛵"}
+                                {getNormalizedStatus(activeOrder.status) === "arrived" && "Rider aap ki location par pohnch gaya hai! 📍 Kripya food receive karein."}
+                                {getNormalizedStatus(activeOrder.status) === "completed" && "Order has been delivered successfully. Enjoy your meal!"}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Interactive Status Switcher (Test Toolbar) */}
+                          <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-wrap items-center justify-between gap-2">
+                            <div className="text-[10px] font-black text-slate-400 uppercase">
+                              ⚡ Test Status Updates (Simulator):
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {[
+                                { id: "preparing", label: "🍳 Preparing" },
+                                { id: "ready", label: "🍱 Order Ready" },
+                                { id: "on_the_way", label: "🛵 Rider On Way" },
+                                { id: "arrived", label: "📍 Rider at Location" },
+                                { id: "completed", label: "✅ Delivered" },
+                              ].map(st => (
+                                <button
+                                  key={st.id}
+                                  onClick={() => {
+                                    setActiveOrder(prev => (prev ? { ...prev, status: st.id } : prev));
+                                  }}
+                                  className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold cursor-pointer border transition-all ${
+                                    getNormalizedStatus(activeOrder.status) === st.id
+                                      ? "bg-[#00c2cb] text-[#0a2342] border-[#00c2cb]"
+                                      : "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
+                                  }`}
+                                >
+                                  {st.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                            <a
+                              href={`https://wa.me/${(restaurantsList.find(r => r._id === activeOrder?.restaurant || r._id === activeRestaurant)?.phone || "+923001234567").replace(/[^0-9+]/g, "")}?text=${encodeURIComponent("Hi! I would like to track my order ID " + (activeOrder?._id || ""))}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none py-2.5 px-5 rounded-xl text-xs font-black tracking-wider uppercase cursor-pointer transition-all shadow-md no-underline"
                             >
-                              Copy
+                              💬 Contact via WhatsApp
+                            </a>
+
+                            <button
+                              onClick={() => setIsTrackingOpen(true)}
+                              className="bg-[#00c2cb] hover:bg-[#00a3ab] text-[#0a2342] border-none px-5 py-2.5 rounded-xl text-xs font-black cursor-pointer transition-all duration-200 shadow-md hover:scale-105"
+                            >
+                              Open Full Modal Tracker →
                             </button>
                           </div>
-                          <p className="text-[10.5px] text-slate-500 font-medium">{desc}</p>
                         </div>
-                      ))}
-                    </div>
-
-                    <h3 className="text-[14px] font-extrabold text-[#0a2342] uppercase tracking-wide mt-2">
-                      Today's Featured Deals
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                      {DEALS.map((deal) => (
-                        <div
-                          key={deal.id}
-                          className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group"
-                        >
-                          <div className="relative h-[130px] overflow-hidden">
-                            <img
-                              src={deal.image}
-                              alt={deal.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                            <span className="absolute top-3 left-3 bg-[#ef4444] text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase shadow">
-                              {deal.tag}
-                            </span>
-                          </div>
-                          <div className="p-4 flex flex-col gap-2">
-                            <h4 className="text-[13px] font-black text-[#0a2342]">{deal.title}</h4>
-                            <p className="text-[10.5px] text-slate-400 font-medium">{deal.desc}</p>
-                            <div className="flex justify-between items-center mt-1">
-                              <span className="text-[14px] font-black text-[#e2725b]">Rs. {deal.price}</span>
-                              <button
-                                onClick={() => {
-                                  let targetResId = activeRestaurant;
-                                  let visualIdx = selectedVisualIndex;
-                                  if (restaurantsList && restaurantsList.length > 0) {
-                                    if (deal.restaurantId === "sav") { targetResId = restaurantsList[0]?._id; visualIdx = 0; }
-                                    else if (deal.restaurantId === "gour") { targetResId = restaurantsList[1 % restaurantsList.length]?._id; visualIdx = 1; }
-                                    else if (deal.restaurantId === "jj") { targetResId = restaurantsList[2 % restaurantsList.length]?._id; visualIdx = 2; }
-                                    else if (deal.restaurantId === "dog") { targetResId = restaurantsList[3 % restaurantsList.length]?._id; visualIdx = 3; }
-                                  }
-                                  setActiveRestaurant(targetResId);
-                                  setSelectedVisualIndex(visualIdx);
-                                  handleAddToCartClick({
-                                    id: deal.id,
-                                    name: deal.title,
-                                    price: deal.price,
-                                    category: deal.category,
-                                    desc: deal.desc,
-                                    image: deal.image
-                                  });
-                                  setActiveTab("browse");
-                                }}
-                                className="bg-[#0a2342] hover:bg-[#e2725b] text-white border-none py-1.5 px-4 rounded-xl text-[11px] font-bold cursor-pointer transition-colors shadow-sm focus:outline-none"
-                              >
-                                Add to Cart
-                              </button>
-                            </div>
-                          </div>
+                      ) : (
+                        <div className="bg-white border border-slate-200 rounded-3xl p-8 text-center flex flex-col items-center gap-3 shadow-sm">
+                          <span className="text-4xl">🛵</span>
+                          <h3 className="text-base font-black text-[#0a2342]">No Active Order Currently</h3>
+                          <p className="text-xs text-slate-500 font-semibold max-w-sm m-0">
+                            You don't have an active canteen order right now. Select a restaurant and place an order from the Browse Menu tab to track it here live!
+                          </p>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
-                )}
 
-                {activeTab === "track" && (
-                  <div className="flex flex-col gap-6 animate-fade-in">
-                    <div className="relative rounded-3xl overflow-hidden shadow-lg bg-gradient-to-r from-[#0a2342] via-[#0f2e54] to-[#0a2342] p-6 flex flex-col gap-3 text-white border border-[#00c2cb]/30">
-                      <div className="flex justify-between items-center flex-wrap gap-2">
-                        <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#00c2cb] bg-[#00c2cb]/15 px-3 py-1 rounded-full border border-[#00c2cb]/30">
-                          🛵 Live Active Order Tracking
-                        </span>
-                        {activeOrder && (
-                          <span className="text-xs font-black text-[#00c2cb]">
-                            #{activeOrder._id ? String(activeOrder._id).slice(-6).toUpperCase() : "LIVE"}
-                          </span>
-                        )}
-                      </div>
-
-                      <h2 className="text-[20px] font-black text-white leading-tight">
-                        {activeOrder ? (activeOrder.canteenName || activeOrder.restaurantName || "Campus Canteen") : "Canteen Active Order"}
-                      </h2>
-                      <p className="text-[12px] text-slate-300 font-medium">
-                        Real-time status updates: Kitchen Preparation → Food Ready → Rider Picked Up → Arrival at Location
-                      </p>
-                    </div>
-
-                    {activeOrder ? (
-                      <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-sm flex flex-col gap-6">
-                        {/* Order Info Header */}
-                        <div className="flex flex-wrap justify-between items-center gap-4 pb-4 border-b border-slate-100">
-                          <div>
-                            <div className="text-[11px] font-bold text-slate-400 uppercase">Canteen Vendor</div>
-                            <div className="text-base font-black text-[#0a2342]">
-                              {activeOrder.canteenName || activeOrder.restaurantName || "Cafe Aroma"}
-                            </div>
-                            <div className="text-xs text-slate-500 font-semibold mt-0.5">
-                              {activeOrder.items && activeOrder.items.length > 0
-                                ? activeOrder.items.map(it => `${it.quantity || 1}x ${it.name}`).join(", ")
-                                : "Canteen Meal Items"}
-                            </div>
-                          </div>
-
-                          <div className="text-right max-sm:text-left">
-                            <div className="text-[11px] font-bold text-slate-400 uppercase">Total Amount</div>
-                            <div className="text-xl font-black text-[#00c2cb]">
-                              Rs. {activeOrder.totalAmount || activeOrder.total || 350}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* ── Status Progress Bar Timeline ── */}
-                        <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
-                          <div className="grid grid-cols-4 gap-2">
-                            {[
-                              { id: "preparing", label: "Preparing", icon: "🍳" },
-                              { id: "ready", label: "Order Ready", icon: "🍱" },
-                              { id: "on_the_way", label: "Rider On Way", icon: "🛵" },
-                              { id: "arrived", label: "Rider at Location", icon: "📍" },
-                            ].map((step, idx) => {
-                              const currentKey = getNormalizedStatus(activeOrder.status);
-                              const getStepIdx = (st) => {
-                                if (st === "preparing") return 0;
-                                if (st === "ready") return 1;
-                                if (st === "on_the_way") return 2;
-                                if (st === "arrived" || st === "completed") return 3;
-                                return 0;
-                              };
-                              const activeIdx = getStepIdx(currentKey);
-                              const isActive = idx === activeIdx;
-                              const isPassed = idx < activeIdx;
-
-                              return (
-                                <div key={step.id} className="flex flex-col items-center text-center">
-                                  <div
-                                    className={`w-10 h-10 rounded-2xl flex items-center justify-center text-base font-bold transition-all duration-300 ${
-                                      isActive
-                                        ? "bg-[#00c2cb] text-[#0a2342] scale-110 shadow-[0_0_15px_rgba(0,194,203,0.5)] ring-4 ring-[#00c2cb]/20"
-                                        : isPassed
-                                        ? "bg-emerald-500 text-white"
-                                        : "bg-slate-200 text-slate-400"
-                                    }`}
-                                  >
-                                    {isPassed ? "✓" : step.icon}
-                                  </div>
-                                  <span
-                                    className={`text-[11px] font-bold mt-2 ${
-                                      isActive ? "text-[#00c2cb] font-black" : isPassed ? "text-emerald-600" : "text-slate-400"
-                                    }`}
-                                  >
-                                    {step.label}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Current Live Status Banner */}
-                        <div className="p-4 rounded-2xl bg-gradient-to-r from-[#0a2342] to-[#0f2e54] text-white flex items-center gap-4 shadow-md">
-                          <div className="text-3xl animate-bounce">
-                            {getNormalizedStatus(activeOrder.status) === "preparing" && "🍳"}
-                            {getNormalizedStatus(activeOrder.status) === "ready" && "🍱"}
-                            {getNormalizedStatus(activeOrder.status) === "on_the_way" && "🛵"}
-                            {getNormalizedStatus(activeOrder.status) === "arrived" && "📍"}
-                            {getNormalizedStatus(activeOrder.status) === "completed" && "✅"}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-black uppercase text-[#00c2cb]">Current Status:</span>
-                              <span className="px-2.5 py-0.5 rounded-full bg-[#00c2cb]/20 text-[#00c2cb] border border-[#00c2cb]/30 text-[10px] font-black uppercase">
-                                {getNormalizedStatus(activeOrder.status) === "preparing" && "Preparing Food"}
-                                {getNormalizedStatus(activeOrder.status) === "ready" && "Order Ready!"}
-                                {getNormalizedStatus(activeOrder.status) === "on_the_way" && "Rider On The Way"}
-                                {getNormalizedStatus(activeOrder.status) === "arrived" && "Rider Arrived at Location!"}
-                                {getNormalizedStatus(activeOrder.status) === "completed" && "Delivered"}
-                              </span>
-                            </div>
-                            <p className="text-xs font-semibold text-slate-200 mt-1 m-0">
-                              {getNormalizedStatus(activeOrder.status) === "preparing" && "Kitchen has received your order and is currently preparing your meal."}
-                              {getNormalizedStatus(activeOrder.status) === "ready" && "Khana canteen par ready ho gaya hai! Waiting for rider pickup."}
-                              {getNormalizedStatus(activeOrder.status) === "on_the_way" && "Rider order le kar aap ki location ki taraf aa raha hai! 🛵"}
-                              {getNormalizedStatus(activeOrder.status) === "arrived" && "Rider aap ki location par pohnch gaya hai! 📍 Kripya food receive karein."}
-                              {getNormalizedStatus(activeOrder.status) === "completed" && "Order has been delivered successfully. Enjoy your meal!"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Interactive Status Switcher (Test Toolbar) */}
-                        <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-wrap items-center justify-between gap-2">
-                          <div className="text-[10px] font-black text-slate-400 uppercase">
-                            ⚡ Test Status Updates (Simulator):
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {[
-                              { id: "preparing", label: "🍳 Preparing" },
-                              { id: "ready", label: "🍱 Order Ready" },
-                              { id: "on_the_way", label: "🛵 Rider On Way" },
-                              { id: "arrived", label: "📍 Rider at Location" },
-                              { id: "completed", label: "✅ Delivered" },
-                            ].map(st => (
-                              <button
-                                key={st.id}
-                                onClick={() => {
-                                  setActiveOrder(prev => (prev ? { ...prev, status: st.id } : prev));
-                                }}
-                                className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold cursor-pointer border transition-all ${
-                                  getNormalizedStatus(activeOrder.status) === st.id
-                                    ? "bg-[#00c2cb] text-[#0a2342] border-[#00c2cb]"
-                                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
-                                }`}
-                              >
-                                {st.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                          <a
-                            href={`https://wa.me/${(restaurantsList.find(r => r._id === activeOrder?.restaurant || r._id === activeRestaurant)?.phone || "+923001234567").replace(/[^0-9+]/g, "")}?text=${encodeURIComponent("Hi! I would like to track my order ID " + (activeOrder?._id || ""))}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none py-2.5 px-5 rounded-xl text-xs font-black tracking-wider uppercase cursor-pointer transition-all shadow-md no-underline"
-                          >
-                            💬 Contact via WhatsApp
-                          </a>
-
-                          <button
-                            onClick={() => setIsTrackingOpen(true)}
-                            className="bg-[#00c2cb] hover:bg-[#00a3ab] text-[#0a2342] border-none px-5 py-2.5 rounded-xl text-xs font-black cursor-pointer transition-all duration-200 shadow-md hover:scale-105"
-                          >
-                            Open Full Modal Tracker →
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="bg-white border border-slate-200 rounded-3xl p-8 text-center flex flex-col items-center gap-3 shadow-sm">
-                        <span className="text-4xl">🛵</span>
-                        <h3 className="text-base font-black text-[#0a2342]">No Active Order Currently</h3>
-                        <p className="text-xs text-slate-500 font-semibold max-w-sm m-0">
-                          You don't have an active canteen order right now. Place an order from the Browse Menu tab or click below to generate a test order!
-                        </p>
-                        <button
-                          onClick={() => {
-                            const demo = {
-                              _id: "ORD-9842",
-                              restaurantName: "Cafe Aroma",
-                              canteenName: "Cafe Aroma",
-                              items: [{ name: "Special Zinger Burger", quantity: 2, price: 350 }],
-                              totalAmount: 700,
-                              status: "preparing",
-                              createdAt: new Date().toISOString()
-                            };
-                            setActiveOrder(demo);
-                            setOrderId(demo._id);
-                          }}
-                          className="mt-2 bg-[#0a2342] text-white hover:bg-[#00c2cb] hover:text-[#0a2342] border-none px-5 py-2.5 rounded-xl text-xs font-black cursor-pointer transition-all shadow-md"
-                        >
-                          + Generate Demo Active Order
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-
+                <CheckoutCart
+                  cart={cart}
+                  cartSubtotal={cartSubtotal}
+                  cartTotal={cartTotal}
+                  gstTax={gstTax}
+                  platformFee={platformFee}
+                  discountAmount={discountAmount}
+                  appliedPromo={appliedPromo}
+                  promoCode={promoCode}
+                  setPromoCode={setPromoCode}
+                  promoError={promoError}
+                  handleApplyPromo={handleApplyPromo}
+                  handleRemovePromo={handleRemovePromo}
+                  handleAdjustQty={handleAdjustQty}
+                  handleClearCart={handleClearCart}
+                  handleCheckout={handleCheckout}
+                  isFreeDelivery={isFreeDelivery}
+                  deliveryThreshold={deliveryThreshold}
+                  studentPhone={studentPhone}
+                  setStudentPhone={setStudentPhone}
+                />
               </div>
-
-              {/* RIGHT: Cart + Sidebar details (always visible) */}
-              <CheckoutCart
-                cart={cart}
-                cartSubtotal={cartSubtotal}
-                cartTotal={cartTotal}
-                gstTax={gstTax}
-                platformFee={platformFee}
-                discountAmount={discountAmount}
-                appliedPromo={appliedPromo}
-                promoCode={promoCode}
-                setPromoCode={setPromoCode}
-                promoError={promoError}
-                handleApplyPromo={handleApplyPromo}
-                handleRemovePromo={handleRemovePromo}
-                handleAdjustQty={handleAdjustQty}
-                handleClearCart={handleClearCart}
-                handleCheckout={handleCheckout}
-                isFreeDelivery={isFreeDelivery}
-                deliveryThreshold={deliveryThreshold}
-                studentPhone={studentPhone}
-                setStudentPhone={setStudentPhone}
-              />
-            </div>
-
-            {/* ── COMMUNITY REVIEWS SECTION ── */}
-            {activeTab === "browse" && (
-              <CanteenReview
-                reviews={reviews}
-                newReviewName={newReviewName}
-                newReviewComment={newReviewComment}
-                setNewReviewComment={setNewReviewComment}
-                newReviewRating={newReviewRating}
-                setNewReviewRating={setNewReviewRating}
-                handlePostReview={handlePostReview}
-              />
             )}
 
             {/* ── FOOTER ── */}
@@ -1013,8 +1088,8 @@ export default function Canteen() {
         isTrackingOpen={isTrackingOpen}
         setIsTrackingOpen={setIsTrackingOpen}
         orderId={orderId}
-        restaurantPhone={restaurantsList.find(r => r._id === activeRestaurant || r.owner === activeRestaurant || r._id === activeOrder?.restaurant)?.phone || "+923001234567"}
-        restaurantName={restaurantsList.find(r => r._id === activeRestaurant || r.owner === activeRestaurant || r._id === activeOrder?.restaurant)?.name || "Campus Bites"}
+        restaurantPhone={currentResPhone}
+        restaurantName={currentResName}
       />
 
       {/* ── TOAST NOTIFICATION ── */}

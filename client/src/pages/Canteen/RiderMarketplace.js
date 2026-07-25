@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -10,6 +10,12 @@ export default function RiderMarketplace() {
   const [isOnline, setIsOnline] = useState(true);
   const [tickets, setTickets] = useState([]);
   const [activeClaimedOrder, setActiveClaimedOrder] = useState(null);
+  const activeClaimedOrderRef = useRef(activeClaimedOrder);
+
+  useEffect(() => {
+    activeClaimedOrderRef.current = activeClaimedOrder;
+  }, [activeClaimedOrder]);
+
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
   const [toast, setToast] = useState(null);
@@ -125,7 +131,7 @@ export default function RiderMarketplace() {
     // Handle incoming ticket broadcast from vendors
     socket.on("new_ticket", (data) => {
       // Only show ticket if rider has no active order
-      if (!activeClaimedOrder) {
+      if (!activeClaimedOrderRef.current) {
         playNotificationSound();
         showToast(`🚀 New Order Ticket: ${data.orderId}${data.urgent ? " — URGENT: Food Ready!" : ""}`, "info");
         fetchTickets();
