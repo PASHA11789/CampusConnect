@@ -7,10 +7,14 @@ export const getVendorInitials = (restaurantName) => {
   if (!restaurantName || typeof restaurantName !== "string") {
     return "XX";
   }
-  // Replace non-alphanumeric characters with spaces
+  const nameLower = restaurantName.toLowerCase();
+  if (nameLower.includes("johnny")) return "JJ";
+  if (nameLower.includes("savour")) return "SF";
+  if (nameLower.includes("gourmet")) return "GR";
+  if (nameLower.includes("dogar")) return "DR";
+
   const cleaned = restaurantName.replace(/[^a-zA-Z0-9\s]/g, " ").trim();
   const words = cleaned.split(/\s+/).filter(Boolean);
-
   if (words.length === 0) return "XX";
   
   const initials = words.map((word) => word[0].toUpperCase()).join("");
@@ -18,11 +22,11 @@ export const getVendorInitials = (restaurantName) => {
 };
 
 /**
- * Generates a custom Order ID in the format: ODR-[Random 5 Digits]-[Vendor Initials]
- * e.g., ODR-58492-JJ
+ * Generates a custom Order ID in the format: ODR-[Random 4 Digits]-[Vendor Initials]
+ * e.g., ODR-4566-JJ
  */
 export const generateOrderId = (restaurantName) => {
-  const random5Digits = Math.floor(10000 + Math.random() * 90000).toString();
+  const random4Digits = Math.floor(1000 + Math.random() * 9000).toString();
   const initials = getVendorInitials(restaurantName);
-  return `ODR-${random5Digits}-${initials}`;
+  return `ODR-${random4Digits}-${initials}`;
 };

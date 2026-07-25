@@ -168,9 +168,55 @@ const seedUsers = async () => {
         program: "BSCS",
         section: "C",
       },
+
+      // --- RIDERS (One for each restaurant) ---
+      {
+        name: "Savour Rider",
+        email: "savour.rider@campusconnect.com",
+        registeration_number: "2020F-mulrider-001",
+        password: hashedPassword,
+        role: "rider",
+        department: "Campus Delivery",
+        semester: 0,
+        program: "Delivery Partner",
+        section: "",
+      },
+      {
+        name: "Gourmet Rider",
+        email: "gourmet.rider@campusconnect.com",
+        registeration_number: "2020F-mulrider-002",
+        password: hashedPassword,
+        role: "rider",
+        department: "Campus Delivery",
+        semester: 0,
+        program: "Delivery Partner",
+        section: "",
+      },
+      {
+        name: "Johnny Rider",
+        email: "johnny.rider@campusconnect.com",
+        registeration_number: "2020F-mulrider-003",
+        password: hashedPassword,
+        role: "rider",
+        department: "Campus Delivery",
+        semester: 0,
+        program: "Delivery Partner",
+        section: "",
+      },
+      {
+        name: "Dogar Rider",
+        email: "dogar.rider@campusconnect.com",
+        registeration_number: "2020F-mulrider-004",
+        password: hashedPassword,
+        role: "rider",
+        department: "Campus Delivery",
+        semester: 0,
+        program: "Delivery Partner",
+        section: "",
+      },
     ];
     await User.insertMany(dummyUsers);
-    console.log("✅ Dummy Users created successfully!");
+    console.log("✅ Dummy Users (including Riders) created successfully!");
 
     // --- VENDORS ---
     const dummyVendors = [

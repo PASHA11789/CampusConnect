@@ -80,7 +80,9 @@ export default function VendorDashboard() {
       });
       if (ordersRes.data.success) {
         const mappedOrders = (ordersRes.data.orders || []).map(order => ({
-          id: order._id,
+          id: order.orderId || order._id,
+          rawId: order._id,
+          orderId: order.orderId || order._id,
           studentName: order.student?.name || "Student",
           avatar: order.student?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(order.student?.name || "Student")}&background=random`,
           phone: order.studentPhone || "+923000000000",
@@ -92,8 +94,8 @@ export default function VendorDashboard() {
           })),
           total: order.totalAmount,
           time: new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          status: order.status === "Pending" ? "New" : order.status,
-          location: order.location || "Main Campus",
+          status: order.status,
+          location: order.deliveryLocation || "Main Campus",
           createdAt: new Date(order.createdAt)
         }));
         mappedOrders.sort((a, b) => b.createdAt - a.createdAt);
@@ -140,7 +142,9 @@ export default function VendorDashboard() {
 
     socket.on("new_vendor_order", (newOrder) => {
       const mapped = {
-        id: newOrder._id,
+        id: newOrder.orderId || newOrder._id,
+        rawId: newOrder._id,
+        orderId: newOrder.orderId || newOrder._id,
         studentName: newOrder.student?.name || "Student",
         avatar: newOrder.student?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(newOrder.student?.name || "Student")}&background=random`,
         phone: newOrder.studentPhone || "+923000000000",
@@ -152,15 +156,15 @@ export default function VendorDashboard() {
         })),
         total: newOrder.totalAmount,
         time: new Date(newOrder.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        status: newOrder.status === "Pending" ? "New" : newOrder.status,
-        location: newOrder.location || "Main Campus",
+        status: "pending",
+        location: newOrder.deliveryLocation || "Main Campus",
         createdAt: new Date(newOrder.createdAt)
       };
 
       setOrders(prev => [mapped, ...prev]);
       setNewNotifications(prev => prev + 1);
       playNotificationSound();
-      showToast(`New order received from ${newOrder.student?.name || "Student"}! 🍔`, "success");
+      showToast(`🆕 New order received from ${newOrder.student?.name || "Student"}! 🍔`, "success");
     });
 
     socket.on("order_nudge", (data) => {
@@ -168,98 +172,81 @@ export default function VendorDashboard() {
       showToast(`🔔 Nudge Alert! Student is asking for update on Order ${data.orderId}`, "warning");
     });
 
-    const handleOrderCompleted = (data) => {
-      const targetId = data?.orderId || data?.id;
-      playNotificationSound();
-      showToast(`🎉 Order ${targetId || ""} delivered & completed by rider!`, "success");
-      setOrders(prev =>
-        prev.map(o => {
-          const isMatch = !targetId ||
-            o.id === targetId ||
-            o._id === targetId ||
-            o.orderId === targetId ||
-            String(o.id) === String(targetId) ||
-            String(o._id) === String(targetId) ||
-            String(o.id).includes(String(targetId)) ||
-            String(targetId).includes(String(o.id));
-          return isMatch ? { ...o, status: "Completed" } : o;
-        })
-      );
-    };
+    // Rider accepted a ticket
+    socket.on("rider_accepted_order", (data) => {
+      showToast(`🛵 Rider accepted Order ${data.orderId}! (${data.riderName || "Rider"})`, "info");
+      setOrders(prev => prev.map(o =>
+        o.orderId === data.orderId ? { ...o, riderName: data.riderName } : o
+      ));
+    });
 
-    socket.on("order_completed_by_rider", handleOrderCompleted);
-    socket.on("order_delivered", handleOrderCompleted);
+    // Ticket was cancelled (e.g., removed from pool)
+    socket.on("ticket_cancelled", (data) => {
+      setOrders(prev => prev.map(o =>
+        o.orderId === data.orderId ? { ...o, status: "cancelled" } : o
+      ));
+    });
+
+    // Generic status updates (from rider actions: picked_up, arrived, completed)
     socket.on("order_status_update", (data) => {
-      const targetId = data?.orderId || data?.id;
-      const statusLower = String(data?.status || "").toLowerCase();
-      if (statusLower === "completed" || statusLower === "delivered") {
-        handleOrderCompleted(data);
-      } else {
-        setOrders(prev =>
-          prev.map(o => {
-            const isMatch = !targetId ||
-              o.id === targetId ||
-              o._id === targetId ||
-              o.orderId === targetId ||
-              String(o.id) === String(targetId) ||
-              String(o._id) === String(targetId) ||
-              String(o.id).includes(String(targetId)) ||
-              String(targetId).includes(String(o.id));
-            return isMatch ? { ...o, status: data.status } : o;
-          })
-        );
+      const targetId = data?.orderId;
+      setOrders(prev =>
+        prev.map(o =>
+          o.orderId === targetId ? { ...o, status: data.status } : o
+        )
+      );
+      if (data.status === "picked_up") {
+        showToast(`🛵 Rider picked up Order ${targetId}! En route to student.`, "info");
+      } else if (data.status === "arrived") {
+        showToast(`📍 Rider arrived with Order ${targetId}!`, "info");
       }
     });
 
-    // 2. BroadcastChannel listener for instant cross-tab rider & student sync
-    let channel;
-    try {
-      channel = new BroadcastChannel("campus_connect_orders");
-      channel.onmessage = (event) => {
-        if (!event.data) return;
-        const { type, orderId, status } = event.data;
-        const targetId = orderId;
-        const sLower = String(status || "").toLowerCase();
-
-        if (type === "ORDER_DELIVERED" || sLower === "completed" || sLower === "delivered") {
-          handleOrderCompleted({ orderId: targetId });
-        } else if (status) {
-          setOrders(prev =>
-            prev.map(o => {
-              const isMatch = !targetId ||
-                o.id === targetId ||
-                o._id === targetId ||
-                o.orderId === targetId ||
-                String(o.id) === String(targetId) ||
-                String(o._id) === String(targetId) ||
-                String(o.id).includes(String(targetId)) ||
-                String(targetId).includes(String(o.id));
-              return isMatch ? { ...o, status: status } : o;
-            })
-          );
-        }
-      };
-    } catch (e) {}
-
-    // 3. Storage listener fallback
-    const handleStorage = (e) => {
-      if (e.key === "order_delivered_signal" && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          handleOrderCompleted(parsed);
-        } catch (err) {}
-      }
-    };
-    window.addEventListener("storage", handleStorage);
+    socket.on("order_completed_by_rider", (data) => {
+      const targetId = data?.orderId;
+      playNotificationSound();
+      showToast(`🎉 Order ${targetId || ""} delivered & completed by rider!`, "success");
+      setOrders(prev =>
+        prev.map(o =>
+          o.orderId === targetId ? { ...o, status: "completed" } : o
+        )
+      );
+    });
 
     return () => {
       socket.disconnect();
-      if (channel) channel.close();
-      window.removeEventListener("storage", handleStorage);
     };
   }, [navigate, showToast]);
 
-  // --- Menu Management Modal States ---
+  // --- Order Status Updates (Stage-Locked) ---
+  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+    const token = sessionStorage.getItem("vendorToken") || localStorage.getItem("token");
+    try {
+      const res = await axios.put(`/api/vendor/orders/${orderId}/status`, { status: newStatus }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data?.success) {
+        setOrders(prev =>
+          prev.map(o => o.orderId === orderId || o.id === orderId ? { ...o, status: newStatus } : o)
+        );
+        playNotificationSound();
+
+        const messages = {
+          accepted: `✅ Order ${orderId} accepted! Rider ticket dispatched to marketplace.`,
+          preparing: `🍳 Order ${orderId} is now being prepared.`,
+          ready: `🍔 Order ${orderId} is ready! Rider has been alerted.`,
+          cancelled: `❌ Order ${orderId} has been cancelled.`
+        };
+        showToast(messages[newStatus] || `Order ${orderId} updated to: ${newStatus}`, newStatus === "cancelled" ? "error" : "success");
+      }
+    } catch (err) {
+      const errMsg = err.response?.data?.message || "Failed to update order status";
+      showToast(`❌ ${errMsg}`, "error");
+      console.error(err);
+    }
+  };
+
+
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [itemName, setItemName] = useState("");
@@ -407,109 +394,7 @@ export default function VendorDashboard() {
     }
   };
 
-  // --- Order Status Modifications ---
-  const handleUpdateOrderStatus = async (orderId, newStatus) => {
-    const token = sessionStorage.getItem("vendorToken") || localStorage.getItem("token");
-    try {
-      const backendStatus = newStatus === "New" ? "Pending" : newStatus;
-      const res = await axios.put(`/api/vendor/orders/${orderId}/status`, { status: backendStatus }, {
-        headers: { Authorization: `Bearer ${token}` }
-      }).catch(err => {
-        return { data: { success: true } };
-      });
-      if (res.data?.success || res.status === 200) {
-        setOrders(prev =>
-          prev.map((o) => (o.id === orderId || o._id === orderId || String(o.id) === String(orderId) ? { ...o, status: newStatus } : o))
-        );
-        playNotificationSound();
-        showToast(`Order ${orderId} status updated to: ${newStatus} 🎉`, "success");
-
-        // Broadcast socket status update to student & rider
-        try {
-          const socket = io(SOCKET_URL);
-          const sLower = newStatus.toLowerCase();
-          const msg = (newStatus === "Ready" || newStatus === "ready")
-            ? "🍱 Order Ready! Your meal is cooked & packed at the canteen."
-            : (newStatus === "Completed" || newStatus === "completed")
-            ? "✅ Order Delivered & Completed!"
-            : `Order status updated to: ${newStatus}`;
-
-          socket.emit("order_status_update", { orderId, status: sLower, message: msg });
-          if (newStatus === "Completed" || newStatus === "completed") {
-            socket.emit("order_delivered", { orderId, message: msg });
-          }
-
-          const channel = new BroadcastChannel("campus_connect_orders");
-          channel.postMessage({
-            type: (newStatus === "Completed" || newStatus === "completed") ? "ORDER_DELIVERED" : "ORDER_STATUS_UPDATE",
-            orderId,
-            status: sLower,
-            message: msg
-          });
-        } catch (e) {}
-      }
-    } catch (err) {
-      console.error(err);
-      showToast("Failed to update order status", "error");
-    }
-  };
-
-  // Dispatch Order to Rider Marketplace
-  const handleDispatchOrder = async (orderId) => {
-    const token = sessionStorage.getItem("vendorToken") || localStorage.getItem("token");
-    try {
-      const res = await axios.put(`http://localhost:5000/api/orders/${orderId}/dispatch`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      }).catch(err => {
-        // Fallback for demo/client mode
-        return { data: { success: true } };
-      });
-
-      if (res.data?.success || res.status === 200) {
-        setOrders(prev =>
-          prev.map((o) => (o.id === orderId ? { ...o, status: "dispatched" } : o))
-        );
-
-        // Save dispatched ticket to localStorage for Rider Marketplace synchronization
-        try {
-          const targetOrder = orders.find(o => o.id === orderId);
-          const savedTicketsStr = localStorage.getItem("campus_dispatched_tickets");
-          const savedTickets = savedTicketsStr ? JSON.parse(savedTicketsStr) : [];
-          const newTicket = {
-            orderId: orderId,
-            deliveryDestination: targetOrder?.location || "Campus Main Gate",
-            totalAmount: targetOrder?.total || 350,
-            createdAt: new Date().toISOString()
-          };
-          localStorage.setItem("campus_dispatched_tickets", JSON.stringify([newTicket, ...savedTickets]));
-        } catch (e) {
-          console.error("Error storing ticket to local storage", e);
-        }
-
-        // Broadcast Socket event to 'riders' room and BroadcastChannel
-        try {
-          const socket = io(SOCKET_URL);
-          socket.emit("new_ticket", { orderId });
-          socket.emit("order_status_update", { orderId, status: "ready", message: "🍱 Order Ready! Dispatched to rider pool." });
-
-          const channel = new BroadcastChannel("campus_connect_orders");
-          channel.postMessage({
-            type: "ORDER_STATUS_UPDATE",
-            orderId,
-            status: "ready",
-            message: "🍱 Order Ready! Dispatched to rider pool."
-          });
-        } catch (e) {
-          console.error(e);
-        }
-
-        showToast(`Order ${orderId} dispatched to Rider Marketplace! 🚀`, "success");
-      }
-    } catch (err) {
-      console.error(err);
-      showToast(err.response?.data?.message || "Failed to dispatch order to riders pool", "error");
-    }
-  };
+  // (handleUpdateOrderStatus is defined above in the socket useEffect block)
 
   // Toggle restaurant open/close status
   const handleToggleRestaurantOpen = async () => {
@@ -529,13 +414,11 @@ export default function VendorDashboard() {
   };
 
   // --- Statistics Calculation ---
-  const activeOrdersList = orders.filter((o) => o.status !== "Completed" && o.status !== "completed" && o.status !== "Cancelled");
-  const completedOrdersList = orders.filter((o) => o.status === "Completed" || o.status === "completed");
+  const activeOrdersList = orders.filter((o) => !['completed', 'cancelled'].includes(o.status));
+  const completedOrdersList = orders.filter((o) => o.status === 'completed');
   const activeOrdersCount = activeOrdersList.length;
-  const todayOrders = orders.filter((o) => o.status !== "Cancelled").length;
-  const todayRevenue = orders
-    .filter((o) => o.status === "Completed" || o.status === "completed" || o.status === "Preparing" || o.status === "New")
-    .reduce((sum, o) => sum + o.total, 0);
+  const todayOrders = orders.filter((o) => o.status !== 'cancelled').length;
+  const todayRevenue = completedOrdersList.reduce((sum, o) => sum + o.total, 0);
 
   // --- Sign Out ---
   const handleLogout = () => {
@@ -853,16 +736,17 @@ export default function VendorDashboard() {
                                   💬 <span className="hidden sm:inline">WhatsApp</span>
                                 </a>
 
-                                {(order.status === "New" || order.status === "pending" || order.status === "Pending") && (
+                                {/* STAGE 1: New/Pending → Accept or Reject */}
+                                {order.status === "pending" && (
                                   <>
                                     <button
-                                      onClick={() => handleUpdateOrderStatus(order.id, "Preparing")}
+                                      onClick={() => handleUpdateOrderStatus(order.orderId, "accepted")}
                                       className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition-all"
                                     >
                                       ✅ Accept
                                     </button>
                                     <button
-                                      onClick={() => handleUpdateOrderStatus(order.id, "Cancelled")}
+                                      onClick={() => handleUpdateOrderStatus(order.orderId, "cancelled")}
                                       className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all"
                                       title="Reject order"
                                     >
@@ -871,30 +755,58 @@ export default function VendorDashboard() {
                                   </>
                                 )}
 
-                                {(order.status === "Preparing" || order.status === "accepted") && (
+                                {/* STAGE 2: Accepted → Mark Preparing */}
+                                {order.status === "accepted" && (
                                   <button
-                                    onClick={() => handleDispatchOrder(order.id)}
-                                    className="px-3 py-2 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-1"
+                                    onClick={() => handleUpdateOrderStatus(order.orderId, "preparing")}
+                                    className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-1"
                                   >
-                                    🚀 Dispatch
+                                    🍳 Mark Preparing
                                   </button>
                                 )}
 
-                                {(order.status === "dispatched" || order.status === "Dispatched") && (
+                                {/* STAGE 3: Preparing → Mark Ready */}
+                                {order.status === "preparing" && (
+                                  <button
+                                    onClick={() => handleUpdateOrderStatus(order.orderId, "ready")}
+                                    className="px-3 py-2 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-1"
+                                  >
+                                    🍔 Ready for Pickup!
+                                  </button>
+                                )}
+
+                                {/* STAGE 4: Ready — waiting for rider pickup */}
+                                {order.status === "ready" && (
+                                  <span className="px-2.5 py-1.5 bg-cyan-50 text-cyan-700 rounded-xl text-[10px] font-black uppercase tracking-wider animate-pulse">
+                                    🛵 Awaiting Rider
+                                  </span>
+                                )}
+
+                                {/* STAGE 5: Rider picked up */}
+                                {order.status === "picked_up" && (
                                   <span className="px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded-xl text-[10px] font-black uppercase tracking-wider">
-                                    🛵 Dispatched
+                                    🛵 En Route
                                   </span>
                                 )}
 
+                                {/* STAGE 6: Arrived */}
                                 {order.status === "arrived" && (
-                                  <span className="px-2.5 py-1.5 bg-purple-50 text-purple-700 rounded-xl text-[10px] font-black uppercase tracking-wider">
-                                    📍 Arrived
+                                  <span className="px-2.5 py-1.5 bg-purple-50 text-purple-700 rounded-xl text-[10px] font-black uppercase tracking-wider animate-pulse">
+                                    📍 Rider Arrived
                                   </span>
                                 )}
 
-                                {(order.status === "completed" || order.status === "Completed") && (
+                                {/* STAGE 7: Completed */}
+                                {order.status === "completed" && (
                                   <span className="px-2.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl text-[10px] font-black uppercase tracking-wider">
-                                    ✅ Done
+                                    ✅ Delivered
+                                  </span>
+                                )}
+
+                                {/* Terminal: Cancelled */}
+                                {order.status === "cancelled" && (
+                                  <span className="px-2.5 py-1.5 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider">
+                                    ❌ Cancelled
                                   </span>
                                 )}
                               </div>
@@ -1227,16 +1139,17 @@ export default function VendorDashboard() {
                               💬 Contact Customer
                             </a>
 
-                            {(order.status === "New" || order.status === "pending" || order.status === "Pending") && (
+                            {/* STAGE 1: New/Pending → Accept or Reject */}
+                            {order.status === "pending" && (
                               <div className="flex gap-2">
                                 <button
-                                  onClick={() => handleUpdateOrderStatus(order.id, "Preparing")}
+                                  onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "accepted")}
                                   className="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm"
                                 >
-                                  ✅ Accept & Prepare
+                                  ✅ Accept Order
                                 </button>
                                 <button
-                                  onClick={() => handleUpdateOrderStatus(order.id, "Cancelled")}
+                                  onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "cancelled")}
                                   className="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors"
                                 >
                                   ❌ Reject
@@ -1244,54 +1157,58 @@ export default function VendorDashboard() {
                               </div>
                             )}
 
-                            {(order.status === "Preparing" || order.status === "preparing") && (
-                              <div className="flex flex-col gap-2">
-                                <button
-                                  onClick={() => handleUpdateOrderStatus(order.id, "Ready")}
-                                  className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
-                                >
-                                  🍱 Mark Order Ready
-                                </button>
-                                <button
-                                  onClick={() => handleDispatchOrder(order.id)}
-                                  className="w-full py-2.5 px-4 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
-                                >
-                                  🚀 Send Order to Rider Pool
-                                </button>
-                              </div>
+                            {/* STAGE 2: Accepted → Mark Preparing */}
+                            {order.status === "accepted" && (
+                              <button
+                                onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "preparing")}
+                                className="w-full py-2.5 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm"
+                              >
+                                🍳 Mark Preparing
+                              </button>
                             )}
 
-                            {(order.status === "Ready" || order.status === "ready") && (
-                              <div className="flex flex-col gap-2">
-                                <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl text-center border border-emerald-200">
-                                  🍱 Food Ready at Canteen
-                                </span>
-                                <button
-                                  onClick={() => handleDispatchOrder(order.id)}
-                                  className="w-full py-2.5 px-4 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
-                                >
-                                  🚀 Send Order to Rider Pool
-                                </button>
-                              </div>
+                            {/* STAGE 3: Preparing → Mark Ready */}
+                            {order.status === "preparing" && (
+                              <button
+                                onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "ready")}
+                                className="w-full py-2.5 px-4 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm"
+                              >
+                                🍔 Ready for Pickup!
+                              </button>
                             )}
 
-                            {(order.status === "dispatched" || order.status === "Dispatched" || order.status === "on_the_way" || order.status === "accepted" || order.status === "arrived") && (
-                              <div className="flex flex-col gap-2 w-full">
-                                <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl text-center border border-amber-200">
-                                  {order.status === "arrived" ? "📍 Rider Arrived at Location" : order.status === "on_the_way" ? "🛵 Rider On The Way" : "🛵 Dispatched to Rider Pool"}
-                                </span>
-                                <button
-                                  onClick={() => handleUpdateOrderStatus(order.id, "Completed")}
-                                  className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
-                                >
-                                  ✅ Mark Order Completed
-                                </button>
-                              </div>
+                            {/* STAGE 4: Ready — awaiting rider pickup */}
+                            {order.status === "ready" && (
+                              <span className="text-[10px] font-black text-cyan-700 bg-cyan-50 px-3 py-2 rounded-xl text-center border border-cyan-200 animate-pulse">
+                                🛵 Awaiting Rider Pickup
+                              </span>
                             )}
 
-                            {(order.status === "completed" || order.status === "Completed") && (
+                            {/* STAGE 5: Rider picked up */}
+                            {order.status === "picked_up" && (
+                              <span className="text-[10px] font-black text-blue-700 bg-blue-50 px-3 py-2 rounded-xl text-center border border-blue-200">
+                                🛵 En Route to Student
+                              </span>
+                            )}
+
+                            {/* STAGE 6: Rider arrived */}
+                            {order.status === "arrived" && (
+                              <span className="text-[10px] font-black text-purple-700 bg-purple-50 px-3 py-2 rounded-xl text-center border border-purple-200 animate-pulse">
+                                📍 Rider Arrived at Location
+                              </span>
+                            )}
+
+                            {/* STAGE 7: Completed */}
+                            {order.status === "completed" && (
                               <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-2 rounded-xl text-center border border-emerald-200">
                                 🎉 Order Completed & Delivered
+                              </span>
+                            )}
+
+                            {/* Terminal: Cancelled */}
+                            {order.status === "cancelled" && (
+                              <span className="text-[10px] font-black text-rose-600 bg-rose-50 px-3 py-2 rounded-xl text-center border border-rose-200">
+                                ❌ Order Cancelled
                               </span>
                             )}
                           </div>

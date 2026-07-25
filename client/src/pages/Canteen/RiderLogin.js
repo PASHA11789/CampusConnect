@@ -17,26 +17,15 @@ export default function RiderLogin() {
     setLoading(true);
 
     try {
-      // Attempt login request (handles fallback or backend endpoints)
-      const res = await axios.post("/api/rider/auth/login", {
+      // Attempt login request against vendor/user auth endpoint
+      const res = await axios.post("/api/vendor/auth/login", {
         email: email.trim(),
         password: password.trim()
-      }).catch(err => {
-        // Fallback for frontend demo if endpoint is handled on client
-        if (err.response?.status === 404 || !err.response) {
-          const mockRider = {
-            _id: "rider_" + Date.now(),
-            name: email.split("@")[0] || "Delivery Rider",
-            email: email.trim(),
-            role: "rider",
-            phone: "+92 300 1234567",
-            vehicleType: "Motorcycle",
-            status: "available",
-            token: "mock_rider_token_" + Date.now()
-          };
-          return { data: mockRider };
-        }
-        throw err;
+      }).catch(async () => {
+        return await axios.post("/api/auth/login", {
+          email: email.trim(),
+          password: password.trim()
+        });
       });
 
       const data = res.data;

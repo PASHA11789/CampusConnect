@@ -12,6 +12,29 @@ export default function RiderMarketplace() {
   const [activeClaimedOrder, setActiveClaimedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (msg, type = "info") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  const playNotificationSound = () => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.5);
+    } catch (e) {}
+  };
+
   const [completedDeliveries, setCompletedDeliveries] = useState(() => {
     try {
       const saved = localStorage.getItem("rider_completed_deliveries");
@@ -93,23 +116,71 @@ export default function RiderMarketplace() {
     socket.on("connect", () => {
       console.log("Rider socket connected:", socket.id);
       socket.emit("join_room", "riders");
+      // Join personal room so vendor/server can send direct messages
+      if (rider?._id) {
+        socket.emit("join_user_room", rider._id);
+      }
     });
 
     // Handle incoming ticket broadcast from vendors
     socket.on("new_ticket", (data) => {
-      setMessage(`🚀 New Order Ready for Pickup: ${data.orderId}!`);
-      fetchTickets();
+      // Only show ticket if rider has no active order
+      if (!activeClaimedOrder) {
+        playNotificationSound();
+        showToast(`🚀 New Order Ticket: ${data.orderId}${data.urgent ? " — URGENT: Food Ready!" : ""}`, "info");
+        fetchTickets();
+      }
     });
 
-    // Handle ticket claimed broadcast
+    // Handle ticket claimed by another rider
     socket.on("ticket_accepted", ({ orderId }) => {
       setTickets((prev) => prev.filter((t) => t.orderId !== orderId));
+    });
+
+    // Handle vendor cancellation (clears active order if it matches)
+    socket.on("ticket_cancelled", ({ orderId }) => {
+      setTickets((prev) => prev.filter((t) => t.orderId !== orderId));
+      setActiveClaimedOrder((prev) => {
+        if (prev?.orderId === orderId) {
+          showToast(`⚠️ Order ${orderId} was cancelled by the vendor.`, "error");
+          return null;
+        }
+        return prev;
+      });
+    });
+
+    // Vendor marked order as Ready for Pickup — direct ping to assigned rider
+    socket.on("order_ready_for_pickup", (data) => {
+      playNotificationSound();
+      showToast(`🍔 Order ${data.orderId} is READY at ${data.restaurantName || "the canteen"}! Go pick it up now.`, "info");
+      setActiveClaimedOrder((prev) =>
+        prev?.orderId === data.orderId ? { ...prev, status: "ready" } : prev
+      );
+    });
+
+    // Handle arrival nudge from student
+    socket.on("student_nudge_arrival", (data) => {
+      playNotificationSound();
+      showToast(`🏃‍♂️ Student Nudge: ${data.message || "Student is on their way to pick up the order!"}`, "warning");
+    });
+
+    // Handle status updates (e.g., vendor cancels while rider has active order)
+    socket.on("order_status_update", (data) => {
+      if (data.status === "cancelled") {
+        setActiveClaimedOrder((prev) => {
+          if (prev?.orderId === data.orderId) {
+            showToast(`⚠️ Order ${data.orderId} was cancelled.`, "error");
+            return null;
+          }
+          return prev;
+        });
+      }
     });
 
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [rider]);
 
   const handleLogout = () => {
     sessionStorage.removeItem("riderToken");
@@ -117,139 +188,100 @@ export default function RiderMarketplace() {
     navigate("/rider/login");
   };
 
+  const [isProcessing, setIsProcessing] = useState(false);
+
   // Claim a Ticket (Step 1)
   const handleAcceptTicket = async (orderId) => {
+    if (isProcessing || activeClaimedOrder) return;
     try {
+      setIsProcessing(true);
       const token = sessionStorage.getItem("riderToken") || sessionStorage.getItem("token") || localStorage.getItem("token");
       const res = await axios.put(
         `http://localhost:5000/api/orders/${orderId}/accept-rider`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
-      ).catch(err => {
-        return {
-          data: {
-            success: true,
-            order: {
-              orderId,
-              status: "on_the_way",
-              deliveryLocation: "Library Block - Table 4",
-              restaurantName: "Minhaj Fast Food",
-              totalAmount: 450
-            }
-          }
-        };
-      });
+      );
 
-      if (res.data.success) {
-        setMessage(`✅ Claimed Order ${orderId}! You are on the way to deliver.`);
-        setActiveClaimedOrder(res.data.order);
+      if (res.data?.success) {
+        showToast(`✅ Claimed Order ${orderId}! Wait for vendor to mark it ready.`, "info");
+        const claimedOrder = res.data.order;
+        setActiveClaimedOrder({
+          ...claimedOrder,
+          orderId: claimedOrder.orderId || orderId,
+          status: claimedOrder.status || "accepted"
+        });
         setTickets((prev) => prev.filter((t) => t.orderId !== orderId));
-
-        // Clean from local dispatched tickets
-        try {
-          const savedTicketsStr = localStorage.getItem("campus_dispatched_tickets");
-          if (savedTicketsStr) {
-            const currentTickets = JSON.parse(savedTicketsStr);
-            const filtered = currentTickets.filter(t => t.orderId !== orderId);
-            localStorage.setItem("campus_dispatched_tickets", JSON.stringify(filtered));
-          }
-        } catch (e) {
-          console.error("Error updating local tickets on accept:", e);
-        }
-
-        // Emit Socket event & BroadcastChannel to Student & Vendor
-        try {
-          const socket = io(SOCKET_URL);
-          const msg = `🛵 Rider On The Way! Rider ${rider?.name || 'Partner'} has picked up your food.`;
-          socket.emit("order_status_update", { orderId, status: "on_the_way", message: msg });
-
-          const channel = new BroadcastChannel("campus_connect_orders");
-          channel.postMessage({ type: "ORDER_STATUS_UPDATE", orderId, status: "on_the_way", message: msg });
-        } catch (e) {}
       }
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to accept ticket";
-      setMessage(`❌ ${errMsg}`);
+      showToast(`❌ ${errMsg}`, "error");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  // Mark Order as Arrived (Step 2)
-  const handleMarkArrived = async (orderId) => {
+  // Mark Order as Picked Up (Step 2 — after vendor marks 'ready')
+  const handleMarkPickedUp = async (orderId) => {
+    if (isProcessing) return;
     try {
+      setIsProcessing(true);
+      const token = sessionStorage.getItem("riderToken") || sessionStorage.getItem("token") || localStorage.getItem("token");
+      const res = await axios.put(
+        `http://localhost:5000/api/orders/${orderId}/pickup`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data?.success) {
+        showToast(`🛵 Order ${orderId} picked up! Now en route to student.`, "info");
+        setActiveClaimedOrder(prev => ({ ...prev, status: "picked_up" }));
+      }
+    } catch (err) {
+      const errMsg = err.response?.data?.message || "Failed to mark picked up";
+      showToast(`❌ ${errMsg}`, "error");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Mark Order as Arrived (Step 3)
+  const handleMarkArrived = async (orderId) => {
+    if (isProcessing) return;
+    try {
+      setIsProcessing(true);
       const token = sessionStorage.getItem("riderToken") || sessionStorage.getItem("token") || localStorage.getItem("token");
       const res = await axios.put(
         `http://localhost:5000/api/orders/${orderId}/arrive`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
-      ).catch(err => {
-        return {
-          data: {
-            success: true,
-            order: {
-              ...activeClaimedOrder,
-              status: "arrived"
-            }
-          }
-        };
-      });
+      );
 
-      if (res.data.success) {
-        setMessage(`🔔 Arrival alert sent to student for order ${orderId}!`);
+      if (res.data?.success) {
+        showToast(`📍 Arrival alert sent to student for order ${orderId}!`, "info");
         setActiveClaimedOrder(prev => ({ ...prev, status: "arrived" }));
-
-        // Emit Direct Socket Ping & BroadcastChannel to Student
-        try {
-          const socket = io(SOCKET_URL);
-          const msg = `📍 Rider Arrived! Rider ${rider?.name || 'Partner'} has reached your location. Please meet them to receive your food.`;
-          socket.emit("order_arrived", { orderId, message: msg });
-
-          const channel = new BroadcastChannel("campus_connect_orders");
-          channel.postMessage({ type: "ORDER_ARRIVED", orderId, status: "arrived", message: msg });
-        } catch (e) {}
       }
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to mark arrival";
-      setMessage(`❌ ${errMsg}`);
+      showToast(`❌ ${errMsg}`, "error");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  // Complete Delivery (Step 3)
+  // Complete Delivery (Step 4)
   const handleCompleteOrder = async (orderId) => {
+    if (isProcessing) return;
     try {
+      setIsProcessing(true);
       const token = sessionStorage.getItem("riderToken") || sessionStorage.getItem("token") || localStorage.getItem("token");
       const res = await axios.put(
         `http://localhost:5000/api/orders/${orderId}/complete`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
-      ).catch(err => {
-        return {
-          data: {
-            success: true,
-            order: {
-              ...activeClaimedOrder,
-              status: "completed"
-            }
-          }
-        };
-      });
+      );
 
-      if (res.data.success) {
-        setMessage(`🎉 Order ${orderId} delivered successfully! Reward earned.`);
-
-        // Socket & BroadcastChannel & Storage emissions: Notify Student & Vendor
-        try {
-          const socket = io(SOCKET_URL);
-          const msg = "✅ Order Delivered! Enjoy your meal.";
-          socket.emit("order_delivered", { orderId, message: msg });
-          socket.emit("order_status_update", { orderId, status: "completed", message: msg });
-          socket.emit("order_completed_by_rider", { orderId, message: msg });
-
-          const channel = new BroadcastChannel("campus_connect_orders");
-          channel.postMessage({ type: "ORDER_DELIVERED", orderId, status: "completed", message: msg });
-
-          localStorage.setItem("order_delivered_signal", JSON.stringify({ orderId, timestamp: Date.now() }));
-        } catch (e) {}
-
+      if (res.data?.success) {
+        showToast(`🎉 Order ${orderId} delivered! Great job!`, "info");
         if (activeClaimedOrder) {
           setCompletedDeliveries((prev) => [
             {
@@ -259,18 +291,26 @@ export default function RiderMarketplace() {
             ...prev
           ]);
         }
-
         setActiveClaimedOrder(null);
         fetchTickets();
       }
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to complete delivery";
-      setMessage(`❌ ${errMsg}`);
+      showToast(`❌ ${errMsg}`, "error");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans flex flex-col">
+    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans flex flex-col relative">
+      {/* Toast popup banner */}
+      {toast && (
+        <div className="fixed top-5 right-5 z-[9999] bg-[#00c2cb] text-slate-900 px-5 py-3 rounded-2xl shadow-2xl font-black text-xs border border-white/40 animate-slide-down flex items-center gap-2">
+          <span>{toast.msg}</span>
+        </div>
+      )}
+
       {/* Top Rider Header */}
       <header className="bg-slate-800/90 border-b border-slate-700/60 sticky top-0 z-40 backdrop-blur-md px-6 py-4 flex items-center justify-between shadow-lg">
         <div className="flex items-center gap-3">
@@ -355,24 +395,74 @@ export default function RiderMarketplace() {
                 </div>
               </div>
 
-              {/* ACTION BUTTONS STEP 2 & STEP 3 */}
-              <div className="flex items-center gap-3">
-                {activeClaimedOrder.status === "on_the_way" && (
-                  <button
-                    onClick={() => handleMarkArrived(activeClaimedOrder.orderId)}
-                    className="flex-1 py-3.5 rounded-2xl bg-amber-500/20 border border-amber-500/50 text-amber-300 hover:bg-amber-500/30 font-extrabold text-xs shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <span>📍 Reached Location (Send Alert)</span>
-                  </button>
-                )}
+              {/* ACTION BUTTONS — STRICT STAGE LOCKING */}
+              <div className="space-y-3">
+                {/* Current Status Banner */}
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-300 bg-slate-900/60 rounded-2xl px-4 py-3 border border-slate-700/50">
+                  <span className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                    activeClaimedOrder.status === "accepted" ? "bg-yellow-400 animate-pulse" :
+                    activeClaimedOrder.status === "preparing" ? "bg-orange-400 animate-pulse" :
+                    activeClaimedOrder.status === "ready" ? "bg-cyan-400 animate-bounce" :
+                    activeClaimedOrder.status === "picked_up" ? "bg-blue-400 animate-pulse" :
+                    activeClaimedOrder.status === "arrived" ? "bg-purple-400 animate-pulse" :
+                    "bg-emerald-400"
+                  }`}></span>
+                  Status:&nbsp;
+                  <span className="text-white uppercase tracking-wider">
+                    {activeClaimedOrder.status === "accepted" ? "Waiting for vendor to prepare..." :
+                     activeClaimedOrder.status === "preparing" ? "Vendor is preparing the food 🍳" :
+                     activeClaimedOrder.status === "ready" ? "🍔 FOOD READY — Pick it up!" :
+                     activeClaimedOrder.status === "picked_up" ? "🛵 En route to student" :
+                     activeClaimedOrder.status === "arrived" ? "📍 At delivery location" :
+                     activeClaimedOrder.status?.replace("_", " ")}
+                  </span>
+                </div>
 
+                {/* STEP 2: Pick Up (only when vendor marks 'ready') */}
+                <button
+                  onClick={() => handleMarkPickedUp(activeClaimedOrder.orderId)}
+                  disabled={isProcessing || activeClaimedOrder.status !== "ready"}
+                  className={`w-full py-3.5 rounded-2xl font-extrabold text-xs shadow-lg transition-all flex items-center justify-center gap-2 ${
+                    activeClaimedOrder.status === "ready"
+                      ? "bg-gradient-to-r from-cyan-500 to-teal-600 hover:opacity-95 text-white cursor-pointer shadow-cyan-950/50 animate-pulse"
+                      : "bg-slate-700/40 text-slate-500 border border-slate-700 cursor-not-allowed"
+                  }`}
+                  title={activeClaimedOrder.status !== "ready" ? "Wait for vendor to mark order as Ready for Pickup." : "Pick up the order"}
+                >
+                  {activeClaimedOrder.status === "ready" ? "🍔 Mark Picked Up — Food Ready!" :
+                   activeClaimedOrder.status === "accepted" || activeClaimedOrder.status === "preparing" ? "⏳ Waiting for Vendor to Mark Ready..." :
+                   "✅ Food Picked Up"}
+                </button>
+
+                {/* STEP 3: Mark Arrived (only when picked_up) */}
+                <button
+                  onClick={() => handleMarkArrived(activeClaimedOrder.orderId)}
+                  disabled={isProcessing || activeClaimedOrder.status !== "picked_up"}
+                  className={`w-full py-3.5 rounded-2xl font-extrabold text-xs shadow-lg transition-all flex items-center justify-center gap-2 ${
+                    activeClaimedOrder.status === "picked_up"
+                      ? "bg-amber-500/20 border border-amber-500/50 text-amber-300 hover:bg-amber-500/30 cursor-pointer"
+                      : "bg-slate-700/40 text-slate-500 border border-slate-700 cursor-not-allowed"
+                  }`}
+                  title={activeClaimedOrder.status !== "picked_up" ? "Pick up the order first." : "Mark arrived at delivery location"}
+                >
+                  📍 Mark Arrived at Delivery Location
+                </button>
+
+                {/* STEP 4: Complete (only when arrived) */}
                 <button
                   onClick={() => handleCompleteOrder(activeClaimedOrder.orderId)}
-                  className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white font-extrabold text-xs shadow-lg shadow-emerald-950/50 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  disabled={isProcessing || activeClaimedOrder.status !== "arrived"}
+                  className={`w-full py-3.5 rounded-2xl font-extrabold text-xs shadow-lg transition-all flex items-center justify-center gap-2 ${
+                    activeClaimedOrder.status === "arrived"
+                      ? "bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white cursor-pointer shadow-emerald-950/50 animate-pulse"
+                      : "bg-slate-700/40 text-slate-500 border border-slate-700 cursor-not-allowed"
+                  }`}
+                  title={activeClaimedOrder.status !== "arrived" ? "Mark 'Arrived' first before completing." : "Complete order"}
                 >
-                  <span>✅ Mark Delivered & Close Loop</span>
+                  ✅ Mark Delivered & Close Order
                 </button>
               </div>
+
             </div>
           ) : (
             <div className="bg-slate-800/60 rounded-3xl p-6 border border-slate-700/50 flex items-center justify-between">
@@ -447,10 +537,15 @@ export default function RiderMarketplace() {
 
                       <button
                         onClick={() => handleAcceptTicket(t.orderId)}
-                        disabled={!isOnline}
-                        className="px-5 py-2.5 rounded-xl bg-[#00c2cb] hover:bg-[#00c2cb]/90 text-slate-950 font-black text-xs shadow-md transition-all cursor-pointer disabled:opacity-40"
+                        disabled={!isOnline || !!activeClaimedOrder}
+                        title={activeClaimedOrder ? "Complete your current delivery before accepting a new one." : ""}
+                        className={`px-5 py-2.5 rounded-xl font-black text-xs shadow-md transition-all ${
+                          !isOnline || activeClaimedOrder
+                            ? "bg-slate-700 text-slate-500 cursor-not-allowed"
+                            : "bg-[#00c2cb] hover:bg-[#00c2cb]/90 text-slate-950 cursor-pointer"
+                        }`}
                       >
-                        {isOnline ? "Accept Order ➔" : "Go Online to Accept"}
+                        {activeClaimedOrder ? "Busy (Active Order)" : isOnline ? "Accept Order ➔" : "Go Online to Accept"}
                       </button>
                     </div>
                   </div>

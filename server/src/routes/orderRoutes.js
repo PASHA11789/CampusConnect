@@ -3,42 +3,46 @@ import { protect } from "../middleware/authMiddleware.js";
 import { nudgeRateLimiter } from "../middleware/nudgeRateLimiter.js";
 import {
   createOrder,
-  dispatchOrder,
   acceptRiderTicket,
+  pickupOrder,
   arriveOrder,
   completeOrder,
   nudgeOrder,
+  nudgeRiderOnArrival,
   getMarketplaceTickets,
   getOrderById
 } from "../controller/orderController.js";
 
 const router = express.Router();
 
-// Order creation & Marketplace browsing
-router.route("/")
-  .post(protect, createOrder);
+// Order creation
+router.route("/").post(protect, createOrder);
 
-router.route("/marketplace/tickets")
-  .get(protect, getMarketplaceTickets);
+// Marketplace — riders browse available tickets
+router.route("/marketplace/tickets").get(protect, getMarketplaceTickets);
 
-router.route("/:id")
-  .get(protect, getOrderById);
+// Single order lookup
+router.route("/:id").get(protect, getOrderById);
 
-// Rider Marketplace & Socket Pipeline
-router.route("/:id/dispatch")
-  .put(protect, dispatchOrder);
+// ── Rider Pipeline ──────────────────────────────────────────────────────
+// Stage 2 (from rider side): Rider claims a ticket
+router.route("/:id/accept-rider").put(protect, acceptRiderTicket);
 
-router.route("/:id/accept-rider")
-  .put(protect, acceptRiderTicket);
+// Stage 5: Rider picks up food from restaurant
+router.route("/:id/pickup").put(protect, pickupOrder);
 
-router.route("/:id/arrive")
-  .put(protect, arriveOrder);
+// Stage 6: Rider marks arrived at delivery location
+router.route("/:id/arrive").put(protect, arriveOrder);
 
-router.route("/:id/complete")
-  .put(protect, completeOrder);
+// Stage 7: Rider marks order as fully delivered
+router.route("/:id/complete").put(protect, completeOrder);
 
-// Rate-limited Nudge feature (1 request per 3 minutes)
-router.route("/:id/nudge")
-  .post(protect, nudgeRateLimiter, nudgeOrder);
+// ── Nudge Features ──────────────────────────────────────────────────────
+// Student nudges vendor (rate-limited: 1 per 3 min)
+router.route("/:id/nudge").post(protect, nudgeRateLimiter, nudgeOrder);
+
+// Student nudges rider when rider has arrived (no rate limit — one-shot action)
+router.route("/:id/nudge-rider").post(protect, nudgeRiderOnArrival);
 
 export default router;
+

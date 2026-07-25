@@ -178,11 +178,27 @@ export default function Canteen() {
         const { data } = await axios.get("/api/canteen/restaurants", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (data.success) {
-          setRestaurantsList(data.restaurants || []);
-          const initialResId = location.state?.restaurantId || data.restaurants[0]?._id;
-          if (initialResId) {
-            setActiveRestaurant(initialResId);
+        if (data.success && data.restaurants && data.restaurants.length > 0) {
+          setRestaurantsList(data.restaurants);
+
+          const targetId = location.state?.restaurantId;
+          const targetName = location.state?.restaurantName;
+
+          let foundIndex = -1;
+          if (targetId || targetName) {
+            foundIndex = data.restaurants.findIndex(r =>
+              (targetId && (r._id === targetId || r.id === targetId)) ||
+              (targetName && r.name && r.name.toLowerCase().includes(String(targetName).toLowerCase())) ||
+              (targetId && r.name && r.name.toLowerCase().includes(String(targetId).toLowerCase()))
+            );
+          }
+
+          if (foundIndex !== -1) {
+            setActiveRestaurant(data.restaurants[foundIndex]._id);
+            setSelectedVisualIndex(foundIndex);
+          } else if (data.restaurants[0]) {
+            setActiveRestaurant(data.restaurants[0]._id);
+            setSelectedVisualIndex(0);
           }
         }
       } catch (err) {
@@ -192,7 +208,7 @@ export default function Canteen() {
       }
     };
     fetchRestaurants();
-  }, [location.state?.restaurantId]);
+  }, [location.state]);
 
   // ── Fetch Restaurant Menu ────────────────────────────────────────
   useEffect(() => {
@@ -214,7 +230,7 @@ export default function Canteen() {
       }
     };
 
-    if (activeRestaurant && activeRestaurant.length === 24) {
+    if (activeRestaurant) {
       fetchMenu();
     }
   }, [activeRestaurant]);
@@ -250,26 +266,38 @@ export default function Canteen() {
   }, [user]);
 
   // ── WebSocket & Cross-Tab Real-Time Tracking ──
+  const lastToastStatusRef = React.useRef({ status: "", time: 0 });
+
   useEffect(() => {
     if (!user) return;
 
     const handleIncomingStatus = (status, msg) => {
+      if (!status) return;
       const sKey = getNormalizedStatus(status);
+
+      // Prevent duplicate toast popups within 3 seconds for same status key
+      const now = Date.now();
+      const isDuplicate = lastToastStatusRef.current.status === sKey && (now - lastToastStatusRef.current.time < 3000);
+      if (!isDuplicate) {
+        lastToastStatusRef.current = { status: sKey, time: now };
+
+        if (sKey === "ready") {
+          showToast(msg || "🍱 Order Ready! Your food is cooked & packed at the canteen.", "success");
+        } else if (sKey === "on_the_way" || sKey === "accepted") {
+          showToast(msg || "🛵 Rider On The Way! Rider has picked up your food.", "info");
+        } else if (sKey === "arrived") {
+          showToast(msg || "📍 Rider Arrived! Rider has reached your location. Please receive your food.", "info");
+        } else if (sKey === "completed" || sKey === "delivered") {
+          showToast(msg || "✅ Order Delivered! Enjoy your meal.", "success");
+        }
+      }
+
       setActiveOrder((prev) => {
+        if (prev && prev.status === sKey) return prev;
         const updated = { ...(prev || {}), status: sKey };
         localStorage.setItem("active_canteen_order", JSON.stringify(updated));
         return updated;
       });
-
-      if (sKey === "ready") {
-        showToast(msg || "🍱 Order Ready! Your food is cooked & packed at the canteen.", "success");
-      } else if (sKey === "on_the_way") {
-        showToast(msg || "🛵 Rider On The Way! Rider has picked up your food.", "info");
-      } else if (sKey === "arrived") {
-        showToast(msg || "📍 Rider Arrived! Rider has reached your location. Please receive your food.", "info");
-      } else if (sKey === "completed") {
-        showToast(msg || "✅ Order Delivered! Enjoy your meal.", "success");
-      }
     };
 
     // 1. Socket.io
@@ -480,7 +508,7 @@ export default function Canteen() {
 
       if (data.success) {
         setActiveOrder(data.order);
-        setOrderId(data.order._id);
+        setOrderId(data.order.orderId || data.order._id);
         setCart([]);
         setIsTrackingOpen(true);
         handleRemovePromo();

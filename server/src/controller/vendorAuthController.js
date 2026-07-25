@@ -1,32 +1,55 @@
 import bcrypt from "bcryptjs";
 import Vendor from "../models/Vendor.js";
+import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
 
 export const loginVendor = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    // 1. Check Vendor collection
     const vendor = await Vendor.findOne({ email });
     if (vendor) {
       const isMatch = await bcrypt.compare(password, vendor.password);
       if (isMatch) {
-        res.json({
+        return res.json({
           _id: vendor._id,
           name: vendor.name,
           email: vendor.email,
           registeration_number: vendor.registeration_number,
-          role: vendor.role,
+          role: vendor.role || "vendor",
           restaurantName: vendor.restaurantName,
           phone: vendor.phone,
           avatar: vendor.avatar,
           token: generateToken(vendor._id),
         });
       } else {
-        res.status(401).json({ message: "Invalid email or password" });
+        return res.status(401).json({ message: "Invalid email or password" });
       }
-    } else {
-      res.status(401).json({ message: "Invalid email or password" });
     }
+
+    // 2. Fallback check in User collection (for riders and other users)
+    const user = await User.findOne({ email });
+    if (user) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch) {
+        return res.json({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          registeration_number: user.registeration_number,
+          role: user.role,
+          department: user.department,
+          program: user.program,
+          avatar: user.avatar,
+          token: generateToken(user._id),
+        });
+      } else {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+    }
+
+    return res.status(401).json({ message: "Invalid email or password" });
   } catch (error) {
     res.status(500).json({ message: "server error", error: error.message });
   }

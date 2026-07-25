@@ -22,10 +22,17 @@ export default function VendorLogin() {
         password: password.trim()
       });
 
-      sessionStorage.setItem("vendorToken", data.token);
-      sessionStorage.setItem("vendorInfo", JSON.stringify(data));
-
-      navigate("/vendor/dashboard");
+      if (data.role === "rider") {
+        sessionStorage.setItem("riderToken", data.token);
+        sessionStorage.setItem("riderUser", JSON.stringify(data));
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("user", JSON.stringify(data));
+        navigate("/rider/dashboard");
+      } else {
+        sessionStorage.setItem("vendorToken", data.token);
+        sessionStorage.setItem("vendorInfo", JSON.stringify(data));
+        navigate("/vendor/dashboard");
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Invalid email or password.");
     } finally {

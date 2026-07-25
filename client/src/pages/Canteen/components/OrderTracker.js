@@ -4,6 +4,26 @@ import { io } from "socket.io-client";
 import { SOCKET_URL } from "../../../utils/helpers";
 import OrderRatingModal from "../../../components/canteen/OrderRatingModal";
 
+const STEPS = [
+  { id: "accepted", label: "Accepted" },
+  { id: "preparing", label: "Preparing" },
+  { id: "ready", label: "Ready" },
+  { id: "picked_up", label: "En Route" },
+  { id: "arrived", label: "Arrived" },
+  { id: "completed", label: "Delivered" },
+];
+
+const STATUS_MESSAGES = {
+  pending:    { emoji: "⏳", text: "Waiting for the vendor to accept your order..." },
+  accepted:   { emoji: "✅", text: "Order accepted! We're finding a rider for you." },
+  preparing:  { emoji: "🍳", text: "Your food is being freshly prepared!" },
+  ready:      { emoji: "🍔", text: "Food is ready! The rider is picking it up now." },
+  picked_up:  { emoji: "🛵", text: "Your order is on its way to you!" },
+  arrived:    { emoji: "📍", text: "Your rider has arrived at the delivery point!" },
+  completed:  { emoji: "🎉", text: "Delivered! Enjoy your meal." },
+  cancelled:  { emoji: "❌", text: "Your order was cancelled. We're sorry for the inconvenience." },
+};
+
 export default function OrderTracker({
   isTrackingOpen,
   setIsTrackingOpen,
@@ -17,6 +37,20 @@ export default function OrderTracker({
   const [liveStatus, setLiveStatus] = useState("pending");
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [showRatingModal, setShowRatingModal] = useState(false);
+  const [riderNudgeSent, setRiderNudgeSent] = useState(false);
+
+  const getCurrentStep = (status) => {
+    const s = (status || "").toLowerCase();
+    if (s === "accepted") return 0;
+    if (s === "preparing") return 1;
+    if (s === "ready") return 2;
+    if (s === "picked_up") return 3;
+    if (s === "arrived") return 4;
+    if (s === "completed" || s === "delivered") return 5;
+    return -1; // pending or unknown
+  };
+  const currentStep = getCurrentStep(liveStatus);
+
 
   // Handle Socket & BroadcastChannel listener for order status updates & arrival pings
   useEffect(() => {
@@ -98,25 +132,39 @@ export default function OrderTracker({
     if (cooldown > 0) return;
     try {
       setNudgeStatus("Sending nudge...");
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
       const res = await axios.post(
-        `http://localhost:5000/api/orders/${orderId}/nudge`,
+        `/api/orders/${orderId}/nudge`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (res.data.success) {
+      if (res.data?.success) {
         setNudgeStatus("🔔 Nudge sent to vendor!");
         setCooldown(180); // 3 minutes
       }
     } catch (err) {
       if (err.response?.status === 429) {
-        const remaining = err.response.data.retryAfterSeconds || 180;
+        const remaining = err.response.data?.retryAfterSeconds || 180;
         setCooldown(remaining);
         setNudgeStatus(`Rate limited: Please wait ${remaining}s before nudging again.`);
       } else {
-        setNudgeStatus("Failed to send nudge. Please try again.");
+        console.error("Nudge error:", err);
+        setNudgeStatus(err.response?.data?.message || "Failed to send nudge. Please try again.");
       }
+    }
+  };
+
+  const handleNudgeRiderArrival = async () => {
+    try {
+      setRiderNudgeSent(true);
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+      await axios.post(`/api/orders/${orderId}/nudge-rider`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setTimeout(() => setRiderNudgeSent(false), 6000);
+    } catch (err) {
+      console.error("Error nudging rider on arrival:", err);
     }
   };
 
@@ -134,34 +182,71 @@ export default function OrderTracker({
             </button>
           </div>
 
-          {/* Status Icon */}
-          <div className="mx-auto w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center text-3xl mb-4 shadow-sm">
-            {liveStatus === "arrived" ? "🛵" : liveStatus === "completed" ? "⭐" : "🎉"}
+          <div className="mb-4">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-50 text-[#00c2cb] text-2xl shadow-inner">
+              📍
+            </div>
+            <h3 className="text-xl font-black text-[#0a2342] tracking-tight">Order Status Tracker</h3>
+            <p className="text-xs font-bold text-slate-400 mt-1">Live pipeline progression for your food order</p>
           </div>
 
-          {/* Title */}
-          <h2 className="text-xl font-black text-[#0a2342] tracking-tight">Order Registered!</h2>
-          <p className="text-xs font-semibold text-slate-400 mt-1">
-            Real-time order tracking & delivery notifications
-          </p>
+          {/* Stepper Progression */}
+          <div className="mb-6 flex items-center justify-between px-2">
+            {STEPS.map((step, idx) => {
+              const isCompleted = idx < currentStep;
+              const isCurrent = idx === currentStep;
 
-          {/* Live Arrival Banner */}
-          {arrivalMessage && (
-            <div className="mt-4 p-3 rounded-2xl bg-amber-500 text-white font-extrabold text-xs shadow-md animate-bounce">
-              🔔 {arrivalMessage}
+              return (
+                <div key={step.id} className="flex-1 flex flex-col items-center relative">
+                  <div
+                    className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-xs transition-all duration-300 z-10 ${isCompleted
+                      ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
+                      : isCurrent
+                        ? "bg-[#00c2cb] text-white ring-4 ring-[#00c2cb]/20 scale-110 shadow-lg"
+                        : "bg-slate-100 text-slate-400 border border-slate-200"
+                      }`}
+                  >
+                    {isCompleted ? "✓" : idx + 1}
+                  </div>
+                  <span className={`text-[10px] font-extrabold mt-2 whitespace-nowrap ${isCurrent ? "text-[#0a2342]" : "text-slate-400"
+                    }`}>
+                    {step.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Status Message Card */}
+          {liveStatus === "cancelled" ? (
+            <div className="mb-5 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-center animate-fade-in">
+              <div className="text-2xl mb-1">❌</div>
+              <p className="text-xs font-black text-rose-700">Order Cancelled</p>
+              <p className="text-[10px] text-rose-500 mt-1">Your order from {restaurantName} was cancelled. We're sorry for the inconvenience.</p>
+            </div>
+          ) : (
+            <div className="mb-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/60 text-center">
+              <div className="text-xl mb-0.5">{STATUS_MESSAGES[liveStatus]?.emoji || "⏳"}</div>
+              <p className="text-[11px] font-black text-[#0a2342]">{STATUS_MESSAGES[liveStatus]?.text || "Processing your order..."}</p>
             </div>
           )}
 
-          {/* Order Details Card */}
-          <div className="my-5 bg-slate-50 border border-slate-100 rounded-2xl p-4 text-left text-xs font-bold text-slate-500 space-y-2">
+          {/* Details Card */}
+          <div className="rounded-2xl bg-slate-50 p-4 mb-5 border border-slate-200/60 text-left text-xs font-semibold text-slate-500 space-y-2">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
               <span>Order ID</span>
               <span className="text-[#0a2342] font-black">{orderId}</span>
             </div>
             <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
               <span>Status</span>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">
-                {liveStatus}
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                liveStatus === "cancelled" ? "bg-rose-100 text-rose-700" :
+                liveStatus === "completed" ? "bg-emerald-100 text-emerald-800" :
+                liveStatus === "arrived" ? "bg-purple-100 text-purple-800" :
+                liveStatus === "picked_up" ? "bg-blue-100 text-blue-800" :
+                "bg-amber-100 text-amber-800"
+              }`}>
+                {liveStatus.replace("_", " ")}
               </span>
             </div>
             <div className="flex justify-between items-center pt-1">
@@ -169,6 +254,30 @@ export default function OrderTracker({
               <span className="text-[#0a2342] font-black">{restaurantName}</span>
             </div>
           </div>
+
+          {/* ARRIVAL NUDGE OPTION FOR STUDENT — only when rider has arrived */}
+          {liveStatus === "arrived" && (
+            <div className="mb-5 p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col gap-2.5 items-center text-center animate-pulse">
+              <div className="flex items-center gap-1.5 text-amber-900 font-extrabold text-xs">
+                <span>📍 Rider Has Arrived at Location!</span>
+              </div>
+              <p className="text-[11px] text-amber-700 font-medium leading-tight">
+                Your delivery rider is waiting at the campus meetup point. Let them know you're on your way!
+              </p>
+              <button
+                onClick={handleNudgeRiderArrival}
+                disabled={riderNudgeSent}
+                className="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-2.5 px-4 rounded-xl text-xs transition-all shadow-md active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-60"
+              >
+                <span>🏃‍♂️ Nudge Rider: "I'm on my way!"</span>
+              </button>
+              {riderNudgeSent && (
+                <span className="text-[10px] font-black text-emerald-600 animate-bounce mt-1">
+                  ✅ Arrival alert sent! Rider notified that you are heading over.
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Nudge Feedback */}
           {nudgeStatus && (
@@ -179,17 +288,19 @@ export default function OrderTracker({
 
           {/* Actions */}
           <div className="space-y-2.5">
-            {/* Nudge Button */}
-            <button
-              onClick={handleNudgeVendor}
-              disabled={cooldown > 0}
-              className={`w-full py-3.5 rounded-2xl text-xs font-black tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-md ${cooldown > 0
-                ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                : "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20 cursor-pointer"
-                }`}
-            >
-              🔔 {cooldown > 0 ? `Nudge Cooldown (${cooldown}s)` : "Nudge Vendor for Update"}
-            </button>
+            {/* Vendor Nudge Button — only visible in early stages */}
+            {["pending", "accepted", "preparing"].includes(liveStatus) && (
+              <button
+                onClick={handleNudgeVendor}
+                disabled={cooldown > 0}
+                className={`w-full py-3.5 rounded-2xl text-xs font-black tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-md ${cooldown > 0
+                  ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  : "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20 cursor-pointer"
+                  }`}
+              >
+                🔔 {cooldown > 0 ? `Vendor Nudge Cooldown (${cooldown}s)` : "Nudge Vendor for Update"}
+              </button>
+            )}
 
             {/* WhatsApp Action */}
             <a
@@ -210,6 +321,7 @@ export default function OrderTracker({
           </div>
         </div>
       </div>
+
 
       {/* RATING MODAL POPUP */}
       {showRatingModal && (

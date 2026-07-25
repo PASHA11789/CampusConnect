@@ -7,10 +7,11 @@ import { generateOrderId } from "../utils/orderUtils.js";
  * Helper to strip personal contact information before sending order data to riders
  */
 const sanitizeOrderForRider = (orderDoc) => {
+  if (!orderDoc) return null;
   const orderObj = orderDoc.toObject ? orderDoc.toObject() : { ...orderDoc };
   delete orderObj.contactNumber;
   delete orderObj.studentPhone;
-  if (orderObj.student && typeof orderObj.student === 'object') {
+  if (orderObj.student && typeof orderObj.student === 'object' && !orderObj.student._bsontype) {
     delete orderObj.student.phone;
     delete orderObj.student.email;
   }
@@ -22,10 +23,18 @@ const sanitizeOrderForRider = (orderDoc) => {
  */
 const findOrderByIdOrCustomId = async (idParam) => {
   if (idParam.match(/^[0-9a-fA-F]{24}$/)) {
-    let order = await Order.findById(idParam);
+    let order = await Order.findById(idParam).catch(() => null);
     if (order) return order;
   }
   return await Order.findOne({ orderId: idParam });
+};
+
+/**
+ * Helper to get vendor owner ID from restaurant
+ */
+const getVendorId = async (restaurantId) => {
+  const rest = await Restaurant.findById(restaurantId);
+  return rest?.owner?.toString() || null;
 };
 
 /**
@@ -49,11 +58,8 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Restaurant is currently closed" });
     }
 
-    // Determine contact number
     const finalContact = contactNumber || studentPhone || "N/A";
     const location = deliveryLocation || deliveryDestination || "University Main Gate";
-
-    // Generate custom orderId
     const customId = generateOrderId(restaurant.name);
 
     const order = await Order.create({
@@ -90,104 +96,182 @@ export const createOrder = async (req, res) => {
 };
 
 /**
- * PUT /api/orders/:id/dispatch
- * Vendor generates ticket and dispatches order.
- * Emits Socket event to the 'riders' room containing ONLY orderId and deliveryDestination.
- */
-export const dispatchOrder = async (req, res) => {
-  try {
-    const order = await findOrderByIdOrCustomId(req.params.id);
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
-    }
-
-    order.status = "dispatched";
-    await order.save();
-
-    const destination = order.deliveryLocation || "University Main Gate";
-
-    // Emit socket event to riders room with ONLY orderId and deliveryDestination
-    const io = req.app.get("socketio");
-    if (io) {
-      io.to("riders").emit("new_ticket", {
-        orderId: order.orderId,
-        deliveryDestination: destination
-      });
-      // also notify student
-      io.to(order.student.toString()).emit("order_status_update", {
-        orderId: order.orderId,
-        status: "dispatched"
-      });
-    }
-
-    // Create Notification
-    await Notification.create({
-      recipient: order.student,
-      type: "GENERAL",
-      message: `Order ${order.orderId} dispatched! A delivery rider will pick it up soon.`
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: "Order ticket generated and dispatched to riders marketplace",
-      ticket: {
-        orderId: order.orderId,
-        deliveryDestination: destination,
-        status: order.status
-      }
-    });
-  } catch (error) {
-    console.error("Error in dispatchOrder:", error);
-    return res.status(500).json({ success: false, message: "Error dispatching order", error: error.message });
-  }
-};
-
-/**
  * PUT /api/orders/:id/accept-rider
- * Rider accepts the ticket. Assigns rider ID to order and removes ticket from global pool.
+ * Rider accepts the ticket.
+ * - Checks rider doesn't already have an active order
+ * - Assigns rider to order, keeps status as "accepted" (vendor controls "preparing")
+ * - Removes ticket from global pool
  */
 export const acceptRiderTicket = async (req, res) => {
   try {
-    const order = await findOrderByIdOrCustomId(req.params.id);
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
-    }
+    // ── Guard: Check if this rider already has an active order ────────────────
+    // Do this BEFORE the atomic claim to give a helpful error message
+    const activeOrder = await Order.findOne({
+      rider: req.user._id,
+      status: { $nin: ["completed", "cancelled"] }
+    });
 
-    if (order.rider && order.rider.toString() !== req.user._id.toString()) {
-      return res.status(400).json({ success: false, message: "Ticket already claimed by another rider" });
-    }
-
-    order.rider = req.user._id;
-    order.status = "accepted";
-    await order.save();
-
-    // Emit Socket event to remove ticket from global riders pool
-    const io = req.app.get("socketio");
-    if (io) {
-      io.to("riders").emit("ticket_accepted", { orderId: order.orderId });
-      io.to(order.student.toString()).emit("order_status_update", {
-        orderId: order.orderId,
-        status: "accepted"
+    // Re-check after claiming — but pre-check provides better UX error
+    if (activeOrder) {
+      return res.status(400).json({
+        success: false,
+        message: `You already have an active delivery (Order ${activeOrder.orderId}). Complete it before accepting a new one.`
       });
     }
 
-    // Zero-Trust: Return payload with contact info stripped
-    const sanitizedOrder = sanitizeOrderForRider(order);
+    // ── ATOMIC CLAIM — Prevents Race Condition ────────────────────────────────
+    // findOneAndUpdate with { rider: null } condition means:
+    //   "Only update this document if rider is STILL null at the moment of write"
+    // MongoDB processes this as a single atomic operation.
+    // If two riders fire simultaneously, only ONE write will succeed.
+    // The other will get null back (document was already claimed).
+    const order = await Order.findOneAndUpdate(
+      {
+        // Match: order ID, unclaimed, and still in ticket pool
+        $or: [
+          { _id: req.params.id.match(/^[0-9a-fA-F]{24}$/) ? req.params.id : null },
+          { orderId: req.params.id }
+        ],
+        rider: null,                              // ← ATOMIC: only if unclaimed
+        status: { $in: ["accepted", "ready"] }    // ← only if ticket is available
+      },
+      {
+        $set: { rider: req.user._id }             // ← atomically assign this rider
+      },
+      {
+        new: true,                                // return updated document
+        runValidators: true
+      }
+    );
 
+    // If null: ticket was already claimed by another rider or doesn't exist
+    if (!order) {
+      // Find out WHY — give a specific error message
+      const existing = await findOrderByIdOrCustomId(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ success: false, message: "Order not found." });
+      }
+      if (!["accepted", "ready"].includes(existing.status)) {
+        return res.status(400).json({ success: false, message: `This ticket is not available. Order status: '${existing.status}'` });
+      }
+      if (existing.rider && existing.rider.toString() === req.user._id.toString()) {
+        // Rider is re-claiming their own ticket — idempotent OK
+        const sanitizedOrder = sanitizeOrderForRider(existing);
+        return res.status(200).json({ success: true, message: "You have already claimed this ticket.", order: sanitizedOrder });
+      }
+      // Another rider beat them to it
+      return res.status(409).json({
+        success: false,
+        message: "This ticket has already been claimed by another rider. Better luck next time! 🏎️"
+      });
+    }
+
+    // ── Success — Emit Socket Events ─────────────────────────────────────────
+    const io = req.app.get("socketio");
+    if (io) {
+      // Broadcast ticket removal to ALL riders (removes from their lists)
+      io.to("riders").emit("ticket_accepted", { orderId: order.orderId });
+      // Notify the student
+      io.to(order.student.toString()).emit("order_status_update", {
+        orderId: order.orderId,
+        status: order.status,
+        riderName: req.user?.name || "Rider",
+        message: `A rider (${req.user?.name || "Rider"}) has accepted your delivery! 🛵`
+      });
+      // Notify vendor
+      const vendorId = await getVendorId(order.restaurant);
+      if (vendorId) {
+        io.to(vendorId).emit("rider_accepted_order", {
+          orderId: order.orderId,
+          riderName: req.user?.name || "Rider"
+        });
+      }
+    }
+
+    await Notification.create({
+      recipient: order.student,
+      type: "CANTEEN",
+      message: `Rider ${req.user?.name || "A rider"} has accepted your order ${order.orderId} and is on the way!`
+    });
+
+    const sanitizedOrder = sanitizeOrderForRider(order);
     return res.status(200).json({
       success: true,
-      message: "Ticket accepted successfully",
+      message: "Ticket accepted successfully! You are now the assigned rider.",
       order: sanitizedOrder
     });
   } catch (error) {
     console.error("Error in acceptRiderTicket:", error);
     return res.status(500).json({ success: false, message: "Error accepting ticket", error: error.message });
+
+  }
+};
+
+/**
+ * PUT /api/orders/:id/pickup
+ * Rider picks up the order from the restaurant. Changes status to picked_up.
+ * Student is notified "Your order is en route!"
+ */
+export const pickupOrder = async (req, res) => {
+  try {
+    const order = await findOrderByIdOrCustomId(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    // Guard: Only the assigned rider can mark pickup
+    if (!order.rider || order.rider.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: "Only the assigned rider can mark this order as picked up." });
+    }
+
+    // Guard: Order must be in 'ready' state to pick up
+    if (order.status !== "ready") {
+      return res.status(400).json({ success: false, message: `Cannot pick up order in '${order.status}' state. Order must be 'ready'.` });
+    }
+
+    order.status = "picked_up";
+    await order.save();
+
+    const io = req.app.get("socketio");
+    if (io) {
+      // Notify student
+      io.to(order.student.toString()).emit("order_status_update", {
+        orderId: order.orderId,
+        status: "picked_up",
+        message: "🛵 Your order has been picked up and is en route to you!"
+      });
+      // Notify vendor
+      const vendorId = await getVendorId(order.restaurant);
+      if (vendorId) {
+        io.to(vendorId).emit("order_status_update", {
+          orderId: order.orderId,
+          status: "picked_up"
+        });
+      }
+    }
+
+    await Notification.create({
+      recipient: order.student,
+      type: "CANTEEN",
+      message: `Your order ${order.orderId} has been picked up! The rider is on the way to you. 🛵`
+    });
+
+    const sanitizedOrder = sanitizeOrderForRider(order);
+    return res.status(200).json({
+      success: true,
+      message: "Order marked as picked up — en route to student!",
+      order: sanitizedOrder
+    });
+  } catch (error) {
+    console.error("Error in pickupOrder:", error);
+    return res.status(500).json({ success: false, message: "Error marking pickup", error: error.message });
   }
 };
 
 /**
  * PUT /api/orders/:id/arrive
  * Rider clicks "Arrived". Changes status to arrived & sends direct Socket ping to student dashboard.
+ * Guard: Order must be in 'picked_up' state.
  */
 export const arriveOrder = async (req, res) => {
   try {
@@ -196,31 +280,44 @@ export const arriveOrder = async (req, res) => {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
+    // Guard: Only the assigned rider
+    if (!order.rider || order.rider.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: "Only the assigned rider can mark arrival." });
+    }
+
+    // Guard: Must be picked_up first
+    if (order.status !== "picked_up") {
+      return res.status(400).json({ success: false, message: `Cannot mark arrival. Order must be 'picked_up' first. Current: '${order.status}'` });
+    }
+
     order.status = "arrived";
     await order.save();
 
-    // Direct Socket notification to student dashboard
     const io = req.app.get("socketio");
     if (io) {
-      io.to(order.student.toString()).emit("order_arrived", {
-        orderId: order.orderId,
-        message: "Your delivery rider has arrived at the delivery point!"
-      });
+      // Direct ping to student
       io.to(order.student.toString()).emit("order_status_update", {
         orderId: order.orderId,
-        status: "arrived"
+        status: "arrived",
+        message: "📍 Your delivery rider has arrived at the delivery point! Please come collect your order."
       });
+      // Notify vendor
+      const vendorId = await getVendorId(order.restaurant);
+      if (vendorId) {
+        io.to(vendorId).emit("order_status_update", {
+          orderId: order.orderId,
+          status: "arrived"
+        });
+      }
     }
 
-    // Create Notification
     await Notification.create({
       recipient: order.student,
-      type: "GENERAL",
-      message: `Rider has arrived with order ${order.orderId}! Please meet them at ${order.deliveryLocation}.`
+      type: "CANTEEN",
+      message: `📍 Rider has arrived with order ${order.orderId}! Please meet them at ${order.deliveryLocation}.`
     });
 
     const sanitizedOrder = sanitizeOrderForRider(order);
-
     return res.status(200).json({
       success: true,
       message: "Arrival notification sent to student",
@@ -234,7 +331,7 @@ export const arriveOrder = async (req, res) => {
 
 /**
  * PUT /api/orders/:id/complete
- * Rider verifies physical dashboard orderId with student and closes the loop.
+ * Rider marks order as delivered. Guard: Order must be 'arrived'.
  */
 export const completeOrder = async (req, res) => {
   try {
@@ -243,26 +340,45 @@ export const completeOrder = async (req, res) => {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
+    // Guard: Only assigned rider
+    if (!order.rider || order.rider.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: "Only the assigned rider can complete this order." });
+    }
+
+    // Guard: Must arrive first
+    if (order.status !== "arrived") {
+      return res.status(400).json({ success: false, message: `Cannot complete order. Must mark 'arrived' first. Current: '${order.status}'` });
+    }
+
     order.status = "completed";
     await order.save();
 
-    // Socket emission to student
     const io = req.app.get("socketio");
     if (io) {
+      // Notify student
       io.to(order.student.toString()).emit("order_status_update", {
         orderId: order.orderId,
-        status: "completed"
+        status: "completed",
+        message: "🎉 Your order has been delivered! Enjoy your meal."
       });
+      // Notify vendor
+      const vendorId = await getVendorId(order.restaurant);
+      if (vendorId) {
+        io.to(vendorId).emit("order_completed_by_rider", {
+          orderId: order.orderId,
+          status: "completed",
+          riderName: req.user?.name || "Rider"
+        });
+      }
     }
 
     await Notification.create({
       recipient: order.student,
-      type: "GENERAL",
-      message: `Order ${order.orderId} has been successfully completed. Enjoy your meal!`
+      type: "CANTEEN",
+      message: `🎉 Order ${order.orderId} has been delivered! Enjoy your meal. Please rate your experience.`
     });
 
     const sanitizedOrder = sanitizeOrderForRider(order);
-
     return res.status(200).json({
       success: true,
       message: "Order successfully completed",
@@ -276,8 +392,8 @@ export const completeOrder = async (req, res) => {
 
 /**
  * POST /api/orders/:id/nudge
- * Triggered by student to send UI alert directly to targeted Vendor's room.
- * Rate-limited via nudgeRateLimiter.
+ * Student nudges vendor for update. Rate-limited.
+ * Only available if order is in pending/accepted/preparing stages.
  */
 export const nudgeOrder = async (req, res) => {
   try {
@@ -286,19 +402,25 @@ export const nudgeOrder = async (req, res) => {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
+    // Only meaningful in early stages
+    const nudgeableStatuses = ["pending", "accepted", "preparing"];
+    if (!nudgeableStatuses.includes(order.status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Nudge not applicable at this stage (${order.status}). Your order is already being handled.`
+      });
+    }
+
     const restaurant = await Restaurant.findById(order.restaurant);
     if (!restaurant) {
       return res.status(404).json({ success: false, message: "Associated restaurant not found" });
     }
 
-    const vendorOwnerId = restaurant.owner.toString();
-
-    // Emit order_nudge socket event directly to targeted vendor's room
     const io = req.app.get("socketio");
     if (io) {
-      io.to(vendorOwnerId).emit("order_nudge", {
+      io.to(restaurant.owner.toString()).emit("order_nudge", {
         orderId: order.orderId,
-        message: `Order ${order.orderId} nudge! Student is waiting for an update.`,
+        message: `🔔 Nudge from student! Order ${order.orderId} — student is asking for an update.`,
         timestamp: new Date()
       });
     }
@@ -314,19 +436,64 @@ export const nudgeOrder = async (req, res) => {
 };
 
 /**
+ * POST /api/orders/:id/nudge-rider
+ * Student pings rider that they are heading to the meetup point.
+ * Only available when order status is 'arrived'.
+ */
+export const nudgeRiderOnArrival = async (req, res) => {
+  try {
+    const order = await findOrderByIdOrCustomId(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    if (order.status !== "arrived") {
+      return res.status(400).json({
+        success: false,
+        message: `Arrival nudge is only available when rider has arrived. Current status: '${order.status}'`
+      });
+    }
+
+    const io = req.app.get("socketio");
+    if (io && order.rider) {
+      io.to(order.rider.toString()).emit("student_nudge_arrival", {
+        orderId: order.orderId,
+        message: `🏃‍♂️ Student is heading to collect Order ${order.orderId} — they're on their way!`,
+        timestamp: new Date()
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Arrival nudge sent to rider for order ${order.orderId}`
+    });
+  } catch (error) {
+    console.error("Error in nudgeRiderOnArrival:", error);
+    return res.status(500).json({ success: false, message: "Error sending arrival nudge", error: error.message });
+  }
+};
+
+/**
  * GET /api/orders/marketplace/tickets
- * Endpoint for riders to query available tickets (Zero-Trust: stripped contact numbers)
+ * Riders browse available tickets: orders in 'accepted' or 'ready' status with no rider assigned.
  */
 export const getMarketplaceTickets = async (req, res) => {
   try {
-    const tickets = await Order.find({ status: "dispatched", rider: null })
-      .select("orderId deliveryLocation totalAmount createdAt")
+    const tickets = await Order.find({
+      status: { $in: ["accepted", "ready"] },
+      rider: null
+    })
+      .select("orderId deliveryLocation totalAmount createdAt status")
+      .populate("restaurant", "name")
       .sort({ createdAt: -1 });
 
     const formattedTickets = tickets.map(t => ({
       orderId: t.orderId,
       deliveryDestination: t.deliveryLocation,
       totalAmount: t.totalAmount,
+      restaurantName: t.restaurant?.name || "Campus Canteen",
+      status: t.status,
+      urgent: t.status === "ready",
       createdAt: t.createdAt
     }));
 
@@ -347,7 +514,6 @@ export const getOrderById = async (req, res) => {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    // Zero-Trust check: if user is rider, sanitize
     if (req.user && req.user.role === "rider") {
       return res.status(200).json({ success: true, order: sanitizeOrderForRider(order) });
     }

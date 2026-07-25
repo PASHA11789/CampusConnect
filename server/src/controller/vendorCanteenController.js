@@ -78,41 +78,204 @@ export const getVendorQueue = async (req,res)=>{
         res.status(500).json({message:"Error fetching queue",error: error.message})
     }
 }
-export const updateOrderStatus = async (req, res) =>{
-    try{
-        const {status} = req.body 
-        const order = await Order.findById(req.params.orderId)
-        if(!order) return res.status(404).json({message:"Order not found"})
-        
-        const restaurant  = await Restaurant.findOne({owner: req.user._id})
-        if(!restaurant) return res.status(404).json({message:"Restaurant profile not found"})
- 
-        if (order.restaurant.toString() !== restaurant._id.toString()) {
-           return res.status(403).json({ message: "Not authorized to update this order" });
-       }
-       order.status = status 
-       await order.save()
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
 
-       const io = req.app.get("socketio")
-       io.to(order.student.toString()).emit("order_status_update",{
-        orderId : order._id,
-        status: order.status
-       })
+    // Find order by Mongoose _id or custom orderId
+    let order = await Order.findById(req.params.orderId).catch(() => null);
+    if (!order) order = await Order.findOne({ orderId: req.params.orderId });
+    if (!order) return res.status(404).json({ message: "Order not found" });
 
-    let message = "";
-    if (status === "Preparing") message = `Your order from ${restaurant.name} is confirmed and being prepared!`;
-    if (status === "Dispatched") message = "Order dispatched! The rider is heading to the gate.";
-    if (status === "Cancelled") message = `Your order was cancelled by ${restaurant.name}.`;
-
-    if (message) {
-      await Notification.create({ recipient: order.student, type: "GENERAL", message });
+    const restaurant = await Restaurant.findOne({ owner: req.user._id });
+    if (!restaurant) return res.status(404).json({ message: "Restaurant profile not found" });
+    if (order.restaurant.toString() !== restaurant._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to update this order" });
     }
 
-    res.status(200).json({ success: true, message: `Order moved to ${status}`, order });
-  } catch(error){
-    res.status(500).json({ message: "Error updating order", error: error.message });
+    const io = req.app.get("socketio");
+    const normalizedStatus = status?.toLowerCase();
+
+    // ─── STAGE 2: Vendor ACCEPTS → create rider ticket immediately ───
+    if (normalizedStatus === "accepted") {
+      if (order.status !== "pending") {
+        return res.status(400).json({ message: `Cannot accept an order that is already '${order.status}'` });
+      }
+      order.status = "accepted";
+      await order.save();
+
+      const destination = order.deliveryLocation || "University Main Gate";
+
+      if (io) {
+        // Broadcast ticket to all riders
+        io.to("riders").emit("new_ticket", {
+          orderId: order.orderId,
+          deliveryDestination: destination,
+          totalAmount: order.totalAmount,
+          restaurantName: restaurant.name,
+          createdAt: order.createdAt
+        });
+        // Notify student
+        io.to(order.student.toString()).emit("order_status_update", {
+          orderId: order.orderId,
+          status: "accepted",
+          message: `Your order from ${restaurant.name} has been accepted! Finding a rider...`
+        });
+        // Update vendor's own dashboard (for multi-tab sync)
+        io.to(restaurant.owner.toString()).emit("order_status_update", {
+          orderId: order.orderId,
+          status: "accepted"
+        });
+      }
+
+      await Notification.create({
+        recipient: order.student,
+        type: "CANTEEN",
+        message: `Your order ${order.orderId} from ${restaurant.name} has been accepted! We're finding a rider for you.`
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Order accepted! Rider ticket created and dispatched to marketplace.",
+        order
+      });
+    }
+
+    // ─── STAGE 3: Vendor marks PREPARING ───
+    if (normalizedStatus === "preparing") {
+      if (!["accepted"].includes(order.status)) {
+        return res.status(400).json({ message: `Order must be 'accepted' before marking as preparing. Current: '${order.status}'` });
+      }
+      order.status = "preparing";
+      await order.save();
+
+      if (io) {
+        io.to(order.student.toString()).emit("order_status_update", {
+          orderId: order.orderId,
+          status: "preparing",
+          message: `Your order from ${restaurant.name} is now being prepared! 🍳`
+        });
+        // Notify assigned rider if any
+        if (order.rider) {
+          io.to(order.rider.toString()).emit("order_status_update", {
+            orderId: order.orderId,
+            status: "preparing",
+            message: `Order ${order.orderId} is now being prepared at ${restaurant.name}.`
+          });
+        }
+        io.to(restaurant.owner.toString()).emit("order_status_update", {
+          orderId: order.orderId,
+          status: "preparing"
+        });
+      }
+
+      await Notification.create({
+        recipient: order.student,
+        type: "CANTEEN",
+        message: `Your order ${order.orderId} from ${restaurant.name} is now being prepared! 🍳`
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Order marked as preparing.",
+        order
+      });
+    }
+
+    // ─── STAGE 4: Vendor marks READY FOR PICKUP ───
+    if (normalizedStatus === "ready") {
+      if (!["preparing"].includes(order.status)) {
+        return res.status(400).json({ message: `Order must be 'preparing' before marking as ready. Current: '${order.status}'` });
+      }
+      order.status = "ready";
+      await order.save();
+
+      if (io) {
+        // Notify assigned rider specifically — "Come pick it up NOW!"
+        if (order.rider) {
+          io.to(order.rider.toString()).emit("order_ready_for_pickup", {
+            orderId: order.orderId,
+            message: `🍔 Order ${order.orderId} is READY for pickup at ${restaurant.name}! Head over now.`,
+            restaurantName: restaurant.name,
+            deliveryDestination: order.deliveryLocation
+          });
+        } else {
+          // No rider claimed yet — re-broadcast ticket as urgent to riders pool
+          io.to("riders").emit("new_ticket", {
+            orderId: order.orderId,
+            deliveryDestination: order.deliveryLocation || "University Main Gate",
+            totalAmount: order.totalAmount,
+            restaurantName: restaurant.name,
+            urgent: true,
+            createdAt: order.createdAt
+          });
+        }
+        // Notify student
+        io.to(order.student.toString()).emit("order_status_update", {
+          orderId: order.orderId,
+          status: "ready",
+          message: `Your food is ready! The rider is picking it up now. 🛵`
+        });
+        io.to(restaurant.owner.toString()).emit("order_status_update", {
+          orderId: order.orderId,
+          status: "ready"
+        });
+      }
+
+      await Notification.create({
+        recipient: order.student,
+        type: "CANTEEN",
+        message: `Your order ${order.orderId} is ready and waiting for the rider! 🍔`
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: order.rider ? "Order marked ready — rider has been notified to pick up!" : "Order marked ready — re-broadcasting to rider pool.",
+        order
+      });
+    }
+
+    // ─── TERMINAL: Vendor CANCELS ───
+    if (normalizedStatus === "cancelled") {
+      if (["completed", "cancelled"].includes(order.status)) {
+        return res.status(400).json({ message: `Order is already '${order.status}' and cannot be cancelled.` });
+      }
+      order.status = "cancelled";
+      await order.save();
+
+      if (io) {
+        io.to(order.student.toString()).emit("order_status_update", {
+          orderId: order.orderId,
+          status: "cancelled",
+          message: `We're sorry — your order from ${restaurant.name} has been cancelled.`
+        });
+        if (order.rider) {
+          io.to(order.rider.toString()).emit("order_status_update", {
+            orderId: order.orderId,
+            status: "cancelled",
+            message: `Order ${order.orderId} was cancelled by the vendor.`
+          });
+          // Remove from rider's active order
+          io.to("riders").emit("ticket_cancelled", { orderId: order.orderId });
+        }
+      }
+
+      await Notification.create({
+        recipient: order.student,
+        type: "CANTEEN",
+        message: `Your order ${order.orderId} from ${restaurant.name} has been cancelled. We apologize for the inconvenience.`
+      });
+
+      return res.status(200).json({ success: true, message: "Order cancelled.", order });
+    }
+
+    return res.status(400).json({ message: `Unknown status: '${status}'. Valid vendor actions: accepted, preparing, ready, cancelled.` });
+
+  } catch (error) {
+    return res.status(500).json({ message: "Error updating order", error: error.message });
   }
-}
+};
+
 
 export const getVendorRestaurant = async (req, res) => {
   try {

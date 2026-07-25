@@ -18,8 +18,9 @@ export default function MenuBoard({
   cart = [],
   handleAdjustQty = () => {},
 }) {
-  // Get currently selected visual restaurant name
-  const selectedCanteenName = (restaurants && restaurants[selectedVisualIndex]?.name) || "Cafe Aroma";
+  // Get currently selected restaurant name
+  const activeResObj = restaurants && restaurants.find(r => (r._id || r.id) === activeRestaurant);
+  const selectedCanteenName = activeResObj?.name || (restaurants && restaurants[selectedVisualIndex]?.name) || "Campus Canteen";
 
   return (
     <div className="flex flex-col gap-8">

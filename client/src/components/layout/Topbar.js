@@ -16,8 +16,22 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
   const [subView, setSubView] = useState(null); // null, 'petitions', 'forums', 'others'
 
 
-  const getPetitionNotifications = () => {
+  const getCanteenNotifications = () => {
     return notifications.filter(notif => {
+      const model = notif.onModel || '';
+      const type = notif.type || '';
+      const message = (notif.message || '').toLowerCase();
+      return model === 'Order' || model === 'Restaurant' || type === 'CANTEEN' || type === 'ORDER' || type === 'CANTEEN_ORDER' ||
+        message.includes('order') || message.includes('dispatched') || message.includes('rider') ||
+        message.includes('arrived') || message.includes('canteen') || message.includes('restaurant') ||
+        message.includes('delivered') || message.includes('food') || message.includes('preparing') || message.includes('placed');
+    });
+  };
+
+  const getPetitionNotifications = () => {
+    const canteenIds = new Set(getCanteenNotifications().map(n => n._id));
+    return notifications.filter(notif => {
+      if (canteenIds.has(notif._id)) return false;
       const model = notif.onModel || '';
       const type = notif.type || '';
       const message = (notif.message || '').toLowerCase();
@@ -26,7 +40,9 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
   };
 
   const getForumNotifications = () => {
+    const canteenIds = new Set(getCanteenNotifications().map(n => n._id));
     return notifications.filter(notif => {
+      if (canteenIds.has(notif._id)) return false;
       const model = notif.onModel || '';
       const type = notif.type || '';
       const message = (notif.message || '').toLowerCase();
@@ -35,11 +51,13 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
   };
 
   const getOtherNotifications = () => {
+    const canteenIds = new Set(getCanteenNotifications().map(n => n._id));
     const petitionIds = new Set(getPetitionNotifications().map(n => n._id));
     const forumIds = new Set(getForumNotifications().map(n => n._id));
-    return notifications.filter(notif => !petitionIds.has(notif._id) && !forumIds.has(notif._id));
+    return notifications.filter(notif => !canteenIds.has(notif._id) && !petitionIds.has(notif._id) && !forumIds.has(notif._id));
   };
 
+  const unreadCanteen = getCanteenNotifications().filter(n => !n.isRead).length;
   const unreadPetitions = getPetitionNotifications().filter(n => !n.isRead).length;
   const unreadForums = getForumNotifications().filter(n => !n.isRead).length;
   const unreadOthers = getOtherNotifications().filter(n => !n.isRead).length;
@@ -129,7 +147,9 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
       const type = notif.type || '';
       const message = (notif.message || '').toLowerCase();
 
-      if (model === 'Forum' || type === 'FORUM' || message.includes('forum') || message.includes('post') || message.includes('reply') || message.includes('comment')) {
+      if (model === 'Order' || model === 'Restaurant' || type === 'CANTEEN' || type === 'ORDER' || message.includes('order') || message.includes('rider') || message.includes('canteen') || message.includes('dispatched') || message.includes('arrived') || message.includes('delivered')) {
+        targetPath = '/canteen';
+      } else if (model === 'Forum' || type === 'FORUM' || message.includes('forum') || message.includes('post') || message.includes('reply') || message.includes('comment')) {
         targetPath = '/forum';
         if (notif.relatedItem) {
           navState = { threadId: notif.relatedItem };
@@ -169,9 +189,20 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
     }
   };
 
+  const getNotificationIcon = (type, notif) => {
+    const message = (notif?.message || '').toLowerCase();
+    const model = notif?.onModel || '';
+    const isCanteen = model === 'Order' || model === 'Restaurant' || type === 'CANTEEN' || type === 'ORDER' ||
+      message.includes('order') || message.includes('dispatched') || message.includes('rider') ||
+      message.includes('arrived') || message.includes('canteen') || message.includes('restaurant') || message.includes('delivered');
 
-
-  const getNotificationIcon = (type) => {
+    if (isCanteen) {
+      return (
+        <div className="w-7 h-7 rounded-full bg-orange-50 border border-orange-100/60 text-orange-500 flex items-center justify-center shrink-0 text-xs">
+          🍔
+        </div>
+      );
+    }
     switch (type) {
       case 'PETITION':
         return (
@@ -208,6 +239,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
   const showFallback = isDefaultAvatar || imageError;
 
   const getCategoryNotifications = () => {
+    if (subView === 'canteen') return getCanteenNotifications();
     if (subView === 'petitions') return getPetitionNotifications();
     if (subView === 'forums') return getForumNotifications();
     if (subView === 'others') return getOtherNotifications();
@@ -230,7 +262,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
         {user && (
           <div className="relative notification-bell-container flex items-center">
             
-            {/* Sliding Sub-Bells (Three Balls) */}
+            {/* Sliding Sub-Bells (Four Balls: Orders, Petitions, Forums, Others) */}
             <div
               className={`absolute right-full top-1/2 -translate-y-1/2 mr-2.5 flex items-center gap-2 transition-all duration-300 ease-out z-[99] ${
                 isOpen
@@ -238,6 +270,31 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                   : "opacity-0 translate-x-10 scale-90 pointer-events-none"
               }`}
             >
+              {/* Canteen / Food Orders Ball */}
+              <div className="group relative">
+                <button
+                  onClick={() => setSubView('canteen')}
+                  title="Canteen Orders & Delivery Notifications"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
+                    subView === 'canteen'
+                      ? "bg-orange-500 text-white border-orange-500"
+                      : "bg-orange-50 text-orange-600 border-orange-100/60 hover:bg-orange-100/50"
+                  }`}
+                >
+                  <span className="text-xs group-hover:scale-110 transition-transform">🍔</span>
+                  {unreadCanteen > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                      {unreadCanteen}
+                    </span>
+                  )}
+                </button>
+                {/* Tooltip */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#0a2342] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                  Canteen Orders
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#0a2342]"></div>
+                </div>
+              </div>
+
               {/* Petitions Ball */}
               <div className="group relative">
                 <button
@@ -365,7 +422,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                         ← Back
                       </button>
                       <span className="text-[11px] font-black text-[#0a2342] uppercase tracking-wider">
-                        {subView === 'petitions' ? 'Petitions' : subView === 'forums' ? 'Forums' : 'Others'}
+                        {subView === 'canteen' ? 'Canteen Orders' : subView === 'petitions' ? 'Petitions' : subView === 'forums' ? 'Forums' : 'Others'}
                       </span>
                     </div>
                     {unreadCount > 0 && (
@@ -416,7 +473,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                           }`}
                         >
                           {/* Icon */}
-                          {getNotificationIcon(notif.type)}
+                          {getNotificationIcon(notif.type, notif)}
 
                           {/* Message Content */}
                           <div className="flex-1 flex flex-col gap-0.5 text-left">
