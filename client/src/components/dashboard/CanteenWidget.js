@@ -63,44 +63,81 @@ const CanteenWidget = () => {
   const displayList = restaurants.length > 0 ? restaurants : FALLBACK_RESTAURANTS;
 
   return (
-    <section className="w-full mt-6">
-      <div className="flex justify-between items-center mb-3.5">
-        <h3 className="text-[14px] font-extrabold text-[#0a2342] tracking-wide m-0">Campus Canteen & Nearby Eateries</h3>
+    <section className="w-full mt-4 text-left">
+      <div className="flex justify-between items-center mb-3">
+        <div className="flex flex-col">
+          <h3 className="text-[15px] font-black text-[#071A35] tracking-wide m-0">Campus Canteen &amp; Nearby Eateries</h3>
+          <span className="text-[11px] font-semibold text-[#211A24]/60 mt-0.5">Order delicious meals from your favorite student spots</span>
+        </div>
         <button 
           onClick={() => navigate('/canteen', { state: { viewAll: true } })}
-          className="bg-transparent border-none text-[12px] text-[#00c2cb] no-underline font-semibold transition-all duration-200 hover:opacity-70 hover:translate-x-[3px] cursor-pointer"
+          className="bg-transparent border-none text-[12px] text-[#071A35] no-underline font-extrabold transition-all duration-200 hover:text-[#2563EB] cursor-pointer flex items-center gap-1"
         >
-          View all →
+          View all ➔
         </button>
       </div>
 
       <div className="grid grid-cols-4 gap-4 max-[1024px]:grid-cols-2 max-[600px]:grid-cols-1">
         {loading && displayList.length === 0 ? (
-          <div className="col-span-4 py-8 text-center text-xs font-bold text-slate-400">Loading canteen eateries...</div>
+          <div className="col-span-4 py-8 text-center text-xs font-bold text-[#211A24]/50">Loading canteen eateries...</div>
         ) : (
           displayList.slice(0, 4).map((res, i) => {
             const resId = res._id || res.id;
             const img = getDisplayImage(res.name, res.coverImage);
             const dist = getDistanceText(res.name, res.address);
+            const isJohnny = (res.name || "").toLowerCase().includes("johnny");
+            const isGourmet = (res.name || "").toLowerCase().includes("gourmet");
+
+            // Subtitle matching screenshot #4
+            const getSubtitle = (name) => {
+              const lower = (name || "").toLowerCase();
+              if (lower.includes("savour")) return "Famous Pulao & traditional delights";
+              if (lower.includes("gourmet")) return "Premium fast food & bakeries";
+              if (lower.includes("johnny")) return "Crispy wraps & legendary sauces";
+              if (lower.includes("dogar")) return "Authentic Desi breakfast & tea";
+              return "Student favorite spot & snacks";
+            };
 
             return (
               <div 
                 key={resId || i} 
-                className="bg-white rounded-2xl overflow-hidden border border-slate-200 transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:-translate-y-2 hover:shadow-[0_12px_24px_rgba(0,0,0,0.08)] group cursor-pointer"
+                className={`rounded-[1.5rem] overflow-hidden border transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:-translate-y-1.5 hover:shadow-[0_14px_35px_rgba(7,26,53,0.1)] group cursor-pointer flex flex-col justify-between ${
+                  isJohnny 
+                    ? "bg-[#071A35] text-white border-[#071A35]" 
+                    : "bg-white text-[#211A24] border-[#E8E1D5]"
+                }`}
                 onClick={() => navigate('/canteen', { state: { restaurantId: resId, restaurantName: res.name } })}
               >
-                <div className="relative h-[120px] overflow-hidden">
+                <div className="relative h-[130px] overflow-hidden">
                   <img src={img} alt={res.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                  <div className="absolute top-2 left-2 bg-[#00c2cb]/90 text-white text-[10px] font-extrabold px-2 py-1 rounded-full backdrop-blur-[4px]">{dist}</div>
+                  <div className={`absolute top-2.5 left-2.5 text-[10px] font-extrabold px-2.5 py-1 rounded-full backdrop-blur-[4px] shadow-sm flex items-center gap-1 ${
+                    isJohnny
+                      ? "bg-white text-[#071A35]"
+                      : isGourmet
+                      ? "bg-white text-[#071A35]"
+                      : "bg-[#071A35]/90 text-white"
+                  }`}>
+                    <span>📍</span> {dist} from MUL
+                  </div>
                 </div>
-                <div className="p-3 flex flex-col gap-2">
-                  <h4 className="text-[13px] font-bold text-[#0a2342] m-0 truncate">{res.name}</h4>
+                <div className="p-4 flex flex-col gap-2.5 flex-1 justify-between text-left">
+                  <div className="flex flex-col">
+                    <h4 className={`text-[14px] font-extrabold m-0 truncate ${isJohnny ? "text-white" : "text-[#071A35]"}`}>{res.name}</h4>
+                    <span className={`text-[10px] font-medium mt-0.5 ${isJohnny ? "text-white/70" : "text-[#211A24]/60"}`}>{getSubtitle(res.name)}</span>
+                  </div>
+
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate('/canteen', { state: { restaurantId: resId, restaurantName: res.name } });
                     }}
-                    className="bg-slate-50 text-[#00c2cb] border border-slate-200 py-1.5 rounded-lg text-[11px] font-bold cursor-pointer transition-all duration-200 hover:bg-[#00c2cb] hover:text-white hover:border-[#00c2cb]"
+                    className={`py-2 rounded-full text-[11.5px] font-extrabold cursor-pointer transition-all duration-200 shadow-sm w-full border-none ${
+                      isJohnny
+                        ? "bg-[#F5B82E] text-[#071A35] hover:bg-[#FFD05B]"
+                        : isGourmet
+                        ? "bg-[#DCD9F7] text-[#071A35] hover:bg-[#D0CBF5]"
+                        : "bg-[#071A35] text-white hover:bg-[#0D2A42]"
+                    }`}
                   >
                     Order Now
                   </button>

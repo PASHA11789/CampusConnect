@@ -16,12 +16,12 @@ export default function DiscussionThreadListCard({
     return (
       <div
         onClick={onClick}
-        className={`p-4 border-b border-slate-100 cursor-pointer transition-all hover:bg-slate-50 text-left ${
-          isSelected ? "bg-slate-50 border-l-4 border-l-[#00c2cb]" : "border-l-4 border-l-transparent"
+        className={`p-4 border-b border-slate-100 cursor-pointer transition-all hover:bg-slate-50 hover:border-l-[#071A35] text-left ${
+          isSelected ? "bg-slate-50 border-l-4 border-l-[#071A35]" : "border-l-4 border-l-transparent"
         }`}
       >
         <div className="flex justify-between items-start mb-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#00c2cb] bg-[#00c2cb]/10 px-2 py-0.5 rounded-full">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#071A35] bg-[#071A35]/10 px-2 py-0.5 rounded-full">
             {getCategoryLabel(post.category)}
           </span>
           <span className="text-[11px] text-slate-400 font-medium">
@@ -57,8 +57,8 @@ export default function DiscussionThreadListCard({
   const relativeTime = formatDate(post.createdAt);
   return (
     <div
-      className={`group bg-white border-[1.5px] border-slate-200 border-l-4 border-l-transparent rounded-xl py-3 px-3.5 cursor-pointer flex flex-col gap-[7px] transition-all duration-200 shrink-0 hover:border-[#cbd5e1] hover:border-l-[rgba(0,194,203,0.4)] hover:shadow-[0_3px_10px_rgba(0,0,0,0.05)] hover:translate-x-[2px] ${
-        isSelected ? "bg-[#eef2ff] !border-[#c7d2fe] !border-l-[#818cf8] shadow-[0_2px_8px_rgba(99,102,241,0.12)]" : ""
+      className={`group bg-white border-[1.5px] border-slate-200 border-l-4 border-l-transparent rounded-xl py-3 px-3.5 cursor-pointer flex flex-col gap-[7px] transition-all duration-200 shrink-0 hover:border-[#cbd5e1] hover:border-l-[#071A35] hover:shadow-[0_3px_10px_rgba(0,0,0,0.05)] hover:translate-x-[2px] ${
+        isSelected ? "bg-[#F3EEE4] !border-[#E8E1D5] !border-l-[#071A35] shadow-sm" : ""
       }`}
       onClick={onClick}
     >
@@ -83,7 +83,7 @@ export default function DiscussionThreadListCard({
         </span>
       </div>
 
-      <div className={`flex items-center transition-colors duration-200 ${isSelected ? "text-[#818cf8]" : "text-slate-400"}`}>
+      <div className={`flex items-center transition-colors duration-200 ${isSelected ? "text-[#071A35]" : "text-slate-400"}`}>
         <svg className="w-[13px] h-[13px] transition-transform duration-200 group-hover:translate-x-[3px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
           <polyline points="9 18 15 12 9 6" />
         </svg>

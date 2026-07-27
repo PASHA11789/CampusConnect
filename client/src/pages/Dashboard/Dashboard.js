@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
 import { SOCKET_URL } from "../../utils/helpers";
-// Layout Components
 
+// Layout Components
 import Sidebar from "../../components/layout/Sidebar";
 import Topbar from "../../components/layout/Topbar";
 
@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [avatar, setAvatar] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [time, setTime] = useState(new Date());
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [dashboardData, setDashboardData] = useState({
     notifications: { forums: 0, petitions: 0, updates: 0 },
     forums: [],
@@ -33,8 +34,6 @@ export default function Dashboard() {
     careers: [],
     busRoutes: []
   });
-
-
 
   useEffect(() => {
     // Auth guard
@@ -78,14 +77,10 @@ export default function Dashboard() {
 
     // Clock
     const tick = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(tick);
-  }, [navigate]);
 
-  useEffect(() => {
+    // Fetch live dashboard data
     const fetchDashboardData = async () => {
       try {
-        const token = sessionStorage.getItem("token");
-        if (!token) return;
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const { data } = await axios.get("/api/dashboard/summary", config);
         const serverPetitions = data.petitions || [];
@@ -198,24 +193,6 @@ export default function Dashboard() {
         }
       });
 
-      socket.on("petition_signed", (data) => {
-        console.log("⚡ Petition signed received via socket on dashboard:", data);
-        if (data && data.petitionId) {
-          setDashboardData((prevData) => ({
-            ...prevData,
-            petitions: prevData.petitions.map((p) =>
-              p._id === data.petitionId
-                ? {
-                  ...p,
-                  signatures: new Array(data.currentSignatures).fill(null),
-                  status: data.status,
-                }
-                : p
-            )
-          }));
-        }
-      });
-
       socket.on("disconnect", () => {
         console.log("❌ Disconnected from live updates socket");
       });
@@ -224,22 +201,23 @@ export default function Dashboard() {
         socket.disconnect();
       };
     }
-  }, [user]);
 
-  const handleThreadClick = (id) => {
-    navigate("/forum", { state: { threadId: id } });
+    return () => clearInterval(tick);
+  }, [navigate, user?._id]);
+
+  const handleThreadClick = (threadId) => {
+    navigate(`/forum?thread=${threadId}`);
   };
 
-  const handleCareerThreadClick = (id) => {
-    navigate("/career", { state: { threadId: id } });
+  const handleCareerThreadClick = (threadId) => {
+    navigate(`/career?id=${threadId}`);
   };
-
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Premium micro-animation / optimistic update: preview image immediately
+    // Optimistic Preview UI
     const previewUrl = URL.createObjectURL(file);
     setAvatar(previewUrl);
     setIsUploading(true);
@@ -307,10 +285,13 @@ export default function Dashboard() {
   if (!user) return null;
 
   return (
-    <div className="flex min-h-screen bg-[#f0f4f8] font-sans text-slate-800 animate-fade-in">
-      <Sidebar />
+    <div className="flex h-screen w-screen overflow-hidden bg-[#FAF7F0] font-sans text-[#211A24] animate-fade-in">
+      <Sidebar 
+        isOpen={isMobileSidebarOpen} 
+        onClose={() => setIsMobileSidebarOpen(false)} 
+      />
 
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col h-full min-w-0 overflow-y-auto overflow-x-hidden">
         <Topbar
           time={time}
           user={user}
@@ -318,49 +299,69 @@ export default function Dashboard() {
           avatar={getPersonalizedAvatar(avatar)}
           handleAvatarChange={handleAvatarChange}
           isUploading={isUploading}
+          onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
         />
 
-        <div className="flex-1 px-8 py-7 flex flex-col gap-6 overflow-y-auto max-md:p-4 [&>*]:animate-fade-in">
-          {/* Render separated StudentCard and LostFound widgets */}
-          <div className="grid grid-cols-[1.1fr_1fr] gap-4 max-[1100px]:grid-cols-1 items-start">
+        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-5 sm:gap-6 max-w-full [&>*]:animate-fade-in">
+          
+          {/* Welcome Hero Banner */}
+          <div className="bg-white rounded-[1.5rem] p-5 sm:p-7 border border-[#E8E1D5] shadow-[0_10px_35px_rgba(7,26,53,0.05)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6">
+            <div className="flex flex-col text-left">
+              <div className="text-[10.5px] sm:text-[11px] font-black text-[#F5B82E] tracking-widest uppercase flex items-center gap-1 mb-1">
+                <span>STUDENT DASHBOARD</span>
+                <span>✨</span>
+              </div>
+              <h1 className="text-[20px] sm:text-[24px] xl:text-[28px] font-black text-[#071A35] leading-[1.25] tracking-tight mb-2">
+                Your campus world, curated for {user?.name || 'Hamza Malik'}.
+              </h1>
+              <p className="text-[11px] sm:text-[12px] font-medium text-[#211A24]/70 max-w-[600px] leading-relaxed m-0">
+                Move through services, food spots, community spaces, petitions, routes, and opportunities from one expressive dashboard designed to feel alive.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0 max-md:hidden">
+              <span className="text-[11px] font-extrabold text-[#071A35] bg-[#FAF7F0] px-4 py-2 rounded-full border border-[#E8E1D5] shadow-sm">
+                🌙 Campus Ecosystem Active
+              </span>
+            </div>
+          </div>
+
+          {/* Student Card & Lost & Found Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-5 sm:gap-6 items-stretch">
             <StudentCard user={user} avatar={getPersonalizedAvatar(avatar)} />
             <LostFoundWidget items={dashboardData.lostAndFound} />
           </div>
+
+          {/* Canteen & Eateries Section */}
           <CanteenWidget />
 
-          <div className="grid grid-cols-[1.1fr_1fr_1.2fr] gap-6 max-[1100px]:grid-cols-1 items-stretch">
+          {/* Dedicated Wide Row for Student Forums & Active Petitions */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch">
             <ForumsWidget
               forums={dashboardData.forums}
               onThreadClick={handleThreadClick}
             />
 
             <PetitionsWidget petitions={dashboardData.petitions} />
-
-            <div className="flex flex-col gap-6 h-full justify-between">
-              <div className="bg-white border border-slate-200 rounded-2xl p-[22px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] flex-1 flex flex-col justify-between">
-                <CareerPathExplorer
-                  careers={dashboardData.careers}
-                  onThreadClick={handleCareerThreadClick}
-                />
-              </div>
-              <div className="bg-white border border-slate-200 rounded-2xl p-[22px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] flex-1 flex flex-col justify-between">
-                <BusRoutesWidget busRoutes={dashboardData.busRoutes} />
-              </div>
-            </div>
           </div>
 
-          <footer className="mt-5 py-3 border-t border-slate-200 text-center">
-            <p className="text-[12px] text-slate-400 font-medium tracking-wide">
-              {t('© 2026 CampusConnect. An idea by')} <span className="text-[#0a2342] font-bold">{t('Mr. Sagheer Ahmad')}</span> &{" "}
-              <span className="text-[#0a2342] font-bold">{t('Mr. Shujaat Ali Hashim')}</span>
+          {/* Career & Alumni Hub + Bus Routes Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch mb-2">
+            <CareerPathExplorer
+              careers={dashboardData.careers}
+              onThreadClick={handleCareerThreadClick}
+            />
+            <BusRoutesWidget busRoutes={dashboardData.busRoutes} />
+          </div>
+
+          {/* Footer */}
+          <footer className="mt-2 py-4 border-t border-[#E8E1D5] text-center">
+            <p className="text-[11px] sm:text-[12px] text-[#211A24]/60 font-semibold tracking-wide m-0">
+              {t('© 2026 CampusConnect. An idea by')} <span className="text-[#071A35] font-black">{t('Mr. Sagheer Ahmad')}</span> &amp;{" "}
+              <span className="text-[#071A35] font-black">{t('Mr. Shujaat Ali Hashim')}</span>
             </p>
           </footer>
         </div>
       </main>
-
-
-
-
     </div>
   );
 }

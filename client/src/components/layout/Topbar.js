@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { getInitials, formatDate, SOCKET_URL } from '../../utils/helpers';
 import MyProfileModal from '../profile/MyProfileModal';
 
-const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }) => {
+const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, onToggleSidebar }) => {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -130,7 +130,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
       const token = sessionStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
       await axios.put(`/api/notifications/${id}/read`, {}, config);
-      
+
       setNotifications(prev =>
         prev.map(n => n._id === id ? { ...n, isRead: true } : n)
       );
@@ -235,9 +235,6 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
     }
   };
 
-  const isDefaultAvatar = !avatar || avatar.includes('ui-avatars.com');
-  const showFallback = isDefaultAvatar || imageError;
-
   const getCategoryNotifications = () => {
     if (subView === 'canteen') return getCanteenNotifications();
     if (subView === 'petitions') return getPetitionNotifications();
@@ -246,28 +243,48 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
     return [];
   };
 
-  const filteredNotifications = filter === 'all' 
-    ? getCategoryNotifications() 
+  const filteredNotifications = filter === 'all'
+    ? getCategoryNotifications()
     : getCategoryNotifications().filter(n => !n.isRead);
 
+  const isDefaultAvatar = !avatar || avatar.includes('ui-avatars.com');
+  const showFallback = isDefaultAvatar || imageError;
+
   return (
-    <header className="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 sticky top-0 z-[100] animate-slide-down max-md:px-4 max-md:py-3">
-      <div className="flex items-center">
-        {/* Left side spacer */}
+    <header className="bg-white rounded-full border border-[#E8E1D5] shadow-[0_8px_30px_rgba(7,26,53,0.06)] px-4 sm:px-6 py-2.5 mx-3 sm:mx-8 mt-3 sm:mt-5 mb-2 flex items-center justify-between sticky top-3 z-[100] animate-slide-down">
+      {/* Left Search Bar & Mobile Menu Toggle */}
+      <div className="flex items-center gap-2 flex-1 max-w-lg">
+        <button 
+          onClick={onToggleSidebar} 
+          className="md:hidden p-1.5 text-[#071A35] hover:bg-[#FAF7F0] rounded-full transition-colors border-none bg-transparent cursor-pointer shrink-0"
+          title="Toggle Menu"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
+        <div className="relative flex items-center w-full max-w-[180px] sm:max-w-[320px] md:max-w-[400px]">
+          <span className="absolute left-3 text-slate-400 text-xs">🔍</span>
+          <input 
+            type="text" 
+            placeholder="Search campus services..." 
+            className="bg-[#F7F4EC] rounded-full pl-8 pr-3 py-1.5 sm:py-2 text-[11px] sm:text-[11.5px] font-medium text-[#211A24] placeholder-[#211A24]/50 border-none outline-none w-full shadow-inner transition-all focus:ring-2 focus:ring-[#2563EB]/20"
+          />
+        </div>
       </div>
 
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-5">
         
         {/* Notification Bell */}
-        {user && (
           <div className="relative notification-bell-container flex items-center">
             
             {/* Sliding Sub-Bells (Four Balls: Orders, Petitions, Forums, Others) */}
             <div
-              className={`absolute right-full top-1/2 -translate-y-1/2 mr-2.5 flex items-center gap-2 transition-all duration-300 ease-out z-[99] ${
+              className={`absolute flex items-center gap-2 transition-all duration-300 ease-out z-[99] max-md:top-full max-md:right-0 max-md:mt-2.5 max-md:bg-white/95 max-md:backdrop-blur-md max-md:p-2 max-md:rounded-full max-md:shadow-xl max-md:border max-md:border-[#E8E1D5] md:right-full md:top-1/2 md:-translate-y-1/2 md:mr-2.5 ${
                 isOpen
                   ? "opacity-100 translate-x-0 scale-100"
-                  : "opacity-0 translate-x-10 scale-90 pointer-events-none"
+                  : "opacity-0 translate-x-4 md:translate-x-10 scale-90 pointer-events-none"
               }`}
             >
               {/* Canteen / Food Orders Ball */}
@@ -277,21 +294,21 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                   title="Canteen Orders & Delivery Notifications"
                   className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
                     subView === 'canteen'
-                      ? "bg-orange-500 text-white border-orange-500"
-                      : "bg-orange-50 text-orange-600 border-orange-100/60 hover:bg-orange-100/50"
+                      ? "bg-[#F5B82E] text-[#071A35] border-[#F5B82E] font-bold"
+                      : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
                   }`}
                 >
                   <span className="text-xs group-hover:scale-110 transition-transform">🍔</span>
                   {unreadCanteen > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
                       {unreadCanteen}
                     </span>
                   )}
                 </button>
                 {/* Tooltip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#0a2342] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
                   Canteen Orders
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#0a2342]"></div>
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
                 </div>
               </div>
 
@@ -302,8 +319,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                   title="Petitions Notifications"
                   className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
                     subView === 'petitions'
-                      ? "bg-emerald-500 text-white border-emerald-500"
-                      : "bg-emerald-50 text-emerald-500 border-emerald-100/60 hover:bg-emerald-100/50"
+                      ? "bg-[#2563EB] text-white border-[#2563EB]"
+                      : "bg-[#FAF7F0] text-[#2563EB] border-[#E8E1D5] hover:bg-[#F3EEE4]"
                   }`}
                 >
                   <svg className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -313,15 +330,15 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                     <line x1="16" y1="17" x2="8" y2="17" />
                   </svg>
                   {unreadPetitions > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
                       {unreadPetitions}
                     </span>
                   )}
                 </button>
                 {/* Tooltip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#0a2342] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
                   Petitions
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#0a2342]"></div>
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
                 </div>
               </div>
 
@@ -332,23 +349,23 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                   title="Forums Notifications"
                   className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
                     subView === 'forums'
-                      ? "bg-sky-500 text-white border-sky-500"
-                      : "bg-sky-50 text-sky-500 border-sky-100/60 hover:bg-sky-100/50"
+                      ? "bg-[#DCD9F7] text-[#071A35] border-[#DCD9F7] font-bold"
+                      : "bg-[#FAF7F0] text-[#071A35] border-[#E8E1D5] hover:bg-[#F3EEE4]"
                   }`}
                 >
                   <svg className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
                   {unreadForums > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
                       {unreadForums}
                     </span>
                   )}
                 </button>
                 {/* Tooltip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#0a2342] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
                   Forums
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#0a2342]"></div>
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
                 </div>
               </div>
 
@@ -359,8 +376,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                   title="Other Notifications"
                   className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
                     subView === 'others'
-                      ? "bg-amber-500 text-white border-amber-500"
-                      : "bg-amber-50 text-amber-600 border-amber-100/60 hover:bg-amber-100/50"
+                      ? "bg-[#F5B82E] text-[#071A35] border-[#F5B82E]"
+                      : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
                   }`}
                 >
                   <svg className="w-3.5 h-3.5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -368,15 +385,15 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                   </svg>
                   {unreadOthers > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
                       {unreadOthers}
                     </span>
                   )}
                 </button>
                 {/* Tooltip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#0a2342] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
                   Others
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#0a2342]"></div>
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
                 </div>
               </div>
             </div>
@@ -389,8 +406,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
               }}
               className={`relative w-9 h-9 rounded-full transition-all duration-200 cursor-pointer border flex items-center justify-center ${
                 isOpen 
-                  ? "bg-[#00c2cb]/10 border-[#00c2cb]/30 text-[#00c2cb]" 
-                  : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-400 hover:text-slate-600"
+                  ? "bg-[#2563EB]/15 border-[#2563EB] text-[#2563EB]" 
+                  : "bg-white hover:bg-slate-50 border-[#E8E1D5] text-[#071A35]"
               }`}
               title="Notifications"
             >
@@ -399,7 +416,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white animate-pulse shadow-sm">
+                <span className="absolute -top-1 -right-1 bg-[#2563EB] text-white text-[8px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white animate-pulse shadow-sm">
                   {unreadCount}
                 </span>
               )}
@@ -407,28 +424,28 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
 
             {/* Dropdown Panel (Only renders when subView is active) */}
             {isOpen && subView !== null && (
-              <div 
+              <div
                 onClick={(e) => e.stopPropagation()}
-                className="absolute right-0 top-full mt-3 w-80 bg-white/95 backdrop-blur-lg border border-slate-200/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] z-[999] overflow-hidden animate-modal-slide-in flex flex-col"
+                className="absolute right-0 top-full mt-3 max-md:mt-[54px] max-sm:-right-2 w-80 max-sm:w-[280px] bg-white/95 backdrop-blur-lg border border-slate-200/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] z-[999] overflow-hidden animate-modal-slide-in flex flex-col"
               >
                 <div className="flex flex-col flex-1">
                   {/* Category Details View Header */}
                   <div className="px-4 pt-3 pb-2 flex items-center justify-between border-b border-slate-100 bg-slate-50/20">
                     <div className="flex items-center gap-1.5">
-                      <button 
+                      <button
                         onClick={() => setSubView(null)}
-                        className="text-[#00c2cb] hover:text-[#00a8b0] text-[11px] font-black border-none bg-none cursor-pointer flex items-center gap-1 transition-colors"
+                        className="text-[#2563EB] hover:text-[#071A35] text-[11px] font-black border-none bg-none cursor-pointer flex items-center gap-1 transition-colors"
                       >
                         ← Back
                       </button>
-                      <span className="text-[11px] font-black text-[#0a2342] uppercase tracking-wider">
+                      <span className="text-[11px] font-black text-[#071A35] uppercase tracking-wider">
                         {subView === 'canteen' ? 'Canteen Orders' : subView === 'petitions' ? 'Petitions' : subView === 'forums' ? 'Forums' : 'Others'}
                       </span>
                     </div>
                     {unreadCount > 0 && (
                       <button
                         onClick={handleMarkAllAsRead}
-                        className="text-[10px] font-bold text-[#00c2cb] hover:text-[#00a8b0] border-none bg-none cursor-pointer transition-colors"
+                        className="text-[10px] font-bold text-[#2563EB] hover:text-[#071A35] border-none bg-none cursor-pointer transition-colors"
                       >
                         Mark all read
                       </button>
@@ -439,21 +456,19 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                   <div className="flex gap-2 px-4 pt-2 border-b border-slate-100 pb-2 bg-slate-50/20">
                     <button
                       onClick={() => setFilter('all')}
-                      className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${
-                        filter === 'all'
-                          ? 'bg-[#0a2342] text-white border-[#0a2342]'
-                          : 'bg-transparent text-slate-500 border-transparent hover:text-[#0a2342]'
-                      }`}
+                      className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${filter === 'all'
+                          ? 'bg-[#071A35] text-white border-[#071A35]'
+                          : 'bg-transparent text-slate-500 border-transparent hover:text-[#071A35]'
+                        }`}
                     >
                       All ({getCategoryNotifications().length})
                     </button>
                     <button
                       onClick={() => setFilter('unread')}
-                      className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${
-                        filter === 'unread'
-                          ? 'bg-[#0a2342] text-white border-[#0a2342]'
-                          : 'bg-transparent text-slate-500 border-transparent hover:text-[#0a2342]'
-                      }`}
+                      className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${filter === 'unread'
+                          ? 'bg-[#071A35] text-white border-[#071A35]'
+                          : 'bg-transparent text-slate-500 border-transparent hover:text-[#071A35]'
+                        }`}
                     >
                       Unread ({getCategoryNotifications().filter(n => !n.isRead).length})
                     </button>
@@ -466,20 +481,18 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                         <div
                           key={notif._id}
                           onClick={() => handleMarkAsRead(notif)}
-                          className={`p-2.5 rounded-2xl flex gap-3 transition-all duration-200 cursor-pointer hover:bg-slate-50 items-start ${
-                            !notif.isRead 
-                              ? "bg-[#00c2cb]/5 border border-[#00c2cb]/10" 
+                          className={`p-2.5 rounded-2xl flex gap-3 transition-all duration-200 cursor-pointer hover:bg-slate-50 items-start ${!notif.isRead
+                              ? "bg-[#2563EB]/5 border border-[#2563EB]/10"
                               : "bg-transparent border border-transparent"
-                          }`}
+                            }`}
                         >
                           {/* Icon */}
                           {getNotificationIcon(notif.type, notif)}
 
                           {/* Message Content */}
                           <div className="flex-1 flex flex-col gap-0.5 text-left">
-                            <p className={`text-[12px] leading-relaxed ${
-                              !notif.isRead ? "text-slate-800 font-bold" : "text-slate-500 font-normal"
-                            }`}>
+                            <p className={`text-[12px] leading-relaxed ${!notif.isRead ? "text-slate-800 font-bold" : "text-slate-500 font-normal"
+                              }`}>
                               {notif.message}
                             </p>
                             <span className="text-[9px] text-slate-400 font-semibold flex items-center gap-1 mt-0.5">
@@ -494,7 +507,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
                           {/* Unread dot */}
                           {!notif.isRead && (
                             <div className="flex items-center self-center">
-                              <div className="w-1.5 h-1.5 bg-[#00c2cb] rounded-full shrink-0 shadow-[0_0_8px_rgba(0,194,203,0.5)] animate-pulse" />
+                              <div className="w-1.5 h-1.5 bg-[#2563EB] rounded-full shrink-0 animate-pulse" />
                             </div>
                           )}
                         </div>
@@ -515,26 +528,24 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
               </div>
             )}
           </div>
-        )}
 
-        {/* User Info and Avatar */}
-        <div className="flex items-center gap-4">
+        {/* User Info and Avatar matching Screenshot #2 */}
+        <div className="flex items-center gap-3 bg-[#FAF7F0] px-3.5 py-1.5 rounded-full border border-[#E8E1D5]">
           <div className="flex flex-col items-end cursor-pointer" onClick={() => setIsMyProfileOpen(true)} title="My Profile">
-            <span className="text-[13px] font-extrabold text-[#0a2342] hover:text-[#00c2cb] transition-colors">{user?.name || ''}</span>
-            <span className="text-[10px] text-slate-400 font-semibold">{user?.registeration_number || user?.registration_no || ''}</span>
+            <span className="text-[12.5px] font-extrabold text-[#071A35] leading-tight">{user?.name || ''}</span>
+            <span className="text-[9.5px] text-[#211A24]/60 font-semibold leading-tight">{user?.registeration_number || user?.registration_no || ''}</span>
           </div>
-          <button onClick={() => setIsMyProfileOpen(true)} className="relative w-[42px] h-[42px] rounded-full bg-gradient-to-br from-[#00c2cb] to-[#0079c2] p-[2px] cursor-pointer shadow-[0_4px_10px_rgba(0,194,203,0.2)] transition-transform duration-200 hover:scale-105 border-none" title="My Profile">
+          <button onClick={() => setIsMyProfileOpen(true)} className="relative w-9 h-9 rounded-full bg-[#DCD9F7] p-[1.5px] cursor-pointer transition-transform duration-200 hover:scale-105 border-none shadow-sm flex items-center justify-center" title="My Profile">
             {showFallback ? (
-              <span className="w-full h-full rounded-full bg-[#0a2342] flex items-center justify-center text-base font-black text-[#00c2cb]">{getInitials(user?.name)}</span>
+              <span className="w-full h-full rounded-full bg-[#DCD9F7] flex items-center justify-center text-[12px] font-extrabold text-[#071A35]">{getInitials(user?.name)}</span>
             ) : (
-              <img 
-                src={avatar} 
-                alt="Avatar" 
-                className="w-full h-full rounded-full object-cover block bg-white" 
-                onError={() => setImageError(true)} 
+              <img
+                src={avatar}
+                alt="Avatar"
+                className="w-full h-full rounded-full object-cover block bg-white"
+                onError={() => setImageError(true)}
               />
             )}
-            <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#34d399] rounded-full border-2 border-white" />
           </button>
         </div>
       </div>
@@ -552,7 +563,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser }
             try {
               const parsed = JSON.parse(userStr);
               sessionStorage.setItem("user", JSON.stringify({ ...parsed, ...updatedUser }));
-            } catch (e) {}
+            } catch (e) { }
           }
         }}
       />

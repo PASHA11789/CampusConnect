@@ -54,6 +54,7 @@ export default function Forum() {
   const [editingThreadId, setEditingThreadId] = useState(null);
   const [mobileView, setMobileView] = useState(location.state?.threadId ? "detail" : "list");
   const [replyingTo, setReplyingTo] = useState(null); // { replyId, authorName }
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const [selectedPublicUserId, setSelectedPublicUserId] = useState(null);
   const [isPublicProfileOpen, setIsPublicProfileOpen] = useState(false);
@@ -634,10 +635,13 @@ export default function Forum() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#f0f4f8] font-sans text-slate-800 animate-fade-in">
-      <Sidebar />
+    <div className="flex h-screen w-screen overflow-hidden bg-[#FAF7F0] font-sans text-[#211A24] animate-fade-in">
+      <Sidebar 
+        isOpen={isMobileSidebarOpen} 
+        onClose={() => setIsMobileSidebarOpen(false)} 
+      />
 
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col h-full min-w-0 overflow-y-auto overflow-x-hidden">
         <Topbar
           time={time}
           user={user}
@@ -645,49 +649,72 @@ export default function Forum() {
           avatar={getPersonalizedAvatar(avatar)}
           handleAvatarChange={handleAvatarChange}
           isUploading={isUploading}
+          onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
         />
 
-        <div className="flex-1 px-8 py-7 flex flex-col gap-6 overflow-y-auto max-md:p-4">
-          {/* ── FORUM HEADER ── */}
-          <div className="flex justify-between items-center mb-4 max-md:flex-col max-md:items-start max-md:gap-4">
-            <div className="flex flex-col">
-              <h1 className="text-[22px] font-black text-[#0a2342] tracking-tight">{t("Campus Discussions")}</h1>
-              <p className="text-[12px] text-slate-500 mt-1 font-semibold">{t("Join the conversation with your peers")}</p>
+        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-6 max-w-full [&>*]:animate-fade-in">
+          
+          {/* Hero Banner (Matching Design Mockup) */}
+          <div className="bg-[#071A35] rounded-[1.5rem] p-6 sm:p-8 text-white border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex items-center justify-between gap-6 relative overflow-hidden">
+            <div className="flex flex-col text-left z-10">
+              <div className="bg-white/10 text-[#F5B82E] text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-3 border border-white/10">
+                <span>✨</span>
+                <span>CAMPUS COMMUNITY</span>
+              </div>
+              <h1 className="text-[24px] sm:text-[28px] font-black text-white leading-tight tracking-tight mb-2">
+                Campus Discussions
+              </h1>
+              <p className="text-[12px] font-semibold text-white/70 max-w-[550px] leading-relaxed m-0">
+                Share what matters, find your people, and keep the campus conversation moving.
+              </p>
             </div>
 
-            <div className="flex items-center">
-              <div className="flex items-center gap-2">
-                <div className="relative flex items-center bg-white border border-slate-200 rounded-full shadow-sm">
-                  <svg className="w-4 h-4 text-slate-400 ml-3.5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                  <input
-                    type="text"
-                    placeholder={t("Search topics, tags, or peers...")}
-                    className="w-[240px] max-md:w-full bg-transparent border-none text-[13px] font-semibold text-[#0a2342] placeholder-slate-400 focus:outline-none py-2 pr-4"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <button className="bg-[#0a2342] text-white border-none py-2 px-5 rounded-full text-[12px] font-bold cursor-pointer transition-all hover:bg-[#00c2cb] whitespace-nowrap">
-                  {t("Search")}
-                </button>
-              </div>
-            </div>
+            <button
+              onClick={() => {
+                setEditingThreadId(null);
+                setNewThreadTitle("");
+                setNewThreadContent("");
+                setIsCreateOpen(true);
+              }}
+              className="bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35] font-extrabold px-5 py-3 rounded-full text-[12.5px] transition-all cursor-pointer shadow-md flex items-center gap-2 shrink-0 z-10"
+            >
+              <span>+</span> Start a Discussion
+            </button>
           </div>
 
-          {/* ── CATEGORY FILTER TABS ── */}
-          <div className="flex gap-2 overflow-x-auto pb-1 mb-2">
-            {categoriesList.map((cat) => (
-              <button
-                key={cat}
-                className={`px-4 py-2 rounded-full border text-[12px] font-bold transition-all cursor-pointer ${selectedCategory === cat ? "bg-[#00c2cb] border-[#00c2cb] text-white hover:bg-[#00b2bb]" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-[#00c2cb] hover:border-[#00c2cb]"}`}
-                onClick={() => setSelectedCategory(cat)}
-              >
-                {t(cat)}
-              </button>
-            ))}
+          {/* Search & Category Filter Section */}
+          <div className="bg-white rounded-[1.5rem] border border-[#E8E1D5] p-4 flex flex-col gap-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
+            {/* Search Input */}
+            <div className="relative flex items-center w-full">
+              <span className="absolute left-4 text-slate-400 text-sm">🔍</span>
+              <input
+                type="text"
+                placeholder={t("Search topics, tags, or peers...")}
+                className="bg-[#FAF7F0] border border-[#E8E1D5] rounded-full pl-10 pr-4 py-2.5 text-[12px] font-medium text-[#211A24] placeholder-[#211A24]/50 outline-none w-full shadow-inner focus:ring-2 focus:ring-[#2563EB]/20 transition-all"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            {/* Category Filter Pills */}
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1">
+              {categoriesList.map((cat) => {
+                const isActiveCat = selectedCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-4 py-1.5 rounded-full text-[11.5px] font-extrabold transition-all duration-200 cursor-pointer whitespace-nowrap border ${
+                      isActiveCat
+                        ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
+                        : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* ── SPLIT LAYOUT ── */}

@@ -84,7 +84,7 @@ export default function BusRoutes() {
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const { data } = await axios.get("/api/auth/profile", config);
         setUser(data);
-        if (data.avatar) {
+        if (data.avatar) {  
           setAvatar(data.avatar);
         }
         sessionStorage.setItem("user", JSON.stringify(data));

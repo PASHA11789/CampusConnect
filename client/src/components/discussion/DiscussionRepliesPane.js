@@ -316,14 +316,18 @@ export default function DiscussionRepliesPane({
   const showFallback = !activeThread?.author?.avatar || activeThread?.author?.avatar.includes('ui-avatars.com') || activeThread?.author?.avatar.includes('name=');
 
   return (
-    <div className={`flex-grow bg-white flex flex-col relative h-full border border-slate-200 rounded-2xl p-[22px] min-w-0 ${mobileView === "list" ? "max-[900px]:hidden" : ""}`}>
+    <div className={`flex-grow bg-white flex flex-col relative h-full border border-slate-200 rounded-2xl p-[22px] min-w-0 ${mobileView === "list" ? "max-lg:hidden" : ""}`}>
       {/* Header Row */}
       <div className="flex items-center w-full mb-3 shrink-0">
-        {mobileView === "detail" && (
-          <button className="hidden max-[900px]:block bg-slate-100 hover:bg-slate-200 border-none text-[#0a2342] text-[12px] font-bold py-1.5 px-3 rounded-lg cursor-pointer" onClick={() => setMobileView("list")}>
-            ← {t("Back to list")}
-          </button>
-        )}
+        <button 
+          className="lg:hidden bg-[#071A35] hover:bg-[#0A2246] text-white text-[12px] font-black py-2 px-4 rounded-full cursor-pointer border-none shadow-sm transition-all flex items-center gap-1.5" 
+          onClick={() => {
+            setMobileView("list");
+            if (onClose) onClose();
+          }}
+        >
+          ← {t("Back to list")}
+        </button>
         {onClose && (
           <button 
             type="button"

@@ -1,16 +1,15 @@
 import React from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-
 import logo from '../../assets/MUL-Logo.png';
 
-const IconForum      = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>;
-const IconSearch     = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
-const IconClipboard  = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>;
-const IconLogout     = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>;
+const IconForum = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>;
+const IconSearch = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>;
+const IconClipboard = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" /><rect x="9" y="3" width="6" height="4" rx="1" /></svg>;
+const IconLogout = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>;
 
-const IconZap        = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+const IconZap = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>;
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -32,62 +31,137 @@ const Sidebar = () => {
   const isActive = (path) => location.pathname === path;
 
   const getNavItemClass = (path) => {
-    const base = "flex items-center gap-[10px] px-3.5 py-2.5 rounded-xl text-[13.5px] font-semibold text-white/50 no-underline transition-all duration-200 relative hover:bg-white/5 hover:text-white";
-    const active = "bg-[#00c2cb]/12 text-[#00c2cb] before:content-[''] before:absolute before:left-0 before:top-1/4 before:bottom-1/4 before:w-[3px] before:bg-[#00c2cb] before:rounded-sm";
+    const base = "flex items-center gap-3 px-3.5 py-2.5 rounded-full text-[13px] font-semibold text-white/70 no-underline transition-all duration-200 hover:bg-white/10 hover:text-white";
+    const active = "bg-gradient-to-r from-[#00c2cb] to-[#0079c2] text-white font-extrabold rounded-full px-3.5 py-2.5 shadow-[0_4px_15px_rgba(0,194,203,0.3)] flex items-center justify-between";
     return isActive(path) ? `${base} ${active}` : base;
   };
 
   return (
-    <aside className="w-[240px] shrink-0 bg-[#001529] flex flex-col py-7 sticky top-0 h-screen overflow-y-auto scrollbar-none animate-slide-right max-md:hidden">
-      <div className="flex items-center gap-3 px-4 pb-7 border-b border-white/10 mb-4">
-        <div className="w-[38px] h-[38px] bg-white rounded-full flex items-center justify-center p-1 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0">
-          <img src={logo} alt="Minhaj Logo" className="w-full h-full object-contain" />
+    <>
+      {/* Mobile Drawer Overlay Backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-[#071A35]/80 backdrop-blur-sm z-[150] md:hidden transition-opacity"
+          onClick={onClose}
+        />
+      )}
+
+      <aside className={`w-[250px] shrink-0 bg-[#071A35] flex flex-col py-6 px-3 h-full overflow-y-auto scrollbar-none border-r border-[#FAF7F0]/10 shadow-[4px_0_24px_rgba(0,0,0,0.15)] transition-all duration-300 ${isOpen
+          ? 'fixed inset-y-0 left-0 shadow-2xl flex z-[160]'
+          : 'hidden md:flex relative z-[90]'
+        }`}>
+        {/* Brand Header with Original Logo & Cyan Branding */}
+        <div className="flex items-center gap-3 px-2 pb-5 border-b border-white/10 mb-3">
+          <div className="w-[38px] h-[38px] bg-white rounded-full flex items-center justify-center p-1 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0">
+            <img src={logo} alt="Minhaj Logo" className="w-full h-full object-contain" />
+          </div>
+          <div className="text-[18px] font-black bg-gradient-to-b from-[#00c2cb] to-[#0079c2] bg-clip-text text-transparent leading-none shrink-0">X</div>
+          <div className="flex flex-col items-start">
+            <div className="text-[13px] font-black text-white tracking-tight leading-none">
+              CAMPUS<span className="text-[#00c2cb]">CONNECT</span>
+            </div>
+            <div className="text-[7px] font-bold tracking-[0.25em] text-[#00c2cb] mt-[2px] uppercase">
+              UNIVERSITY PORTAL
+            </div>
+          </div>
         </div>
-        <div className="text-[18px] font-black bg-gradient-to-b from-[#00c2cb] to-[#0079c2] bg-clip-text text-transparent leading-none">X</div>
-        <div className="flex flex-col items-start">
-          <div className="text-[13px] font-black text-white tracking-tight leading-none">CAMPUS<span className="text-[#00c2cb]">CONNECT</span></div>
-          <div className="text-[7px] font-bold tracking-[0.25em] text-[#00c2cb] mt-[2px] uppercase">UNIVERSITY PORTAL</div>
+
+        <nav className="flex-1 flex flex-col gap-3">
+          {/* Main Menu Panel */}
+          <div className="bg-[#0C274E]/80 rounded-[1.2rem] p-2 flex flex-col gap-1 border border-white/5 shadow-inner">
+            <div className="text-[9px] font-black tracking-[0.15em] text-white/40 px-3 pt-1 pb-1.5 uppercase">MAIN MENU</div>
+            <Link to="/dashboard" className={getNavItemClass('/dashboard')}>
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs">●</span>
+                <IconZap />
+                <span>Dashboard</span>
+              </div>
+            </Link>
+            <Link to="/forum" className={getNavItemClass('/forum')}>
+              <div className="flex items-center gap-2.5">
+                <IconForum />
+                <span>Forum</span>
+              </div>
+            </Link>
+            <Link to="/career" className={getNavItemClass('/career')}>
+              <div className="flex items-center gap-2.5">
+                <span className="text-[14px]">💼</span>
+                <span>Career Paths</span>
+              </div>
+            </Link>
+          </div>
+
+          {/* Campus Services Panel */}
+          <div className="bg-[#0C274E]/80 rounded-[1.2rem] p-2 flex flex-col gap-1 border border-white/5 shadow-inner">
+            <div className="text-[9px] font-black tracking-[0.15em] text-white/40 px-3 pt-1 pb-1.5 uppercase">CAMPUS SERVICES</div>
+            <Link to="/canteen" className={getNavItemClass('/canteen')}>
+              <div className="flex items-center gap-2.5">
+                <span className="text-[14px]">☕</span>
+                <span>Canteen</span>
+              </div>
+            </Link>
+            <Link to="/petitions" className={getNavItemClass('/petitions')}>
+              <div className="flex items-center gap-2.5">
+                <IconClipboard />
+                <span>Petitions</span>
+              </div>
+            </Link>
+            <Link to="/lost-found" className={getNavItemClass('/lost-found')}>
+              <div className="flex items-center gap-2.5">
+                <IconSearch />
+                <span>Lost &amp; Found</span>
+              </div>
+            </Link>
+            <Link to="/bus-routes" className={getNavItemClass('/bus-routes')}>
+              <div className="flex items-center gap-2.5">
+                <span className="text-[14px]">🚌</span>
+                <span>Bus Routes</span>
+              </div>
+            </Link>
+          </div>
+
+          {isMod && (
+            <div className="bg-[#0C274E]/80 rounded-[1.2rem] p-2 flex flex-col gap-1 border border-white/5">
+              <div className="text-[9px] font-black tracking-[0.15em] text-white/40 px-3 pt-1 pb-1.5 uppercase">MODERATION</div>
+              <Link to="/moderation" className={getNavItemClass('/moderation')}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-[14px]">🛡️</span>
+                  <span>Moderator Room</span>
+                </div>
+              </Link>
+            </div>
+          )}
+
+          {isCampusAdmin && (
+            <div className="bg-[#0C274E]/80 rounded-[1.2rem] p-2 flex flex-col gap-1 border border-white/5">
+              <div className="text-[9px] font-black tracking-[0.15em] text-white/40 px-3 pt-1 pb-1.5 uppercase">ADMINISTRATION</div>
+              <Link to="/admin/users" className={getNavItemClass('/admin/users')}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-[14px]">👥</span>
+                  <span>Manage Users</span>
+                </div>
+              </Link>
+              <Link to="/admin/restaurants" className={getNavItemClass('/admin/restaurants')}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-[14px]">🏬</span>
+                  <span>Manage Restaurants</span>
+                </div>
+              </Link>
+            </div>
+          )}
+        </nav>
+
+        <div className="mt-6 pt-4 border-t border-white/10 shrink-0">
+          <button
+            className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-full border border-red-500/30 bg-red-500/15 text-red-300 text-[13px] font-extrabold cursor-pointer transition-all duration-200 hover:bg-red-500/25 hover:text-white shadow-sm"
+            onClick={handleLogout}
+          >
+            <IconLogout /> Sign Out
+          </button>
         </div>
-      </div>
-
-      <nav className="flex-1 px-3 flex flex-col gap-[2px]">
-        <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">MAIN</div>
-        <Link to="/dashboard" className={getNavItemClass('/dashboard')}><IconZap/> Dashboard</Link>
-        <Link to="/forum"     className={getNavItemClass('/forum')}><IconForum/> Forum</Link>
-        <Link to="/career"    className={getNavItemClass('/career')}><span className="text-[15px]">💼</span> Career Paths</Link>
-
-        <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">CAMPUS</div>
-        <Link to="/canteen"    className={getNavItemClass('/canteen')}><span className="text-[15px]">🍽️</span> Canteen</Link>
-        <Link to="/petitions"  className={getNavItemClass('/petitions')}><IconClipboard/> Petitions</Link>
-        <Link to="/lost-found" className={getNavItemClass('/lost-found')}><IconSearch/> Lost &amp; Found</Link>
-        <Link to="/bus-routes" className={getNavItemClass('/bus-routes')}><span className="text-[15px]">🚌</span> Bus Routes</Link>
-
-
-
-        {isMod && (
-          <>
-            <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">MODERATION</div>
-            <Link to="/moderation" className={getNavItemClass('/moderation')}><span className="text-[15px]">🛡️</span> Moderator Room</Link>
-          </>
-        )}
-
-        {isCampusAdmin && (
-          <>
-            <div className="text-[9px] font-extrabold tracking-[0.15em] text-white/20 px-2 pt-[14px] pb-[6px]">ADMINISTRATION</div>
-            <Link to="/admin/users" className={getNavItemClass('/admin/users')}><span className="text-[15px]">👥</span> Manage Users</Link>
-            <Link to="/admin/restaurants" className={getNavItemClass('/admin/restaurants')}><span className="text-[15px]">🏬</span> Manage Restaurants</Link>
-          </>
-        )}
-
-
-      </nav>
-
-      <button className="flex items-center gap-[10px] mx-3 px-3.5 py-2.5 rounded-xl border-none bg-red-400/8 text-red-400/70 text-[13.5px] font-semibold cursor-pointer transition-all duration-200 hover:bg-red-400/15 hover:text-red-400" onClick={handleLogout}>
-        <IconLogout/> Sign Out
-      </button>
-    </aside>
+      </aside>
+    </>
   );
 };
 
 export default Sidebar;
-

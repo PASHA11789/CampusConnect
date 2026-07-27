@@ -135,6 +135,7 @@ export default function Career() {
   const [replyContent, setReplyContent] = useState("");
   const [activeDropdown, setActiveDropdown] = useState({ type: null, id: null });
   const [savedPosts, setSavedPosts] = useState({});
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const mediaInputRef = useRef(null);
 
@@ -632,16 +633,20 @@ export default function Career() {
   if (!user) {
     return (
       <div className="flex items-center justify-center h-screen flex-col gap-3.5 bg-[#f0f4f8]">
-        <div className="w-8 h-8 border-3 border-slate-100 border-t-[#00c2cb] rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-3 border-slate-100 border-t-[#071A35] rounded-full animate-spin"></div>
         <p className="font-sans text-slate-500 text-[14.5px] font-semibold">{t("Loading your profile...")}</p>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-[#f4f6f9] font-sans text-slate-800">
-      <Sidebar />
-      <main className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#FAF7F0] font-sans text-[#211A24] animate-fade-in">
+      <Sidebar 
+        isOpen={isMobileSidebarOpen} 
+        onClose={() => setIsMobileSidebarOpen(false)} 
+      />
+
+      <main className="flex-1 flex flex-col h-full min-w-0 overflow-y-auto overflow-x-hidden">
         <Topbar
           time={time}
           user={user}
@@ -649,44 +654,50 @@ export default function Career() {
           avatar={getPersonalizedAvatar(avatar)}
           handleAvatarChange={handleAvatarChange}
           isUploading={isUploading}
+          onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
         />
 
-        <div className="flex-1 px-8 py-6 flex flex-col gap-6 overflow-y-auto max-md:p-4 max-w-[1440px] w-full mx-auto">
-          {/* HEADER ACTION BAR */}
-          <div className="flex justify-between items-center max-md:flex-col max-md:items-start max-md:gap-4">
-            <div className="flex flex-col text-left">
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight">{t("Career Paths")}</h1>
-              <p className="text-xs text-slate-500 mt-1 font-medium">
-                {t("Connect with alumni, find opportunities, and grow your career.")}
+        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-6 max-w-full [&>*]:animate-fade-in">
+          
+          {/* Hero Banner (Matching Design Theme) */}
+          <div className="bg-[#071A35] rounded-[1.5rem] p-6 sm:p-8 text-white border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
+            <div className="flex flex-col text-left z-10">
+              <div className="bg-white/10 text-[#F5B82E] text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-3 border border-white/10">
+                <span>💼</span>
+                <span>ALUMNI &amp; CAREER NETWORK</span>
+              </div>
+              <h1 className="text-[24px] sm:text-[28px] font-black text-white leading-tight tracking-tight mb-2">
+                Career Paths &amp; Mentorship
+              </h1>
+              <p className="text-[12px] font-semibold text-white/70 max-w-[550px] leading-relaxed m-0">
+                Connect with alumni, explore job posts, ask for career guidance, and grow your professional journey.
               </p>
             </div>
 
-            <div className="flex items-center gap-3 w-auto max-md:w-full justify-end max-md:justify-between">
-              {/* Search input */}
-              <div className="relative flex items-center bg-white border border-slate-200 rounded-full shadow-sm px-3.5 py-1.5 w-[300px] max-md:w-full focus-within:border-[#00c2cb] focus-within:ring-2 focus-within:ring-[#00c2cb]/20 transition-all">
-                <svg className="w-4 h-4 text-slate-400 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input
-                  type="text"
-                  placeholder={t("Search jobs, companies, alumni...")}
-                  className="w-full bg-transparent border-none text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-
-            </div>
+            <button
+              onClick={() => {
+                setNewThreadTitle("");
+                setNewThreadContent("");
+                setCategory("general_discussion");
+                setIsCreateOpen(true);
+              }}
+              className="bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35] font-extrabold px-5 py-3 rounded-full text-[12.5px] transition-all cursor-pointer shadow-md flex items-center justify-center gap-2 shrink-0 z-10 w-full sm:w-auto"
+            >
+              <span>+</span> Share Opportunity
+            </button>
           </div>
 
-          {/* CATEGORY FILTER TABS BAR */}
-          <div className="flex justify-between items-center border-b border-slate-200/60 pb-3 gap-2 overflow-x-auto">
-            <div className="flex items-center gap-2">
+          {/* Search & Category Filter Section */}
+          <div className="bg-white rounded-[1.5rem] border border-[#E8E1D5] p-4 flex flex-col xl:flex-row xl:items-center justify-between gap-4 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
+            
+            {/* CATEGORY FILTER TABS BAR */}
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1 w-full xl:w-auto">
+
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${
                   selectedCategory === "All"
-                    ? "bg-[#00c2cb] border-[#00c2cb] text-white shadow-sm"
-                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
+                    : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
                 }`}
                 onClick={() => setSelectedCategory("All")}
               >
@@ -697,10 +708,10 @@ export default function Career() {
               </button>
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${
                   selectedCategory === "job_opportunity"
-                    ? "bg-[#00c2cb] border-[#00c2cb] text-white shadow-sm"
-                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
+                    : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
                 }`}
                 onClick={() => setSelectedCategory("job_opportunity")}
               >
@@ -711,10 +722,10 @@ export default function Career() {
               </button>
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${
                   selectedCategory === "general_discussion"
-                    ? "bg-[#00c2cb] border-[#00c2cb] text-white shadow-sm"
-                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
+                    : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
                 }`}
                 onClick={() => setSelectedCategory("general_discussion")}
               >
@@ -725,10 +736,10 @@ export default function Career() {
               </button>
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${
                   selectedCategory === "internship"
-                    ? "bg-[#00c2cb] border-[#00c2cb] text-white shadow-sm"
-                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
+                    : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
                 }`}
                 onClick={() => setSelectedCategory("internship")}
               >
@@ -740,10 +751,10 @@ export default function Career() {
               </button>
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${
                   selectedCategory === "mentorship_qa"
-                    ? "bg-[#00c2cb] border-[#00c2cb] text-white shadow-sm"
-                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
+                    : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
                 }`}
                 onClick={() => setSelectedCategory("mentorship_qa")}
               >
@@ -754,17 +765,31 @@ export default function Career() {
               </button>
             </div>
 
-            {/* Filter button */}
-            <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-slate-600 text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer shrink-0">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
-              {t("Filter")}
-            </button>
+            <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full xl:w-auto mt-2 xl:mt-0">
+              {/* Filter button */}
+              <button className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full border border-slate-200 bg-white text-slate-600 text-[12px] font-bold hover:bg-slate-50 transition-colors cursor-pointer shrink-0 w-full sm:w-auto">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                {t("Filter")}
+              </button>
+
+              {/* Search Container */}
+              <div className="relative flex items-center w-full sm:w-[300px] shadow-sm shrink-0">
+                <span className="absolute left-4 text-slate-400 text-sm">🔍</span>
+                <input
+                  type="text"
+                  placeholder={t("Search jobs, companies, alumni...")}
+                  className="bg-[#FAF7F0] border border-[#E8E1D5] rounded-full pl-10 pr-4 py-2.5 text-[12px] font-medium text-[#211A24] placeholder-[#211A24]/50 outline-none w-full shadow-inner focus:ring-2 focus:ring-[#071A35]/20 focus:border-[#071A35] transition-all"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
           </div>
 
           {/* MAIN GRID LAYOUT: 2 COLUMNS (Feed ~70%, Sidebar ~30%) */}
-          <div className="grid grid-cols-[1fr_340px] max-lg:grid-cols-1 gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 items-start">
             {/* LEFT COLUMN: FEED SECTION */}
             <div className="flex flex-col gap-5">
               {/* START A POST INPUT CARD */}
@@ -845,7 +870,7 @@ export default function Career() {
                     <div className="flex items-center gap-2 text-slate-400 max-sm:hidden">
                       <button
                         type="button"
-                        className="hover:text-[#00c2cb] hover:bg-slate-100 rounded-lg p-1.5 transition-colors border-none bg-transparent cursor-pointer flex items-center gap-1.5 text-xs font-bold text-slate-600"
+                        className="hover:text-[#071A35] hover:bg-slate-100 rounded-lg p-1.5 transition-colors border-none bg-transparent cursor-pointer flex items-center gap-1.5 text-xs font-bold text-slate-600"
                         title="Attach Image"
                         onClick={() => mediaInputRef.current?.click()}
                       >
@@ -855,7 +880,7 @@ export default function Career() {
                     </div>
 
                     <button
-                      className="bg-[#00c2cb] hover:bg-[#00a3ab] text-white py-1.5 px-5 rounded-full text-xs font-bold cursor-pointer transition-all shadow-sm"
+                      className="bg-[#071A35] hover:bg-[#102A4A] text-white py-1.5 px-5 rounded-full text-xs font-bold cursor-pointer transition-all shadow-sm"
                       onClick={() => {
                         setCategory("general_discussion");
                         setIsCreateOpen(true);
@@ -863,19 +888,6 @@ export default function Career() {
                     >
                       {t("Post")}
                     </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* FEED HEADER (SORTING & TITLE) */}
-              <div className="flex justify-between items-center px-1">
-                <h2 className="text-base font-bold text-slate-900">{t("Latest Posts")}</h2>
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
-                  <div className="flex items-center gap-1 bg-white border border-slate-200 px-3 py-1 rounded-lg cursor-pointer hover:bg-slate-50 shadow-xs">
-                    <span>{t("Latest")}</span>
-                    <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                    </svg>
                   </div>
                 </div>
               </div>
@@ -898,7 +910,7 @@ export default function Career() {
                     return (
                       <div
                         key={post._id}
-                        className="bg-white border border-slate-200/80 hover:border-slate-300 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all flex flex-col gap-3.5 relative group text-left"
+                        className="bg-white border border-slate-200/80 border-l-4 border-l-transparent hover:border-[#cbd5e1] hover:border-l-[#071A35] rounded-2xl p-5 shadow-xs hover:shadow-[0_3px_10px_rgba(0,0,0,0.05)] hover:translate-x-[2px] transition-all duration-200 flex flex-col gap-3.5 relative group text-left"
                       >
                         {/* CARD TOP: AUTHOR INFO & BADGE */}
                         <div className="flex justify-between items-start gap-3">
@@ -915,7 +927,7 @@ export default function Career() {
                             <div className="flex flex-col">
                               <div className="flex items-center gap-2">
                                 <span
-                                  className="text-xs font-bold text-slate-900 hover:text-[#00c2cb] cursor-pointer transition-colors"
+                                  className="text-xs font-bold text-slate-900 hover:text-[#071A35] cursor-pointer transition-colors"
                                   onClick={() => openPublicProfile(post.author?._id || post.author)}
                                 >
                                   {authorName}
@@ -941,7 +953,7 @@ export default function Career() {
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1 flex flex-col gap-1.5">
                             <h3
-                              className="text-base font-extrabold text-slate-900 hover:text-[#00c2cb] cursor-pointer transition-colors leading-snug"
+                              className="text-base font-extrabold text-slate-900 hover:text-[#071A35] cursor-pointer transition-colors leading-snug"
                               onClick={() => handleThreadClick(post)}
                             >
                               {post.title}
@@ -989,7 +1001,7 @@ export default function Career() {
                             <button
                               type="button"
                               className={`flex items-center gap-1.5 border-none bg-transparent cursor-pointer transition-colors ${
-                                post.isLiked ? "text-[#00c2cb] font-bold" : "text-slate-500 hover:text-slate-700"
+                                post.isLiked ? "text-[#071A35] font-bold" : "text-slate-500 hover:text-slate-700"
                               }`}
                               onClick={(e) => toggleLikePost(post._id, e)}
                               title={post.isLiked ? "Unlike" : "Like"}
@@ -1001,7 +1013,7 @@ export default function Career() {
                             </span>
                             <button
                               className={`p-1 rounded hover:bg-slate-100 transition-colors ${
-                                isBookmarked ? "text-[#00c2cb]" : "text-slate-400 hover:text-slate-600"
+                                isBookmarked ? "text-[#071A35]" : "text-slate-400 hover:text-slate-600"
                               }`}
                               onClick={(e) => toggleSavePost(post._id, e)}
                               title={isBookmarked ? "Bookmarked" : "Save Post"}
@@ -1011,7 +1023,7 @@ export default function Career() {
                           </div>
 
                           <button
-                            className="flex items-center gap-1 text-xs font-bold text-[#00c2cb] hover:text-[#009da5] hover:bg-[#00c2cb]/10 px-3 py-1.5 rounded-lg transition-all"
+                            className="flex items-center gap-1 text-xs font-bold text-[#071A35] hover:text-[#102A4A] hover:bg-[#071A35]/10 px-3 py-1.5 rounded-lg transition-all"
                             onClick={() => handleThreadClick(post)}
                           >
                             <span>{post.category === "general_discussion" || post.category === "Discussion" ? t("Join Discussion") : t("View Details")}</span>
@@ -1045,7 +1057,7 @@ export default function Career() {
                   <img
                     src={getPersonalizedAvatar(avatar)}
                     alt={user.name}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-[#00c2cb]/30 p-0.5 shadow-xs"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-[#071A35]/30 p-0.5 shadow-xs"
                   />
                   <div className="flex flex-col">
                     <h4 className="text-sm font-extrabold text-slate-900">{user.name || "Hamza Student"}</h4>
@@ -1061,7 +1073,7 @@ export default function Career() {
 
                 <div className="pt-2">
                   <button
-                    className="w-full py-2 px-3 rounded-xl border border-slate-200 hover:border-[#00c2cb] bg-white text-slate-700 text-xs font-bold hover:text-[#00c2cb] transition-all cursor-pointer shadow-xs"
+                    className="w-full py-2 px-3 rounded-xl border border-slate-200 hover:border-[#071A35] bg-white text-slate-700 text-xs font-bold hover:text-[#071A35] transition-all cursor-pointer shadow-xs"
                     onClick={() => setIsEditCareerProfileOpen(true)}
                   >
                     {t("Edit Profile")}
@@ -1075,7 +1087,7 @@ export default function Career() {
               <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col gap-3 text-left">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">{t("Skills")}</h3>
-                  <button className="text-xs font-bold text-[#00c2cb] hover:underline border-none bg-transparent cursor-pointer" onClick={() => setIsEditCareerProfileOpen(true)}>
+                  <button className="text-xs font-bold text-[#071A35] hover:underline border-none bg-transparent cursor-pointer" onClick={() => setIsEditCareerProfileOpen(true)}>
                     {t("Edit")}
                   </button>
                 </div>
@@ -1116,7 +1128,7 @@ export default function Career() {
                 </div>
 
                 <div className="flex flex-col gap-1.5 pt-1">
-                  <h4 className="text-xs font-black text-slate-900 leading-snug hover:text-[#00c2cb] transition-colors cursor-pointer">
+                  <h4 className="text-xs font-black text-slate-900 leading-snug hover:text-[#071A35] transition-colors cursor-pointer">
                     {dailyProblem.title}
                   </h4>
                   <div className="flex items-center gap-1.5 flex-wrap">
@@ -1158,7 +1170,7 @@ export default function Career() {
                 </div>
 
                 <button
-                  className="bg-[#00c2cb] hover:bg-[#00a3ab] text-white py-2 px-4 rounded-xl text-xs font-bold cursor-pointer transition-all shadow-xs w-fit z-10"
+                  className="bg-[#071A35] hover:bg-[#102A4A] text-white py-2 px-4 rounded-xl text-xs font-bold cursor-pointer transition-all shadow-xs w-fit z-10"
                   onClick={() => setIsAskQuestionOpen(true)}
                 >
                   {t("Ask a Question →")}
@@ -1272,7 +1284,7 @@ export default function Career() {
               ? "border-l-4 border-l-red-500"
               : toast.type === "success"
               ? "border-l-4 border-l-emerald-500"
-              : "border-l-4 border-l-[#00c2cb]"
+              : "border-l-4 border-l-[#071A35]"
           }`}
         >
           <div className="flex-1 flex flex-col gap-0.5 text-left">

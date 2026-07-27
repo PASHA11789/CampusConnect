@@ -17,6 +17,7 @@
     .cc-page-cursor-none {
       cursor: none;
     }
+
     .cc-page-cursor-none a,
     .cc-page-cursor-none button,
     .cc-page-cursor-none .cc-feature-card,
@@ -27,6 +28,7 @@
 }
 
 @layer utilities {
+
   /* Scroll reveal animation styles */
   .cc-reveal {
     opacity: 0;
@@ -39,13 +41,16 @@
     width: 6px;
     height: 6px;
   }
+
   .custom-scrollbar::-webkit-scrollbar-track {
     background: #f8fafc;
   }
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #e2e8f0;
     border-radius: 10px;
   }
+
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #cbd5e1;
   }
@@ -54,6 +59,7 @@
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
+
   .scrollbar-none {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -61,10 +67,13 @@
 
   /* ── Animations ── */
   @keyframes pulse-orb {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: scale(1) translate(0, 0);
       opacity: 0.3;
     }
+
     50% {
       transform: scale(1.2) translate(30px, -30px);
       opacity: 0.5;
