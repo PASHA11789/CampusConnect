@@ -254,8 +254,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
     <header className="bg-white rounded-full border border-[#E8E1D5] shadow-[0_8px_30px_rgba(7,26,53,0.06)] px-4 sm:px-6 py-2.5 mx-3 sm:mx-8 mt-3 sm:mt-5 mb-2 flex items-center justify-between sticky top-3 z-[100] animate-slide-down">
       {/* Left Search Bar & Mobile Menu Toggle */}
       <div className="flex items-center gap-2 flex-1 max-w-lg">
-        <button 
-          onClick={onToggleSidebar} 
+        <button
+          onClick={onToggleSidebar}
           className="md:hidden p-1.5 text-[#071A35] hover:bg-[#FAF7F0] rounded-full transition-colors border-none bg-transparent cursor-pointer shrink-0"
           title="Toggle Menu"
         >
@@ -266,268 +266,262 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
 
         <div className="relative flex items-center w-full max-w-[180px] sm:max-w-[320px] md:max-w-[400px]">
           <span className="absolute left-3 text-slate-400 text-xs">🔍</span>
-          <input 
-            type="text" 
-            placeholder="Search campus services..." 
+          <input
+            type="text"
+            placeholder="Search campus services..."
             className="bg-[#F7F4EC] rounded-full pl-8 pr-3 py-1.5 sm:py-2 text-[11px] sm:text-[11.5px] font-medium text-[#211A24] placeholder-[#211A24]/50 border-none outline-none w-full shadow-inner transition-all focus:ring-2 focus:ring-[#2563EB]/20"
           />
         </div>
       </div>
 
       <div className="flex items-center gap-5">
-        
+
         {/* Notification Bell */}
-          <div className="relative notification-bell-container flex items-center">
-            
-            {/* Sliding Sub-Bells (Four Balls: Orders, Petitions, Forums, Others) */}
-            <div
-              className={`absolute flex items-center gap-2 transition-all duration-300 ease-out z-[99] max-md:top-full max-md:right-0 max-md:mt-2.5 max-md:bg-white/95 max-md:backdrop-blur-md max-md:p-2 max-md:rounded-full max-md:shadow-xl max-md:border max-md:border-[#E8E1D5] md:right-full md:top-1/2 md:-translate-y-1/2 md:mr-2.5 ${
-                isOpen
-                  ? "opacity-100 translate-x-0 scale-100"
-                  : "opacity-0 translate-x-4 md:translate-x-10 scale-90 pointer-events-none"
+        <div className="relative notification-bell-container flex items-center">
+
+          {/* Sliding Sub-Bells (Four Balls: Orders, Petitions, Forums, Others) */}
+          <div
+            className={`absolute flex items-center gap-2 transition-all duration-300 ease-out z-[99] max-md:top-full max-md:right-0 max-md:mt-2.5 max-md:bg-white/95 max-md:backdrop-blur-md max-md:p-2 max-md:rounded-full max-md:shadow-xl max-md:border max-md:border-[#E8E1D5] md:right-full md:top-1/2 md:-translate-y-1/2 md:mr-2.5 ${isOpen
+                ? "opacity-100 translate-x-0 scale-100"
+                : "opacity-0 translate-x-4 md:translate-x-10 scale-90 pointer-events-none"
               }`}
-            >
-              {/* Canteen / Food Orders Ball */}
-              <div className="group relative">
-                <button
-                  onClick={() => setSubView('canteen')}
-                  title="Canteen Orders & Delivery Notifications"
-                  className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
-                    subView === 'canteen'
-                      ? "bg-[#F5B82E] text-[#071A35] border-[#F5B82E] font-bold"
-                      : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
+          >
+            {/* Canteen / Food Orders Ball */}
+            <div className="group relative">
+              <button
+                onClick={() => setSubView('canteen')}
+                title="Canteen Orders & Delivery Notifications"
+                className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'canteen'
+                    ? "bg-[#F5B82E] text-[#071A35] border-[#F5B82E] font-bold"
+                    : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
                   }`}
-                >
-                  <span className="text-xs group-hover:scale-110 transition-transform">🍔</span>
-                  {unreadCanteen > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
-                      {unreadCanteen}
-                    </span>
-                  )}
-                </button>
-                {/* Tooltip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
-                  Canteen Orders
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
-                </div>
-              </div>
-
-              {/* Petitions Ball */}
-              <div className="group relative">
-                <button
-                  onClick={() => setSubView('petitions')}
-                  title="Petitions Notifications"
-                  className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
-                    subView === 'petitions'
-                      ? "bg-[#2563EB] text-white border-[#2563EB]"
-                      : "bg-[#FAF7F0] text-[#2563EB] border-[#E8E1D5] hover:bg-[#F3EEE4]"
-                  }`}
-                >
-                  <svg className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                    <line x1="16" y1="13" x2="8" y2="13" />
-                    <line x1="16" y1="17" x2="8" y2="17" />
-                  </svg>
-                  {unreadPetitions > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
-                      {unreadPetitions}
-                    </span>
-                  )}
-                </button>
-                {/* Tooltip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
-                  Petitions
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
-                </div>
-              </div>
-
-              {/* Forums Ball */}
-              <div className="group relative">
-                <button
-                  onClick={() => setSubView('forums')}
-                  title="Forums Notifications"
-                  className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
-                    subView === 'forums'
-                      ? "bg-[#DCD9F7] text-[#071A35] border-[#DCD9F7] font-bold"
-                      : "bg-[#FAF7F0] text-[#071A35] border-[#E8E1D5] hover:bg-[#F3EEE4]"
-                  }`}
-                >
-                  <svg className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
-                  {unreadForums > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
-                      {unreadForums}
-                    </span>
-                  )}
-                </button>
-                {/* Tooltip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
-                  Forums
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
-                </div>
-              </div>
-
-              {/* Others Ball */}
-              <div className="group relative">
-                <button
-                  onClick={() => setSubView('others')}
-                  title="Other Notifications"
-                  className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
-                    subView === 'others'
-                      ? "bg-[#F5B82E] text-[#071A35] border-[#F5B82E]"
-                      : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
-                  }`}
-                >
-                  <svg className="w-3.5 h-3.5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                  </svg>
-                  {unreadOthers > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
-                      {unreadOthers}
-                    </span>
-                  )}
-                </button>
-                {/* Tooltip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
-                  Others
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
-                </div>
+              >
+                <span className="text-xs group-hover:scale-110 transition-transform">🍔</span>
+                {unreadCanteen > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    {unreadCanteen}
+                  </span>
+                )}
+              </button>
+              {/* Tooltip */}
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                Canteen Orders
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
               </div>
             </div>
 
-            {/* Main Bell Button */}
-            <button
-              onClick={() => {
-                setIsOpen(!isOpen);
-                setSubView(null);
-              }}
-              className={`relative w-9 h-9 rounded-full transition-all duration-200 cursor-pointer border flex items-center justify-center ${
-                isOpen 
-                  ? "bg-[#2563EB]/15 border-[#2563EB] text-[#2563EB]" 
-                  : "bg-white hover:bg-slate-50 border-[#E8E1D5] text-[#071A35]"
-              }`}
-              title="Notifications"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-              </svg>
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#2563EB] text-white text-[8px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white animate-pulse shadow-sm">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-
-            {/* Dropdown Panel (Only renders when subView is active) */}
-            {isOpen && subView !== null && (
-              <div
-                onClick={(e) => e.stopPropagation()}
-                className="absolute right-0 top-full mt-3 max-md:mt-[54px] max-sm:-right-2 w-80 max-sm:w-[280px] bg-white/95 backdrop-blur-lg border border-slate-200/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] z-[999] overflow-hidden animate-modal-slide-in flex flex-col"
+            {/* Petitions Ball */}
+            <div className="group relative">
+              <button
+                onClick={() => setSubView('petitions')}
+                title="Petitions Notifications"
+                className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'petitions'
+                    ? "bg-[#2563EB] text-white border-[#2563EB]"
+                    : "bg-[#FAF7F0] text-[#2563EB] border-[#E8E1D5] hover:bg-[#F3EEE4]"
+                  }`}
               >
-                <div className="flex flex-col flex-1">
-                  {/* Category Details View Header */}
-                  <div className="px-4 pt-3 pb-2 flex items-center justify-between border-b border-slate-100 bg-slate-50/20">
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => setSubView(null)}
-                        className="text-[#2563EB] hover:text-[#071A35] text-[11px] font-black border-none bg-none cursor-pointer flex items-center gap-1 transition-colors"
-                      >
-                        ← Back
-                      </button>
-                      <span className="text-[11px] font-black text-[#071A35] uppercase tracking-wider">
-                        {subView === 'canteen' ? 'Canteen Orders' : subView === 'petitions' ? 'Petitions' : subView === 'forums' ? 'Forums' : 'Others'}
-                      </span>
-                    </div>
-                    {unreadCount > 0 && (
-                      <button
-                        onClick={handleMarkAllAsRead}
-                        className="text-[10px] font-bold text-[#2563EB] hover:text-[#071A35] border-none bg-none cursor-pointer transition-colors"
-                      >
-                        Mark all read
-                      </button>
-                    )}
-                  </div>
+                <svg className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
+                {unreadPetitions > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    {unreadPetitions}
+                  </span>
+                )}
+              </button>
+              {/* Tooltip */}
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                Petitions
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
+              </div>
+            </div>
 
-                  {/* Filter Tabs for selected category */}
-                  <div className="flex gap-2 px-4 pt-2 border-b border-slate-100 pb-2 bg-slate-50/20">
+            {/* Forums Ball */}
+            <div className="group relative">
+              <button
+                onClick={() => setSubView('forums')}
+                title="Forums Notifications"
+                className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'forums'
+                    ? "bg-[#DCD9F7] text-[#071A35] border-[#DCD9F7] font-bold"
+                    : "bg-[#FAF7F0] text-[#071A35] border-[#E8E1D5] hover:bg-[#F3EEE4]"
+                  }`}
+              >
+                <svg className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                {unreadForums > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    {unreadForums}
+                  </span>
+                )}
+              </button>
+              {/* Tooltip */}
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                Forums
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
+              </div>
+            </div>
+
+            {/* Others Ball */}
+            <div className="group relative">
+              <button
+                onClick={() => setSubView('others')}
+                title="Other Notifications"
+                className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'others'
+                    ? "bg-[#F5B82E] text-[#071A35] border-[#F5B82E]"
+                    : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
+                  }`}
+              >
+                <svg className="w-3.5 h-3.5 group-hover:animate-bell-ring transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+                {unreadOthers > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                    {unreadOthers}
+                  </span>
+                )}
+              </button>
+              {/* Tooltip */}
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                Others
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Bell Button */}
+          <button
+            onClick={() => {
+              setIsOpen(!isOpen);
+              setSubView(null);
+            }}
+            className={`relative w-9 h-9 rounded-full transition-all duration-200 cursor-pointer border flex items-center justify-center ${isOpen
+                ? "bg-[#2563EB]/15 border-[#2563EB] text-[#2563EB]"
+                : "bg-white hover:bg-slate-50 border-[#E8E1D5] text-[#071A35]"
+              }`}
+            title="Notifications"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-[#2563EB] text-white text-[8px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white animate-pulse shadow-sm">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          {/* Dropdown Panel (Only renders when subView is active) */}
+          {isOpen && subView !== null && (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="absolute right-0 top-full mt-3 max-md:mt-[54px] max-sm:-right-2 w-80 max-sm:w-[280px] bg-white/95 backdrop-blur-lg border border-slate-200/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] z-[999] overflow-hidden animate-modal-slide-in flex flex-col"
+            >
+              <div className="flex flex-col flex-1">
+                {/* Category Details View Header */}
+                <div className="px-4 pt-3 pb-2 flex items-center justify-between border-b border-slate-100 bg-slate-50/20">
+                  <div className="flex items-center gap-1.5">
                     <button
-                      onClick={() => setFilter('all')}
-                      className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${filter === 'all'
-                          ? 'bg-[#071A35] text-white border-[#071A35]'
-                          : 'bg-transparent text-slate-500 border-transparent hover:text-[#071A35]'
-                        }`}
+                      onClick={() => setSubView(null)}
+                      className="text-[#2563EB] hover:text-[#071A35] text-[11px] font-black border-none bg-none cursor-pointer flex items-center gap-1 transition-colors"
                     >
-                      All ({getCategoryNotifications().length})
+                      ← Back
                     </button>
-                    <button
-                      onClick={() => setFilter('unread')}
-                      className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${filter === 'unread'
-                          ? 'bg-[#071A35] text-white border-[#071A35]'
-                          : 'bg-transparent text-slate-500 border-transparent hover:text-[#071A35]'
-                        }`}
-                    >
-                      Unread ({getCategoryNotifications().filter(n => !n.isRead).length})
-                    </button>
+                    <span className="text-[11px] font-black text-[#071A35] uppercase tracking-wider">
+                      {subView === 'canteen' ? 'Canteen Orders' : subView === 'petitions' ? 'Petitions' : subView === 'forums' ? 'Forums' : 'Others'}
+                    </span>
                   </div>
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={handleMarkAllAsRead}
+                      className="text-[10px] font-bold text-[#2563EB] hover:text-[#071A35] border-none bg-none cursor-pointer transition-colors"
+                    >
+                      Mark all read
+                    </button>
+                  )}
+                </div>
 
-                  {/* List Container */}
-                  <div className="max-h-64 overflow-y-auto scrollbar-none p-1 flex flex-col gap-0.5">
-                    {filteredNotifications.length > 0 ? (
-                      filteredNotifications.map((notif) => (
-                        <div
-                          key={notif._id}
-                          onClick={() => handleMarkAsRead(notif)}
-                          className={`p-2.5 rounded-2xl flex gap-3 transition-all duration-200 cursor-pointer hover:bg-slate-50 items-start ${!notif.isRead
-                              ? "bg-[#2563EB]/5 border border-[#2563EB]/10"
-                              : "bg-transparent border border-transparent"
-                            }`}
-                        >
-                          {/* Icon */}
-                          {getNotificationIcon(notif.type, notif)}
+                {/* Filter Tabs for selected category */}
+                <div className="flex gap-2 px-4 pt-2 border-b border-slate-100 pb-2 bg-slate-50/20">
+                  <button
+                    onClick={() => setFilter('all')}
+                    className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${filter === 'all'
+                      ? 'bg-[#071A35] text-white border-[#071A35]'
+                      : 'bg-transparent text-slate-500 border-transparent hover:text-[#071A35]'
+                      }`}
+                  >
+                    All ({getCategoryNotifications().length})
+                  </button>
+                  <button
+                    onClick={() => setFilter('unread')}
+                    className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${filter === 'unread'
+                      ? 'bg-[#071A35] text-white border-[#071A35]'
+                      : 'bg-transparent text-slate-500 border-transparent hover:text-[#071A35]'
+                      }`}
+                  >
+                    Unread ({getCategoryNotifications().filter(n => !n.isRead).length})
+                  </button>
+                </div>
 
-                          {/* Message Content */}
-                          <div className="flex-1 flex flex-col gap-0.5 text-left">
-                            <p className={`text-[12px] leading-relaxed ${!notif.isRead ? "text-slate-800 font-bold" : "text-slate-500 font-normal"
-                              }`}>
-                              {notif.message}
-                            </p>
-                            <span className="text-[9px] text-slate-400 font-semibold flex items-center gap-1 mt-0.5">
-                              <svg className="w-3 h-3 text-slate-350" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                <circle cx="12" cy="12" r="10" />
-                                <polyline points="12 6 12 12 16 14" />
-                              </svg>
-                              {formatDate(notif.createdAt)}
-                            </span>
+                {/* List Container */}
+                <div className="max-h-64 overflow-y-auto scrollbar-none p-1 flex flex-col gap-0.5">
+                  {filteredNotifications.length > 0 ? (
+                    filteredNotifications.map((notif) => (
+                      <div
+                        key={notif._id}
+                        onClick={() => handleMarkAsRead(notif)}
+                        className={`p-2.5 rounded-2xl flex gap-3 transition-all duration-200 cursor-pointer hover:bg-slate-50 items-start ${!notif.isRead
+                          ? "bg-[#2563EB]/5 border border-[#2563EB]/10"
+                          : "bg-transparent border border-transparent"
+                          }`}
+                      >
+                        {/* Icon */}
+                        {getNotificationIcon(notif.type, notif)}
+
+                        {/* Message Content */}
+                        <div className="flex-1 flex flex-col gap-0.5 text-left">
+                          <p className={`text-[12px] leading-relaxed ${!notif.isRead ? "text-slate-800 font-bold" : "text-slate-500 font-normal"
+                            }`}>
+                            {notif.message}
+                          </p>
+                          <span className="text-[9px] text-slate-400 font-semibold flex items-center gap-1 mt-0.5">
+                            <svg className="w-3 h-3 text-slate-350" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                              <circle cx="12" cy="12" r="10" />
+                              <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            {formatDate(notif.createdAt)}
+                          </span>
+                        </div>
+
+                        {/* Unread dot */}
+                        {!notif.isRead && (
+                          <div className="flex items-center self-center">
+                            <div className="w-1.5 h-1.5 bg-[#2563EB] rounded-full shrink-0 animate-pulse" />
                           </div>
-
-                          {/* Unread dot */}
-                          {!notif.isRead && (
-                            <div className="flex items-center self-center">
-                              <div className="w-1.5 h-1.5 bg-[#2563EB] rounded-full shrink-0 animate-pulse" />
-                            </div>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="py-10 px-6 text-center text-slate-400 font-bold text-[12px] flex flex-col items-center justify-center gap-2.5">
-                        <div className="w-11 h-11 rounded-full bg-slate-50 flex items-center justify-center text-[18px] text-slate-350 shadow-inner">
-                          🔔
-                        </div>
-                        <span className="text-slate-500">All caught up!</span>
-                        <p className="text-[10px] text-slate-400 font-semibold max-w-[180px] leading-normal">
-                          {filter === 'unread' ? "You have no unread notifications." : "No new notifications yet."}
-                        </p>
+                        )}
                       </div>
-                    )}
-                  </div>
+                    ))
+                  ) : (
+                    <div className="py-10 px-6 text-center text-slate-400 font-bold text-[12px] flex flex-col items-center justify-center gap-2.5">
+                      <div className="w-11 h-11 rounded-full bg-slate-50 flex items-center justify-center text-[18px] text-slate-350 shadow-inner">
+                        🔔
+                      </div>
+                      <span className="text-slate-500">All caught up!</span>
+                      <p className="text-[10px] text-slate-400 font-semibold max-w-[180px] leading-normal">
+                        {filter === 'unread' ? "You have no unread notifications." : "No new notifications yet."}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
 
         {/* User Info and Avatar matching Screenshot #2 */}
         <div className="flex items-center gap-3 bg-[#FAF7F0] px-3.5 py-1.5 rounded-full border border-[#E8E1D5]">

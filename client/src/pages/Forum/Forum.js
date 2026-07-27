@@ -14,6 +14,7 @@ import RepliesPane from "../../components/discussion/DiscussionRepliesPane";
 import CreateThreadModal from "../../components/discussion/CreateDiscussionThreadModal";
 import PublicProfileModal from "../../components/profile/PublicProfileModal";
 import MyProfileModal from "../../components/profile/MyProfileModal";
+import ForumReportModal from "../../components/discussion/ForumReportModal";
 
 const t = (s) => s;
 
@@ -59,6 +60,11 @@ export default function Forum() {
   const [selectedPublicUserId, setSelectedPublicUserId] = useState(null);
   const [isPublicProfileOpen, setIsPublicProfileOpen] = useState(false);
   const [isMyProfileOpen, setIsMyProfileOpen] = useState(false);
+
+  // Forum Report Modal state
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null); // { type: 'thread'|'reply', id: string }
+  const [isReportingContent, setIsReportingContent] = useState(false);
 
   const openPublicProfile = (userId) => {
     if (userId) {
@@ -305,14 +311,25 @@ export default function Forum() {
     }
   };
 
-  const handleReportContent = async (type, id) => {
+  // Opens the report reason modal; actual submission happens in handleReportConfirm
+  const handleReportContent = (type, id) => {
+    setReportTarget({ type, id });
+    setIsReportModalOpen(true);
+    setActiveDropdown({ type: null, id: null });
+  };
+
+  // Called when the user picks a reason and clicks Submit in ForumReportModal
+  const handleReportConfirm = async (reason, details) => {
+    if (!reportTarget) return;
+    const { type, id } = reportTarget;
+    setIsReportingContent(true);
     try {
       const token = sessionStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      
+
       if (type === 'thread') {
-        const { data } = await axios.post(`/api/forums/${id}/report`, {}, config);
-        showToast(data.message || "Discussion thread has been reported and hidden.", 'success');
+        const { data } = await axios.post(`/api/forums/${id}/report`, { reason, details }, config);
+        showToast(data.message || "Discussion thread has been reported.", 'success');
         setThreads((prev) => prev.filter((t) => t._id !== id));
         if (selectedThreadId === id) {
           setSelectedThreadId(null);
@@ -320,9 +337,12 @@ export default function Forum() {
         }
       } else if (type === 'reply') {
         if (!activeThread) return;
-        const { data } = await axios.post(`/api/forums/${activeThread._id}/replies/${id}/report`, {}, config);
-        showToast(data.message || "Comment has been reported and hidden.", 'success');
-        
+        const { data } = await axios.post(
+          `/api/forums/${activeThread._id}/replies/${id}/report`,
+          { reason, details },
+          config
+        );
+        showToast(data.message || "Comment has been reported.", 'success');
         setActiveThread((prev) => {
           if (!prev) return null;
           return {
@@ -331,11 +351,14 @@ export default function Forum() {
           };
         });
       }
+
+      setIsReportModalOpen(false);
+      setReportTarget(null);
     } catch (error) {
       console.error(`Error reporting ${type}:`, error);
       showToast(error.response?.data?.message || `Failed to report ${type}.`, 'error');
     } finally {
-      setActiveDropdown({ type: null, id: null });
+      setIsReportingContent(false);
     }
   };
 
@@ -827,6 +850,15 @@ export default function Forum() {
         </div>
       )}
 
+
+      {/* Forum Report Modal */}
+      <ForumReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => { setIsReportModalOpen(false); setReportTarget(null); }}
+        onConfirm={handleReportConfirm}
+        type={reportTarget?.type || 'thread'}
+        isSubmitting={isReportingContent}
+      />
 
       {/* Profile Modals */}
       <PublicProfileModal

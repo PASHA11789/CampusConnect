@@ -210,7 +210,7 @@ export default function ModerationRoom() {
     try {
       const token = sessionStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const { data } = await axios.put(`/api/forums/${threadId}/moderate`, {}, config);
+      const { data } = await axios.put(`/api/moderation/forum/${threadId}/moderate`, { action: "Approve" }, config);
       showToast(data.message || "Thread restored successfully.", "success");
       fetchQueue();
     } catch (error) {
