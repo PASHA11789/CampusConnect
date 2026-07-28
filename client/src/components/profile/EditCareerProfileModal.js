@@ -79,23 +79,21 @@ export default function EditCareerProfileModal({
         className="bg-white rounded-3xl w-full max-w-[560px] shadow-2xl overflow-hidden animate-slide-in flex flex-col max-h-[88vh] border border-slate-100 text-left"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header Banner */}
-        <div className="h-1.5 bg-gradient-to-r from-[#00c2cb] to-[#0079c2] w-full shrink-0" />
-
-        {/* Modal Title Bar */}
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/60 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#00c2cb]/10 text-[#00c2cb] flex items-center justify-center text-lg">
+        {/* Modal Header Bar */}
+        <div className="bg-[#071A35] px-6 py-5 flex justify-between items-center border-b border-white/10 shrink-0">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-white/10 text-[#F5B82E] flex items-center justify-center text-[18px] border border-white/10 shrink-0">
               ✏️
             </div>
             <div className="flex flex-col">
-              <h2 className="text-base font-black text-slate-900 tracking-tight">{t("Edit Career Profile & Skills")}</h2>
-              <p className="text-xs text-slate-500 font-medium">{t("Update your career bio, department, and custom skills list.")}</p>
+              <h2 className="text-[17px] font-black text-white tracking-tight m-0">{t("Edit Career Profile & Skills")}</h2>
+              <p className="text-[11.5px] text-white/70 font-semibold mt-0.5 m-0">{t("Update your career bio, department, and custom skills list.")}</p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200/60 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-all border-none cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-all border-none cursor-pointer"
           >
             ✕
           </button>

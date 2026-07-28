@@ -45,7 +45,7 @@ const CAMPUS_LOCATIONS = [
 ];
 
 const CATEGORIES = [
-  { name: "All", icon: "🍽️", bgColor: "bg-[#e2725b]/10", textColor: "text-[#e2725b]" },
+  { name: "All", icon: "🍽️", bgColor: "bg-[#00c2cb]/10", textColor: "text-[#0079c2]" },
   { name: "Fast Food", icon: "🍔", bgColor: "bg-orange-50", textColor: "text-orange-500" },
   { name: "Traditional", icon: "🍛", bgColor: "bg-red-50", textColor: "text-red-500" },
   { name: "Beverages", icon: "🥤", bgColor: "bg-blue-50", textColor: "text-blue-500" },
@@ -177,6 +177,7 @@ export default function Canteen() {
 
   // ── UI / Navigation ─────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState("browse");
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // ── Restaurant & Menu States (Dynamic) ─────────────────────────
   const location = useLocation();
@@ -449,7 +450,7 @@ export default function Canteen() {
           handleIncomingStatus(event.data.status, event.data.message);
         }
       };
-    } catch (e) {}
+    } catch (e) { }
 
     // 3. Storage event for cross-tab local storage changes
     const handleStorageChange = (e) => {
@@ -459,7 +460,7 @@ export default function Canteen() {
           if (parsed.status) {
             handleIncomingStatus(parsed.status);
           }
-        } catch (err) {}
+        } catch (err) { }
       }
     };
     window.addEventListener("storage", handleStorageChange);
@@ -705,11 +706,14 @@ export default function Canteen() {
 
   // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
-    <div className="flex min-h-screen bg-[#faf8f5] font-sans text-slate-800">
-      <div className="flex flex-1 min-w-0 w-full animate-fade-in">
-        <Sidebar />
+    <div className="flex h-screen overflow-hidden bg-[#faf8f5] font-sans text-slate-800">
+      <div className="flex flex-1 min-w-0 w-full h-full animate-fade-in overflow-hidden">
+        <Sidebar
+          isOpen={isMobileSidebarOpen}
+          onClose={() => setIsMobileSidebarOpen(false)}
+        />
 
-        <main className="flex-1 flex flex-col min-w-0">
+        <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
           <Topbar
             time={time}
             user={user}
@@ -717,9 +721,10 @@ export default function Canteen() {
             avatar={getPersonalizedAvatar(avatar)}
             handleAvatarChange={handleAvatarChange}
             isUploading={isUploading}
+            onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
           />
 
-          <div className="flex-1 px-8 py-7 flex flex-col gap-6 overflow-y-auto max-md:p-4">
+          <div className="flex-1 px-8 py-7 flex flex-col gap-6 max-md:p-4">
 
             {/* ── HERO / HEADER / TABS ── */}
             <CanteenHero
@@ -754,59 +759,59 @@ export default function Canteen() {
               ) : (
                 /* STEP 2: SELECTED RESTAURANT MENU & CART VIEW */
                 <div className="flex flex-col gap-6 animate-fade-in">
-                  {/* Selected Restaurant Card Banner (Prominently displayed above Menu) */}
-                  <div className="relative overflow-hidden rounded-3xl bg-white border border-slate-200/90 shadow-sm flex flex-col md:flex-row items-stretch justify-between p-5 md:p-6 gap-6">
-                    <div className="flex items-center gap-5 flex-1 z-10">
-                      <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden border border-slate-200 shadow-md shrink-0 bg-slate-100 relative">
+                  {/* Selected Restaurant Card Banner (Matching Forum & Career design) */}
+                  <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#071A35] text-white border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col md:flex-row items-start md:items-center justify-between p-5 sm:p-7 gap-4 sm:gap-6 w-full">
+                    <div className="flex items-start sm:items-center gap-3.5 sm:gap-5 flex-1 z-10 min-w-0 w-full">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden border border-white/20 shadow-md shrink-0 bg-slate-100 relative">
                         <img
                           src={activeResObj?.coverImage || activeResObj?.image || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80"}
                           alt={activeResObj?.name || "Selected Restaurant"}
                           className="w-full h-full object-cover"
                         />
-                        <span className="absolute top-1.5 left-1.5 bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase shadow-xs">
+                        <span className="absolute top-1 left-1 sm:top-1.5 sm:left-1.5 bg-emerald-500 text-white text-[8px] sm:text-[9px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase shadow-xs">
                           Open
                         </span>
                       </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[10px] uppercase font-black text-[#e87a5d] bg-[#fff5f2] border border-[#e87a5d]/30 px-2.5 py-0.5 rounded-full tracking-wider">
-                            Selected Restaurant
+                      <div className="flex flex-col gap-1 sm:gap-1.5 min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                          <span className="text-[9px] sm:text-[10px] uppercase font-black text-[#F5B82E] bg-white/10 border border-white/10 px-2.5 py-0.5 rounded-full tracking-wider">
+                            Selected Canteen
                           </span>
-                          <span className="text-[11px] font-bold text-slate-400">
+                          <span className="text-[10px] sm:text-[11px] font-bold text-white/70">
                             • 15-25 min prep
                           </span>
                         </div>
 
-                        <h2 className="text-xl md:text-2xl font-black text-[#0a2342] leading-tight">
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white leading-tight break-words">
                           {activeResObj?.name || "Campus Canteen"}
                         </h2>
 
-                        <div className="flex items-center gap-3 text-xs font-semibold text-slate-500 flex-wrap mt-0.5">
-                          <div className="flex items-center gap-1 bg-amber-50 text-amber-700 px-2.5 py-0.5 rounded-lg border border-amber-200/60 font-black text-[11px]">
-                            <span className="text-amber-500">★</span>
+                        <div className="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-xs font-semibold text-white/80 flex-wrap mt-0.5">
+                          <div className="flex items-center gap-1 bg-white/10 text-[#F5B82E] px-2 py-0.5 rounded-lg border border-white/10 font-black text-[10px] sm:text-[11px]">
+                            <span className="text-amber-400">★</span>
                             <span>4.8</span>
                           </div>
-                          <span>Campus Favorite</span>
-                          <span>•</span>
+                          <span className="hidden sm:inline">Campus Favorite</span>
+                          <span className="hidden sm:inline">•</span>
                           <span className="text-[#00c2cb] font-bold">Live Menu Active</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center self-start md:self-center z-10 shrink-0">
+                    <div className="flex items-center self-stretch md:self-center z-10 shrink-0 w-full md:w-auto">
                       <button
                         onClick={() => setActiveRestaurant("")}
-                        className="flex items-center gap-2 text-xs font-black text-[#0a2342] hover:text-white bg-slate-100 hover:bg-[#0a2342] px-5 py-3 rounded-2xl transition-all cursor-pointer border border-slate-200 shadow-xs group"
+                        className="w-full md:w-auto flex items-center justify-center gap-2 text-xs font-black text-[#071A35] hover:bg-[#FFD05B] bg-[#F5B82E] px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl transition-all cursor-pointer border-none shadow-md group"
                       >
                         <span className="group-hover:-translate-x-0.5 transition-transform">←</span>
-                        <span>Select Another Restaurant</span>
+                        <span>Select Another Canteen</span>
                       </button>
                     </div>
                   </div>
 
-                  {/* 2-Column Grid: Menu Board + Checkout Cart */}
-                  <div className="grid grid-cols-[1fr_330px] gap-8 max-[1100px]:grid-cols-1">
+                  {/* 2-Column Grid: Menu Board + Checkout Cart (Stacks cleanly under 1200px to avoid overflow) */}
+                  <div className="grid grid-cols-1 min-[1200px]:grid-cols-[1fr_320px] gap-6 items-start w-full min-w-0">
                     <MenuBoard
                       popularDishes={POPULAR_DISHES}
                       restaurants={restaurantsList}
@@ -857,187 +862,184 @@ export default function Canteen() {
               <div className="grid grid-cols-[1fr_330px] gap-8 max-[1100px]:grid-cols-1">
                 <div className="flex flex-col gap-8">
                   <div className="flex flex-col gap-6 animate-fade-in">
-                      <div className="relative rounded-3xl overflow-hidden shadow-lg bg-gradient-to-r from-[#0a2342] via-[#0f2e54] to-[#0a2342] p-6 flex flex-col gap-3 text-white border border-[#00c2cb]/30">
-                        <div className="flex justify-between items-center flex-wrap gap-2">
-                          <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#00c2cb] bg-[#00c2cb]/15 px-3 py-1 rounded-full border border-[#00c2cb]/30">
-                            🛵 Live Active Order Tracking
+                    <div className="relative rounded-3xl overflow-hidden shadow-lg bg-gradient-to-r from-[#0a2342] via-[#0f2e54] to-[#0a2342] p-6 flex flex-col gap-3 text-white border border-[#00c2cb]/30">
+                      <div className="flex justify-between items-center flex-wrap gap-2">
+                        <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#00c2cb] bg-[#00c2cb]/15 px-3 py-1 rounded-full border border-[#00c2cb]/30">
+                          🛵 Live Active Order Tracking
+                        </span>
+                        {activeOrder && (
+                          <span className="text-xs font-black text-[#00c2cb]">
+                            #{activeOrder._id ? String(activeOrder._id).slice(-6).toUpperCase() : "LIVE"}
                           </span>
-                          {activeOrder && (
-                            <span className="text-xs font-black text-[#00c2cb]">
-                              #{activeOrder._id ? String(activeOrder._id).slice(-6).toUpperCase() : "LIVE"}
-                            </span>
-                          )}
-                        </div>
-
-                        <h2 className="text-[20px] font-black text-white leading-tight">
-                          {activeOrder ? (activeOrder.canteenName || activeOrder.restaurantName || "Campus Canteen") : "Canteen Active Order"}
-                        </h2>
-                        <p className="text-[12px] text-slate-300 font-medium">
-                          Real-time status updates: Kitchen Preparation → Food Ready → Rider Picked Up → Arrival at Location
-                        </p>
+                        )}
                       </div>
 
-                      {activeOrder ? (
-                        <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-sm flex flex-col gap-6">
-                          {/* Order Info Header */}
-                          <div className="flex flex-wrap justify-between items-center gap-4 pb-4 border-b border-slate-100">
-                            <div>
-                              <div className="text-[11px] font-bold text-slate-400 uppercase">Canteen Vendor</div>
-                              <div className="text-base font-black text-[#0a2342]">
-                                {activeOrder.canteenName || activeOrder.restaurantName || "Cafe Aroma"}
-                              </div>
-                              <div className="text-xs text-slate-500 font-semibold mt-0.5">
-                                {activeOrder.items && activeOrder.items.length > 0
-                                  ? activeOrder.items.map(it => `${it.quantity || 1}x ${it.name}`).join(", ")
-                                  : "Canteen Meal Items"}
-                              </div>
-                            </div>
-
-                            <div className="text-right max-sm:text-left">
-                              <div className="text-[11px] font-bold text-slate-400 uppercase">Total Amount</div>
-                              <div className="text-xl font-black text-[#00c2cb]">
-                                Rs. {activeOrder.totalAmount || activeOrder.total || 350}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* ── Status Progress Bar Timeline ── */}
-                          <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
-                            <div className="grid grid-cols-4 gap-2">
-                              {[
-                                { id: "preparing", label: "Preparing", icon: "🍳" },
-                                { id: "ready", label: "Order Ready", icon: "🍱" },
-                                { id: "on_the_way", label: "Rider On Way", icon: "🛵" },
-                                { id: "arrived", label: "Rider at Location", icon: "📍" },
-                              ].map((step, idx) => {
-                                const currentKey = getNormalizedStatus(activeOrder.status);
-                                const getStepIdx = (st) => {
-                                  if (st === "preparing") return 0;
-                                  if (st === "ready") return 1;
-                                  if (st === "on_the_way") return 2;
-                                  if (st === "arrived" || st === "completed") return 3;
-                                  return 0;
-                                };
-                                const activeIdx = getStepIdx(currentKey);
-                                const isActive = idx === activeIdx;
-                                const isPassed = idx < activeIdx;
-
-                                return (
-                                  <div key={step.id} className="flex flex-col items-center text-center">
-                                    <div
-                                      className={`w-10 h-10 rounded-2xl flex items-center justify-center text-base font-bold transition-all duration-300 ${
-                                        isActive
-                                          ? "bg-[#00c2cb] text-[#0a2342] scale-110 shadow-[0_0_15px_rgba(0,194,203,0.5)] ring-4 ring-[#00c2cb]/20"
-                                          : isPassed
-                                          ? "bg-emerald-500 text-white"
-                                          : "bg-slate-200 text-slate-400"
-                                      }`}
-                                    >
-                                      {isPassed ? "✓" : step.icon}
-                                    </div>
-                                    <span
-                                      className={`text-[11px] font-bold mt-2 ${
-                                        isActive ? "text-[#00c2cb] font-black" : isPassed ? "text-emerald-600" : "text-slate-400"
-                                      }`}
-                                    >
-                                      {step.label}
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-
-                          {/* Current Live Status Banner */}
-                          <div className="p-4 rounded-2xl bg-gradient-to-r from-[#0a2342] to-[#0f2e54] text-white flex items-center gap-4 shadow-md">
-                            <div className="text-3xl animate-bounce">
-                              {getNormalizedStatus(activeOrder.status) === "preparing" && "🍳"}
-                              {getNormalizedStatus(activeOrder.status) === "ready" && "🍱"}
-                              {getNormalizedStatus(activeOrder.status) === "on_the_way" && "🛵"}
-                              {getNormalizedStatus(activeOrder.status) === "arrived" && "📍"}
-                              {getNormalizedStatus(activeOrder.status) === "completed" && "✅"}
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-black uppercase text-[#00c2cb]">Current Status:</span>
-                                <span className="px-2.5 py-0.5 rounded-full bg-[#00c2cb]/20 text-[#00c2cb] border border-[#00c2cb]/30 text-[10px] font-black uppercase">
-                                  {getNormalizedStatus(activeOrder.status) === "preparing" && "Preparing Food"}
-                                  {getNormalizedStatus(activeOrder.status) === "ready" && "Order Ready!"}
-                                  {getNormalizedStatus(activeOrder.status) === "on_the_way" && "Rider On The Way"}
-                                  {getNormalizedStatus(activeOrder.status) === "arrived" && "Rider Arrived at Location!"}
-                                  {getNormalizedStatus(activeOrder.status) === "completed" && "Delivered"}
-                                </span>
-                              </div>
-                              <p className="text-xs font-semibold text-slate-200 mt-1 m-0">
-                                {getNormalizedStatus(activeOrder.status) === "preparing" && "Kitchen has received your order and is currently preparing your meal."}
-                                {getNormalizedStatus(activeOrder.status) === "ready" && "Khana canteen par ready ho gaya hai! Waiting for rider pickup."}
-                                {getNormalizedStatus(activeOrder.status) === "on_the_way" && "Rider order le kar aap ki location ki taraf aa raha hai! 🛵"}
-                                {getNormalizedStatus(activeOrder.status) === "arrived" && "Rider aap ki location par pohnch gaya hai! 📍 Kripya food receive karein."}
-                                {getNormalizedStatus(activeOrder.status) === "completed" && "Order has been delivered successfully. Enjoy your meal!"}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Interactive Status Switcher (Test Toolbar) */}
-                          <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-wrap items-center justify-between gap-2">
-                            <div className="text-[10px] font-black text-slate-400 uppercase">
-                              ⚡ Test Status Updates (Simulator):
-                            </div>
-                            <div className="flex flex-wrap gap-1.5">
-                              {[
-                                { id: "preparing", label: "🍳 Preparing" },
-                                { id: "ready", label: "🍱 Order Ready" },
-                                { id: "on_the_way", label: "🛵 Rider On Way" },
-                                { id: "arrived", label: "📍 Rider at Location" },
-                                { id: "completed", label: "✅ Delivered" },
-                              ].map(st => (
-                                <button
-                                  key={st.id}
-                                  onClick={() => {
-                                    setActiveOrder(prev => (prev ? { ...prev, status: st.id } : prev));
-                                  }}
-                                  className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold cursor-pointer border transition-all ${
-                                    getNormalizedStatus(activeOrder.status) === st.id
-                                      ? "bg-[#00c2cb] text-[#0a2342] border-[#00c2cb]"
-                                      : "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
-                                  }`}
-                                >
-                                  {st.label}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                            <a
-                              href={`https://wa.me/${(restaurantsList.find(r => r._id === activeOrder?.restaurant || r._id === activeRestaurant)?.phone || "+923001234567").replace(/[^0-9+]/g, "")}?text=${encodeURIComponent("Hi! I would like to track my order ID " + (activeOrder?._id || ""))}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none py-2.5 px-5 rounded-xl text-xs font-black tracking-wider uppercase cursor-pointer transition-all shadow-md no-underline"
-                            >
-                              💬 Contact via WhatsApp
-                            </a>
-
-                            <button
-                              onClick={() => setIsTrackingOpen(true)}
-                              className="bg-[#00c2cb] hover:bg-[#00a3ab] text-[#0a2342] border-none px-5 py-2.5 rounded-xl text-xs font-black cursor-pointer transition-all duration-200 shadow-md hover:scale-105"
-                            >
-                              Open Full Modal Tracker →
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="bg-white border border-slate-200 rounded-3xl p-8 text-center flex flex-col items-center gap-3 shadow-sm">
-                          <span className="text-4xl">🛵</span>
-                          <h3 className="text-base font-black text-[#0a2342]">No Active Order Currently</h3>
-                          <p className="text-xs text-slate-500 font-semibold max-w-sm m-0">
-                            You don't have an active canteen order right now. Select a restaurant and place an order from the Browse Menu tab to track it here live!
-                          </p>
-                        </div>
-                      )}
+                      <h2 className="text-[20px] font-black text-white leading-tight">
+                        {activeOrder ? (activeOrder.canteenName || activeOrder.restaurantName || "Campus Canteen") : "Canteen Active Order"}
+                      </h2>
+                      <p className="text-[12px] text-slate-300 font-medium">
+                        Real-time status updates: Kitchen Preparation → Food Ready → Rider Picked Up → Arrival at Location
+                      </p>
                     </div>
+
+                    {activeOrder ? (
+                      <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col gap-6">
+                        {/* Order Info Header */}
+                        <div className="flex flex-wrap justify-between items-center gap-4 pb-4 border-b border-slate-100">
+                          <div>
+                            <div className="text-[11px] font-bold text-slate-400 uppercase">Canteen Vendor</div>
+                            <div className="text-base font-black text-[#0a2342]">
+                              {activeOrder.canteenName || activeOrder.restaurantName || "Cafe Aroma"}
+                            </div>
+                            <div className="text-xs text-slate-500 font-semibold mt-0.5">
+                              {activeOrder.items && activeOrder.items.length > 0
+                                ? activeOrder.items.map(it => `${it.quantity || 1}x ${it.name}`).join(", ")
+                                : "Canteen Meal Items"}
+                            </div>
+                          </div>
+
+                          <div className="text-right max-sm:text-left">
+                            <div className="text-[11px] font-bold text-slate-400 uppercase">Total Amount</div>
+                            <div className="text-xl font-black text-[#00c2cb]">
+                              Rs. {activeOrder.totalAmount || activeOrder.total || 350}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* ── Status Progress Bar Timeline ── */}
+                        <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
+                          <div className="grid grid-cols-4 gap-2">
+                            {[
+                              { id: "preparing", label: "Preparing", icon: "🍳" },
+                              { id: "ready", label: "Order Ready", icon: "🍱" },
+                              { id: "on_the_way", label: "Rider On Way", icon: "🛵" },
+                              { id: "arrived", label: "Rider at Location", icon: "📍" },
+                            ].map((step, idx) => {
+                              const currentKey = getNormalizedStatus(activeOrder.status);
+                              const getStepIdx = (st) => {
+                                if (st === "preparing") return 0;
+                                if (st === "ready") return 1;
+                                if (st === "on_the_way") return 2;
+                                if (st === "arrived" || st === "completed") return 3;
+                                return 0;
+                              };
+                              const activeIdx = getStepIdx(currentKey);
+                              const isActive = idx === activeIdx;
+                              const isPassed = idx < activeIdx;
+
+                              return (
+                                <div key={step.id} className="flex flex-col items-center text-center">
+                                  <div
+                                    className={`w-10 h-10 rounded-2xl flex items-center justify-center text-base font-bold transition-all duration-300 ${isActive
+                                      ? "bg-[#00c2cb] text-[#0a2342] scale-110 shadow-[0_0_15px_rgba(0,194,203,0.5)] ring-4 ring-[#00c2cb]/20"
+                                      : isPassed
+                                        ? "bg-emerald-500 text-white"
+                                        : "bg-slate-200 text-slate-400"
+                                      }`}
+                                  >
+                                    {isPassed ? "✓" : step.icon}
+                                  </div>
+                                  <span
+                                    className={`text-[11px] font-bold mt-2 ${isActive ? "text-[#00c2cb] font-black" : isPassed ? "text-emerald-600" : "text-slate-400"
+                                      }`}
+                                  >
+                                    {step.label}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Current Live Status Banner */}
+                        <div className="p-4 rounded-2xl bg-gradient-to-r from-[#0a2342] to-[#0f2e54] text-white flex items-center gap-4 shadow-md">
+                          <div className="text-3xl animate-bounce">
+                            {getNormalizedStatus(activeOrder.status) === "preparing" && "🍳"}
+                            {getNormalizedStatus(activeOrder.status) === "ready" && "🍱"}
+                            {getNormalizedStatus(activeOrder.status) === "on_the_way" && "🛵"}
+                            {getNormalizedStatus(activeOrder.status) === "arrived" && "📍"}
+                            {getNormalizedStatus(activeOrder.status) === "completed" && "✅"}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-black uppercase text-[#00c2cb]">Current Status:</span>
+                              <span className="px-2.5 py-0.5 rounded-full bg-[#00c2cb]/20 text-[#00c2cb] border border-[#00c2cb]/30 text-[10px] font-black uppercase">
+                                {getNormalizedStatus(activeOrder.status) === "preparing" && "Preparing Food"}
+                                {getNormalizedStatus(activeOrder.status) === "ready" && "Order Ready!"}
+                                {getNormalizedStatus(activeOrder.status) === "on_the_way" && "Rider On The Way"}
+                                {getNormalizedStatus(activeOrder.status) === "arrived" && "Rider Arrived at Location!"}
+                                {getNormalizedStatus(activeOrder.status) === "completed" && "Delivered"}
+                              </span>
+                            </div>
+                            <p className="text-xs font-semibold text-slate-200 mt-1 m-0">
+                              {getNormalizedStatus(activeOrder.status) === "preparing" && "Kitchen has received your order and is currently preparing your meal."}
+                              {getNormalizedStatus(activeOrder.status) === "ready" && "Khana canteen par ready ho gaya hai! Waiting for rider pickup."}
+                              {getNormalizedStatus(activeOrder.status) === "on_the_way" && "Rider order le kar aap ki location ki taraf aa raha hai! 🛵"}
+                              {getNormalizedStatus(activeOrder.status) === "arrived" && "Rider aap ki location par pohnch gaya hai! 📍 Kripya food receive karein."}
+                              {getNormalizedStatus(activeOrder.status) === "completed" && "Order has been delivered successfully. Enjoy your meal!"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Interactive Status Switcher (Test Toolbar) */}
+                        <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-wrap items-center justify-between gap-2">
+                          <div className="text-[10px] font-black text-slate-400 uppercase">
+                            ⚡ Test Status Updates (Simulator):
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {[
+                              { id: "preparing", label: "🍳 Preparing" },
+                              { id: "ready", label: "🍱 Order Ready" },
+                              { id: "on_the_way", label: "🛵 Rider On Way" },
+                              { id: "arrived", label: "📍 Rider at Location" },
+                              { id: "completed", label: "✅ Delivered" },
+                            ].map(st => (
+                              <button
+                                key={st.id}
+                                onClick={() => {
+                                  setActiveOrder(prev => (prev ? { ...prev, status: st.id } : prev));
+                                }}
+                                className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold cursor-pointer border transition-all ${getNormalizedStatus(activeOrder.status) === st.id
+                                  ? "bg-[#00c2cb] text-[#0a2342] border-[#00c2cb]"
+                                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
+                                  }`}
+                              >
+                                {st.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                          <a
+                            href={`https://wa.me/${(restaurantsList.find(r => r._id === activeOrder?.restaurant || r._id === activeRestaurant)?.phone || "+923001234567").replace(/[^0-9+]/g, "")}?text=${encodeURIComponent("Hi! I would like to track my order ID " + (activeOrder?._id || ""))}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none py-2.5 px-5 rounded-xl text-xs font-black tracking-wider uppercase cursor-pointer transition-all shadow-md no-underline"
+                          >
+                            💬 Contact via WhatsApp
+                          </a>
+
+                          <button
+                            onClick={() => setIsTrackingOpen(true)}
+                            className="bg-[#00c2cb] hover:bg-[#00a3ab] text-[#0a2342] border-none px-5 py-2.5 rounded-xl text-xs font-black cursor-pointer transition-all duration-200 shadow-md hover:scale-105"
+                          >
+                            Open Full Modal Tracker →
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-white border border-slate-200/90 rounded-3xl p-8 sm:p-10 text-center flex flex-col items-center gap-3 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                        <span className="text-4xl">🛵</span>
+                        <h3 className="text-base font-black text-[#0a2342]">No Active Order Currently</h3>
+                        <p className="text-xs text-slate-500 font-semibold max-w-sm m-0">
+                          You don't have an active canteen order right now. Select a restaurant and place an order from the Browse Menu tab to track it here live!
+                        </p>
+                      </div>
+                    )}
                   </div>
+                </div>
 
                 <CheckoutCart
                   cart={cart}
@@ -1092,24 +1094,19 @@ export default function Canteen() {
         restaurantName={currentResName}
       />
 
-      {/* ── TOAST NOTIFICATION ── */}
+      {/* ── TOAST NOTIFICATION (Ultra Compact) ── */}
       {toast && (
-        <div className={`fixed top-24 right-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl z-[3000] flex gap-3 w-[360px] animate-modal-slide-in ${toast.type === 'warning' ? 'border-l-4 border-l-amber-500' : toast.type === 'error' ? 'border-l-4 border-l-red-500' : toast.type === 'success' ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-[#00c2cb]'}`}>
-          <div className="text-[18px] mt-0.5">
+        <div className={`fixed top-14 sm:top-18 right-3 sm:right-6 max-w-[270px] sm:max-w-[300px] bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl px-3 py-2 shadow-xl z-[3000] flex items-center gap-2 animate-modal-slide-in ${toast.type === 'warning' ? 'border-l-3 border-l-amber-500' : toast.type === 'error' ? 'border-l-3 border-l-red-500' : toast.type === 'success' ? 'border-l-3 border-l-emerald-500' : 'border-l-3 border-l-[#00c2cb]'}`}>
+          <div className="text-xs shrink-0">
             {toast.type === 'warning' && <span>⚠️</span>}
             {toast.type === 'error' && <span>❌</span>}
             {toast.type === 'success' && <span>✅</span>}
             {toast.type === 'info' && <span>ℹ️</span>}
           </div>
-          <div className="flex-1 flex flex-col gap-0.5">
-            <strong className="text-[13px] font-black text-[#0a2342]">
-              {toast.type === 'warning' ? 'AI Moderation Alert'
-                : toast.type === 'error' ? 'Error'
-                  : toast.type === 'success' ? 'Success' : 'Notice'}
-            </strong>
-            <p className="text-[12px] text-slate-500 leading-normal">{toast.message}</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10.5px] font-bold text-[#0a2342] leading-tight truncate">{toast.message}</p>
           </div>
-          <button className="text-[18px] text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1" onClick={() => setToast(null)}>×</button>
+          <button className="text-xs font-black text-slate-400 hover:text-slate-700 cursor-pointer border-none bg-none p-0.5 shrink-0 leading-none" onClick={() => setToast(null)}>×</button>
         </div>
       )}
     </div>

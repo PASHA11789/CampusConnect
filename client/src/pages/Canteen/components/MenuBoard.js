@@ -36,13 +36,13 @@ export default function MenuBoard({
               <button
                 key={cat.name}
                 onClick={() => setSelectedCategory(cat.name)}
-                className={`rounded-full px-5 py-2.5 text-xs font-bold transition-all duration-200 border whitespace-nowrap focus:outline-none ${
+                className={`h-10 rounded-full px-5 text-xs font-extrabold tracking-wide transition-all duration-300 border whitespace-nowrap focus:outline-none cursor-pointer flex items-center justify-center gap-1.5 hover:-translate-y-1 hover:shadow-lg ${
                   isSelected
-                    ? "bg-[#e87a5d] border-[#e87a5d] text-white shadow-[0_4px_12px_rgba(232,122,93,0.15)]"
-                    : "bg-white border-slate-200 text-slate-500 hover:text-[#0a2342] hover:bg-slate-50"
+                    ? "bg-[#071A35] border-[#071A35] text-white shadow-md shadow-[#071A35]/20"
+                    : "bg-white border-slate-200 text-slate-700 hover:text-[#071A35] hover:bg-slate-50 hover:border-slate-300"
                 }`}
               >
-                <span className="mr-1.5">{cat.icon}</span>
+                <span className="text-sm">{cat.icon}</span>
                 <span>{cat.name}</span>
               </button>
             );
@@ -54,13 +54,13 @@ export default function MenuBoard({
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center flex-wrap gap-2">
           <div className="flex gap-2 items-center">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0a2342] text-white text-[11px] font-black shadow-sm">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-[#071A35] to-[#0079c2] text-white text-[11px] font-black shadow-xs">
               2
             </span>
             <h3 className="text-sm font-black text-[#0a2342] tracking-wide uppercase">
               {selectedCanteenName}'s Menu
             </h3>
-            <span className="bg-[#fff5f2] border border-orange-200 text-[#e87a5d] text-[9.5px] font-black px-3 py-0.5 rounded-full uppercase tracking-wider shadow-2xs">
+            <span className="bg-[#00c2cb]/10 border border-[#00c2cb]/30 text-[#0079c2] text-[9.5px] font-black px-3 py-0.5 rounded-full uppercase tracking-wider shadow-2xs">
               {selectedCategory}
             </span>
           </div>
@@ -87,7 +87,7 @@ export default function MenuBoard({
               return (
                 <div
                   key={itemId}
-                  className="bg-white border border-slate-200/90 rounded-3xl p-4 flex flex-col sm:flex-row gap-4 items-center justify-between shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300 group"
+                  className="bg-white border border-slate-200/90 rounded-3xl p-4 flex flex-col sm:flex-row gap-4 items-center justify-between shadow-sm hover:shadow-2xl hover:-translate-y-1.5 hover:border-[#071A35]/40 transition-all duration-300 group cursor-pointer"
                 >
                   {/* Left Column: Image & Details */}
                   <div className="flex gap-4 items-center w-full sm:w-auto flex-1 min-w-0">
@@ -96,11 +96,11 @@ export default function MenuBoard({
                       <img
                         src={itemImage}
                         alt={item.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       {cartItem && (
-                        <div className="absolute inset-0 bg-[#e87a5d]/30 backdrop-blur-[1px] flex items-center justify-center">
-                          <span className="bg-[#e87a5d] text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow">
+                        <div className="absolute inset-0 bg-[#071A35]/60 backdrop-blur-[1px] flex items-center justify-center">
+                          <span className="bg-[#00c2cb] text-slate-950 text-[9px] font-black px-2 py-0.5 rounded-full shadow">
                             {cartItem.qty} in cart
                           </span>
                         </div>
@@ -110,7 +110,7 @@ export default function MenuBoard({
                     {/* Details */}
                     <div className="flex flex-col gap-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="text-sm font-black text-[#0a2342] truncate leading-tight group-hover:text-[#e87a5d] transition-colors">
+                        <h4 className="text-sm font-black text-[#0a2342] truncate leading-tight group-hover:text-[#0079c2] transition-colors">
                           {item.name}
                         </h4>
                         <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[8.5px] font-extrabold border ${
@@ -129,7 +129,7 @@ export default function MenuBoard({
 
                   {/* Right Column: Price and Add Actions */}
                   <div className="flex items-center justify-between sm:justify-end gap-5 w-full sm:w-auto shrink-0 border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0">
-                    <span className="text-sm font-black text-[#0a2342] bg-slate-50 px-3 py-1 rounded-xl border border-slate-200/60">
+                    <span className="text-sm font-black text-[#0a2342] bg-slate-50 px-3 py-1 rounded-xl border border-slate-200/60 group-hover:bg-[#071A35] group-hover:text-white transition-colors duration-300">
                       Rs. {item.price}
                     </span>
 
@@ -156,7 +156,7 @@ export default function MenuBoard({
                       /* Vibrant Add to Cart Button */
                       <button
                         onClick={() => handleAddToCartClick(item)}
-                        className="bg-[#e87a5d] hover:bg-[#d5674b] text-white border-none py-2.5 px-6 rounded-2xl text-[11px] font-black uppercase tracking-wider cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 flex items-center gap-1.5 shrink-0"
+                        className="bg-[#071A35] hover:bg-[#00c2cb] text-white hover:text-slate-950 border-none py-2.5 px-5 rounded-2xl text-[11px] font-black uppercase tracking-wider cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl active:scale-95 flex items-center gap-1.5 shrink-0"
                       >
                         <span>Add</span>
                         <span>+</span>

@@ -169,31 +169,31 @@ export default function OrderTracker({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-fade-in">
-        <div className="relative w-full max-w-md rounded-[32px] bg-white p-6 md:p-7 shadow-2xl border border-slate-100 text-center overflow-hidden">
+      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#071A35]/60 backdrop-blur-sm p-4 overflow-y-auto animate-fade-in">
+        <div className="relative w-full max-w-sm sm:max-w-md rounded-3xl sm:rounded-[32px] bg-white p-5 sm:p-7 shadow-2xl border border-slate-100 text-center overflow-y-auto max-h-[90vh] my-auto">
           {/* Top Right Absolute Close Button */}
           <button
             onClick={() => setIsTrackingOpen(false)}
-            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 text-sm font-black transition-all flex items-center justify-center cursor-pointer border border-slate-200/60 z-20"
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 text-xs font-black transition-all flex items-center justify-center cursor-pointer border border-slate-200/60 z-20"
             title="Close Tracker"
           >
             ✕
           </button>
 
           {/* Modal Header */}
-          <div className="mb-5 text-center">
-            <div className="mx-auto mb-2.5 flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-50 text-[#00c2cb] text-xl shadow-xs border border-cyan-100">
+          <div className="mb-4 sm:mb-5 text-center">
+            <div className="mx-auto mb-2 sm:mb-2.5 flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-[#071A35] text-[#00c2cb] text-lg sm:text-xl shadow-xs border border-[#00c2cb]/30">
               🛵
             </div>
-            <h3 className="text-lg font-extrabold text-[#0a2342] tracking-tight">Order Status Tracker</h3>
-            <p className="text-[11px] font-semibold text-slate-400 mt-0.5">Live progression updates for your food order</p>
+            <h3 className="text-base sm:text-lg font-black text-[#0a2342] tracking-tight">Order Status Tracker</h3>
+            <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 mt-0.5">Live progression updates for your food order</p>
           </div>
 
           {/* Stepper Progression with Connecting Bar */}
-          <div className="mb-6 px-2">
+          <div className="mb-5 sm:mb-6 px-1 sm:px-2">
             <div className="relative flex items-center justify-between">
               {/* Connector Progress Bar */}
-              <div className="absolute left-4 right-4 top-4 h-1 bg-slate-100 -z-0">
+              <div className="absolute left-3 right-3 top-3.5 sm:top-4 h-1 bg-slate-100 -z-0">
                 <div
                   className="h-full bg-[#00c2cb] transition-all duration-500 rounded-full"
                   style={{ width: `${(currentStep / (STEPS.length - 1)) * 100}%` }}
@@ -207,17 +207,17 @@ export default function OrderTracker({
                 return (
                   <div key={step.id} className="relative z-10 flex flex-col items-center">
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs transition-all duration-300 ${
+                      className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-extrabold text-[10px] sm:text-xs transition-all duration-300 ${
                         isCurrent
-                          ? "bg-[#00c2cb] text-white ring-4 ring-[#00c2cb]/20 scale-110 shadow-md"
+                          ? "bg-[#00c2cb] text-slate-950 ring-4 ring-[#00c2cb]/20 scale-110 shadow-md"
                           : isCompleted
-                          ? "bg-[#0a2342] text-white"
+                          ? "bg-[#071A35] text-white"
                           : "bg-white text-slate-400 border-2 border-slate-200"
                       }`}
                     >
                       {isCompleted && idx < currentStep ? "✓" : idx + 1}
                     </div>
-                    <span className={`text-[10px] font-black mt-1.5 ${isCurrent ? "text-[#0a2342]" : "text-slate-400"}`}>
+                    <span className={`text-[9px] sm:text-[10px] font-black mt-1 sm:mt-1.5 ${isCurrent ? "text-[#0a2342]" : "text-slate-400"}`}>
                       {step.label}
                     </span>
                   </div>
@@ -228,27 +228,27 @@ export default function OrderTracker({
 
           {/* Status Message Card */}
           {liveStatus === "cancelled" ? (
-            <div className="mb-4 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-center animate-fade-in">
-              <div className="text-xl mb-0.5">❌</div>
+            <div className="mb-4 p-3 sm:p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-center animate-fade-in">
+              <div className="text-lg sm:text-xl mb-0.5">❌</div>
               <p className="text-xs font-black text-rose-700">Order Cancelled</p>
               <p className="text-[10px] text-rose-500 mt-0.5">Your order from {restaurantName} was cancelled.</p>
             </div>
           ) : (
-            <div className="mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-slate-900 to-[#0a2342] text-white text-center shadow-sm">
-              <div className="text-xl mb-1">{STATUS_MESSAGES[liveStatus]?.emoji || "⏳"}</div>
-              <p className="text-[11.5px] font-black tracking-wide text-cyan-300">{STATUS_MESSAGES[liveStatus]?.text || "Processing your order..."}</p>
+            <div className="mb-4 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-[#071A35] via-[#0a2342] to-[#0079c2] text-white text-center shadow-md border border-white/10">
+              <div className="text-lg sm:text-xl mb-1">{STATUS_MESSAGES[liveStatus]?.emoji || "⏳"}</div>
+              <p className="text-[11px] sm:text-[11.5px] font-black tracking-wide text-[#00c2cb]">{STATUS_MESSAGES[liveStatus]?.text || "Processing your order..."}</p>
             </div>
           )}
 
           {/* Details Card */}
-          <div className="rounded-2xl bg-slate-50 p-4 mb-4 border border-slate-200/80 text-left text-xs font-semibold text-slate-500 space-y-2">
+          <div className="rounded-2xl bg-slate-50 p-3.5 sm:p-4 mb-4 border border-slate-200/80 text-left text-xs font-semibold text-slate-500 space-y-2">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
               <span>Order ID</span>
-              <span className="text-[#0a2342] font-black bg-white px-2.5 py-0.5 rounded-lg border border-slate-200">{orderId || "ORD-LIVE"}</span>
+              <span className="text-[#0a2342] font-black bg-white px-2 py-0.5 rounded-lg border border-slate-200 text-[11px]">{orderId || "ORD-LIVE"}</span>
             </div>
             <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
               <span>Status</span>
-              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+              <span className={`px-2.5 py-0.5 rounded-full text-[9.5px] font-black uppercase ${
                 liveStatus === "cancelled" ? "bg-rose-100 text-rose-700" :
                 liveStatus === "completed" ? "bg-emerald-100 text-emerald-800" :
                 liveStatus === "arrived" ? "bg-purple-100 text-purple-800" :
@@ -259,23 +259,23 @@ export default function OrderTracker({
             </div>
             <div className="flex justify-between items-center pt-0.5">
               <span>Canteen / Vendor</span>
-              <span className="text-[#0a2342] font-black">{restaurantName}</span>
+              <span className="text-[#0a2342] font-black truncate max-w-[160px] sm:max-w-none">{restaurantName}</span>
             </div>
           </div>
 
           {/* ARRIVAL NUDGE OPTION FOR STUDENT */}
           {liveStatus === "arrived" && (
-            <div className="mb-4 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col gap-2 items-center text-center animate-pulse">
+            <div className="mb-4 p-3 sm:p-3.5 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col gap-2 items-center text-center animate-pulse">
               <div className="flex items-center gap-1 text-amber-900 font-extrabold text-xs">
                 <span>📍 Rider Has Arrived at Location!</span>
               </div>
-              <p className="text-[11px] text-amber-700 font-medium leading-tight">
+              <p className="text-[10px] sm:text-[11px] text-amber-700 font-medium leading-tight">
                 {arrivalMessage || "Your delivery rider is waiting at the campus meetup point."}
               </p>
               <button
                 onClick={handleNudgeRiderArrival}
                 disabled={riderNudgeSent}
-                className="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-2 px-4 rounded-xl text-xs transition-all shadow-sm active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-60"
+                className="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-2 px-4 rounded-xl text-xs transition-all shadow-sm active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-60 border-none"
               >
                 <span>🏃‍♂️ Nudge Rider: "I'm on my way!"</span>
               </button>
@@ -284,7 +284,7 @@ export default function OrderTracker({
 
           {/* Nudge Feedback */}
           {nudgeStatus && (
-            <p className="text-[11px] font-bold text-emerald-600 mb-3 animate-fade-in">
+            <p className="text-[10.5px] font-bold text-emerald-600 mb-3 animate-fade-in">
               {nudgeStatus}
             </p>
           )}
@@ -295,7 +295,7 @@ export default function OrderTracker({
               <button
                 onClick={handleNudgeVendor}
                 disabled={cooldown > 0}
-                className={`w-full py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-xs ${cooldown > 0
+                className={`w-full py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 border-none shadow-xs ${cooldown > 0
                   ? "bg-slate-200 text-slate-400 cursor-not-allowed"
                   : "bg-amber-500 hover:bg-amber-600 text-white cursor-pointer"
                   }`}
@@ -308,14 +308,14 @@ export default function OrderTracker({
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black tracking-wider uppercase flex items-center justify-center gap-2 shadow-xs transition-all duration-300"
+              className="w-full py-2.5 sm:py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black tracking-wider uppercase flex items-center justify-center gap-2 shadow-xs transition-all duration-300 no-underline"
             >
               💬 Track on WhatsApp
             </a>
 
             <button
               onClick={() => setIsTrackingOpen(false)}
-              className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-black transition-all duration-200 cursor-pointer"
+              className="w-full py-2 sm:py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl sm:rounded-2xl text-xs font-black transition-all duration-200 cursor-pointer border-none"
             >
               Close Window
             </button>

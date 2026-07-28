@@ -251,9 +251,9 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
   const showFallback = isDefaultAvatar || imageError;
 
   return (
-    <header className="bg-white rounded-full border border-[#E8E1D5] shadow-[0_8px_30px_rgba(7,26,53,0.06)] px-4 sm:px-6 py-2.5 mx-3 sm:mx-8 mt-3 sm:mt-5 mb-2 flex items-center justify-between sticky top-3 z-[100] animate-slide-down">
+    <header className="bg-white rounded-full border border-[#E8E1D5] shadow-[0_8px_30px_rgba(7,26,53,0.06)] px-3 sm:px-6 py-2 sm:py-2.5 mx-2 sm:mx-8 mt-2 sm:mt-5 mb-2 flex items-center justify-between sticky top-3 z-[100] animate-slide-down">
       {/* Left Search Bar & Mobile Menu Toggle */}
-      <div className="flex items-center gap-2 flex-1 max-w-lg">
+      <div className="flex items-center gap-1.5 sm:gap-2 flex-1 max-w-lg">
         <button
           onClick={onToggleSidebar}
           className="md:hidden p-1.5 text-[#071A35] hover:bg-[#FAF7F0] rounded-full transition-colors border-none bg-transparent cursor-pointer shrink-0"
@@ -264,7 +264,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
           </svg>
         </button>
 
-        <div className="relative flex items-center w-full max-w-[180px] sm:max-w-[320px] md:max-w-[400px]">
+        <div className="relative flex items-center w-full max-w-[130px] xs:max-w-[180px] sm:max-w-[320px] md:max-w-[400px]">
           <span className="absolute left-3 text-slate-400 text-xs">🔍</span>
           <input
             type="text"
@@ -274,7 +274,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
         </div>
       </div>
 
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-2 sm:gap-5">
 
         {/* Notification Bell */}
         <div className="relative notification-bell-container flex items-center">
@@ -523,13 +523,13 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
           )}
         </div>
 
-        {/* User Info and Avatar matching Screenshot #2 */}
-        <div className="flex items-center gap-3 bg-[#FAF7F0] px-3.5 py-1.5 rounded-full border border-[#E8E1D5]">
-          <div className="flex flex-col items-end cursor-pointer" onClick={() => setIsMyProfileOpen(true)} title="My Profile">
+        {/* User Info and Avatar */}
+        <div className="flex items-center gap-2 sm:gap-3 bg-[#FAF7F0] p-1 sm:px-3.5 sm:py-1.5 rounded-full border border-[#E8E1D5]">
+          <div className="hidden sm:flex flex-col items-end cursor-pointer" onClick={() => setIsMyProfileOpen(true)} title="My Profile">
             <span className="text-[12.5px] font-extrabold text-[#071A35] leading-tight">{user?.name || ''}</span>
             <span className="text-[9.5px] text-[#211A24]/60 font-semibold leading-tight">{user?.registeration_number || user?.registration_no || ''}</span>
           </div>
-          <button onClick={() => setIsMyProfileOpen(true)} className="relative w-9 h-9 rounded-full bg-[#DCD9F7] p-[1.5px] cursor-pointer transition-transform duration-200 hover:scale-105 border-none shadow-sm flex items-center justify-center" title="My Profile">
+          <button onClick={() => setIsMyProfileOpen(true)} className="relative w-9 h-9 rounded-full bg-[#DCD9F7] p-[1.5px] cursor-pointer transition-transform duration-200 hover:scale-105 border-none shadow-sm flex items-center justify-center shrink-0" title="My Profile">
             {showFallback ? (
               <span className="w-full h-full rounded-full bg-[#DCD9F7] flex items-center justify-center text-[12px] font-extrabold text-[#071A35]">{getInitials(user?.name)}</span>
             ) : (

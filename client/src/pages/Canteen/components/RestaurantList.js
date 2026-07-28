@@ -120,14 +120,14 @@ export default function RestaurantList({
       {/* Header with Step Indicator */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#e87a5d] text-white text-[11px] font-black shadow-sm">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-[#071A35] to-[#0079c2] text-white text-[11px] font-black shadow-xs">
             1
           </span>
           <h3 className="text-[13px] font-black text-[#0a2342] tracking-wide uppercase">
             Select a Campus Canteen
           </h3>
         </div>
-        <span className="text-[11px] font-bold text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200/70 shadow-2xs">
+        <span className="text-[11px] font-bold text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200/70 shadow-2xs">
           {displayRestaurants.length} Restaurants Available
         </span>
       </div>
@@ -151,15 +151,15 @@ export default function RestaurantList({
                   menuEl.scrollIntoView({ behavior: "smooth", block: "start" });
                 }
               }}
-              className={`group flex flex-col overflow-hidden rounded-3xl border text-left transition-all duration-300 w-full relative cursor-pointer ${
+              className={`group flex flex-col overflow-hidden rounded-3xl text-left transition-all duration-300 w-full relative cursor-pointer ${
                 isSelected
-                  ? "border-[#e87a5d] ring-4 ring-[#e87a5d]/20 shadow-xl bg-gradient-to-b from-[#fff7f5] to-white scale-[1.02]"
-                  : "border-slate-200 bg-white shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-slate-300"
+                  ? "border-2 border-[#071A35] shadow-[0_14px_35px_rgba(7,26,53,0.15)] bg-white -translate-y-1"
+                  : "border border-slate-200/90 bg-white shadow-xs hover:shadow-xl hover:-translate-y-1.5 hover:border-[#071A35]/30"
               }`}
             >
               {/* Active Glow Ribbon */}
               {isSelected && (
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#e87a5d] via-orange-400 to-[#e87a5d] z-20" />
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#071A35] via-[#0079c2] to-[#00c2cb] z-20" />
               )}
 
               {/* Image Container with Rating & Status Badge */}
@@ -167,20 +167,21 @@ export default function RestaurantList({
                 <img
                   src={displayInfo.image}
                   alt={displayInfo.name}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
                 
                 {/* Rating Badge */}
-                <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 text-[10.5px] font-extrabold text-[#0a2342] shadow-md">
+                <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 text-[10.5px] font-extrabold text-[#0a2342] shadow-md border border-slate-100 z-10">
                   <span className="text-amber-500">★</span>
                   <span>{displayInfo.rating}</span>
                 </div>
 
                 {/* Selection Badge overlay */}
                 {isSelected && (
-                  <div className="absolute top-3 left-3 bg-[#e87a5d] text-white text-[9.5px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md animate-pulse">
-                    ✓ Active Selection
+                  <div className="absolute top-3 left-3 bg-[#071A35] text-white text-[9.5px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-md border border-white/20 flex items-center gap-1.5 z-20">
+                    <span className="w-2 h-2 rounded-full bg-[#00c2cb] animate-pulse"></span>
+                    <span>Selected</span>
                   </div>
                 )}
               </div>
@@ -188,7 +189,7 @@ export default function RestaurantList({
               {/* Card Details */}
               <div className="p-4 flex flex-col gap-1.5 flex-1">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-black text-[#0a2342] truncate leading-tight group-hover:text-[#e87a5d] transition-colors">
+                  <h4 className="text-sm font-black text-[#0a2342] truncate leading-tight group-hover:text-[#0079c2] transition-colors">
                     {displayInfo.name}
                   </h4>
                 </div>

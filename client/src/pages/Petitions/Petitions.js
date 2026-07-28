@@ -27,6 +27,7 @@ export default function Petitions() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLevel, setSelectedLevel] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Create form state
   const [newTitle, setNewTitle] = useState("");
@@ -195,8 +196,12 @@ export default function Petitions() {
       socket.on("new_petition_published", (newPetition) => {
         if (newPetition) {
           setPetitions((prev) => {
-            const exists = prev.some((p) => p._id === newPetition._id);
-            if (exists) return prev;
+            const existsIndex = prev.findIndex((p) => p._id === newPetition._id || (p._id?.startsWith("temp-") && p.title === newPetition.title));
+            if (existsIndex !== -1) {
+              const updated = [...prev];
+              updated[existsIndex] = newPetition;
+              return updated;
+            }
             return [newPetition, ...prev];
           });
           showToast(`New petition published: "${newPetition.title}"`, "info");
@@ -423,7 +428,11 @@ export default function Petitions() {
         showToast("Class petition published instantly!", "success");
       }
 
-      setPetitions((prev) => [created, ...prev]);
+      setPetitions((prev) => {
+        const exists = prev.some(p => p._id === created._id || (p.title === created.title && p.creator?._id === user?._id));
+        if (exists) return prev;
+        return [created, ...prev];
+      });
 
       // Reset form
       setNewTitle("");
@@ -535,10 +544,13 @@ export default function Petitions() {
 
   return (
     <>
-      <div className="flex min-h-screen bg-[#f0f4f8] font-sans text-slate-800 animate-fade-in">
-        <Sidebar />
+      <div className="flex h-screen overflow-hidden bg-[#faf8f5] font-sans text-slate-800 animate-fade-in">
+        <Sidebar
+          isOpen={isMobileSidebarOpen}
+          onClose={() => setIsMobileSidebarOpen(false)}
+        />
 
-        <main className="flex-1 flex flex-col min-w-0">
+        <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
           <Topbar
             time={time}
             user={user}
@@ -546,9 +558,10 @@ export default function Petitions() {
             avatar={getPersonalizedAvatar(avatar)}
             handleAvatarChange={handleAvatarChange}
             isUploading={isUploading}
+            onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
           />
 
-          <div className="flex-1 px-8 py-7 flex flex-col gap-6 overflow-y-auto max-md:p-4">
+          <div className="flex-1 px-4 sm:px-8 py-6 sm:py-7 flex flex-col gap-6 max-md:p-4">
 
             {/* ── SPLIT MAIN LAYOUT (Mockup design: main left grid & right panel) ── */}
             <div className="grid grid-cols-[1fr_360px] gap-8 max-xl:grid-cols-1">
@@ -556,26 +569,19 @@ export default function Petitions() {
               {/* ── LEFT COLUMN (Main Content Area) ── */}
               <div className="flex flex-col gap-6">
 
-                {/* ── HEADER BANNER ── */}
-                <div className="relative flex justify-between items-center bg-gradient-to-r from-[#0a2342] via-[#0f3458] to-[#00c2cb]/90 border border-slate-200/30 rounded-3xl p-8 overflow-hidden shadow-lg">
-                  {/* Background decorative glowing circles */}
-                  <div className="absolute -left-10 -bottom-10 w-44 h-44 bg-[#00c2cb]/20 rounded-full blur-3xl pointer-events-none" />
-                  <div className="absolute right-1/4 -top-12 w-36 h-36 bg-[#00d4ff]/10 rounded-full blur-2xl pointer-events-none" />
-
-                  <div className="flex flex-col z-10">
-                    <h1 className="text-[30px] font-black text-white tracking-tight leading-none drop-shadow-sm">{t("Petitions")}</h1>
-                    <p className="text-[14px] text-[#e0f2f1]/90 mt-2.5 font-medium max-w-[500px] leading-relaxed">
-                      {t("Discover petitions, add your voice, and help create a better campus.")}
+                {/* ── HEADER BANNER (Matching Forum & Career Design) ── */}
+                <div className="bg-[#071A35] rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-white border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex items-center justify-between gap-6 relative overflow-hidden">
+                  <div className="flex flex-col text-left z-10">
+                    <div className="bg-white/10 text-[#F5B82E] text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-3 border border-white/10">
+                      <span>📜</span>
+                      <span>STUDENT VOICE & ADVOCACY</span>
+                    </div>
+                    <h1 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight mb-2">
+                      {t("Campus Petitions")}
+                    </h1>
+                    <p className="text-xs sm:text-sm font-semibold text-white/70 max-w-[550px] leading-relaxed m-0">
+                      {t("Discover petitions, add your voice, and help create positive change across campus.")}
                     </p>
-                  </div>
-                  {/* Visual Accent MegaPhone Graphic */}
-                  <div className="absolute right-8 top-1/2 -translate-y-1/2 select-none text-[#00c2cb] opacity-25 pointer-events-none max-sm:hidden z-10 transition-transform duration-300 hover:scale-105">
-                    <svg className="w-28 h-28 drop-shadow-[0_4px_12px_rgba(0,194,203,0.3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="M12 12V3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v9" />
-                      <path d="M18 6h3a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-3" />
-                      <path d="m11.62 17.65-3.24-3.24H3a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5.38l3.24-3.24A1 1 0 0 1 13.3 3.5v13a1 1 0 0 1-1.68.75z" />
-                      <line x1="2" y1="22" x2="22" y2="22" strokeLinecap="round" />
-                    </svg>
                   </div>
                 </div>
 
@@ -640,7 +646,7 @@ export default function Petitions() {
                           <div
                             key={petition._id}
                             onClick={() => handleCardClick(petition)}
-                            className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-md transition-all duration-300 relative group overflow-hidden cursor-pointer hover:-translate-y-0.5"
+                            className="bg-white border border-slate-200/90 rounded-3xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 hover:border-[#071A35]/30 transition-all duration-300 relative group overflow-hidden cursor-pointer"
                           >
                             {/* Card Top: Category Icon & Status Badge */}
                             <div className="flex justify-between items-center">
@@ -654,7 +660,7 @@ export default function Petitions() {
 
                             {/* Title & Description */}
                             <div className="flex flex-col gap-2">
-                              <h3 className="text-[16px] font-extrabold text-[#0a2342] line-clamp-1 leading-tight">
+                              <h3 className="text-[16px] font-extrabold text-[#0a2342] line-clamp-1 leading-tight group-hover:text-[#0079c2] transition-colors">
                                 {petition.title}
                               </h3>
                               <p className="text-[12.5px] text-slate-500 font-medium leading-relaxed line-clamp-3">
@@ -663,7 +669,7 @@ export default function Petitions() {
                             </div>
 
                             {/* Creator Details */}
-                            <div 
+                            <div
                               className="flex items-center gap-3 py-1 border-t border-slate-100 mt-2 cursor-pointer hover:bg-slate-50 rounded-lg p-1 transition-colors -ml-1 -mr-1"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -702,7 +708,7 @@ export default function Petitions() {
                                 </div>
                                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                                   <div
-                                    className="h-full bg-gradient-to-r from-[#00c2cb] to-[#00d4ff] rounded-full transition-all duration-500 ease-out"
+                                    className="h-full bg-gradient-to-r from-[#071A35] via-[#0079c2] to-[#00c2cb] rounded-full transition-all duration-500 ease-out"
                                     style={{ width: `${percentage}%` }}
                                   />
                                 </div>
@@ -729,7 +735,7 @@ export default function Petitions() {
                                       handleSignPetition(petition._id);
                                     }}
                                     disabled={signingIds.has(petition._id)}
-                                    className="flex-1 bg-gradient-to-r from-[#00c2cb] to-[#00a8b0] text-white hover:from-[#00b2bb] hover:to-[#009299] py-2.5 px-4 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 disabled:opacity-50"
+                                    className="flex-1 bg-[#071A35] hover:bg-[#00c2cb] text-white hover:text-slate-950 py-2.5 px-4 rounded-xl text-[12.5px] font-black flex items-center justify-center gap-2 transition-all duration-300 shadow-md border-none active:scale-95 disabled:opacity-50 cursor-pointer"
                                   >
                                     {signingIds.has(petition._id) ? (
                                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -956,11 +962,11 @@ export default function Petitions() {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-[#00c2cb] text-[#060e1c] hover:bg-[#00b2bb] py-3 rounded-xl text-[13px] font-black cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50"
+                      className="w-full bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35] py-3.5 sm:py-4 rounded-2xl text-xs font-black uppercase tracking-wider cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 border-none shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-50"
                     >
                       {isSubmitting ? (
                         <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 border-2 border-[#060e1c]/30 border-t-[#060e1c] rounded-full animate-spin" />
+                          <div className="w-5 h-5 border-2 border-[#071A35]/30 border-t-[#071A35] rounded-full animate-spin" />
                           <span>{t("Analyzing & Submitting...")}</span>
                         </div>
                       ) : (
@@ -1248,7 +1254,7 @@ export default function Petitions() {
             try {
               const parsed = JSON.parse(userStr);
               sessionStorage.setItem("user", JSON.stringify({ ...parsed, ...updatedUser }));
-            } catch (e) {}
+            } catch (e) { }
           }
         }}
       />
