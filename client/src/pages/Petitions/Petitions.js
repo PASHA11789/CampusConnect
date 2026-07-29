@@ -71,6 +71,8 @@ export default function Petitions() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [sharePetition, setSharePetition] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [isAccessDeniedOpen, setIsAccessDeniedOpen] = useState(false);
+  const [accessDeniedMsg, setAccessDeniedMsg] = useState("");
 
   const [selectedPublicUserId, setSelectedPublicUserId] = useState(null);
   const [isPublicProfileOpen, setIsPublicProfileOpen] = useState(false);
@@ -89,29 +91,47 @@ export default function Petitions() {
 
   // Handle query parameter or state redirection for expansion/modal on mount/change
   useEffect(() => {
-    if (petitionsLoaded && petitions.length > 0) {
+    const handleTargetPetition = async () => {
       const queryId = searchParams.get("id");
       const targetId = queryId || location.state?.petitionId;
-      if (targetId) {
-        const match = petitions.find((p) => p._id === targetId);
-        if (match) {
-          setSelectedPetition(match);
-          setIsDetailOpen(true);
-          // If navigated via state, update URL to query parameter and clear state
-          if (location.state?.petitionId) {
-            navigate(`/petitions?id=${targetId}`, { replace: true, state: {} });
+      if (!targetId || !petitionsLoaded) return;
+
+      const match = petitions.find((p) => p._id === targetId);
+      if (match) {
+        setSelectedPetition(match);
+        setIsDetailOpen(true);
+        if (location.state?.petitionId) {
+          navigate(`/petitions?id=${targetId}`, { replace: true, state: {} });
+        }
+        setTimeout(() => {
+          const element = document.getElementById(`petition-card-${targetId}`);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
           }
-          // Scroll to the card if it exists
-          setTimeout(() => {
-            const element = document.getElementById(`petition-card-${targetId}`);
-            if (element) {
-              element.scrollIntoView({ behavior: "smooth", block: "center" });
-            }
-          }, 300);
+        }, 300);
+      } else {
+        try {
+          const token = sessionStorage.getItem("token");
+          if (!token) return;
+          const config = { headers: { Authorization: `Bearer ${token}` } };
+          const { data } = await axios.get(`/api/petitions/${targetId}`, config);
+          if (data.success && data.petition) {
+            setSelectedPetition(data.petition);
+            setIsDetailOpen(true);
+          }
+        } catch (err) {
+          if (err.response?.status === 403 || err.response?.data?.forbidden) {
+            setAccessDeniedMsg(err.response?.data?.message || "You do not have permission to view this petition");
+            setIsAccessDeniedOpen(true);
+          } else {
+            showToast(err.response?.data?.message || "Petition not found or inaccessible", "error");
+          }
         }
       }
-    }
-  }, [searchParams, location, petitionsLoaded, petitions, navigate]);
+    };
+
+    handleTargetPetition();
+  }, [searchParams, location, petitionsLoaded, petitions, navigate, showToast]);
 
   // Click handler to open details in modal
   const handleCardClick = (petition) => {
@@ -484,18 +504,26 @@ export default function Petitions() {
     setCurrentPage(1);
   }, [searchTerm, selectedLevel]);
 
-  // Filter logic
-  const filteredPetitions = petitions.filter((p) => {
-    if (p.isHidden) return false;
+  // Filter & priority sorting logic (Class -> Department -> Campus)
+  const filteredPetitions = petitions
+    .filter((p) => {
+      if (p.isHidden) return false;
 
-    const matchesSearch =
-      (p.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (p.description || "").toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch =
+        (p.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.description || "").toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesLevel = selectedLevel === "All" || p.level === selectedLevel;
+      const matchesLevel = selectedLevel === "All" || p.level === selectedLevel;
 
-    return matchesSearch && matchesLevel;
-  });
+      return matchesSearch && matchesLevel;
+    })
+    .sort((a, b) => {
+      const levelPriority = { Class: 1, Department: 2, Campus: 3 };
+      const prioA = levelPriority[a.level] || 4;
+      const prioB = levelPriority[b.level] || 4;
+      if (prioA !== prioB) return prioA - prioB;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
 
   const itemsPerPage = 10;
   const totalPages = Math.ceil(filteredPetitions.length / itemsPerPage);
@@ -687,12 +715,47 @@ export default function Petitions() {
                             onClick={() => handleCardClick(petition)}
                             className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-6 flex flex-col gap-4 shadow-[0_8px_25px_rgba(7,26,53,0.04)] hover:shadow-xl hover:-translate-y-1 hover:border-[#071A35]/30 transition-all duration-300 relative group overflow-hidden cursor-pointer"
                           >
-                            {/* Card Top: Category Icon & Status Badge */}
-                            <div className="flex justify-between items-center">
-                              <div className="w-10 h-10 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center">
-                                {getPetitionIcon(petition.title, petition.level)}
+                            {/* Card Top: Category Icon, Scope Priority Tag & Status Badge */}
+                            <div className="flex justify-between items-center gap-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-10 h-10 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center shrink-0">
+                                  {getPetitionIcon(petition.title, petition.level)}
+                                </div>
+                                {/* Scope Level Priority Tag with Hover Tooltip */}
+                                <div className="relative group/tag">
+                                  {petition.level === "Class" ? (
+                                    <span className="px-2.5 py-1 rounded-full text-[9.5px] font-black tracking-wider uppercase bg-[#F5B82E] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
+                                      <span>✨</span> CLASS • HIGH PRIORITY
+                                    </span>
+                                  ) : petition.level === "Department" ? (
+                                    <span className="px-2.5 py-1 rounded-full text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
+                                      <span>🏢</span> DEPT • MEDIUM PRIORITY
+                                    </span>
+                                  ) : (
+                                    <span className="px-2.5 py-1 rounded-full text-[9.5px] font-black tracking-wider uppercase bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
+                                      <span>🎓</span> CAMPUS
+                                    </span>
+                                  )}
+                                  {/* Tooltip on Hover */}
+                                  <div className="absolute left-0 bottom-full mb-1.5 hidden group-hover/tag:flex flex-col bg-[#071A35] text-white text-[10px] font-bold px-3 py-1.5 rounded-xl shadow-xl border border-white/20 whitespace-nowrap z-30 animate-fade-in pointer-events-none">
+                                    <span>
+                                      {petition.level === "Class"
+                                        ? "✨ Class Level Petition (High Priority)"
+                                        : petition.level === "Department"
+                                        ? "🏢 Department Level Petition (Medium Priority)"
+                                        : "🎓 Campus Level Petition"}
+                                    </span>
+                                    <span className="text-[8.5px] text-white/70 font-semibold">
+                                      {petition.level === "Class"
+                                        ? `Target: ${petition.targetGroup} (Your Class)`
+                                        : petition.level === "Department"
+                                        ? `Target: ${petition.targetGroup} Department`
+                                        : "Target: Entire Campus"}
+                                    </span>
+                                  </div>
+                                </div>
                               </div>
-                              <span className={`px-3 py-1 rounded-full text-[10.5px] font-bold ${badgeBg}`}>
+                              <span className={`px-3 py-1 rounded-full text-[10.5px] font-bold shrink-0 ${badgeBg}`}>
                                 {t(petition.status)}
                               </span>
                             </div>
@@ -1364,6 +1427,50 @@ export default function Petitions() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── PERMISSION DENIED ERROR CARD POPUP ── */}
+      {isAccessDeniedOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[2500] flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => {
+            setIsAccessDeniedOpen(false);
+            navigate("/petitions", { replace: true });
+          }}
+        >
+          <div
+            className="bg-white border border-[#E8E1D5] rounded-[1.8rem] p-7 max-w-md w-full shadow-[0_25px_60px_rgba(7,26,53,0.3)] relative animate-modal-slide-in flex flex-col items-center text-center gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Lock Icon */}
+            <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 border border-red-200 flex items-center justify-center text-3xl shadow-inner">
+              🔒
+            </div>
+
+            <div className="bg-red-100 text-red-700 text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full border border-red-200">
+              ACCESS RESTRICTED
+            </div>
+
+            <div className="flex flex-col gap-2 w-full">
+              <h2 className="text-[20px] font-black text-[#071A35] leading-tight m-0">
+                {accessDeniedMsg || t("You do not have permission to view this petition")}
+              </h2>
+              <p className="text-[13px] text-[#211A24]/70 font-semibold leading-relaxed m-0 px-2">
+                This petition is restricted to members of a specific class or department. You only have access to petitions targeting your own class, department, or all campus students.
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                setIsAccessDeniedOpen(false);
+                navigate("/petitions", { replace: true });
+              }}
+              className="mt-2 w-full bg-[#071A35] hover:bg-[#0c2952] text-white text-[13px] font-extrabold py-3 px-6 rounded-full transition-all border-none cursor-pointer shadow-md"
+            >
+              Back to Petitions
+            </button>
           </div>
         </div>
       )}

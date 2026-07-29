@@ -20,7 +20,15 @@ export const PetitionsWidget = ({ petitions = [] }) => {
       </div>
 
       <div className="flex-1 overflow-y-auto max-h-full pr-1 overflow-x-hidden my-2">
-        {petitions && petitions.length > 0 ? petitions.map((petition, i) => {
+        {petitions && petitions.length > 0 ? [...petitions]
+          .sort((a, b) => {
+            const levelPriority = { Class: 1, Department: 2, Campus: 3 };
+            const prioA = levelPriority[a.level] || 4;
+            const prioB = levelPriority[b.level] || 4;
+            if (prioA !== prioB) return prioA - prioB;
+            return new Date(b.createdAt) - new Date(a.createdAt);
+          })
+          .map((petition, i) => {
           const sigsCount = petition.signatures ? petition.signatures.length : (petition.currentSignatures || 0);
           const target = petition.milestone;
           const hasMilestone = target !== null && target !== undefined && target > 0;
@@ -31,28 +39,49 @@ export const PetitionsWidget = ({ petitions = [] }) => {
           return (
             <div 
               key={petition._id || i} 
-              className={`flex items-start gap-3 py-3 border-b border-white/10 last:border-b-0 transition-all rounded-xl p-2 my-1 ${
-                isClassLevel ? "bg-white/10 border-l-4 border-l-[#F5B82E] shadow-sm" : ""
+              className={`flex items-start gap-3 py-3 border-b border-white/10 last:border-b-0 transition-all rounded-xl p-2.5 my-1 ${
+                isClassLevel ? "bg-white/10 border-l-4 border-l-[#F5B82E] shadow-sm" : isDeptLevel ? "border-l-2 border-l-[#00c2cb]" : ""
               }`}
             >
               <div 
                 className="flex-1 cursor-pointer hover:opacity-85 transition-opacity flex flex-col gap-1"
                 onClick={() => navigate(`/petitions?id=${petition._id}`)}
               >
-                {/* Hovering Scope Tag Badge */}
-                <div className="flex items-center gap-2 mb-0.5">
+                {/* Hovering Scope Tag Badge with Tooltip */}
+                <div className="flex items-center gap-2 mb-0.5 relative">
                   {isClassLevel ? (
-                    <span className="px-2 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-[#F5B82E] text-[#071A35] shadow-xs flex items-center gap-1">
-                      <span>✨</span> CLASS PETITION
-                    </span>
+                    <div className="relative group/tag">
+                      <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-[#F5B82E] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
+                        <span>✨</span> CLASS • HIGH PRIORITY
+                      </span>
+                      {/* Hover Tooltip */}
+                      <div className="absolute left-0 bottom-full mb-1.5 hidden group-hover/tag:flex flex-col bg-[#071A35] text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg shadow-xl border border-white/20 whitespace-nowrap z-30 animate-fade-in pointer-events-none">
+                        <span>✨ Class Level Petition (High Priority)</span>
+                        <span className="text-[8.5px] text-white/70 font-semibold">Targeted to your class members</span>
+                      </div>
+                    </div>
                   ) : isDeptLevel ? (
-                    <span className="px-2 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1">
-                      <span>🏢</span> DEPT PETITION
-                    </span>
+                    <div className="relative group/tag">
+                      <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
+                        <span>🏢</span> DEPT • MEDIUM PRIORITY
+                      </span>
+                      {/* Hover Tooltip */}
+                      <div className="absolute left-0 bottom-full mb-1.5 hidden group-hover/tag:flex flex-col bg-[#071A35] text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg shadow-xl border border-white/20 whitespace-nowrap z-30 animate-fade-in pointer-events-none">
+                        <span>🏢 Department Level Petition</span>
+                        <span className="text-[8.5px] text-white/70 font-semibold">Targeted to department peers</span>
+                      </div>
+                    </div>
                   ) : (
-                    <span className="px-2 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-white/20 text-white/90 shadow-xs border border-white/20 flex items-center gap-1">
-                      <span>🎓</span> CAMPUS PETITION
-                    </span>
+                    <div className="relative group/tag">
+                      <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-white/20 text-white/90 shadow-xs border border-white/20 flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
+                        <span>🎓</span> CAMPUS PETITION
+                      </span>
+                      {/* Hover Tooltip */}
+                      <div className="absolute left-0 bottom-full mb-1.5 hidden group-hover/tag:flex flex-col bg-[#071A35] text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg shadow-xl border border-white/20 whitespace-nowrap z-30 animate-fade-in pointer-events-none">
+                        <span>🎓 Campus-wide Petition</span>
+                        <span className="text-[8.5px] text-white/70 font-semibold">Open for all campus members</span>
+                      </div>
+                    </div>
                   )}
                   {petition.targetGroup && (
                     <span className="text-[9px] font-bold text-white/60 truncate max-w-[140px]">

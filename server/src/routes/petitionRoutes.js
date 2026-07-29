@@ -2,8 +2,9 @@ import express from "express"
 import {protect} from "../middleware/authMiddleware.js"
 import {aiModeration} from "../middleware/aiModeration.js"
 
-import{
+import {
     getPetitions,
+    getPetitionById,
     createPetition,
     signPetition,
     moderatePetition,
@@ -15,6 +16,8 @@ const router = express.Router()
 router.route("/")
     .get(protect, getPetitions)
     .post(protect, aiModeration, createPetition)
+router.route("/:id")
+    .get(protect, getPetitionById)
 router.route("/:id/sign")
     .put(protect, signPetition)
 router.route("/:id/report")

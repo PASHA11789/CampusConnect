@@ -1,12 +1,23 @@
 import Petition from "../models/Petition.js";
 import Notification from "../models/Notification.js";
 
+export const hasPetitionAccess = (petition, user) => {
+  if (!user) return false;
+  if (user.role === "admin" || user.role === "campus_admin") return true;
+  if (petition.creator && (petition.creator._id || petition.creator).toString() === user._id.toString()) return true;
+  if (petition.level === "Campus") return true;
+  if (petition.level === "Department" && petition.targetGroup === user.department) return true;
+  const classString = `${user.program}-${user.department}-${user.semester}-${user.section}`;
+  if (petition.level === "Class" && petition.targetGroup === classString) return true;
+  return false;
+};
+
 export const getPetitions = async (req, res) => {
   try {
     const classString = `${req.user.program}-${req.user.department}-${req.user.semester}-${req.user.section}`;
     let queryObj = {};
 
-    if (req.user.role === "student") {
+    if (req.user.role !== "admin" && req.user.role !== "campus_admin") {
       queryObj = {
         status: { $in: ["Active", "Under Review", "Resolved", "Closed"] },
         isHidden: false,
@@ -21,13 +32,43 @@ export const getPetitions = async (req, res) => {
       queryObj = {};
     }
 
-    const petitions = await Petition.find(queryObj)
-      .sort({ createdAt: -1 })
+    const petitionsRaw = await Petition.find(queryObj)
       .populate("creator", "name avatar registeration_number");
+
+    const petitions = [...petitionsRaw].sort((a, b) => {
+      const order = { Class: 1, Department: 2, Campus: 3 };
+      const weightA = order[a.level] || 4;
+      const weightB = order[b.level] || 4;
+      if (weightA !== weightB) return weightA - weightB;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
 
     return res.status(200).json({ success: true, count: petitions.length, petitions });
   } catch (error) {
     return res.status(500).json({ success: false, message: "Failed to fetch petitions", error: error.message });
+  }
+};
+
+export const getPetitionById = async (req, res) => {
+  try {
+    const petition = await Petition.findById(req.params.id)
+      .populate("creator", "name avatar registeration_number");
+
+    if (!petition) {
+      return res.status(404).json({ success: false, message: "Petition not found" });
+    }
+
+    if (!hasPetitionAccess(petition, req.user)) {
+      return res.status(403).json({
+        success: false,
+        message: "You do not have permission to view this petition",
+        forbidden: true,
+      });
+    }
+
+    return res.status(200).json({ success: true, petition });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Error fetching petition", error: error.message });
   }
 };
 
@@ -135,6 +176,14 @@ export const signPetition = async (req, res) => {
     const petition = await Petition.findById(req.params.id);
     if (!petition) {
       return res.status(404).json({ success: false, message: "Petition not found" });
+    }
+
+    if (!hasPetitionAccess(petition, req.user)) {
+      return res.status(403).json({
+        success: false,
+        message: "You do not have permission to view or sign this petition",
+        forbidden: true,
+      });
     }
 
     if (petition.status !== "Active") {
