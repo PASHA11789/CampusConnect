@@ -252,8 +252,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
 
   return (
     <header className="bg-white rounded-full border border-[#E8E1D5] shadow-[0_8px_30px_rgba(7,26,53,0.06)] px-3 sm:px-6 py-2 sm:py-2.5 mx-2 sm:mx-8 mt-2 sm:mt-5 mb-2 flex items-center justify-between sticky top-3 z-[100] animate-slide-down">
-      {/* Left Search Bar & Mobile Menu Toggle */}
-      <div className="flex items-center gap-1.5 sm:gap-2 flex-1 max-w-lg">
+      {/* Mobile Menu Toggle */}
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <button
           onClick={onToggleSidebar}
           className="md:hidden p-1.5 text-[#071A35] hover:bg-[#FAF7F0] rounded-full transition-colors border-none bg-transparent cursor-pointer shrink-0"
@@ -263,15 +263,6 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-
-        <div className="relative flex items-center w-full max-w-[130px] xs:max-w-[180px] sm:max-w-[320px] md:max-w-[400px]">
-          <span className="absolute left-3 text-slate-400 text-xs">🔍</span>
-          <input
-            type="text"
-            placeholder="Search campus services..."
-            className="bg-[#F7F4EC] rounded-full pl-8 pr-3 py-1.5 sm:py-2 text-[11px] sm:text-[11.5px] font-medium text-[#211A24] placeholder-[#211A24]/50 border-none outline-none w-full shadow-inner transition-all focus:ring-2 focus:ring-[#2563EB]/20"
-          />
-        </div>
       </div>
 
       <div className="flex items-center gap-2 sm:gap-5">
@@ -524,12 +515,16 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
         </div>
 
         {/* User Info and Avatar */}
-        <div className="flex items-center gap-2 sm:gap-3 bg-[#FAF7F0] p-1 sm:px-3.5 sm:py-1.5 rounded-full border border-[#E8E1D5]">
-          <div className="hidden sm:flex flex-col items-end cursor-pointer" onClick={() => setIsMyProfileOpen(true)} title="My Profile">
-            <span className="text-[12.5px] font-extrabold text-[#071A35] leading-tight">{user?.name || ''}</span>
+        <button
+          onClick={() => setIsMyProfileOpen(true)}
+          className="flex items-center gap-2 sm:gap-3 bg-[#FAF7F0] hover:bg-[#F3EEE4] p-1 sm:px-3.5 sm:py-1.5 rounded-full border border-[#E8E1D5] hover:border-[#D5CDBF] transition-all duration-200 cursor-pointer shadow-sm hover:shadow active:scale-98 group border-none"
+          title="Click to view My Profile & Digital ID"
+        >
+          <div className="hidden sm:flex flex-col items-end text-right">
+            <span className="text-[12.5px] font-extrabold text-[#071A35] leading-tight group-hover:text-[#2563EB] transition-colors">{user?.name || ''}</span>
             <span className="text-[9.5px] text-[#211A24]/60 font-semibold leading-tight">{user?.registeration_number || user?.registration_no || ''}</span>
           </div>
-          <button onClick={() => setIsMyProfileOpen(true)} className="relative w-9 h-9 rounded-full bg-[#DCD9F7] p-[1.5px] cursor-pointer transition-transform duration-200 hover:scale-105 border-none shadow-sm flex items-center justify-center shrink-0" title="My Profile">
+          <div className="relative w-9 h-9 rounded-full bg-[#DCD9F7] p-[1.5px] transition-transform duration-200 group-hover:scale-105 shadow-sm flex items-center justify-center shrink-0">
             {showFallback ? (
               <span className="w-full h-full rounded-full bg-[#DCD9F7] flex items-center justify-center text-[12px] font-extrabold text-[#071A35]">{getInitials(user?.name)}</span>
             ) : (
@@ -540,8 +535,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
                 onError={() => setImageError(true)}
               />
             )}
-          </button>
-        </div>
+          </div>
+        </button>
       </div>
       <MyProfileModal
         isOpen={isMyProfileOpen}

@@ -632,7 +632,7 @@ export default function Career() {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center h-screen flex-col gap-3.5 bg-[#f0f4f8]">
+      <div className="flex items-center justify-center h-screen w-full max-w-full overflow-hidden flex-col gap-3.5 bg-[#f0f4f8]">
         <div className="w-8 h-8 border-3 border-slate-100 border-t-[#071A35] rounded-full animate-spin"></div>
         <p className="font-sans text-slate-500 text-[14.5px] font-semibold">{t("Loading your profile...")}</p>
       </div>
@@ -640,7 +640,7 @@ export default function Career() {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#FAF7F0] font-sans text-[#211A24] animate-fade-in">
+    <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#FAF7F0] font-sans text-[#211A24] animate-fade-in">
       <Sidebar 
         isOpen={isMobileSidebarOpen} 
         onClose={() => setIsMobileSidebarOpen(false)} 

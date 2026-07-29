@@ -133,10 +133,10 @@ export default function BusRoutes() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f0f4f8] font-sans text-slate-800 animate-fade-in">
+    <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#f0f4f8] font-sans text-slate-800 animate-fade-in">
       <Sidebar />
 
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
         <Topbar
           time={time}
           user={user}

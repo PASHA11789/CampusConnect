@@ -282,10 +282,17 @@ export default function Dashboard() {
     return url;
   };
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-screen w-full max-w-full overflow-hidden flex-col gap-3.5 bg-[#FAF7F0]">
+        <div className="w-8 h-8 border-3 border-[#E8E1D5] border-t-[#00c2cb] rounded-full animate-spin"></div>
+        <p className="font-sans text-[#071A35] text-[14.5px] font-semibold">Loading dashboard...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#FAF7F0] font-sans text-[#211A24] animate-fade-in">
+    <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#FAF7F0] font-sans text-[#211A24] animate-fade-in">
       <Sidebar 
         isOpen={isMobileSidebarOpen} 
         onClose={() => setIsMobileSidebarOpen(false)} 

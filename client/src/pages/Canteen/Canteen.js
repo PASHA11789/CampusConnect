@@ -702,11 +702,18 @@ export default function Canteen() {
   const currentResPhone = activeResObj?.phone || "+923001234567";
   const currentResName = activeResObj?.name || activeOrder?.restaurantName || activeOrder?.canteenName || "Campus Canteen";
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-screen w-full max-w-full overflow-hidden flex-col gap-3.5 bg-[#faf8f5]">
+        <div className="w-8 h-8 border-3 border-slate-100 border-t-[#00c2cb] rounded-full animate-spin"></div>
+        <p className="font-sans text-slate-500 text-[14.5px] font-semibold">Loading canteen...</p>
+      </div>
+    );
+  }
 
   // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
-    <div className="flex h-screen overflow-hidden bg-[#faf8f5] font-sans text-slate-800">
+    <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#faf8f5] font-sans text-slate-800">
       <div className="flex flex-1 min-w-0 w-full h-full animate-fade-in overflow-hidden">
         <Sidebar
           isOpen={isMobileSidebarOpen}

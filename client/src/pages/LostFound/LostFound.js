@@ -482,7 +482,7 @@ export default function LostFound() {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center h-screen flex-col gap-3.5 bg-[#f0f4f8]">
+      <div className="flex items-center justify-center h-screen w-full max-w-full overflow-hidden flex-col gap-3.5 bg-[#f0f4f8]">
         <div className="w-8 h-8 border-3 border-slate-100 border-t-[#00c2cb] rounded-full animate-spin"></div>
         <p className="font-sans text-slate-500 text-[14.5px] font-semibold">{t("Loading portal state...")}</p>
       </div>
@@ -491,10 +491,10 @@ export default function LostFound() {
 
   return (
     <>
-      <div className="flex min-h-screen bg-[#f0f4f8] font-sans text-slate-800 animate-fade-in">
+      <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#f0f4f8] font-sans text-slate-800 animate-fade-in">
         <Sidebar />
 
-        <main className="flex-1 flex flex-col min-w-0">
+        <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
           <Topbar
             time={time}
             user={user}

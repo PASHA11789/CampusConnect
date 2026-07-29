@@ -148,7 +148,7 @@ export default function Home() {
   useScrollReveal();
 
   return (
-    <div className="font-sans text-[#1a2a4a] bg-white overflow-x-hidden cc-page-cursor-none cc-page">
+    <div className="font-sans text-[#1a2a4a] bg-white h-full w-full max-w-full overflow-y-auto overflow-x-hidden cc-page-cursor-none cc-page">
       <CustomCursor />
       {/* ══════════════ NAVBAR ══════════════ */}
       <nav className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-400 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${isScrolled ? 'bg-white/85 backdrop-blur-[24px] border-white/50 shadow-[0_10px_40px_rgba(0,0,0,0.08)]' : 'bg-transparent border-transparent'}`}>

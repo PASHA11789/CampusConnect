@@ -544,7 +544,7 @@ export default function Petitions() {
 
   return (
     <>
-      <div className="flex h-screen overflow-hidden bg-[#faf8f5] font-sans text-slate-800 animate-fade-in">
+      <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#faf8f5] font-sans text-slate-800 animate-fade-in">
         <Sidebar
           isOpen={isMobileSidebarOpen}
           onClose={() => setIsMobileSidebarOpen(false)}
@@ -1003,132 +1003,150 @@ export default function Petitions() {
 
       {/* ── PETITION DETAIL MODAL ── */}
       {isDetailOpen && selectedPetition && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[2000] p-4 animate-fade-in" onClick={handleCloseDetail}>
+        <div className="fixed inset-0 bg-[#071A35]/65 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 animate-fade-in" onClick={handleCloseDetail}>
           <div
-            className="bg-white border border-slate-200 rounded-3xl p-8 max-w-[600px] w-full shadow-2xl relative animate-modal-slide-in flex flex-col gap-5 overflow-y-auto max-h-[90vh]"
+            className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-3xl max-w-[600px] w-full shadow-[0_20px_50px_rgba(7,26,53,0.25)] relative animate-modal-slide-in flex flex-col overflow-hidden max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
-            <button
-              className="absolute right-5 top-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200/80 flex items-center justify-center text-slate-500 hover:text-[#0a2342] transition-colors"
-              onClick={handleCloseDetail}
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
 
-            {/* Header info */}
-            <div className="flex justify-between items-center pr-8">
-              <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700">
-                {t(selectedPetition.level)} {t("Level")}
-              </span>
-              <span className={`px-3 py-1 rounded-full text-[10.5px] font-bold ${selectedPetition.status === "Pending Mod Approval" ? "bg-indigo-100 text-indigo-700" :
-                selectedPetition.status === "Under Review" ? "bg-amber-100 text-amber-700" :
-                  selectedPetition.status === "Resolved" ? "bg-[#00c2cb]/12 text-[#00c2cb]" :
-                    selectedPetition.status === "Closed" ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700"
-                }`}>
-                {t(selectedPetition.status)}
-              </span>
-            </div>
+            {/* ── Dark Navy Header Banner (Profile Style) ── */}
+            <div className="relative bg-[#071A35] px-5 sm:px-7 py-4 sm:py-5 flex justify-between items-start text-white overflow-hidden shrink-0 border-b border-[#071A35]">
+              {/* Subtle Ambient Orbs */}
+              <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-8 right-16 w-36 h-36 bg-[#F5B82E]/10 rounded-full blur-2xl pointer-events-none" />
 
-            {/* Title */}
-            <h2 className="text-[22px] font-black text-[#0a2342] leading-tight mt-1">
-              {selectedPetition.title}
-            </h2>
-
-            {/* Creator details */}
-            <div className="flex items-center gap-3 py-3 border-y border-slate-100">
-              <img
-                src={getPersonalizedAvatar(selectedPetition.creator?.avatar)}
-                alt={selectedPetition.creator?.registeration_number || "Creator"}
-                className="w-10 h-10 rounded-full object-cover border border-slate-200"
-              />
-              <div className="flex flex-col">
-                <span className="text-[12.5px] font-bold text-slate-800">
-                  {t("Started by")} {selectedPetition.creator?.registeration_number || t("Anonymous")}
-                </span>
-                <span className="text-[11px] text-slate-400 font-semibold">
-                  {t("Created on")} {new Date(selectedPetition.createdAt).toLocaleDateString()} • {t("Scope:")} {selectedPetition.targetGroup}
-                </span>
-              </div>
-            </div>
-
-            {/* Full Description */}
-            <div className="flex flex-col gap-2">
-              <h4 className="text-[13px] font-black text-[#0a2342]">{t("Description")}</h4>
-              <p className="text-[13.5px] text-slate-600 font-medium leading-relaxed whitespace-pre-line">
-                {selectedPetition.description}
-              </p>
-            </div>
-
-            {/* Progress status */}
-            {(() => {
-              const sigsCount = selectedPetition.signatures ? selectedPetition.signatures.length : (selectedPetition.currentSignaturesCount || 0);
-              const targetMilestone = selectedPetition.milestone || 100;
-              const percentage = Math.min(Math.round((sigsCount / targetMilestone) * 100), 100);
-              return (
-                <div className="flex flex-col gap-2 bg-slate-50 p-5 rounded-2xl border border-slate-100 mt-2">
-                  <div className="flex justify-between text-[12px] font-bold text-slate-500">
-                    <span>
-                      {t("Milestone Progress:")} <strong className="text-[#0a2342]">{sigsCount}</strong> {t("of")} {targetMilestone} {t("signatures")}
-                    </span>
-                    <span className="text-[#00c2cb]">{percentage}%</span>
+              <div className="relative z-10 flex flex-col gap-2 min-w-0 flex-1 pr-8">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-lg shadow-inner text-[#00c2cb] shrink-0">
+                    📜
                   </div>
-                  <div className="h-2.5 bg-slate-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-[#00c2cb] to-[#00d4ff] rounded-full transition-all duration-500"
-                      style={{ width: `${percentage}%` }}
-                    />
+                  <div className="flex items-center gap-2 flex-wrap min-w-0">
+                    <span className="px-2.5 py-0.5 rounded-full text-[9.5px] font-black bg-white/10 text-[#F5B82E] uppercase tracking-widest border border-white/10 shrink-0">
+                      {t(selectedPetition.level)} {t("Level")}
+                    </span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-widest border shrink-0 ${selectedPetition.status === "Pending Mod Approval" ? "bg-indigo-500/20 text-indigo-200 border-indigo-400/30" :
+                      selectedPetition.status === "Under Review" ? "bg-amber-500/20 text-amber-200 border-amber-400/30" :
+                        selectedPetition.status === "Resolved" ? "bg-emerald-500/20 text-emerald-200 border-emerald-400/30" :
+                          selectedPetition.status === "Closed" ? "bg-rose-500/20 text-rose-200 border-rose-400/30" : "bg-[#00c2cb]/20 text-[#00c2cb] border-[#00c2cb]/30"
+                    }`}>
+                      {t(selectedPetition.status)}
+                    </span>
                   </div>
                 </div>
-              );
-            })()}
+                <h2 className="text-lg sm:text-xl font-black text-white leading-tight tracking-tight line-clamp-2">
+                  {selectedPetition.title}
+                </h2>
+              </div>
 
-            {/* Actions inside modal */}
-            <div className="flex gap-3 mt-3">
+              {/* Close Button */}
               <button
+                className="relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 text-white/90 hover:text-white border border-white/20 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shrink-0 mt-0.5"
                 onClick={handleCloseDetail}
-                className="flex-1 bg-slate-100 hover:bg-slate-200/80 text-slate-700 py-3 rounded-xl text-[13px] font-bold transition-all"
               >
-                {t("Close")}
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
+            </div>
 
-              {selectedPetition.status === "Active" && (
-                (() => {
-                  const isSignedByMe = selectedPetition.signatures && selectedPetition.signatures.includes(user._id);
-                  return isSignedByMe ? (
-                    <button
-                      disabled
-                      className="flex-1 bg-emerald-50 text-emerald-600 border border-emerald-200 py-3 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 cursor-not-allowed"
-                    >
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      {t("Signed")}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        handleSignPetition(selectedPetition._id);
-                        setSelectedPetition(prev => ({
-                          ...prev,
-                          signatures: [...(prev.signatures || []), user._id]
-                        }));
-                      }}
-                      disabled={signingIds.has(selectedPetition._id)}
-                      className="flex-1 bg-[#00c2cb] text-[#060e1c] hover:bg-[#00b2bb] py-3 rounded-xl text-[13px] font-black transition-all active:scale-[0.98] disabled:opacity-50"
-                    >
-                      {signingIds.has(selectedPetition._id) ? (
-                        <div className="w-5 h-5 border-2 border-[#060e1c]/30 border-t-[#060e1c] rounded-full animate-spin mx-auto" />
-                      ) : (
-                        t("Sign Petition")
-                      )}
-                    </button>
-                  );
-                })()
-              )}
+            {/* ── Modal Body (Warm Ivory Background) ── */}
+            <div className="p-5 sm:p-7 overflow-y-auto flex-1 bg-[#FAF7F0]/60 flex flex-col gap-5">
+
+              {/* Creator details */}
+              <div className="flex items-center gap-3.5 bg-white p-4 rounded-2xl border border-[#E8E1D5] shadow-sm">
+                <img
+                  src={getPersonalizedAvatar(selectedPetition.creator?.avatar)}
+                  alt={selectedPetition.creator?.registeration_number || "Creator"}
+                  className="w-11 h-11 rounded-full object-cover border-2 border-[#071A35]/10 shadow-sm"
+                />
+                <div className="flex flex-col">
+                  <span className="text-[12.5px] font-extrabold text-[#071A35]">
+                    {t("Started by")} {selectedPetition.creator?.registeration_number || t("Anonymous")}
+                  </span>
+                  <span className="text-[11px] text-[#211A24]/50 font-semibold">
+                    {t("Created on")} {new Date(selectedPetition.createdAt).toLocaleDateString()} • {t("Scope:")} {selectedPetition.targetGroup}
+                  </span>
+                </div>
+              </div>
+
+              {/* Full Description */}
+              <div className="flex flex-col gap-2 bg-white p-4 sm:p-5 rounded-2xl border border-[#E8E1D5] shadow-sm">
+                <h4 className="text-[13px] font-black text-[#071A35] flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00c2cb] inline-block"></span>
+                  {t("Description")}
+                </h4>
+                <p className="text-[13px] text-[#211A24]/70 font-medium leading-relaxed whitespace-pre-line">
+                  {selectedPetition.description}
+                </p>
+              </div>
+
+              {/* Progress status */}
+              {(() => {
+                const sigsCount = selectedPetition.signatures ? selectedPetition.signatures.length : (selectedPetition.currentSignaturesCount || 0);
+                const targetMilestone = selectedPetition.milestone || 100;
+                const percentage = Math.min(Math.round((sigsCount / targetMilestone) * 100), 100);
+                return (
+                  <div className="flex flex-col gap-2.5 bg-white p-4 sm:p-5 rounded-2xl border border-[#E8E1D5] shadow-sm">
+                    <div className="flex justify-between text-[12px] font-bold text-[#211A24]/50">
+                      <span>
+                        {t("Milestone Progress:")} <strong className="text-[#071A35]">{sigsCount}</strong> {t("of")} {targetMilestone} {t("signatures")}
+                      </span>
+                      <span className="text-[#F5B82E] font-black">{percentage}%</span>
+                    </div>
+                    <div className="h-2.5 bg-[#E8E1D5]/60 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-[#071A35] via-[#00c2cb] to-[#F5B82E] rounded-full transition-all duration-500"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Actions inside modal */}
+              <div className="flex gap-3 mt-1">
+                <button
+                  onClick={handleCloseDetail}
+                  className="flex-1 bg-white hover:bg-[#F3EEE4] text-[#071A35] border border-[#E8E1D5] py-3 rounded-xl text-[13px] font-bold transition-all duration-200 cursor-pointer"
+                >
+                  {t("Close")}
+                </button>
+
+                {selectedPetition.status === "Active" && (
+                  (() => {
+                    const isSignedByMe = selectedPetition.signatures && selectedPetition.signatures.includes(user._id);
+                    return isSignedByMe ? (
+                      <button
+                        disabled
+                        className="flex-1 bg-emerald-50 text-emerald-600 border border-emerald-200 py-3 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 cursor-not-allowed"
+                      >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        {t("Signed")}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          handleSignPetition(selectedPetition._id);
+                          setSelectedPetition(prev => ({
+                            ...prev,
+                            signatures: [...(prev.signatures || []), user._id]
+                          }));
+                        }}
+                        disabled={signingIds.has(selectedPetition._id)}
+                        className="flex-1 bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35] py-3 rounded-xl text-[13px] font-black transition-all duration-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-md border-none"
+                      >
+                        {signingIds.has(selectedPetition._id) ? (
+                          <div className="w-5 h-5 border-2 border-[#071A35]/30 border-t-[#071A35] rounded-full animate-spin mx-auto" />
+                        ) : (
+                          t("Sign Petition")
+                        )}
+                      </button>
+                    );
+                  })()
+                )}
+              </div>
             </div>
 
           </div>

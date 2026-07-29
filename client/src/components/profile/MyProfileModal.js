@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import axios from "axios";
-import logo from "../../assets/MUL-Logo.png";
-
 
 const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
   const [avatar, setAvatar] = useState(null);
@@ -12,16 +10,13 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [copiedReg, setCopiedReg] = useState(false);
 
   useEffect(() => {
     if (user && isOpen) {
       setName(user.name || "");
       setIsNameHidden(user.isNameHidden || false);
-      if (user.avatar) {
-        setAvatar(user.avatar);
-      } else {
-        setAvatar(null);
-      }
+      setAvatar(user.avatar || null);
       setError(null);
       setSuccess(false);
     }
@@ -101,173 +96,293 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
   };
 
   const getPersonalizedAvatar = (url) => {
-    if (!url) return `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=random`;
+    if (!url) return `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=071A35&color=00c2cb&bold=true`;
     if (url.includes("name=User")) {
-      return `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=random`;
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=071A35&color=00c2cb&bold=true`;
     }
     return url;
   };
 
+  const regNo = user?.registeration_number || user?.registration_no || "N/A";
+
+  const handleCopyReg = () => {
+    if (regNo && regNo !== "N/A") {
+      navigator.clipboard.writeText(regNo);
+      setCopiedReg(true);
+      setTimeout(() => setCopiedReg(false), 2000);
+    }
+  };
 
   return createPortal(
-    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-2.5 sm:p-4 md:p-6 overflow-y-auto">
+      {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm cursor-pointer"
+        className="fixed inset-0 bg-[#071A35]/65 backdrop-blur-sm transition-opacity duration-300 cursor-pointer"
         onClick={onClose}
       />
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden animate-modal-slide-in flex flex-col max-h-[90vh]">
-        {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
-          <div>
-            <h2 className="text-[18px] font-black text-[#0a2342] tracking-tight">My Profile</h2>
-            <p className="text-[12px] text-slate-500 font-medium mt-0.5">Manage your personal information and privacy settings</p>
+
+      {/* Main Modal Dialog */}
+      <div className="relative bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_rgba(7,26,53,0.25)] w-full max-w-4xl overflow-hidden animate-modal-slide-in flex flex-col max-h-[94vh] sm:max-h-[90vh] border border-[#E8E1D5] z-10">
+
+        {/* Forum/Petition Style Header Banner */}
+        <div className="relative bg-[#071A35] px-4 sm:px-6 py-3.5 sm:py-5 flex justify-between items-center text-white overflow-hidden shrink-0 border-b border-[#071A35]">
+          {/* Subtle Ambient Orbs */}
+          <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-8 right-16 w-36 h-36 bg-[#F5B82E]/10 rounded-full blur-2xl pointer-events-none" />
+
+          {/* Header Content */}
+          <div className="relative z-10 flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-lg sm:text-xl shadow-inner text-[#00c2cb] shrink-0">
+              👤
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-base sm:text-lg md:text-[20px] font-black tracking-tight text-white leading-tight">
+                  My Profile
+                </h2>
+                <span className="bg-white/10 text-[#F5B82E] text-[8.5px] sm:text-[9.5px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-white/10 shadow-sm shrink-0">
+                  Official Member
+                </span>
+              </div>
+              <p className="text-[10.5px] sm:text-[11.5px] text-white/70 font-semibold mt-0.5 truncate">
+                Manage your personal details, display settings, and privacy options
+              </p>
+            </div>
           </div>
+
+          {/* Close Button */}
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 bg-transparent border-none cursor-pointer p-1"
+            className="relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 text-white/90 hover:text-white border border-white/20 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer border-none shrink-0 ml-2"
+            title="Close"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-8 overflow-y-auto custom-scrollbar flex-1">
-          <div className="grid grid-cols-[1fr_1.5fr] gap-6 max-[1100px]:grid-cols-1 items-start">
-            {/* Left Column: Student Card and Avatar Info */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-[0_10px_25px_rgba(0,0,0,0.02)] flex flex-col items-center">
-              <label className="relative w-32 h-32 rounded-full bg-gradient-to-br from-[#00c2cb] to-[#0079c2] p-[4px] shadow-lg mb-4 cursor-pointer group block">
-                <img
-                  src={getPersonalizedAvatar(avatar)}
-                  alt="Profile"
-                  className="w-full h-full rounded-full object-cover bg-white border-[4px] border-white transition-all group-hover:brightness-75"
-                />
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                  {isUploading ? (
-                    <div className="w-8 h-8 border-[3px] border-white/30 border-t-white rounded-full animate-spin shadow-md" />
-                  ) : (
-                    <svg className="w-8 h-8 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  )}
-                </div>
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#0a2342] text-white text-[10px] font-black px-4 py-1 rounded-full uppercase tracking-wider shadow-md border-2 border-white whitespace-nowrap z-20">
+        <div className="p-3.5 sm:p-6 md:p-7 overflow-y-auto custom-scrollbar flex-1 bg-[#FAF7F0]/60 touch-pan-y">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
+            
+            {/* Left Column: Avatar Profile & Academic Information (5 cols on lg) */}
+            <div className="lg:col-span-5 flex flex-col gap-4 sm:gap-5">
+              
+              {/* Profile Overview Card */}
+              <div className="bg-white border border-[#E8E1D5] rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col items-center text-center relative overflow-hidden">
+                <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#00c2cb] via-[#071A35] to-[#F5B82E]" />
+
+                {/* Avatar with Ring & Upload Overlay */}
+                <label className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-[#00c2cb] to-[#071A35] p-[3.5px] shadow-md mb-3 sm:mb-3.5 cursor-pointer group block transition-transform duration-300 hover:scale-105">
+                  <img
+                    src={getPersonalizedAvatar(avatar)}
+                    alt="Profile"
+                    className="w-full h-full rounded-full object-cover bg-white border-[3px] border-white transition-all duration-200 group-hover:brightness-75"
+                  />
+                  <div className="absolute inset-0 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/40 backdrop-blur-[2px] z-10 text-white">
+                    {isUploading ? (
+                      <div className="w-6 h-6 sm:w-7 sm:h-7 border-[3px] border-white/30 border-t-white rounded-full animate-spin shadow-md" />
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span className="text-[9px] sm:text-[10px] font-extrabold mt-1 tracking-wider uppercase">Change</span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Active Status Indicator */}
+                  <span className="absolute bottom-1 right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-emerald-500 border-2 border-white rounded-full z-20 shadow-sm" title="Online & Active" />
+
+                  <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} disabled={isUploading} />
+                </label>
+
+                {/* User Name & Email */}
+                <h3 className="text-base sm:text-[19px] font-black text-[#0a2342] tracking-tight leading-snug break-words max-w-full">
+                  {name || user?.name || "Student Name"}
+                </h3>
+                <p className="text-[11.5px] sm:text-[12px] text-slate-500 font-semibold mb-2.5 sm:mb-3 break-all max-w-full">
+                  {user?.email || "CampusConnect Member"}
+                </p>
+
+                {/* Role Pill Badge */}
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-[10.5px] font-black uppercase tracking-wider bg-[#071A35] text-[#00c2cb] border border-[#00c2cb]/30">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00c2cb] animate-pulse" />
                   {user?.role || "Student"}
-                </div>
-                <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} disabled={isUploading} />
-              </label>
+                </span>
+              </div>
 
-              <h2 className="text-[20px] font-black text-[#0a2342] mt-2">{user?.name}</h2>
-              <p className="text-[13px] text-slate-500 font-semibold mb-6">{user?.email || "CampusConnect Member"}</p>
+              {/* Academic Metadata Grid Card (Responsive tiles) */}
+              <div className="bg-white border border-[#E8E1D5] rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm text-left">
+                <div className="flex items-center gap-2 mb-3 sm:mb-4 pb-2 sm:pb-2.5 border-b border-slate-100">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-[#00c2cb]/10 text-[#00c2cb] flex items-center justify-center text-xs font-black shrink-0">
+                    🎓
+                  </div>
+                  <h4 className="text-[13px] sm:text-[14px] font-black text-[#0a2342]">Academic Information</h4>
+                </div>
 
-              <div className="w-full grid grid-cols-2 gap-x-4 gap-y-5 pt-5 border-t border-slate-100 text-left">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Registration #</span>
-                  <span className="text-[14px] font-bold text-[#0a2342]">{user?.registeration_number || user?.registration_no || "N/A"}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Department</span>
-                  <span className="text-[14px] font-bold text-[#0a2342]">{user?.department || "Computer Science"}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Class / Program</span>
-                  <span className="text-[14px] font-bold text-[#0a2342]">{user?.class || user?.program || "BSCS"}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Session</span>
-                  <span className="text-[14px] font-bold text-[#0a2342]">{user?.session || "2024-28 Fall"}</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                  <div className="bg-[#FAF7F0]/80 p-2.5 sm:p-3 rounded-xl border border-[#E8E1D5] flex flex-col min-w-0">
+                    <span className="text-[9px] sm:text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">Registration #</span>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-[11.5px] sm:text-[12px] font-bold text-[#0a2342] font-mono truncate">{regNo}</span>
+                      {regNo !== "N/A" && (
+                        <button
+                          type="button"
+                          onClick={handleCopyReg}
+                          className="text-slate-400 hover:text-[#00c2cb] transition-colors border-none bg-transparent cursor-pointer p-0.5 shrink-0"
+                          title="Copy Registration Number"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        </button>
+                      )}
+                      {copiedReg && (
+                        <span className="text-[7.5px] font-extrabold bg-[#00c2cb] text-[#071A35] px-1 py-0.2 rounded animate-fade-in shrink-0">
+                          Copied!
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-[#FAF7F0]/80 p-2.5 sm:p-3 rounded-xl border border-[#E8E1D5] flex flex-col min-w-0">
+                    <span className="text-[9px] sm:text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">Department</span>
+                    <span className="text-[11.5px] sm:text-[12px] font-bold text-[#0a2342] truncate">{user?.department || "Computer Science"}</span>
+                  </div>
+
+                  <div className="bg-[#FAF7F0]/80 p-2.5 sm:p-3 rounded-xl border border-[#E8E1D5] flex flex-col min-w-0">
+                    <span className="text-[9px] sm:text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">Program / Class</span>
+                    <span className="text-[11.5px] sm:text-[12px] font-bold text-[#0a2342] truncate">{user?.class || user?.program || "BSCS"}</span>
+                  </div>
+
+                  <div className="bg-[#FAF7F0]/80 p-2.5 sm:p-3 rounded-xl border border-[#E8E1D5] flex flex-col min-w-0">
+                    <span className="text-[9px] sm:text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">Session</span>
+                    <span className="text-[11.5px] sm:text-[12px] font-bold text-[#0a2342] truncate">{user?.session || "2024-28 Fall"}</span>
+                  </div>
                 </div>
               </div>
+
             </div>
 
-            {/* Right Column: Settings Edit Form */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 transition-all duration-300 shadow-[0_10px_25px_rgba(0,0,0,0.02)] flex flex-col gap-5 text-left h-full justify-between">
-              <div className="flex flex-col gap-5">
-                <h2 className="text-[16px] font-black text-[#0a2342] mb-1">Profile Settings</h2>
-
-                <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                  {error && (
-                    <div className="bg-red-50 text-red-600 p-3 rounded-lg text-xs font-bold border border-red-100">
-                      {error}
-                    </div>
-                  )}
-                  {success && (
-                    <div className="bg-emerald-50 text-emerald-600 p-3 rounded-lg text-xs font-bold border border-emerald-100">
-                      Profile updated successfully!
-                    </div>
-                  )}
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-wide">Full Name</label>
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-[13px] font-semibold rounded-xl px-4 py-3 focus:outline-none focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/10 transition-all"
-                      required
-                    />
+            {/* Right Column: Profile Settings Form (7 cols on lg) */}
+            <div className="lg:col-span-7 flex flex-col gap-4 sm:gap-5">
+              
+              {/* Profile Edit Form Card */}
+              <div className="bg-white border border-[#E8E1D5] rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col text-left h-full">
+                <div className="flex items-center gap-2.5 mb-4 sm:mb-5 pb-2.5 sm:pb-3 border-b border-slate-100">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#071A35]/5 text-[#071A35] flex items-center justify-center text-xs sm:text-sm font-black border border-[#071A35]/10 shrink-0">
+                    ⚙️
                   </div>
+                  <div>
+                    <h3 className="text-[15px] sm:text-[16px] font-black text-[#0a2342]">Profile Settings</h3>
+                    <p className="text-[10.5px] sm:text-[11px] text-slate-500 font-semibold">Update your public display information</p>
+                  </div>
+                </div>
 
-                  <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100">
-                    <input
-                      type="checkbox"
-                      id="modalHideName"
-                      checked={isNameHidden}
-                      onChange={(e) => setIsNameHidden(e.target.checked)}
-                      className="mt-0.5 w-4 h-4 rounded text-[#00c2cb] focus:ring-[#00c2cb] border-slate-300 cursor-pointer"
-                    />
-                    <div className="flex flex-col gap-0.5">
-                      <label htmlFor="modalHideName" className="text-[13px] font-bold text-[#0a2342] cursor-pointer leading-none">
-                        Hide my real name
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-5 flex-1 justify-between">
+                  <div className="flex flex-col gap-4 sm:gap-5">
+                    {error && (
+                      <div className="bg-red-50 text-red-600 p-3 sm:p-3.5 rounded-xl text-xs font-bold border border-red-200 flex items-center gap-2 animate-fade-in">
+                        <svg className="w-4 h-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{error}</span>
+                      </div>
+                    )}
+
+                    {success && (
+                      <div className="bg-emerald-50 text-emerald-700 p-3 sm:p-3.5 rounded-xl text-xs font-bold border border-emerald-200 flex items-center gap-2 animate-fade-in">
+                        <svg className="w-4.5 h-4.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Profile settings updated successfully!</span>
+                      </div>
+                    )}
+
+                    {/* Full Name Input */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10.5px] sm:text-[11px] font-black text-slate-600 uppercase tracking-wide flex items-center justify-between">
+                        <span>Full Name</span>
+                        <span className="text-[9.5px] sm:text-[10px] text-slate-400 font-normal">Displayed on profile & activities</span>
                       </label>
-                      <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
-                        If enabled, your Registration Number ({user?.registeration_number || user?.registration_no}) will be displayed publicly across the platform instead of your real name.
-                      </p>
+                      <div className="relative flex items-center">
+                        <span className="absolute left-3.5 text-slate-400 text-sm">👤</span>
+                        <input
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Enter your full name"
+                          className="w-full bg-[#FAF7F0]/80 border border-[#E8E1D5] text-[#0a2342] text-[12.5px] sm:text-[13px] font-semibold rounded-xl pl-10 pr-4 py-2.5 sm:py-3 focus:bg-white focus:outline-none focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/20 transition-all duration-200"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    {/* Hide Real Name Custom Toggle Block */}
+                    <div className="p-3.5 sm:p-4 rounded-xl bg-[#FAF7F0]/80 border border-[#E8E1D5] hover:border-slate-300 transition-colors flex items-start gap-3 sm:gap-3.5">
+                      <div className="relative flex items-center mt-0.5 shrink-0">
+                        <input
+                          type="checkbox"
+                          id="modalHideName"
+                          checked={isNameHidden}
+                          onChange={(e) => setIsNameHidden(e.target.checked)}
+                          className="peer sr-only"
+                        />
+                        <label
+                          htmlFor="modalHideName"
+                          className="w-9 sm:w-10 h-5 sm:h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-[#071A35] cursor-pointer"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1 flex-1 min-w-0">
+                        <label htmlFor="modalHideName" className="text-[12.5px] sm:text-[13px] font-extrabold text-[#0a2342] cursor-pointer leading-tight">
+                          Privacy Mode (Hide Real Name)
+                        </label>
+                        <p className="text-[10.5px] sm:text-[11.5px] text-slate-500 font-medium leading-relaxed">
+                          When enabled, your Registration Number (<span className="font-bold text-[#0a2342]">{regNo}</span>) will be displayed publicly across forums and petitions instead of your real name.
+                        </p>
+                        {isNameHidden && (
+                          <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[10px] sm:text-[10.5px] font-bold">
+                            <span>🔒</span> Public Identity set to Registration Number
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-3 mt-4">
+                  {/* Save Button */}
+                  <div className="flex justify-end gap-3 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-100">
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="px-6 py-3 rounded-xl text-[13px] font-bold text-white bg-[#0a2342] hover:bg-[#00c2cb] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="w-full sm:w-auto px-7 py-2.5 sm:py-3 rounded-xl text-[12.5px] sm:text-[13px] font-extrabold text-white bg-[#071A35] hover:bg-[#00c2cb] hover:text-[#071A35] shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer border-none"
                     >
-                      {isSubmitting && (
-                        <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      {isSubmitting ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>Saving Changes...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Save Changes</span>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </>
                       )}
-                      Save Changes
                     </button>
                   </div>
                 </form>
               </div>
 
-              {/* Student Card Visual Rendering */}
-              <div className="border-t border-slate-100 pt-4 flex flex-col items-center gap-3">
-                <div className="w-full max-w-[320px] bg-gradient-to-br from-[#00838F] to-[#00acc1] rounded-2xl p-4 text-white shadow-md relative overflow-hidden text-left flex flex-col gap-2.5 font-sans">
-                  {/* Card Header decoration */}
-                  <div className="flex justify-between items-center pb-2 border-b border-white/20 shrink-0">
-                    <span className="text-[10px] font-extrabold tracking-widest text-[#E0F2F1]">STUDENT CARD</span>
-                    <img src={logo} alt="MUL" className="w-6 h-6 object-contain filter brightness-100" />
-                  </div>
-                  {/* Card details */}
-                  <div className="flex flex-col gap-1.5 text-[11px] leading-tight flex-1">
-                    <div>
-                      <span className="text-[#E0F2F1] font-semibold">Name:</span> <strong className="ml-1 text-white">{user?.name}</strong>
-                    </div>
-                    <div>
-                      <span className="text-[#E0F2F1] font-semibold">Reg #:</span> <strong className="ml-1 text-white">{user?.registeration_number || user?.registration_no}</strong>
-                    </div>
-                    <div>
-                      <span className="text-[#E0F2F1] font-semibold">Dept:</span> <strong className="ml-1 text-white">{user?.department || "Computer Science"}</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
+
           </div>
         </div>
+
       </div>
     </div>,
     document.body

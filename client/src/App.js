@@ -21,7 +21,7 @@ import RestaurantsManager from './pages/Admin/RestaurantsManager';
 function App() {
   return (
     <Router>
-      <div className="App">
+      <div className="App w-full h-full max-w-full overflow-hidden">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

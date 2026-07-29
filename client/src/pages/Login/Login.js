@@ -27,7 +27,7 @@ const Login = () => {
     };
 
     return (
-        <div className="flex min-h-screen w-full font-sans bg-white overflow-x-hidden">
+        <div className="flex h-full w-full font-sans bg-white overflow-y-auto overflow-x-hidden">
 
             <div className="flex flex-col md:flex-row w-full min-h-screen relative group">
 
