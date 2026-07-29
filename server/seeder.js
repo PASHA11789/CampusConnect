@@ -168,6 +168,172 @@ const seedUsers = async () => {
         program: "BSCS",
         section: "C",
       },
+      // --- CLASS-LEVEL TEST USERS (BSCS 6th Semester Section A) ---
+      {
+        name: "Ahmad Raza (BSCS-6A)",
+        email: "ahmad.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-101",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Ayesha Malik (BSCS-6A)",
+        email: "ayesha.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-102",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Bilal Hassan (BSCS-6A)",
+        email: "bilal.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-103",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Danial Tariq (BSCS-6A)",
+        email: "danial.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-104",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Esha Imran (BSCS-6A)",
+        email: "esha.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-105",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Fahad Mustafa (BSCS-6A)",
+        email: "fahad.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-106",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Hassan Ali (BSCS-6A)",
+        email: "hassan.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-107",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Iqra Shahzad (BSCS-6A)",
+        email: "iqra.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-108",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Junaid Khan (BSCS-6A)",
+        email: "junaid.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-109",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Kiran Fatima (BSCS-6A)",
+        email: "kiran.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-110",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Moiz Rehman (BSCS-6A)",
+        email: "moiz.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-111",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Nida Yasir (BSCS-6A)",
+        email: "nida.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-112",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Omer Farooq (BSCS-6A)",
+        email: "omer.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-113",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Parvez Elahi (BSCS-6A)",
+        email: "parvez.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-114",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
+      {
+        name: "Qasim Zia (BSCS-6A)",
+        email: "qasim.bscs6a@campusconnect.com",
+        registeration_number: "2023F-bscs6a-115",
+        password: hashedPassword,
+        role: "student",
+        department: "Computer Science",
+        semester: 6,
+        program: "BSCS",
+        section: "A",
+      },
 
       // --- RIDERS (One for each restaurant) ---
       {
@@ -631,6 +797,327 @@ const seedUsers = async () => {
 
     await CareerThread.insertMany(dummyCareerThreads);
     console.log("✅ 4 Dummy Career Threads seeded successfully!");
+
+    // --- FORUM THREADS SEEDING ---
+    const modShujaatUser = await User.findOne({ email: "shujaat@mod.com" });
+    const modUsamaUser = await User.findOne({ email: "usama@mod.com" });
+    const studentBilalUser = await User.findOne({ email: "bilal@student.com" });
+    const studentFatimaUser = await User.findOne({ email: "fatima@student.com" });
+    const studentAliUser = await User.findOne({ email: "ali@student.com" });
+
+    const modShujaat = modShujaatUser ? modShujaatUser._id : studentHamza._id;
+    const modUsama = modUsamaUser ? modUsamaUser._id : studentHamza._id;
+    const studentBilal = studentBilalUser ? studentBilalUser._id : studentHamza._id;
+    const studentFatima = studentFatimaUser ? studentFatimaUser._id : studentHamza._id;
+    const studentAli = studentAliUser ? studentAliUser._id : studentHamza._id;
+
+    const dummyForumThreads = [
+      {
+        title: "Final Year Project (FYP) Ideas & Domain Guidance for 2026 Batch",
+        content: "Assalam-o-Alaikum everyone! As semester progress continues, many 6th and 7th semester students are looking for FYP ideas in AI, Full-Stack Web, Mobile Apps, and IoT. What domain is your team focusing on? Let's discuss supervisor approvals and tech stack choices.",
+        category: "Academics",
+        tags: ["FYP", "BSCS", "SoftwareEngSociety"],
+        author: modShujaat._id,
+        image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&auto=format&fit=crop&q=80",
+        repliesCount: 3,
+        replies: [
+          {
+            author: studentHamza._id,
+            content: "Our team is working on an AI-powered Student Resume & Skill Matcher. Getting data and API access configured!",
+            image: ""
+          },
+          {
+            author: studentFatima._id,
+            content: "We are building an automated attendance system using OpenCV facial recognition. Can seniors suggest good references?",
+            image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=500&auto=format&fit=crop&q=80"
+          },
+          {
+            author: modShujaat._id,
+            content: "Facial recognition is a solid choice! Just make sure to handle lighting edge-cases in campus corridors.",
+            image: ""
+          }
+        ]
+      },
+      {
+        title: "Best Midterm Preparation Strategies & Daily Study Group in Central Library",
+        content: "Midterms are starting next week! How is everyone pacing their revision? For Data Structures & Algorithms, practicing past papers and tracing recursion trees on whiteboards helps a lot. We are forming a daily study group in the Central Library floor 2 after 2 PM.",
+        category: "Academics",
+        tags: ["Midterms", "StudyGroup", "BSSE"],
+        author: studentFatima._id,
+        image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80",
+        repliesCount: 3,
+        replies: [
+          {
+            author: studentBilal._id,
+            content: "Count me in! DSA dry-running on whiteboards is a game changer for binary search trees.",
+            image: ""
+          },
+          {
+            author: studentZoya._id,
+            content: "Can someone share solved notes for Operating Systems CPU Scheduling algorithms?",
+            image: ""
+          },
+          {
+            author: studentHamza._id,
+            content: "I uploaded OS CPU scheduling notes and Gantt chart examples to the shared drive folder!",
+            image: ""
+          }
+        ]
+      },
+      {
+        title: "Campus Wi-Fi Upgrade & Extended Library Hours for Midterm Week",
+        content: "Great news! The IT Department has expanded 5GHz Wi-Fi coverage across Block B and student study halls. Also, library hours are being extended till 8:00 PM during midterm week so students can study comfortably.",
+        category: "Campus Life",
+        tags: ["CampusWifi", "LibraryHours", "BSIT"],
+        author: studentHamza._id,
+        image: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=800&auto=format&fit=crop&q=80",
+        repliesCount: 2,
+        replies: [
+          {
+            author: studentAli._id,
+            content: "Awesome update! The Wi-Fi speed in the library study lounge is super fast now.",
+            image: ""
+          },
+          {
+            author: modUsama._id,
+            content: "Thanks to the IT department for addressing student feedback so quickly!",
+            image: ""
+          }
+        ]
+      },
+      {
+        title: "Hands-on Workshop: Introduction to Machine Learning & Python Pandas",
+        content: "The Data Science Student Society is hosting a hands-on workshop on Python, Pandas, and Scikit-Learn this Thursday at 11:30 AM in CS Lab 3. Beginners are warmly welcome! Bring your laptops with Anaconda installed.",
+        category: "Tech Hub",
+        tags: ["DataScienceSociety", "BSDS", "Assignments"],
+        author: studentZoya._id,
+        image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80",
+        repliesCount: 2,
+        replies: [
+          {
+            author: studentAli._id,
+            content: "Will certificates of participation be provided?",
+            image: ""
+          },
+          {
+            author: studentZoya._id,
+            content: "Yes! Digital certificates will be issued to all registered attendees.",
+            image: ""
+          }
+        ]
+      },
+      {
+        title: "Cyber Security Club: CTF (Capture The Flag) Competition Registration",
+        content: "Calling all ethical hackers and security enthusiasts! CampusConnect Cyber Club is launching the annual Intra-University CTF Competition next month. Challenges cover Web Security, Cryptography, Reverse Engineering, and Forensics.",
+        category: "Tech Hub",
+        tags: ["CyberSecurityClub", "BSCYBER", "Finals"],
+        author: studentBilal._id,
+        image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80",
+        repliesCount: 2,
+        replies: [
+          {
+            author: alumniAzam._id,
+            content: "This sounds exciting! Wish we had CTF competitions back when I was a junior.",
+            image: ""
+          },
+          {
+            author: studentBilal._id,
+            content: "Alumni members are welcome to join as judges and mentors!",
+            image: ""
+          }
+        ]
+      },
+      {
+        title: "Annual Campus Sports & Cultural Week – Registrations Now Open!",
+        content: "The annual university Sports & Cultural Festival is scheduled for next month! Tournaments include Cricket, Futsal, Badminton, Table Tennis, and E-Sports (PUBG & Valorant). Register your department teams before Friday!",
+        category: "Campus Life",
+        tags: ["SportsClub", "Events", "Community"],
+        author: modUsama._id,
+        image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=80",
+        repliesCount: 3,
+        replies: [
+          {
+            author: studentAli._id,
+            content: "BSCS Futsal team registration form submitted!",
+            image: ""
+          },
+          {
+            author: studentFatima._id,
+            content: "Is there a female Badminton single/doubles tournament as well?",
+            image: ""
+          },
+          {
+            author: modUsama._id,
+            content: "Yes! Female sports tournaments take place in the Indoor Girls Gymnasium.",
+            image: ""
+          }
+        ]
+      },
+      {
+        title: "Alumni Panel Q&A: Preparing for Software Engineering & Industry Roles",
+        content: "Hello students! As an alumna working in software development, I am opening a thread to answer any questions about tech resumes, coding interviews, software engineering internships, or transitioning from university to corporate jobs. Ask away!",
+        category: "Q & A",
+        tags: ["Advice", "BSCS", "BSSE"],
+        author: alumniJaveria._id,
+        image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=80",
+        repliesCount: 3,
+        replies: [
+          {
+            author: studentHamza._id,
+            content: "How important are LeetCode / competitive programming problems compared to building real full-stack web apps?",
+            image: ""
+          },
+          {
+            author: alumniJaveria._id,
+            content: "Both matter! LeetCode builds problem-solving speed for screening rounds, while full-stack projects prove you can build real products.",
+            image: ""
+          },
+          {
+            author: studentZoya._id,
+            content: "Thank you Javeria Api for guiding us!",
+            image: ""
+          }
+        ]
+      },
+      {
+        title: "Campus Library Digital Research Portal & IEEE Access Guide",
+        content: "Did you know all students have free access to digital IEEE research papers and ACM digital library through the university portal? Check out the research section under your student portal login.",
+        category: "Academics",
+        tags: ["LibraryHours", "StudyGroup"],
+        author: studentFatima._id,
+        image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&auto=format&fit=crop&q=80",
+        repliesCount: 1,
+        replies: [
+          {
+            author: modShujaat._id,
+            content: "Great reminder! Super helpful for final year students writing research reports.",
+            image: ""
+          }
+        ]
+      },
+      {
+        title: "Campus Canteen Food Quality & Healthy Meal Recommendations",
+        content: "What are your top recommended meals at the university canteen? Share your favorite healthy lunch options and fruit smoothies available on campus!",
+        category: "Campus Life",
+        tags: ["CanteenFeedback", "Community"],
+        author: studentAli._id,
+        image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80",
+        repliesCount: 1,
+        replies: [
+          {
+            author: studentHamza._id,
+            content: "The fresh fruit salad bowl at Savour Canteen is amazing!",
+            image: ""
+          }
+        ]
+      },
+      {
+        title: "Software Engineering Society Membership Drive 2026",
+        content: "The Software Engineering Society is inviting new members for the 2026 executive team! Domains include Web Dev, Event Management, Content Writing, and Design.",
+        category: "Tech Hub",
+        tags: ["SoftwareEngSociety", "Events"],
+        author: studentFatima._id,
+        image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=80",
+        repliesCount: 1,
+        replies: [
+          {
+            author: studentZoya._id,
+            content: "Form submitted! Looking forward to joining the design team.",
+            image: ""
+          }
+        ]
+      },
+      {
+        title: "How to Prepare for Technical Presentation & Slides Defense",
+        content: "Got an upcoming semester project presentation? Here are quick tips for structuring your slides: 1. Keep text minimal, 2. Focus on architecture diagrams, 3. Live demo > 20 slides.",
+        category: "Academics",
+        tags: ["Midterms", "Advice"],
+        author: modShujaat._id,
+        image: "",
+        repliesCount: 1,
+        replies: [
+          {
+            author: studentBilal._id,
+            content: "Spot on! Live demos always leave a great impression on evaluators.",
+            image: ""
+          }
+        ]
+      },
+      {
+        title: "Mobile App Development: Flutter vs React Native in 2026",
+        content: "Planning your next mobile app project? Let me know whether you prefer Flutter (Dart) or React Native (JS/TS) for cross-platform app performance.",
+        category: "Tech Hub",
+        tags: ["BSCS", "SoftwareEngSociety"],
+        author: studentHamza._id,
+        image: "",
+        repliesCount: 1,
+        replies: [
+          {
+            author: studentAli._id,
+            content: "React Native is super convenient if you already know React.js!",
+            image: ""
+          }
+        ]
+      }
+    ];
+
+    await Forum.insertMany(dummyForumThreads);
+    console.log("✅ 12 Rich Academic & University Forum Threads with replies seeded successfully!");
+
+    // --- PETITIONS SEEDING ---
+    const classStudentAhmad = await User.findOne({ email: "ahmad.bscs6a@campusconnect.com" });
+    const classStudentAyesha = await User.findOne({ email: "ayesha.bscs6a@campusconnect.com" });
+    const studentHamzaCS = await User.findOne({ email: "hamza@student.com" });
+
+    const dummyPetitions = [
+      {
+        title: "Extend FYP Proposal Submission Deadline for BSCS 6th Semester",
+        description: "We respectfully request a 1-week extension for submitting the Final Year Project (FYP) initial proposals due to overlapping midterm lab evaluations and project presentations.",
+        image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&auto=format&fit=crop&q=80",
+        creator: classStudentAhmad ? classStudentAhmad._id : studentHamzaCS._id,
+        level: "Class",
+        targetGroup: "BSCS-Computer Science-6-A",
+        signatures: classStudentAhmad ? [classStudentAhmad._id, classStudentAyesha._id] : [],
+        milestone: 15,
+        status: "Active",
+      },
+      {
+        title: "Request for Dedicated Hands-on MERN Stack Practice Lab Slot (BSCS-6A)",
+        description: "Our class requests a 2-hour supplementary lab slot every Thursday in Lab 3 to practice MERN stack deployment, Docker containerization, and API integrations.",
+        image: "",
+        creator: classStudentAyesha ? classStudentAyesha._id : studentHamzaCS._id,
+        level: "Class",
+        targetGroup: "BSCS-Computer Science-6-A",
+        signatures: classStudentAyesha ? [classStudentAyesha._id] : [],
+        milestone: 12,
+        status: "Active",
+      },
+      {
+        title: "Upgrade High-Performance GPU Workstations in Computer Science Labs",
+        description: "The Computer Science department labs require GPU accelerator upgrades (NVIDIA RTX series) to support deep learning, computer vision, and AI coursework for senior students.",
+        image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80",
+        creator: studentHamzaCS ? studentHamzaCS._id : classStudentAhmad._id,
+        level: "Department",
+        targetGroup: "Computer Science",
+        signatures: studentHamzaCS ? [studentHamzaCS._id] : [],
+        milestone: 50,
+        status: "Active",
+      },
+      {
+        title: "Install Solar Shuttle Charging Hubs & Eco-Friendly Campus Transit",
+        description: "Proposing zero-emission electric shuttle carts and solar power stations across university blocks to assist students and staff commuting between distant departments.",
+        image: "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=800&auto=format&fit=crop&q=80",
+        creator: studentHamzaCS ? studentHamzaCS._id : classStudentAhmad._id,
+        level: "Campus",
+        targetGroup: "Campus",
+        signatures: studentHamzaCS ? [studentHamzaCS._id] : [],
+        milestone: 100,
+        status: "Active",
+      },
+    ];
+
+    await Petition.insertMany(dummyPetitions);
+    console.log("✅ Class, Department, and Campus Petitions seeded successfully!");
 
     process.exit();
   } catch (error) {

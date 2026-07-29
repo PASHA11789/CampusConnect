@@ -55,26 +55,26 @@ export default function DiscussionReplyBubble({
   const showFallback = !reply.author?.avatar || reply.author?.avatar.includes('ui-avatars.com') || reply.author?.avatar.includes('name=');
 
   return (
-    <div className={`relative flex gap-2 py-1.5 px-2.5 rounded-lg animate-fade-in border transition-all duration-200 ease-out hover:-translate-y-[1px] hover:shadow-[0_3px_8px_rgba(0,0,0,0.05)] ${
+    <div className={`relative flex gap-2 py-1.5 px-3 rounded-xl animate-fade-in border transition-all duration-200 ease-out hover:shadow-xs ${
       isDropdownActive ? 'z-30' : 'z-10'
     } ${
       isChild
         ? 'w-full'
-        : isReplyOwner ? 'self-end ml-10 max-w-[85%] w-fit' : 'self-start mr-10 max-w-[85%] w-fit'
+        : isReplyOwner ? 'self-end max-w-[88%] w-fit' : 'self-start max-w-[88%] w-fit'
     } ${
       isFlagged 
-        ? 'bg-slate-50 border-slate-200 border-l-4 border-l-red-500 hover:border-slate-300' 
+        ? 'bg-slate-50 border-slate-200 border-l-4 border-l-red-500' 
         : isReplyOwner 
-          ? 'bg-[#1a5269] border-[#113e51] hover:border-[#0f3444]' 
-          : 'bg-white border-slate-200/70 hover:border-slate-300'
+          ? 'bg-[#071A35] text-white border-[#071A35]' 
+          : 'bg-white border-slate-200/80 text-slate-800'
     }`}>
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* REPLY CARD HEADER */}
         <div className="flex justify-between items-center mb-0.5">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <div
-              className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[9.5px] shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] shrink-0 overflow-hidden ${onAvatarClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+              className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[8.5px] shrink-0 overflow-hidden ${onAvatarClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
               style={showFallback ? { backgroundColor: avatarColor.bg, color: avatarColor.text } : {}}
               onClick={() => onAvatarClick && reply.author && onAvatarClick(typeof reply.author === 'object' ? reply.author._id : reply.author)}
             >
@@ -84,10 +84,10 @@ export default function DiscussionReplyBubble({
                 <img src={reply.author.avatar} alt={authorName} className="w-full h-full object-cover" />
               )}
             </div>
-            <div className={`flex items-center gap-1 text-[10.5px] ${metaColor} font-semibold`}>
-              <span className={`${nameColor} font-bold`}>{authorName}</span>
+            <div className={`flex items-center gap-1 text-[10px] ${metaColor} font-bold`}>
+              <span className={`${nameColor} font-extrabold`}>{authorName}</span>
               <span className={dotColor}>•</span>
-              <span className="font-medium">
+              <span className="font-medium text-[9.5px]">
                 {new Date(reply.createdAt).toLocaleDateString() === new Date().toLocaleDateString()
                   ? new Date(reply.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                   : new Date(reply.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })
@@ -214,6 +214,17 @@ export default function DiscussionReplyBubble({
                 <>
                   {isFlagged && <span className="inline-block text-[9.5px] font-extrabold text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded-full mb-1.5 uppercase">⚠️ {t('Flagged')}</span>}
                   <p className="whitespace-pre-wrap leading-relaxed">{reply.content}</p>
+
+                  {reply.image && (
+                    <div className="mt-2 rounded-xl overflow-hidden border border-slate-200/80 max-h-[220px] bg-slate-900/5 shadow-xs">
+                      <img 
+                        src={reply.image} 
+                        alt="Reply attachment" 
+                        className="w-full h-full object-cover max-h-[220px] hover:scale-[1.02] transition-transform duration-300"
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
+                    </div>
+                  )}
                 </>
               )}
 

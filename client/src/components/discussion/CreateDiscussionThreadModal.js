@@ -1,5 +1,31 @@
 import React, { useEffect } from "react";
 
+const processImageFile = (file, callback) => {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    const img = new Image();
+    img.src = evt.target.result;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+      const maxWidth = 1200;
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      callback(canvas.toDataURL("image/jpeg", 0.75));
+    };
+    img.onerror = () => callback(evt.target.result);
+  };
+  reader.readAsDataURL(file);
+};
+
 export default function CreateDiscussionThreadModal({
   isOpen,
   isEditing,
@@ -18,7 +44,9 @@ export default function CreateDiscussionThreadModal({
   setCategory = () => {},
   isAlumni = false,
   postImage = "",
-  setPostImage = () => {}
+  setPostImage = () => {},
+  tags = [],
+  setTags = () => {}
 }) {
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -217,6 +245,229 @@ export default function CreateDiscussionThreadModal({
                 required
               />
               <span className="text-[10px] text-[#211A24]/60 font-semibold ml-1">{t("Include any instructions, questions, or context needed.")}</span>
+            </div>
+
+            {/* Categorized Hashtags Selector */}
+            <div className="flex flex-col gap-2.5">
+              <label className="text-[11.5px] font-black text-[#071A35] tracking-wider uppercase ml-1 flex items-center justify-between">
+                <span>{t('Discussion Tags & Categories')}</span>
+                <span className="text-[10px] text-slate-400 font-bold lowercase">({t("select preset or type custom")})</span>
+              </label>
+
+              {/* Tag Preset Category Pills */}
+              <div className="flex flex-col gap-2 p-3 bg-[#FAF7F0] border border-[#E8E1D5] rounded-2xl">
+                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
+                  <span className="text-[10px] font-bold text-slate-400 shrink-0">🏛️ Depts:</span>
+                  {["BSCS", "BSSE", "BSIT", "BSDS", "BSCYBER"].map(tag => {
+                    const isSelected = (tags || []).includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setTags((tags || []).filter(t => t !== tag));
+                          } else {
+                            setTags([...(tags || []), tag]);
+                          }
+                        }}
+                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${
+                          isSelected
+                            ? "bg-[#071A35] text-white border-[#071A35]"
+                            : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
+                        }`}
+                      >
+                        #{tag}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
+                  <span className="text-[10px] font-bold text-slate-400 shrink-0">📚 Academic:</span>
+                  {["FYP", "Midterms", "Finals", "StudyGroup", "Assignments"].map(tag => {
+                    const isSelected = (tags || []).includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setTags((tags || []).filter(t => t !== tag));
+                          } else {
+                            setTags([...(tags || []), tag]);
+                          }
+                        }}
+                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${
+                          isSelected
+                            ? "bg-[#071A35] text-white border-[#071A35]"
+                            : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
+                        }`}
+                      >
+                        #{tag}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
+                  <span className="text-[10px] font-bold text-slate-400 shrink-0">👥 Societies:</span>
+                  {["DataScienceSociety", "CyberSecurityClub", "SoftwareEngSociety", "SportsClub"].map(tag => {
+                    const isSelected = (tags || []).includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setTags((tags || []).filter(t => t !== tag));
+                          } else {
+                            setTags([...(tags || []), tag]);
+                          }
+                        }}
+                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${
+                          isSelected
+                            ? "bg-[#071A35] text-white border-[#071A35]"
+                            : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
+                        }`}
+                      >
+                        #{tag}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+                  <span className="text-[10px] font-bold text-slate-400 shrink-0">⚡ Issues & General:</span>
+                  {["CampusWifi", "LibraryHours", "CanteenFeedback", "Advice", "Freshers"].map(tag => {
+                    const isSelected = (tags || []).includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setTags((tags || []).filter(t => t !== tag));
+                          } else {
+                            setTags([...(tags || []), tag]);
+                          }
+                        }}
+                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${
+                          isSelected
+                            ? "bg-[#071A35] text-white border-[#071A35]"
+                            : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
+                        }`}
+                      >
+                        #{tag}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Selected Tag Chips & Custom Tag Input */}
+              <div className="flex flex-wrap items-center gap-1.5 p-2 bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl min-h-[42px]">
+                {(tags || []).map((t, idx) => (
+                  <span key={idx} className="bg-[#071A35] text-white px-2.5 py-0.5 rounded-full text-[11px] font-extrabold flex items-center gap-1">
+                    #{t}
+                    <button
+                      type="button"
+                      onClick={() => setTags((tags || []).filter((_, i) => i !== idx))}
+                      className="hover:text-red-300 border-none bg-transparent cursor-pointer text-[10px]"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+                <input
+                  type="text"
+                  placeholder={t("Type custom tag & press Enter...")}
+                  className="bg-transparent border-none text-[12px] font-semibold text-[#071A35] outline-none flex-1 min-w-[140px] px-1 py-0.5"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ',') {
+                      e.preventDefault();
+                      const val = e.target.value.trim().replace(/^#/, '');
+                      if (val && !(tags || []).includes(val)) {
+                        setTags([...(tags || []), val]);
+                        e.target.value = '';
+                      }
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Optional Image Attachment (Drag & Drop + Select from Device + URL) */}
+            <div className="flex flex-col gap-2">
+              <label className="text-[11.5px] font-black text-[#071A35] tracking-wider uppercase ml-1">
+                {t('Optional Image Attachment')}
+              </label>
+
+              {postImage ? (
+                <div className="relative rounded-2xl overflow-hidden border-2 border-[#00c2cb] bg-slate-900/10 max-h-[220px] flex items-center justify-center group shadow-md">
+                  <img
+                    src={postImage}
+                    alt="Preview"
+                    className="w-full h-full object-cover max-h-[220px]"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPostImage("")}
+                    className="absolute top-3 right-3 bg-red-500 hover:bg-red-600 text-white rounded-full px-3 py-1 text-[11px] font-bold shadow-lg border-none cursor-pointer flex items-center gap-1 transition-transform hover:scale-105"
+                  >
+                    <span>✕</span> {t("Remove Photo")}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <div
+                    onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const file = e.dataTransfer?.files?.[0];
+                      if (file && file.type.startsWith("image/")) {
+                        processImageFile(file, setPostImage);
+                      }
+                    }}
+                    className="border-2 border-dashed border-[#E8E1D5] hover:border-[#00c2cb] bg-[#FAF7F0] rounded-2xl p-5 flex flex-col items-center justify-center text-center transition-all cursor-pointer group"
+                    onClick={() => {
+                      const input = document.getElementById("modal-file-input");
+                      if (input) input.click();
+                    }}
+                  >
+                    <input
+                      id="modal-file-input"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          processImageFile(file, setPostImage);
+                        }
+                      }}
+                    />
+                    <div className="w-10 h-10 rounded-full bg-[#00c2cb]/10 text-[#00c2cb] flex items-center justify-center text-lg mb-2 group-hover:scale-110 transition-transform">
+                      🖼️
+                    </div>
+                    <p className="text-[12.5px] font-bold text-[#071A35] m-0 mb-1">
+                      {t("Drag & Drop image here, or")} <span className="text-[#00c2cb] underline">{t("Browse Device")}</span>
+                    </p>
+                    <span className="text-[10px] text-[#211A24]/50 font-semibold">{t("Supports JPG, PNG, WEBP, GIF")}</span>
+                  </div>
+
+                  {/* Fallback URL Input */}
+                  <input
+                    type="url"
+                    placeholder={t("Or paste image URL (https://...)...")}
+                    className="w-full px-4 py-2.5 bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl text-[#071A35] font-semibold text-[11.5px] shadow-sm transition-all focus:outline-none focus:bg-white focus:border-[#00c2cb]"
+                    value={postImage}
+                    onChange={(e) => setPostImage(e.target.value)}
+                  />
+                </div>
+              )}
             </div>
           </div>
 

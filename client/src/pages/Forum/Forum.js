@@ -41,6 +41,40 @@ export default function Forum() {
   const [replyContent, setReplyContent] = useState("");
   const [isSubmittingThread, setIsSubmittingThread] = useState(false);
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+  const [newThreadImage, setNewThreadImage] = useState("");
+  const [replyImage, setReplyImage] = useState("");
+
+  // Tags & Live Search Suggestions State
+  const [newThreadTags, setNewThreadTags] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [isSearchingSuggestions, setIsSearchingSuggestions] = useState(false);
+  const [showSuggestionsDropdown, setShowSuggestionsDropdown] = useState(false);
+
+  // Debounced live search suggestions fetch
+  useEffect(() => {
+    if (!searchTerm || !searchTerm.trim()) {
+      setSuggestions([]);
+      setShowSuggestionsDropdown(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setIsSearchingSuggestions(true);
+        const token = sessionStorage.getItem("token");
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const { data } = await axios.get(`/api/forums/search?q=${encodeURIComponent(searchTerm)}`, config);
+        setSuggestions(data || []);
+        setShowSuggestionsDropdown(true);
+      } catch (err) {
+        console.error("Failed to fetch search suggestions:", err);
+      } finally {
+        setIsSearchingSuggestions(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // AI Moderation UI states
   const [toast, setToast] = useState(null);
@@ -122,9 +156,12 @@ export default function Forum() {
 
   // Dismiss dropdowns when clicking anywhere else
   useEffect(() => {
-    const handleDocumentClick = () => {
+    const handleDocumentClick = (e) => {
       if (activeDropdown.id !== null) {
         setActiveDropdown({ type: null, id: null });
+      }
+      if (!e.target.closest('.search-container')) {
+        setShowSuggestionsDropdown(false);
       }
     };
     document.addEventListener("click", handleDocumentClick);
@@ -291,6 +328,8 @@ export default function Forum() {
     setEditingThreadId(null);
     setNewThreadTitle("");
     setNewThreadContent("");
+    setNewThreadImage("");
+    setNewThreadTags([]);
   };
 
   const handleDeleteThread = async (threadId) => {
@@ -373,7 +412,9 @@ export default function Forum() {
       if (editingThreadId) {
         const { data } = await axios.put(`/api/forums/${editingThreadId}`, {
           title: newThreadTitle,
-          content: newThreadContent
+          content: newThreadContent,
+          image: newThreadImage,
+          tags: newThreadTags
         }, config);
 
         if (data.underReview) {
@@ -383,13 +424,13 @@ export default function Forum() {
           setThreads((prev) =>
             prev.map((t) =>
               t._id === editingThreadId
-                ? { ...t, title: newThreadTitle }
+                ? { ...t, title: newThreadTitle, image: newThreadImage, tags: newThreadTags }
                 : t
             )
           );
           setActiveThread((prev) => {
             if (prev && prev._id === editingThreadId) {
-              return { ...prev, title: newThreadTitle, content: newThreadContent };
+              return { ...prev, title: newThreadTitle, content: newThreadContent, image: newThreadImage, tags: newThreadTags };
             }
             return prev;
           });
@@ -398,7 +439,9 @@ export default function Forum() {
       } else {
         const { data } = await axios.post("/api/forums", {
           title: newThreadTitle,
-          content: newThreadContent
+          content: newThreadContent,
+          image: newThreadImage,
+          tags: newThreadTags
         }, config);
 
         if (data.underReview) {
@@ -418,6 +461,8 @@ export default function Forum() {
       setIsCreateOpen(false);
       setNewThreadTitle("");
       setNewThreadContent("");
+      setNewThreadImage("");
+      setNewThreadTags([]);
     } catch (error) {
       console.error("Error submitting thread:", error);
       alert(error.response?.data?.message || "Failed to submit discussion thread.");
@@ -435,6 +480,7 @@ export default function Forum() {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const { data } = await axios.post(`/api/forums/${activeThread._id}/replies`, {
         content: replyContent,
+        image: replyImage,
         parentId: replyingTo?.replyId || null
       }, config);
 
@@ -453,6 +499,7 @@ export default function Forum() {
       }
 
       setReplyContent("");
+      setReplyImage("");
       setReplyingTo(null);
     } catch (error) {
       console.error("Error adding reply:", error);
@@ -678,16 +725,20 @@ export default function Forum() {
         <div className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-6 max-w-full [&>*]:animate-fade-in">
           
           {/* Hero Banner (Matching Design Mockup) */}
-          <div className="bg-[#071A35] rounded-[1.5rem] p-6 sm:p-8 text-white border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex items-center justify-between gap-6 relative overflow-hidden">
+          <div className="bg-[#071A35] rounded-[1.5rem] p-5 sm:p-7 text-white border border-white/10 shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
+            {/* Background Glow Accents */}
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#00c2cb]/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#F5B82E]/15 rounded-full blur-2xl pointer-events-none" />
+
             <div className="flex flex-col text-left z-10">
-              <div className="bg-white/10 text-[#F5B82E] text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-3 border border-white/10">
+              <div className="bg-white/10 text-[#F5B82E] text-[10px] sm:text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-2.5 border border-white/10">
                 <span>✨</span>
                 <span>CAMPUS COMMUNITY</span>
               </div>
-              <h1 className="text-[24px] sm:text-[28px] font-black text-white leading-tight tracking-tight mb-2">
+              <h1 className="text-[22px] sm:text-[26px] font-black text-white leading-tight tracking-tight mb-1.5">
                 Campus Discussions
               </h1>
-              <p className="text-[12px] font-semibold text-white/70 max-w-[550px] leading-relaxed m-0">
+              <p className="text-[11.5px] sm:text-[12px] font-semibold text-white/70 max-w-[550px] leading-relaxed m-0">
                 Share what matters, find your people, and keep the campus conversation moving.
               </p>
             </div>
@@ -697,26 +748,95 @@ export default function Forum() {
                 setEditingThreadId(null);
                 setNewThreadTitle("");
                 setNewThreadContent("");
+                setNewThreadImage("");
                 setIsCreateOpen(true);
               }}
-              className="bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35] font-extrabold px-5 py-3 rounded-full text-[12.5px] transition-all cursor-pointer shadow-md flex items-center gap-2 shrink-0 z-10"
+              className="bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35] font-black px-5 py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center gap-2 shrink-0 z-10 hover:scale-105 active:scale-95 border-none"
             >
-              <span>+</span> Start a Discussion
+              <span>+</span> {t("Start a Discussion")}
             </button>
           </div>
 
           {/* Search & Category Filter Section */}
-          <div className="bg-white rounded-[1.5rem] border border-[#E8E1D5] p-4 flex flex-col gap-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
+          <div className="relative z-50 bg-white rounded-[1.5rem] border border-[#E8E1D5] p-4 flex flex-col gap-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
             {/* Search Input */}
-            <div className="relative flex items-center w-full">
+            <div className="search-container relative flex items-center w-full z-50">
               <span className="absolute left-4 text-slate-400 text-sm">🔍</span>
               <input
                 type="text"
                 placeholder={t("Search topics, tags, or peers...")}
-                className="bg-[#FAF7F0] border border-[#E8E1D5] rounded-full pl-10 pr-4 py-2.5 text-[12px] font-medium text-[#211A24] placeholder-[#211A24]/50 outline-none w-full shadow-inner focus:ring-2 focus:ring-[#2563EB]/20 transition-all"
+                className="bg-[#FAF7F0] border border-[#E8E1D5] rounded-full pl-10 pr-4 py-2.5 text-[12px] font-medium text-[#211A24] placeholder-[#211A24]/50 outline-none w-full shadow-inner focus:ring-2 focus:ring-[#071A35]/20 transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => { if (suggestions.length > 0) setShowSuggestionsDropdown(true); }}
               />
+
+              {/* Live Autocomplete Suggestions Dropdown */}
+              {showSuggestionsDropdown && (
+                <div className="absolute left-0 right-0 top-[108%] z-[9999] bg-white border border-[#E8E1D5] rounded-2xl shadow-[0_20px_50px_rgba(7,26,53,0.25)] overflow-hidden text-left animate-modal-fade-in p-2.5">
+                  <div className="flex justify-between items-center px-3 py-1.5 border-b border-slate-100 mb-1">
+                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                      💡 {isSearchingSuggestions ? t("Searching...") : t("Matching Discussions")}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowSuggestionsDropdown(false)}
+                      className="text-[10px] font-bold text-slate-400 hover:text-slate-600 bg-transparent border-none cursor-pointer"
+                    >
+                      ✕ {t("Close")}
+                    </button>
+                  </div>
+
+                  {suggestions.length > 0 ? (
+                    <div className="flex flex-col gap-1 max-h-[280px] overflow-y-auto scrollbar-none">
+                      {suggestions.map((item) => (
+                        <div
+                          key={item._id}
+                          onClick={() => {
+                            setShowSuggestionsDropdown(false);
+                            handleThreadClick(item._id);
+                            setMobileView("detail");
+                          }}
+                          className="p-2.5 rounded-xl hover:bg-[#FAF7F0] cursor-pointer transition-colors flex items-center justify-between gap-3 group"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <img
+                              src={item.author?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.author?.name || "Student")}&background=071A35&color=fff`}
+                              alt="Avatar"
+                              className="w-7 h-7 rounded-full object-cover border border-[#071A35]/10 shrink-0"
+                            />
+                            <div className="flex flex-col min-w-0">
+                              <h4 className="text-[12.5px] font-bold text-[#071A35] group-hover:text-[#00c2cb] transition-colors truncate m-0">
+                                {item.title}
+                              </h4>
+                              {item.tags && item.tags.length > 0 && (
+                                <div className="flex items-center gap-1 mt-0.5">
+                                  {item.tags.slice(0, 3).map((tg, i) => (
+                                    <span key={i} className="text-[9.5px] font-bold text-[#00c2cb] bg-[#00c2cb]/10 px-1.5 py-0.2 rounded">
+                                      #{tg}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                              💬 {item.repliesCount || 0}
+                            </span>
+                            <span className="text-[11px] text-slate-400 group-hover:text-[#071A35] font-bold">→</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-[11.5px] font-semibold text-slate-400">
+                      {t("No related discussions found")}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Category Filter Pills */}
@@ -741,7 +861,7 @@ export default function Forum() {
           </div>
 
           {/* ── SPLIT LAYOUT ── */}
-          <div className={`flex-1 ${selectedThreadId ? "grid grid-cols-[340px_1fr] gap-6" : "w-full"} rounded-2xl overflow-hidden min-h-[500px] max-[900px]:grid-cols-1`}>
+          <div className={`flex-1 ${selectedThreadId ? "grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 lg:h-[calc(100vh-250px)] lg:min-h-[550px] lg:max-h-[780px] max-lg:-mx-4 max-lg:w-[calc(100%+2rem)] max-lg:rounded-none" : "w-full"} rounded-2xl overflow-hidden`}>
             <ThreadListPane
               mobileView={mobileView}
               filteredThreads={paginatedThreads}
@@ -785,6 +905,7 @@ export default function Forum() {
                   setEditingThreadId(thread._id);
                   setNewThreadTitle(thread.title || "");
                   setNewThreadContent(thread.content || "");
+                  setNewThreadImage(thread.image || "");
                   setIsCreateOpen(true);
                 }}
                 onDeleteThread={handleDeleteThread}
@@ -794,10 +915,13 @@ export default function Forum() {
                 t={t}
                 replyingTo={replyingTo}
                 setReplyingTo={setReplyingTo}
+                replyImage={replyImage}
+                setReplyImage={setReplyImage}
                 onClose={() => {
                   setSelectedThreadId(null);
                   setActiveThread(null);
                   setReplyingTo(null);
+                  setReplyImage("");
                   if (location.state?.threadId) {
                     navigate(location.pathname, { replace: true, state: {} });
                   }
@@ -823,6 +947,10 @@ export default function Forum() {
         setTitle={setNewThreadTitle}
         content={newThreadContent}
         setContent={setNewThreadContent}
+        postImage={newThreadImage}
+        setPostImage={setNewThreadImage}
+        tags={newThreadTags}
+        setTags={setNewThreadTags}
         onSubmit={handleCreateThreadSubmit}
         onCancel={handleCancelModal}
         isSubmitting={isSubmittingThread}

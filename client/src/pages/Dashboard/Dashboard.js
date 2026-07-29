@@ -86,7 +86,7 @@ export default function Dashboard() {
         const serverPetitions = data.petitions || [];
         const localPetitions = JSON.parse(localStorage.getItem("my_created_petitions") || "[]");
         const filteredLocal = localPetitions.filter(lp => !serverPetitions.some(sp => sp._id === lp._id));
-        const mergedPetitions = [...filteredLocal, ...serverPetitions].slice(0, 3);
+        const mergedPetitions = [...filteredLocal, ...serverPetitions].slice(0, 5);
         setDashboardData({
           ...data,
           petitions: mergedPetitions
@@ -123,10 +123,10 @@ export default function Dashboard() {
             const exists = prevData.petitions.some((p) => p._id === newPetition._id);
             if (exists) return prevData;
 
-            // Prepend new petition and limit to 3 active petitions maximum
+            // Prepend new petition and limit to 5 active petitions maximum
             return {
               ...prevData,
-              petitions: [newPetition, ...prevData.petitions].slice(0, 3)
+              petitions: [newPetition, ...prevData.petitions].slice(0, 5)
             };
           });
         }
@@ -293,9 +293,9 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#FAF7F0] font-sans text-[#211A24] animate-fade-in">
-      <Sidebar 
-        isOpen={isMobileSidebarOpen} 
-        onClose={() => setIsMobileSidebarOpen(false)} 
+      <Sidebar
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
       />
 
       <main className="flex-1 flex flex-col h-full min-w-0 overflow-y-auto overflow-x-hidden">
@@ -310,7 +310,7 @@ export default function Dashboard() {
         />
 
         <div className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-5 sm:gap-6 max-w-full [&>*]:animate-fade-in">
-          
+
           {/* Welcome Hero Banner */}
           <div className="bg-white rounded-[1.5rem] p-5 sm:p-7 border border-[#E8E1D5] shadow-[0_10px_35px_rgba(7,26,53,0.05)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6">
             <div className="flex flex-col text-left">

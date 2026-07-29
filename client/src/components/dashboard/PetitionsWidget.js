@@ -25,22 +25,63 @@ export const PetitionsWidget = ({ petitions = [] }) => {
           const target = petition.milestone;
           const hasMilestone = target !== null && target !== undefined && target > 0;
           const progress = hasMilestone ? Math.min((sigsCount / target) * 100, 100) : 0;
+          const isClassLevel = petition.level === 'Class';
+          const isDeptLevel = petition.level === 'Department';
+
           return (
-            <div key={i} className="flex items-center gap-3 py-2.5 border-b border-white/10 last:border-b-0">
+            <div 
+              key={petition._id || i} 
+              className={`flex items-start gap-3 py-3 border-b border-white/10 last:border-b-0 transition-all rounded-xl p-2 my-1 ${
+                isClassLevel ? "bg-white/10 border-l-4 border-l-[#F5B82E] shadow-sm" : ""
+              }`}
+            >
               <div 
-                className="flex-1 cursor-pointer hover:opacity-80 transition-opacity"
+                className="flex-1 cursor-pointer hover:opacity-85 transition-opacity flex flex-col gap-1"
                 onClick={() => navigate(`/petitions?id=${petition._id}`)}
               >
-                <div className="text-[13px] font-bold text-white mb-1.5">{petition.title || 'Untitled'}</div>
+                {/* Hovering Scope Tag Badge */}
+                <div className="flex items-center gap-2 mb-0.5">
+                  {isClassLevel ? (
+                    <span className="px-2 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-[#F5B82E] text-[#071A35] shadow-xs flex items-center gap-1">
+                      <span>✨</span> CLASS PETITION
+                    </span>
+                  ) : isDeptLevel ? (
+                    <span className="px-2 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1">
+                      <span>🏢</span> DEPT PETITION
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-white/20 text-white/90 shadow-xs border border-white/20 flex items-center gap-1">
+                      <span>🎓</span> CAMPUS PETITION
+                    </span>
+                  )}
+                  {petition.targetGroup && (
+                    <span className="text-[9px] font-bold text-white/60 truncate max-w-[140px]">
+                      ({petition.targetGroup})
+                    </span>
+                  )}
+                </div>
+
+                <div className="text-[13px] font-bold text-white leading-snug line-clamp-1">
+                  {petition.title || 'Untitled'}
+                </div>
+
                 {hasMilestone ? (
-                  <>
-                    <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-[#F5B82E] to-[#FFD770] rounded-full shadow-sm" style={{ width: `${progress}%` }}></div>
+                  <div className="mt-1">
+                    <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full shadow-sm ${
+                          isClassLevel ? "bg-[#F5B82E]" : "bg-[#00c2cb]"
+                        }`} 
+                        style={{ width: `${progress}%` }}
+                      />
                     </div>
-                    <div className="text-[10px] text-white/70 font-semibold mt-1">{sigsCount} / {target} signatures</div>
-                  </>
+                    <div className="flex justify-between items-center text-[9.5px] text-white/70 font-semibold mt-1">
+                      <span>{sigsCount} / {target} signatures</span>
+                      <span className="font-bold text-white/90">{Math.round(progress)}%</span>
+                    </div>
+                  </div>
                 ) : (
-                  <div className="text-[10px] font-extrabold text-[#071A35] bg-[#F5B82E] w-fit px-2 py-0.5 rounded-full mt-1">
+                  <div className="text-[9.5px] font-extrabold text-[#071A35] bg-[#F5B82E] w-fit px-2 py-0.5 rounded-full mt-1">
                     {sigsCount} signatures (No Limit)
                   </div>
                 )}

@@ -6,17 +6,27 @@ import CareerThread from "../models/CareerThread.js";
 
 export const getDashboardSummary = async (req, res) => {
   try {
-    const [recentForums, activePetitions, recentLostFound, unreadNotifications, recentCareers] =
+    const classString = req.user ? `${req.user.program}-${req.user.department}-${req.user.semester}-${req.user.section}` : "";
+    let petitionQuery = { status: "Active", isHidden: false };
+    if (req.user && req.user.role === "student") {
+      petitionQuery.$or = [
+        { level: "Campus" },
+        { level: "Department", targetGroup: req.user.department },
+        { level: "Class", targetGroup: classString },
+        { creator: req.user._id },
+      ];
+    }
+
+    const [recentForums, activePetitionsRaw, recentLostFound, unreadNotifications, recentCareers] =
       await Promise.all([
         Forum.find()
           .sort({ createdAt: -1 })
           .limit(5)
           .populate("author", "registeration_number avatar")
           .select("title repliesCount createdAt author"),
-        Petition.find({ status: "Active" })
+        Petition.find(petitionQuery)
           .sort({ createdAt: -1 })
-          .limit(3)
-          .select("title signatures status milestone"),
+          .select("title description level targetGroup signatures status milestone createdAt"),
         LostFound.find({ status: "Open" })
           .sort({ createdAt: -1 })
           .limit(3)
@@ -30,6 +40,15 @@ export const getDashboardSummary = async (req, res) => {
           .populate("author", "name avatar role registeration_number")
           .select("title category replies createdAt author"),
       ]);
+
+    // Sort active petitions so Class-level petitions are positioned ON TOP
+    const activePetitions = [...activePetitionsRaw].sort((a, b) => {
+      const order = { Class: 1, Department: 2, Campus: 3 };
+      const weightA = order[a.level] || 4;
+      const weightB = order[b.level] || 4;
+      if (weightA !== weightB) return weightA - weightB;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    }).slice(0, 5);
     const notificationCounts = {
       forums: unreadNotifications.filter((n) => n.type === "FORUM").length,
       petitions: unreadNotifications.filter((n) => n.type === "PETITION")

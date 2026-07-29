@@ -10,14 +10,15 @@ import { getForumSummary,
          getForumThreadById,
          reportForumThread,
          reportThreadReply,
-         toggleHideThread
+         toggleHideThread,
+         searchForumSuggestions
 
      } from "../controller/forumController.js"
 import {protect} from "../middleware/authMiddleware.js"
 
-
-
 const router = express.Router()
+
+router.get('/search', protect, searchForumSuggestions);
 
 router.route('/')
   .get(protect, getForumSummary)

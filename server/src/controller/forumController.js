@@ -6,7 +6,7 @@ export const getForumSummary = async (_req, res) => {
     const threads = await Forum.find({ isHidden: false })
       .sort({ createdAt: -1 })
       .populate('author', 'registeration_number avatar name')
-      .select('title content image repliesCount createdAt author')
+      .select('title content image tags repliesCount createdAt author')
 
     res.status(200).json({
       success: true,
@@ -24,22 +24,30 @@ export const getForumSummary = async (_req, res) => {
 
 export const createForumThread = async (req, res) => {
   try {
-    const { title, content, image, postImage, isFlagged } = req.body
+    const { title, content, image, postImage, tags, isFlagged } = req.body
     if (!title || !content) return res.status(400).json({ message: 'Title and content are required' })
 
     const imageUrl = image || postImage || ""
+
+    let parsedTags = []
+    if (Array.isArray(tags)) {
+      parsedTags = tags.map(t => typeof t === 'string' ? t.trim() : String(t)).filter(Boolean)
+    } else if (typeof tags === 'string' && tags.trim()) {
+      parsedTags = tags.split(',').map(t => t.trim()).filter(Boolean)
+    }
 
     const newThread = await Forum.create({
       title,
       content,
       image: imageUrl,
+      tags: parsedTags,
       author: req.user._id,
       isHidden: isFlagged || false
     })
 
     const populatedThread = await Forum.findById(newThread._id)
       .populate('author', 'registeration_number avatar name')
-      .select("title content image repliesCount createdAt author")
+      .select("title content image tags repliesCount createdAt author")
 
     const io = req.app.get("socketio")
 
@@ -85,7 +93,7 @@ export const createForumThread = async (req, res) => {
 
 export const updateForumThread = async (req, res) => {
   try {
-    const { title, content, image, postImage, isFlagged } = req.body
+    const { title, content, image, postImage, tags, isFlagged } = req.body
     const thread = await Forum.findById(req.params.id)
 
     if (!thread) return res.status(404).json({ message: "Thread not found" })
@@ -97,6 +105,13 @@ export const updateForumThread = async (req, res) => {
     thread.content = content || thread.content
     const newImg = image !== undefined ? image : postImage
     if (newImg !== undefined) thread.image = newImg
+    if (tags !== undefined) {
+      if (Array.isArray(tags)) {
+        thread.tags = tags.map(t => typeof t === 'string' ? t.trim() : String(t)).filter(Boolean)
+      } else if (typeof tags === 'string') {
+        thread.tags = tags.split(',').map(t => t.trim()).filter(Boolean)
+      }
+    }
     thread.isHidden = isFlagged || false
     await thread.save()
 
@@ -438,5 +453,39 @@ export const reportThreadReply = async (req, res) => {
     res.status(200).json({ success: true, message: "Reply reported and sent to moderators." });
   } catch (error) {
     res.status(500).json({ message: "Server error reporting reply", error: error.message });
+  }
+};
+
+// @desc    Fast debounced autocomplete search suggestions for Forum
+// @route   GET /api/forums/search
+// @access  Protected / Public
+export const searchForumSuggestions = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || !q.trim()) {
+      return res.json([]);
+    }
+
+    const query = q.trim();
+    const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+
+    const suggestions = await Forum.find({
+      isHidden: { $ne: true },
+      $or: [
+        { title: regex },
+        { tags: regex },
+        { content: regex }
+      ]
+    })
+      .select('title tags image repliesCount author createdAt')
+      .populate('author', 'name avatar registeration_number')
+      .sort({ createdAt: -1 })
+      .limit(6)
+      .lean();
+
+    res.json(suggestions);
+  } catch (error) {
+    console.error('Error fetching search suggestions:', error);
+    res.status(500).json({ message: 'Failed to fetch search suggestions' });
   }
 }; 

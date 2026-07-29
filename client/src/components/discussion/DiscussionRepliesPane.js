@@ -2,6 +2,32 @@ import React from "react";
 import DiscussionReplyBubble from "./DiscussionReplyBubble";
 import { getInitials, getAvatarColor } from "../../utils/helpers";
 
+const processImageFile = (file, callback) => {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    const img = new Image();
+    img.src = evt.target.result;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+      const maxWidth = 1200;
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      callback(canvas.toDataURL("image/jpeg", 0.75));
+    };
+    img.onerror = () => callback(evt.target.result);
+  };
+  reader.readAsDataURL(file);
+};
+
 export default function DiscussionRepliesPane({
   mobileView,
   setMobileView,
@@ -36,10 +62,15 @@ export default function DiscussionRepliesPane({
   onAvatarClick,
   variant = "forum",
   
+  // Image attachment props (FB / IG comment style)
+  replyImage = "",
+  setReplyImage = () => {},
+
   // Career-specific action overrides
   onReportThread,
   onReportReply
 }) {
+  const [showImageInput, setShowImageInput] = React.useState(false);
   
   React.useEffect(() => {
     if (replyingTo && variant === "forum") {
@@ -339,7 +370,7 @@ export default function DiscussionRepliesPane({
   const showFallback = !activeThread?.author?.avatar || activeThread?.author?.avatar.includes('ui-avatars.com') || activeThread?.author?.avatar.includes('name=');
 
   return (
-    <div className={`flex-grow bg-white flex flex-col relative h-full border border-slate-200 rounded-2xl p-[22px] min-w-0 ${mobileView === "list" ? "max-lg:hidden" : ""}`}>
+    <div className={`w-full flex-grow bg-white flex flex-col relative h-full border border-slate-200 lg:rounded-2xl max-lg:rounded-none max-lg:border-x-0 p-3 sm:p-5 lg:p-6 min-w-0 ${mobileView === "list" ? "max-lg:hidden" : ""}`}>
       {/* Header Row */}
       <div className="flex items-center w-full mb-3 shrink-0">
         <button 
@@ -366,14 +397,14 @@ export default function DiscussionRepliesPane({
       </div>
 
       {isThreadLoading ? (
-        <div className="flex flex-col items-center justify-center py-10 gap-3.5 flex-1">
+        <div className="flex flex-col items-center justify-center py-10 gap-3.5 flex-1 w-full">
           <div className="w-8 h-8 border-3 border-slate-100 border-t-[#00c2cb] rounded-full animate-spin"></div>
           <p className="text-[13px] text-slate-500 font-medium">{t('Fetching discussion thread...')}</p>
         </div>
       ) : activeThread ? (
-        <div className="flex-1 flex flex-col h-full overflow-hidden text-left">
+        <div className="flex-1 flex flex-col h-full overflow-hidden text-left w-full">
           {/* MAIN DISCUSSION CARD */}
-          <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-4 mb-4 flex flex-col gap-3 relative shrink-0">
+          <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-3.5 sm:p-4 mb-3 flex flex-col gap-3 relative shrink-0 w-full">
             <div className="flex justify-between items-center">
               <div className="flex items-center">
                 <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${getCategoryTag(activeThread.title).class}`}>
@@ -469,7 +500,7 @@ export default function DiscussionRepliesPane({
           </div>
 
           {/* REPLIES LIST */}
-          <div className="max-h-[500px] overflow-y-auto p-4 rounded-xl bg-[#efeae2] border border-slate-200/60 scrollbar-none flex-1">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 rounded-xl bg-[#efeae2] border border-slate-200/60 scrollbar-none min-h-0 w-full">
             <div className="flex flex-col gap-3">
               <h5 className="text-[13.5px] font-extrabold text-[#0a2342] border-b border-slate-300/30 pb-2">
                 {t('Replies')} ({activeThread.replies ? activeThread.replies.filter(r => !r.isHidden).length : 0})
@@ -556,7 +587,7 @@ export default function DiscussionRepliesPane({
             </div>
           </div>
 
-          {/* Reply Form */}
+          {/* Reply Form (FB/IG Style Comment Section) */}
           <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 mt-4 shrink-0 relative">
             {replyingTo && (
               <div className="flex items-center justify-between bg-[#eef2ff] border border-[#c7d2fe] rounded-lg py-1 px-2.5 mb-2 animate-fade-in">
@@ -572,19 +603,126 @@ export default function DiscussionRepliesPane({
                 </button>
               </div>
             )}
-            <form onSubmit={onReplySubmit} className="flex gap-2">
-              <textarea
-                id="reply-textarea"
-                rows="1"
+
+            {/* Attached Image Thumbnail Preview Box */}
+            {replyImage && (
+              <div className="relative mb-2.5 w-fit group">
+                <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-[#00c2cb] shadow-md bg-slate-900/10">
+                  <img 
+                    src={replyImage} 
+                    alt="Attachment preview" 
+                    className="w-full h-full object-cover" 
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setReplyImage("")}
+                  className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-md border-none cursor-pointer transition-transform hover:scale-110"
+                  title="Remove Image"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* Optional Image Upload / Attachment Popup */}
+            {showImageInput && (
+              <div 
+                className="flex flex-col gap-2 mb-2 bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm animate-modal-slide-in"
+                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const file = e.dataTransfer?.files?.[0];
+                  if (file && file.type.startsWith("image/")) {
+                    processImageFile(file, (imgData) => {
+                      setReplyImage(imgData);
+                      setShowImageInput(false);
+                    });
+                  }
+                }}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold text-[#0a2342] flex items-center gap-1">
+                    <span>📷</span> {t("Attach Photo to Reply")}
+                  </span>
+                  <button
+                    type="button"
+                    className="text-slate-400 hover:text-slate-600 text-xs font-bold border-none bg-transparent cursor-pointer"
+                    onClick={() => setShowImageInput(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const input = document.getElementById("reply-file-input");
+                      if (input) input.click();
+                    }}
+                    className="bg-[#00c2cb] hover:bg-[#071A35] text-slate-950 hover:text-white border-none text-[11px] font-extrabold px-3 py-1.5 rounded-lg cursor-pointer transition-colors shrink-0 flex items-center gap-1 shadow-xs"
+                  >
+                    <span>📁</span> {t("Select from Device")}
+                  </button>
+
+                  <input
+                    id="reply-file-input"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        processImageFile(file, (imgData) => {
+                          setReplyImage(imgData);
+                          setShowImageInput(false);
+                        });
+                      }
+                    }}
+                  />
+
+                  <input
+                    type="url"
+                    placeholder={t("Or paste Image URL (https://...)...")}
+                    className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-[11px] font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#00c2cb]"
+                    value={replyImage}
+                    onChange={(e) => setReplyImage(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={onReplySubmit} className="flex items-center gap-2 w-full">
+              <input
+                id="reply-input"
+                type="text"
                 placeholder={replyingTo ? t("Write a reply to comment...") : t("Share your thoughts on this topic...")}
-                className="flex-grow bg-white border border-slate-200/80 rounded-lg py-2 px-3 text-[12px] font-medium text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/10 resize-none h-[38px] custom-scrollbar"
+                className="flex-grow bg-white border border-slate-200/90 rounded-xl py-2 px-3.5 text-[12px] font-semibold text-slate-800 placeholder-slate-400 outline-none focus:border-[#071A35] focus:ring-2 focus:ring-[#071A35]/10 h-[42px] transition-all shrink min-w-0"
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
                 required
               />
+
+              {/* Camera/Image Attachment Button (FB/IG Comment Style) */}
+              <button
+                type="button"
+                onClick={() => setShowImageInput(!showImageInput)}
+                className={`h-[42px] w-[42px] rounded-xl text-base border border-slate-200/90 transition-all cursor-pointer shrink-0 flex items-center justify-center ${
+                  replyImage || showImageInput
+                    ? "bg-[#00c2cb]/10 text-[#00c2cb] border-[#00c2cb]/40 font-bold"
+                    : "bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                }`}
+                title={t("Attach photo to reply")}
+              >
+                📷
+              </button>
+
               <button
                 type="submit"
-                className="bg-[#0a2342] text-white border-none py-1.5 px-4 rounded-lg text-[12px] font-black cursor-pointer transition-all duration-200 shrink-0 hover:bg-[#00c2cb] active:scale-95 flex items-center justify-center min-w-[70px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-[42px] bg-[#071A35] hover:bg-[#0A2246] text-white border-none py-1.5 px-5 rounded-xl text-[12px] font-black cursor-pointer transition-all duration-200 shrink-0 active:scale-95 flex items-center justify-center min-w-[75px] disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
                 disabled={isSubmittingReply || !replyContent.trim()}
               >
                 {isSubmittingReply ? (
