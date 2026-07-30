@@ -11,14 +11,13 @@ export default function DiscussionThreadListCard({
   getCategoryLabel = (s) => s
 }) {
   const authorName = post.author?.registeration_number || post.author?.name || t('Student');
-  
+
   if (variant === "career") {
     return (
       <div
         onClick={onClick}
-        className={`p-4 border-b border-slate-100 cursor-pointer transition-all hover:bg-slate-50 hover:border-l-[#071A35] text-left ${
-          isSelected ? "bg-slate-50 border-l-4 border-l-[#071A35]" : "border-l-4 border-l-transparent"
-        }`}
+        className={`p-4 border-b border-slate-100 cursor-pointer transition-all hover:bg-slate-50 hover:border-l-[#071A35] text-left ${isSelected ? "bg-slate-50 border-l-4 border-l-[#071A35]" : "border-l-4 border-l-transparent"
+          }`}
       >
         <div className="flex justify-between items-start mb-2">
           <span className="text-[10px] font-bold uppercase tracking-wider text-[#071A35] bg-[#071A35]/10 px-2 py-0.5 rounded-full">
@@ -61,14 +60,13 @@ export default function DiscussionThreadListCard({
 
   return (
     <div
-      className={`group bg-white border border-[#E8E1D5] rounded-2xl p-4 sm:p-4.5 cursor-pointer flex flex-col justify-between gap-3 transition-all duration-300 relative overflow-hidden shadow-[0_4px_16px_rgba(7,26,53,0.03)] hover:shadow-[0_10px_24px_rgba(7,26,53,0.08)] hover:-translate-y-1 hover:border-[#00c2cb]/40 ${
-        isSelected ? "bg-[#FAF7F0] !border-[#00c2cb] border-l-4 !border-l-[#00c2cb] shadow-md" : "border-l-4 border-l-transparent hover:border-l-[#00c2cb]"
-      }`}
+      className={`group bg-white border border-[#E8E1D5] rounded-2xl p-4 sm:p-4.5 cursor-pointer flex flex-col justify-between gap-3 transition-all duration-300 relative overflow-hidden shadow-[0_4px_16px_rgba(7,26,53,0.03)] hover:shadow-[0_10px_24px_rgba(7,26,53,0.08)] hover:-translate-y-1 hover:border-[#00c2cb]/40 ${isSelected ? "bg-[#FAF7F0] !border-[#00c2cb] border-l-4 !border-l-[#00c2cb] shadow-md" : "border-l-4 border-l-transparent hover:border-l-[#00c2cb]"
+        }`}
       onClick={onClick}
     >
       {/* Header: Author info & Category Badge */}
       <div className="flex items-center justify-between gap-2 text-left">
-        <div 
+        <div
           className="flex items-center gap-2 cursor-pointer group/avatar"
           onClick={(e) => {
             if (onAvatarClick && post.author) {
@@ -113,8 +111,8 @@ export default function DiscussionThreadListCard({
         {post.tags && post.tags.length > 0 && (
           <div className="flex flex-wrap items-center gap-1 mt-1">
             {post.tags.map((tag, idx) => (
-              <span 
-                key={idx} 
+              <span
+                key={idx}
                 className="text-[10px] font-bold text-[#00c2cb] bg-[#00c2cb]/10 hover:bg-[#00c2cb] hover:text-white px-2 py-0.5 rounded-md transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();

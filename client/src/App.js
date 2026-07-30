@@ -9,11 +9,9 @@ import Petitions from './pages/Petitions/Petitions';
 import ModerationRoom from './pages/Moderation/ModerationRoom';
 import LostFound from './pages/LostFound/LostFound';
 import Career from './pages/Career/Career';
-import VendorLogin from './pages/Canteen/VendorLogin';
+import PartnerLogin from './pages/Canteen/PartnerLogin';
+import PartnerRegister from './pages/Canteen/PartnerRegister';
 import VendorDashboard from './pages/Canteen/VendorDashboard';
-import VendorRegister from './pages/Canteen/VendorRegister';
-import RiderLogin from './pages/Canteen/RiderLogin';
-import RiderRegister from './pages/Canteen/RiderRegister';
 import RiderMarketplace from './pages/Canteen/RiderMarketplace';
 import BusRoutes from './pages/BusRoutes/BusRoutes';
 import UsersManager from './pages/Admin/UsersManager';
@@ -24,7 +22,7 @@ function App() {
   return (
     <Router>
       <DisciplinaryWarningModal />
-      <div className="App w-full h-full max-w-full overflow-hidden">
+      <div className="App w-full min-h-screen max-w-full overflow-y-auto overflow-x-hidden">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -33,11 +31,11 @@ function App() {
           <Route path="/forum" element={<Forum />} />
           <Route path="/canteen" element={<Canteen />} />
           {/* Rider Routes & Spelling Aliases */}
-          <Route path="/rider/login" element={<RiderLogin />} />
-          <Route path="/rider/register" element={<RiderRegister />} />
-          <Route path="/rider/rigerster" element={<RiderRegister />} />
-          <Route path="/rider/registar" element={<RiderRegister />} />
-          <Route path="/rider/regestir" element={<RiderRegister />} />
+          <Route path="/rider/login" element={<PartnerLogin />} />
+          <Route path="/rider/register" element={<PartnerRegister />} />
+          <Route path="/rider/rigerster" element={<PartnerRegister />} />
+          <Route path="/rider/registar" element={<PartnerRegister />} />
+          <Route path="/rider/regestir" element={<PartnerRegister />} />
           <Route path="/rider/dashboard" element={<RiderMarketplace />} />
           <Route path="/rider" element={<RiderMarketplace />} />
           <Route path="/petitions" element={<Petitions />} />
@@ -45,14 +43,14 @@ function App() {
           <Route path="/bus-routes" element={<BusRoutes />} />
           <Route path="/lost-found" element={<LostFound />} />
           <Route path="/career" element={<Career />} />
-          <Route path="/vendor/login" element={<VendorLogin />} />
-          <Route path="/vendor/register" element={<VendorRegister />} />
+          <Route path="/vendor/login" element={<PartnerLogin />} />
+          <Route path="/vendor/register" element={<PartnerRegister />} />
           <Route path="/vendor/dashboard" element={<VendorDashboard />} />
           <Route path="/vendor" element={<Navigate to="/vendor/dashboard" replace />} />
 
           {/* Alias support for common URL typos like /vender/* */}
-          <Route path="/vender/login" element={<VendorLogin />} />
-          <Route path="/vender/register" element={<VendorRegister />} />
+          <Route path="/vender/login" element={<PartnerLogin />} />
+          <Route path="/vender/register" element={<PartnerRegister />} />
           <Route path="/vender/dashboard" element={<VendorDashboard />} />
           <Route path="/vender" element={<Navigate to="/vendor/dashboard" replace />} />
 

@@ -10,7 +10,7 @@ export const LostFoundWidget = ({ items = [] }) => {
   const foundItems = items.filter(item => item.type?.toUpperCase() === 'FOUND').slice(0, 2);
 
   return (
-    <div className="w-full bg-white rounded-[1.5rem] border border-[#E8E1D5] p-5 flex flex-col font-sans justify-between shadow-[0_10px_35px_rgba(7,26,53,0.05)] h-[300px] min-h-[300px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(7,26,53,0.12)]">
+    <div className="w-full max-w-[480px] bg-white rounded-[1.5rem] border border-[#E8E1D5] p-5 flex flex-col font-sans justify-between shadow-[0_10px_35px_rgba(7,26,53,0.05)] h-[295px] min-h-[295px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(7,26,53,0.12)]">
       {/* Header */}
       <div className="flex justify-between items-center pb-2.5 border-b border-[#E8E1D5] mb-2">
         <div className="flex items-center gap-2.5">

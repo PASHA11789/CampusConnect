@@ -17,6 +17,8 @@ import PetitionsWidget from "../../components/dashboard/PetitionsWidget";
 import LostFoundWidget from "../../components/dashboard/LostFoundWidget";
 import BusRoutesWidget from "../../components/dashboard/BusRoutesWidget";
 
+import CampusQuickAccessGrid from "../../components/dashboard/CampusQuickAccessGrid";
+
 const t = (s) => s;
 
 export default function Dashboard() {
@@ -216,6 +218,7 @@ export default function Dashboard() {
     }
 
     return () => clearInterval(tick);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate, user?._id]);
 
   const handleThreadClick = (threadId) => {
@@ -322,7 +325,7 @@ export default function Dashboard() {
           onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
         />
 
-        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-5 sm:gap-6 max-w-full [&>*]:animate-fade-in">
+        <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-5 sm:gap-6 [&>*]:animate-fade-in">
 
           {/* Welcome Hero Banner */}
           <div className="bg-white rounded-[1.5rem] p-5 sm:p-7 border border-[#E8E1D5] shadow-[0_10px_35px_rgba(7,26,53,0.05)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6">
@@ -345,32 +348,41 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Student Card & Lost & Found Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-5 sm:gap-6 items-stretch">
+          {/* Mobile Dashboard View (md:hidden): Student Card at top + 8 Pastel Quick Access Widgets */}
+          <div className="flex flex-col gap-5 md:hidden">
             <StudentCard user={user} avatar={getPersonalizedAvatar(avatar)} />
-            <LostFoundWidget items={dashboardData.lostAndFound} />
+            <CampusQuickAccessGrid />
           </div>
 
-          {/* Canteen & Eateries Section */}
-          <CanteenWidget />
+          {/* Desktop Dashboard View (hidden md:flex): Full widgets layout */}
+          <div className="hidden md:flex flex-col gap-5 sm:gap-6">
+            {/* Student Card & Lost & Found Grid */}
+            <div className="grid grid-cols-1 xl:grid-cols-[1.15fr_1fr] gap-5 sm:gap-6 items-stretch">
+              <StudentCard user={user} avatar={getPersonalizedAvatar(avatar)} />
+              <LostFoundWidget items={dashboardData.lostAndFound} />
+            </div>
 
-          {/* Dedicated Wide Row for Student Forums & Active Petitions */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch">
-            <ForumsWidget
-              forums={dashboardData.forums}
-              onThreadClick={handleThreadClick}
-            />
+            {/* Canteen & Eateries Section */}
+            <CanteenWidget />
 
-            <PetitionsWidget petitions={dashboardData.petitions} />
-          </div>
+            {/* Dedicated Wide Row for Student Forums & Active Petitions */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch">
+              <ForumsWidget
+                forums={dashboardData.forums}
+                onThreadClick={handleThreadClick}
+              />
 
-          {/* Career & Alumni Hub + Bus Routes Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch mb-2">
-            <CareerPathExplorer
-              careers={dashboardData.careers}
-              onThreadClick={handleCareerThreadClick}
-            />
-            <BusRoutesWidget busRoutes={dashboardData.busRoutes} />
+              <PetitionsWidget petitions={dashboardData.petitions} />
+            </div>
+
+            {/* Career & Alumni Hub + Bus Routes Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch mb-2">
+              <CareerPathExplorer
+                careers={dashboardData.careers}
+                onThreadClick={handleCareerThreadClick}
+              />
+              <BusRoutesWidget busRoutes={dashboardData.busRoutes} />
+            </div>
           </div>
 
           {/* Footer */}

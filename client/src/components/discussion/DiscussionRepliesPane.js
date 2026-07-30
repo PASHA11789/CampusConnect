@@ -370,11 +370,11 @@ export default function DiscussionRepliesPane({
   const showFallback = !activeThread?.author?.avatar || activeThread?.author?.avatar.includes('ui-avatars.com') || activeThread?.author?.avatar.includes('name=');
 
   return (
-    <div className={`w-full flex-grow bg-white flex flex-col relative h-full border border-slate-200 lg:rounded-2xl max-lg:rounded-none max-lg:border-x-0 p-3 sm:p-5 lg:p-6 min-w-0 ${mobileView === "list" ? "max-lg:hidden" : ""}`}>
-      {/* Header Row */}
-      <div className="flex items-center w-full mb-3 shrink-0">
+    <div className={`w-full flex-grow bg-white flex flex-col relative h-full max-h-full min-h-0 overflow-hidden border border-slate-200 lg:rounded-2xl max-lg:rounded-none max-lg:border-x-0 p-3 sm:p-4 lg:p-4.5 min-w-0 ${mobileView === "list" ? "max-lg:hidden" : ""}`}>
+      {/* Mobile Back Button Row */}
+      <div className="lg:hidden flex items-center w-full mb-2 shrink-0">
         <button 
-          className="lg:hidden bg-[#071A35] hover:bg-[#0A2246] text-white text-[12px] font-black py-2 px-4 rounded-full cursor-pointer border-none shadow-sm transition-all flex items-center gap-1.5" 
+          className="bg-[#071A35] hover:bg-[#0A2246] text-white text-[11.5px] font-black py-1.5 px-3.5 rounded-full cursor-pointer border-none shadow-sm transition-all flex items-center gap-1.5" 
           onClick={() => {
             setMobileView("list");
             if (onClose) onClose();
@@ -382,18 +382,6 @@ export default function DiscussionRepliesPane({
         >
           ← {t("Back to list")}
         </button>
-        {onClose && (
-          <button 
-            type="button"
-            className="ml-auto bg-slate-100 hover:bg-red-50 hover:text-red-500 text-slate-500 w-8 h-8 rounded-full cursor-pointer flex items-center justify-center transition-all duration-200 border-none shadow-sm hover:shadow active:scale-95" 
-            onClick={onClose}
-            title={t("Close Discussion")}
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        )}
       </div>
 
       {isThreadLoading ? (
@@ -404,68 +392,83 @@ export default function DiscussionRepliesPane({
       ) : activeThread ? (
         <div className="flex-1 flex flex-col h-full overflow-hidden text-left w-full">
           {/* MAIN DISCUSSION CARD */}
-          <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-3.5 sm:p-4 mb-3 flex flex-col gap-3 relative shrink-0 w-full">
+          <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-3 sm:p-3.5 mb-2.5 flex flex-col gap-2.5 relative shrink-0 w-full">
             <div className="flex justify-between items-center">
               <div className="flex items-center">
-                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${getCategoryTag(activeThread.title).class}`}>
+                <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${getCategoryTag(activeThread.title).class}`}>
                   {getCategoryTag(activeThread.title).label}
                 </span>
               </div>
 
-              {/* Dropdown for main discussion card */}
-              <div className="relative">
-                <button
-                  type="button"
-                  className="bg-none border-none text-[16px] font-bold text-slate-400 cursor-pointer w-6 h-6 flex items-center justify-center rounded-full hover:bg-slate-200 hover:text-slate-700"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveDropdown(prev =>
-                      prev.id === activeThread._id ? { type: null, id: null } : { type: 'thread', id: activeThread._id }
-                    );
-                  }}
-                >
-                  ⋮
-                </button>
-                {isThreadDropdownActive && (
-                  <div className="absolute right-0 top-7 z-20">
-                    <div className="relative z-20 bg-white border border-slate-200 shadow-lg rounded-xl overflow-hidden py-1 w-[120px]">
-                      {isThreadOwner ? (
-                        <>
+              {/* Header Actions: 3-Dots Dropdown & Close Button */}
+              <div className="flex items-center gap-1">
+                <div className="relative">
+                  <button
+                    type="button"
+                    className="bg-none border-none text-[15px] font-bold text-slate-400 cursor-pointer w-6 h-6 flex items-center justify-center rounded-full hover:bg-slate-200 hover:text-slate-700 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveDropdown(prev =>
+                        prev.id === activeThread._id ? { type: null, id: null } : { type: 'thread', id: activeThread._id }
+                      );
+                    }}
+                  >
+                    ⋮
+                  </button>
+                  {isThreadDropdownActive && (
+                    <div className="absolute right-0 top-7 z-20">
+                      <div className="relative z-20 bg-white border border-slate-200 shadow-lg rounded-xl overflow-hidden py-1 w-[120px]">
+                        {isThreadOwner ? (
+                          <>
+                            <button
+                              type="button"
+                              className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-slate-50 text-slate-700"
+                              onClick={() => {
+                                setActiveDropdown({ type: null, id: null });
+                                onEditThread(activeThread);
+                              }}
+                            >
+                              ✏️ {t('Edit')}
+                            </button>
+                            <button
+                              type="button"
+                              className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-red-50 text-red-600"
+                              onClick={() => {
+                                setActiveDropdown({ type: null, id: null });
+                                onDeleteThread(activeThread._id);
+                              }}
+                            >
+                              🗑️ {t('Delete')}
+                            </button>
+                          </>
+                        ) : (
                           <button
                             type="button"
                             className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-slate-50 text-slate-700"
                             onClick={() => {
                               setActiveDropdown({ type: null, id: null });
-                              onEditThread(activeThread);
+                              onReportContent('thread', activeThread._id);
                             }}
                           >
-                            ✏️ {t('Edit')}
+                            🛡️ {t('Report')}
                           </button>
-                          <button
-                            type="button"
-                            className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-red-50 text-red-600"
-                            onClick={() => {
-                              setActiveDropdown({ type: null, id: null });
-                              onDeleteThread(activeThread._id);
-                            }}
-                          >
-                            🗑️ {t('Delete')}
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          type="button"
-                          className="w-full text-left bg-none border-none px-3.5 py-2 text-[12px] font-semibold cursor-pointer flex items-center gap-1.5 transition-all hover:bg-slate-50 text-slate-700"
-                          onClick={() => {
-                            setActiveDropdown({ type: null, id: null });
-                            onReportContent('thread', activeThread._id);
-                          }}
-                        >
-                          🛡️ {t('Report')}
-                        </button>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
+                </div>
+
+                {onClose && (
+                  <button 
+                    type="button"
+                    className="bg-slate-200/60 hover:bg-red-50 hover:text-red-500 text-slate-500 w-6 h-6 rounded-full cursor-pointer flex items-center justify-center transition-all duration-200 border-none shadow-2xs hover:shadow active:scale-95 ml-1" 
+                    onClick={onClose}
+                    title={t("Close Discussion")}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 )}
               </div>
             </div>
@@ -500,7 +503,7 @@ export default function DiscussionRepliesPane({
           </div>
 
           {/* REPLIES LIST */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-4 rounded-xl bg-[#efeae2] border border-slate-200/60 scrollbar-none min-h-0 w-full">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 rounded-xl bg-[#efeae2] border border-slate-200/60 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden min-h-0 w-full">
             <div className="flex flex-col gap-3">
               <h5 className="text-[13.5px] font-extrabold text-[#0a2342] border-b border-slate-300/30 pb-2">
                 {t('Replies')} ({activeThread.replies ? activeThread.replies.filter(r => !r.isHidden).length : 0})

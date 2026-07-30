@@ -871,7 +871,7 @@ export default function Forum() {
           </div>
 
           {/* ── SPLIT LAYOUT ── */}
-          <div className={`flex-1 ${selectedThreadId ? "grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 lg:h-[calc(100vh-250px)] lg:min-h-[550px] lg:max-h-[780px] max-lg:-mx-4 max-lg:w-[calc(100%+2rem)] max-lg:rounded-none" : "w-full"} rounded-2xl overflow-hidden`}>
+          <div className={`flex-1 ${selectedThreadId ? "grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 h-[calc(100vh-230px)] min-h-[480px] max-h-[720px] max-lg:-mx-4 max-lg:w-[calc(100%+2rem)] max-lg:rounded-none" : "w-full"} rounded-2xl overflow-hidden`}>
             <ThreadListPane
               mobileView={mobileView}
               filteredThreads={paginatedThreads}
