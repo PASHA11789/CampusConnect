@@ -75,7 +75,7 @@ const PublicProfileModal = ({ isOpen, onClose, userId, currentUser }) => {
 
 
 
-  const isDefaultAvatar = !profile?.avatar || profile.avatar.includes('ui-avatars.com');
+  const hasNoAvatar = !profile?.avatar;
 
   return createPortal(
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
@@ -176,7 +176,7 @@ const PublicProfileModal = ({ isOpen, onClose, userId, currentUser }) => {
             /* Profile View */
             <div className="flex flex-col items-center text-center gap-4">
               <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-[#00c2cb] to-[#0079c2] p-[3px] shadow-lg">
-                {isDefaultAvatar ? (
+                {hasNoAvatar ? (
                   <div className="w-full h-full rounded-full bg-[#0a2342] flex items-center justify-center text-[32px] font-black text-[#00c2cb] border-4 border-white">
                     {getInitials(profile?.displayName)}
                   </div>

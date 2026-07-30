@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { formatDate, SOCKET_URL } from "../../utils/helpers";
+import { formatDate, SOCKET_URL, getInitials } from "../../utils/helpers";
 import { io } from "socket.io-client";
 import { createPortal } from "react-dom";
 
@@ -28,7 +28,7 @@ export default function ModerationRoom() {
 
   // Moderation state
   const [activeTab, setActiveTab] = useState("forums");
-  const [queue, setQueue] = useState({ forums: [], petitions: [], lostFound: [], oldUnclaimed: [], profileReports: [] });
+  const [queue, setQueue] = useState({ forums: [], petitions: [], lostFound: [], oldUnclaimed: [], profileReports: [], complaints: [] });
   const [counts, setCounts] = useState({ forums: 0, petitions: 0, lostFound: 0, total: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState(null);
@@ -406,6 +406,23 @@ export default function ModerationRoom() {
     }
   };
 
+  // Moderate Complaint or Suggestion (Approve/Reject)
+  const handleModerateComplaint = async (complaintId, action) => {
+    setActioningId(complaintId);
+    try {
+      const token = getAuthToken();
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const { data } = await axios.put(`/api/moderation/complaint/${complaintId}/moderate`, { action }, config);
+      showToast(data.message || `Complaint ${action === "Approve" ? "resolved" : "dismissed"}.`, "success");
+      fetchQueue();
+    } catch (error) {
+      console.error("Failed to moderate complaint:", error);
+      showToast(error.response?.data?.message || "Failed to moderate complaint.", "error");
+    } finally {
+      setActioningId(null);
+    }
+  };
+
   if (!user) {
     return (
       <div className="flex items-center justify-center h-screen w-full max-w-full overflow-hidden flex-col gap-3.5 bg-[#FAF7F0]">
@@ -511,7 +528,7 @@ export default function ModerationRoom() {
           </div>
 
           {/* ── METRIC STAT CARDS ── */}
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
             <div className="bg-white rounded-2xl border border-[#E8E1D5] p-3.5 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#071A35]/10 text-[#071A35] flex items-center justify-center text-lg shrink-0">
                 🛡️
@@ -552,7 +569,7 @@ export default function ModerationRoom() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-[#E8E1D5] p-3.5 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3 col-span-2 lg:col-span-1">
+            <div className="bg-white rounded-2xl border border-[#E8E1D5] p-3.5 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center text-lg shrink-0">
                 👤
               </div>
@@ -561,11 +578,21 @@ export default function ModerationRoom() {
                 <span className="text-[10.5px] font-bold text-slate-500 mt-1 truncate">User Reports</span>
               </div>
             </div>
+
+            <div className="bg-white rounded-2xl border border-[#E8E1D5] p-3.5 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-lg shrink-0">
+                💡
+              </div>
+              <div className="flex flex-col text-left min-w-0">
+                <span className="text-[19px] font-black text-[#071A35] leading-none">{queue.complaints?.length || 0}</span>
+                <span className="text-[10.5px] font-bold text-slate-500 mt-1 truncate">Complaints &amp; Suggestions</span>
+              </div>
+            </div>
           </div>
 
           {/* ── CATEGORY TAB NAVIGATION BAR ── */}
           <div className="bg-white rounded-[1.5rem] border border-[#E8E1D5] p-2.5 sm:p-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 w-full">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 w-full">
               <button
                 onClick={() => setActiveTab("forums")}
                 className={`px-3 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5 border-none w-full ${activeTab === "forums"
@@ -624,7 +651,7 @@ export default function ModerationRoom() {
 
               <button
                 onClick={() => setActiveTab("profileReports")}
-                className={`px-3 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5 border-none w-full col-span-2 sm:col-span-1 ${activeTab === "profileReports"
+                className={`px-3 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5 border-none w-full ${activeTab === "profileReports"
                     ? "bg-[#00c2cb] text-[#071A35] shadow-sm scale-102"
                     : "bg-[#FAF7F0] text-slate-600 hover:bg-slate-200/60"
                   }`}
@@ -633,6 +660,20 @@ export default function ModerationRoom() {
                 <span className="truncate">User Reports</span>
                 <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 ${activeTab === "profileReports" ? "bg-[#071A35] text-[#00c2cb]" : "bg-slate-200 text-slate-700"}`}>
                   {queue.profileReports?.length || 0}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab("complaints")}
+                className={`px-2 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1 border-none w-full min-w-0 overflow-hidden ${activeTab === "complaints"
+                    ? "bg-[#00c2cb] text-[#071A35] shadow-sm scale-102"
+                    : "bg-[#FAF7F0] text-slate-600 hover:bg-slate-200/60"
+                  }`}
+              >
+                <span>💡</span>
+                <span className="truncate min-w-0">Complaints</span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 ${activeTab === "complaints" ? "bg-[#071A35] text-[#00c2cb]" : "bg-slate-200 text-slate-700"}`}>
+                  {queue.complaints?.length || 0}
                 </span>
               </button>
             </div>
@@ -1152,98 +1193,120 @@ export default function ModerationRoom() {
 
               {/* ──── TAB 5: PROFILE REPORTS ──── */}
               {activeTab === "profileReports" && (
-                <div className="flex flex-col gap-4">
-                  <h3 className="text-[14.5px] font-black text-[#071A35] uppercase tracking-wide flex items-center gap-2">
-                    👤 User Profile Violation Reports ({queue.profileReports?.length || 0})
-                  </h3>
+                <div className="flex flex-col gap-4 text-left">
+                  <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-[#E8E1D5] shadow-xs">
+                    <div>
+                      <h3 className="text-sm font-black text-[#071A35] m-0">User Profile Violation Reports</h3>
+                      <p className="text-[11.5px] text-slate-500 font-semibold m-0 mt-0.5">Inspect flagged avatars, issue disciplinary warnings, or dismiss report entries.</p>
+                    </div>
+                    <span className="bg-rose-100 text-rose-800 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
+                      {queue.profileReports?.length || 0} Reports
+                    </span>
+                  </div>
 
                   {queue.profileReports && queue.profileReports.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {queue.profileReports.map((report) => (
                         <div
                           key={report._id}
-                          className="bg-white border border-[#E8E1D5] rounded-2xl p-5 shadow-[0_4px_20px_rgba(7,26,53,0.03)] flex flex-col justify-between gap-4 text-left hover:border-[#00c2cb] transition-all"
+                          className="bg-white rounded-[1.5rem] border border-[#E8E1D5] p-5 shadow-xs flex flex-col justify-between gap-4 text-left hover:border-[#00c2cb] transition-all max-w-full min-w-0 overflow-hidden"
                         >
-                          <div className="flex flex-col gap-3">
-                            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                              <div className="flex items-center gap-3">
-                                <img
-                                  src={report.targetUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(report.targetUser?.name || "User")}&background=random`}
-                                  alt="Target Avatar"
-                                  className="w-12 h-12 rounded-full object-cover border-2 border-rose-200 shrink-0"
-                                />
-                                <div className="flex flex-col min-w-0">
-                                  <h4 className="text-[14.5px] font-black text-[#071A35] leading-snug truncate">
-                                    {report.targetUser?.name || "Student User"}
-                                  </h4>
-                                  <span className="text-[11px] font-bold text-slate-400 truncate">
-                                    Target ID: {report.targetUser?._id}
-                                  </span>
-                                </div>
+                          <div className="flex flex-col gap-3 min-w-0">
+                            {/* Top Header Badges & Date */}
+                            <div className="flex items-center justify-between gap-2 flex-wrap min-w-0">
+                              <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                                <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-rose-100 text-rose-700 shrink-0">
+                                  🚨 Profile Report
+                                </span>
+                                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 max-w-full truncate">
+                                  {report.reason || "Guidelines Violation"}
+                                </span>
                               </div>
-                              <span className="px-2.5 py-1 rounded-full bg-rose-50 text-rose-600 border border-rose-200 text-[10.5px] font-black uppercase shrink-0">
-                                {report.reason}
-                              </span>
+                              <span className="text-[11px] text-slate-400 font-semibold shrink-0">{formatDate(report.createdAt)}</span>
                             </div>
 
-                            <div className="bg-[#FAF7F0] p-3.5 rounded-xl border border-[#E8E1D5]/70 space-y-1">
-                              <div className="text-[10.5px] font-black text-slate-400 uppercase tracking-wider">Report Context</div>
-                              <p className="text-[12.5px] font-semibold text-slate-700 leading-relaxed m-0">
-                                {report.details || "No additional context provided."}
-                              </p>
-                              {report.reportedBy && (
-                                <div className="text-[11px] font-bold text-slate-400 pt-1 flex items-center justify-between">
-                                  <span>Reported by: <strong className="text-[#071A35]">{report.reportedBy.name || "Student"}</strong></span>
-                                  {report.reportedBy._id && (
-                                    <button
-                                      onClick={() => setProfileModalUserId(report.reportedBy._id)}
-                                      className="text-[#00a8b5] hover:underline font-extrabold cursor-pointer border-none bg-none p-0"
-                                    >
-                                      🔍 Reporter Profile
-                                    </button>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                            <div className="flex flex-col gap-2 pt-2">
+                            {/* Target User Info Row */}
+                            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100 min-w-0">
+                              <img
+                                src={report.targetUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(report.targetUser?.name || "User")}&background=random`}
+                                alt="Target Avatar"
+                                className="w-10 h-10 rounded-full object-cover border-2 border-rose-200 shrink-0"
+                              />
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <h4 className="text-[14px] font-black text-[#071A35] m-0 leading-tight truncate">
+                                  {report.targetUser?.name || "Student User"}
+                                </h4>
+                                <span className="text-[11px] font-bold text-slate-400 truncate">
+                                  {report.targetUser?.registeration_number ? `Reg: ${report.targetUser.registeration_number}` : `ID: ${report.targetUser?._id}`}
+                                </span>
+                              </div>
                               {report.targetUser?._id && (
                                 <button
                                   onClick={() => setProfileModalUserId(report.targetUser._id)}
-                                  className="w-full py-2 bg-[#071A35] hover:bg-[#00c2cb] hover:text-[#071A35] text-white rounded-xl text-[11.5px] font-black tracking-wider uppercase transition-all shadow-sm border-none cursor-pointer flex items-center justify-center gap-1.5"
+                                  className="text-[11px] font-extrabold text-[#071A35] hover:text-[#00c2cb] bg-white border border-[#E8E1D5] px-3 py-1.5 rounded-xl cursor-pointer shadow-2xs transition-colors shrink-0"
                                 >
-                                  👤 Visit &amp; Inspect Target User Profile
+                                  👤 Profile
                                 </button>
                               )}
-
-                              {report.targetUser?._id && (
-                                <button
-                                  onClick={() => handleSanitizeAndWarnUser(report.targetUser._id, report._id)}
-                                  disabled={actioningId === report._id}
-                                  className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-[11.5px] font-black tracking-wider uppercase transition-all shadow-md border-none cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
-                                >
-                                  🚨 Reset Obscene Photo &amp; Send Warning Card
-                                </button>
-                              )}
-
-                              <div className="flex gap-2.5 pt-1">
-                                <button
-                                  onClick={() => handleModerateProfileReport(report._id, "Approve")}
-                                  disabled={actioningId === report._id}
-                                  className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-[11.5px] font-black tracking-wider uppercase transition-all shadow-sm border-none cursor-pointer disabled:opacity-50"
-                                >
-                                  ✅ Resolve Violation
-                                </button>
-                                <button
-                                  onClick={() => handleModerateProfileReport(report._id, "Reject")}
-                                  disabled={actioningId === report._id}
-                                  className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11.5px] font-bold transition-all disabled:opacity-50 cursor-pointer border-none"
-                                >
-                                  Dismiss
-                                </button>
-                              </div>
                             </div>
+
+                            {/* Report Context Box */}
+                            <div className="bg-[#FAF7F0] p-3.5 rounded-2xl border border-[#E8E1D5]/70 flex flex-col gap-1 min-w-0">
+                              <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Report Details</div>
+                              <p className="text-[12.5px] font-semibold text-slate-700 leading-relaxed m-0 break-words">
+                                {report.details || "No additional context provided."}
+                              </p>
+                            </div>
+
+                            {/* Reporter Footer Row */}
+                            {report.reportedBy && (
+                              <div className="pt-2 border-t border-slate-100 flex items-center justify-between min-w-0 gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <div className="w-6 h-6 rounded-full bg-[#071A35] text-[#00c2cb] flex items-center justify-center font-black text-[10px] shrink-0">
+                                    {getInitials(report.reportedBy.name || "R")}
+                                  </div>
+                                  <span className="text-[11px] font-bold text-slate-500 truncate">
+                                    Reported by: <strong className="text-[#071A35]">{report.reportedBy.name || "Student"}</strong>
+                                  </span>
+                                </div>
+                                {report.reportedBy._id && (
+                                  <button
+                                    onClick={() => setProfileModalUserId(report.reportedBy._id)}
+                                    className="text-[10.5px] font-bold text-[#00a8b5] hover:underline border-none bg-transparent p-0 cursor-pointer shrink-0"
+                                  >
+                                    🔍 Reporter Profile
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Action Buttons Row */}
+                          <div className="flex items-center gap-2 pt-3 border-t border-[#E8E1D5]/60 flex-wrap sm:flex-nowrap">
+                            {report.targetUser?._id && (
+                              <button
+                                onClick={() => handleSanitizeAndWarnUser(report.targetUser._id, report._id)}
+                                disabled={actioningId === report._id}
+                                className="flex-1 py-2 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-[11px] font-black uppercase tracking-wider transition-all disabled:opacity-50 border-none cursor-pointer text-center whitespace-nowrap"
+                              >
+                                🚨 Reset &amp; Warn
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleModerateProfileReport(report._id, "Approve")}
+                              disabled={actioningId === report._id}
+                              className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-black uppercase tracking-wider transition-all disabled:opacity-50 border-none cursor-pointer text-center whitespace-nowrap"
+                            >
+                              ✅ Resolve
+                            </button>
+                            <button
+                              onClick={() => handleModerateProfileReport(report._id, "Reject")}
+                              disabled={actioningId === report._id}
+                              className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold transition-all disabled:opacity-50 border-none cursor-pointer text-center shrink-0"
+                            >
+                              Dismiss
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1251,6 +1314,128 @@ export default function ModerationRoom() {
                     <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-12 text-center text-slate-400 font-bold shadow-xs flex flex-col items-center gap-2">
                       <span className="text-3xl">🛡️</span>
                       <span>No pending user profile violation reports.</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ──── TAB 6: SUGGESTIONS & COMPLAINTS ──── */}
+              {activeTab === "complaints" && (
+                <div className="flex flex-col gap-4 text-left">
+                  <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-[#E8E1D5] shadow-xs">
+                    <div>
+                      <h3 className="text-sm font-black text-[#071A35] m-0">Campus Suggestions &amp; Complaints Queue</h3>
+                      <p className="text-[11.5px] text-slate-500 font-semibold m-0 mt-0.5">Review, resolve, or dismiss user feedback submitted across the campus portal.</p>
+                    </div>
+                    <span className="bg-amber-100 text-amber-800 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
+                      {queue.complaints?.length || 0} Pending
+                    </span>
+                  </div>
+
+                  {queue.complaints && queue.complaints.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {queue.complaints.map((item) => (
+                        <div key={item._id} className="bg-white rounded-[1.5rem] border border-[#E8E1D5] p-5 shadow-xs flex flex-col justify-between gap-4 max-w-full min-w-0 overflow-hidden">
+                          <div className="flex flex-col gap-3 min-w-0">
+                            <div className="flex items-center justify-between gap-2 flex-wrap min-w-0">
+                              <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                                <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shrink-0 ${
+                                  item.type === 'suggestion' ? 'bg-cyan-100 text-cyan-800' : 'bg-amber-100 text-amber-800'
+                                }`}>
+                                  {item.type === 'suggestion' ? '💡 Suggestion' : '⚠️ Complaint'}
+                                </span>
+                                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 max-w-full truncate">
+                                  {item.category || 'General'}
+                                </span>
+                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 ${
+                                  item.priority === 'Urgent' ? 'bg-red-100 text-red-700 animate-pulse' :
+                                  item.priority === 'High' ? 'bg-orange-100 text-orange-700' :
+                                  'bg-slate-100 text-slate-600'
+                                }`}>
+                                  {item.priority || 'Medium'} Priority
+                                </span>
+                              </div>
+                              <span className="text-[11px] text-slate-400 font-semibold shrink-0">{formatDate(item.createdAt)}</span>
+                            </div>
+
+                            <h4 className="text-[15px] font-black text-[#071A35] m-0 leading-snug break-words min-w-0 max-w-full">{item.title}</h4>
+                            <p className="text-[13px] font-medium text-slate-700 m-0 line-clamp-3 leading-relaxed break-words min-w-0 max-w-full">{item.description}</p>
+
+                            {item.targetDepartment && (
+                              <span className="text-[11.5px] font-extrabold text-[#00c2cb] bg-[#071A35]/5 px-3 py-1 rounded-xl w-fit max-w-full break-words min-w-0">
+                                🏢 Target Department: {item.targetDepartment}
+                              </span>
+                            )}
+
+                            {/* Submitter info */}
+                            <div className="pt-2 border-t border-slate-100 flex items-center justify-between min-w-0 gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="w-8 h-8 rounded-full bg-[#071A35] text-[#00c2cb] flex items-center justify-center font-black text-[11px] shrink-0 overflow-hidden border border-[#E8E1D5]">
+                                  {item.isAnonymous ? (
+                                    <span>👤</span>
+                                  ) : item.submittedBy?.avatar ? (
+                                    <img src={item.submittedBy.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                  ) : (
+                                    <span>{getInitials(item.submittedBy?.name || 'S')}</span>
+                                  )}
+                                </div>
+                                <div className="flex flex-col text-left min-w-0">
+                                  <span className="text-[11.5px] font-extrabold text-[#071A35] truncate">
+                                    {item.isAnonymous ? 'Anonymous Student' : (item.submittedBy?.name || 'Student User')}
+                                  </span>
+                                  {!item.isAnonymous && item.submittedBy?.registeration_number && (
+                                    <span className="text-[10px] font-semibold text-slate-400 truncate">{item.submittedBy.registeration_number}</span>
+                                  )}
+                                </div>
+                              </div>
+                              {!item.isAnonymous && item.submittedBy?._id && (
+                                <button
+                                  onClick={() => setProfileModalUserId(item.submittedBy._id)}
+                                  className="text-[10.5px] font-bold text-[#071A35] hover:text-[#00c2cb] bg-slate-100 px-2.5 py-1 rounded-lg border-none cursor-pointer shrink-0"
+                                >
+                                  👤 Profile
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-2 pt-3 border-t border-[#E8E1D5]/60">
+                            <button
+                              onClick={() => setInspectItem({
+                                type: item.type === 'suggestion' ? 'Suggestion' : 'Complaint',
+                                title: item.title,
+                                content: item.description,
+                                author: item.isAnonymous ? { name: 'Anonymous Student' } : item.submittedBy,
+                                createdAt: item.createdAt,
+                                id: item._id
+                              })}
+                              className="flex-1 py-2 px-3 bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer text-center"
+                            >
+                              👁️ Inspect
+                            </button>
+                            <button
+                              disabled={actioningId === item._id}
+                              onClick={() => handleModerateComplaint(item._id, "Approve")}
+                              className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-black uppercase tracking-wider transition-all disabled:opacity-50 border-none cursor-pointer text-center"
+                            >
+                              ✅ Resolve
+                            </button>
+                            <button
+                              disabled={actioningId === item._id}
+                              onClick={() => handleModerateComplaint(item._id, "Reject")}
+                              className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold transition-all disabled:opacity-50 border-none cursor-pointer text-center"
+                            >
+                              Dismiss
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-12 text-center text-slate-400 font-bold shadow-xs flex flex-col items-center gap-2">
+                      <span className="text-3xl">💡</span>
+                      <span>No pending campus suggestions or complaints.</span>
                     </div>
                   )}
                 </div>
@@ -1402,7 +1587,28 @@ export default function ModerationRoom() {
               )}
             </div>
 
-            <div className="px-6 py-4 bg-white border-t border-[#E8E1D5] flex justify-end gap-3">
+            <div className="px-6 py-4 bg-white border-t border-[#E8E1D5] flex justify-between items-center gap-3">
+              {inspectItem.id && (
+                <button
+                  onClick={() => {
+                    const targetId = inspectItem.threadId || inspectItem.id;
+                    const itemType = inspectItem.type;
+                    setInspectItem(null);
+                    if (itemType === 'petition') {
+                      navigate(`/petitions?id=${inspectItem.id}`);
+                    } else if (itemType === 'forum_thread' || itemType === 'Forum Comment') {
+                      navigate(`/forum?threadId=${targetId}`);
+                    } else if (itemType === 'career_thread' || itemType === 'Career Comment') {
+                      navigate(`/career?id=${targetId}`);
+                    } else if (itemType === 'Lost & Found') {
+                      navigate(`/lost-found?id=${inspectItem.id}`);
+                    }
+                  }}
+                  className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm border-none cursor-pointer flex items-center gap-1.5"
+                >
+                  🔗 Open &amp; Inspect Live on Page
+                </button>
+              )}
               <button
                 onClick={() => setInspectItem(null)}
                 className="bg-white border border-[#E8E1D5] text-[#071A35] px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#F3EEE4] transition-colors cursor-pointer"

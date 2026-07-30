@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { formatDate, SOCKET_URL } from "../../utils/helpers";
 import { io } from "socket.io-client";
@@ -21,6 +21,9 @@ const t = (s) => s;
 export default function Forum() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const queryTargetId = searchParams.get("threadId") || searchParams.get("id");
+
   const [user, setUser] = useState(null);
   const [avatar, setAvatar] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -33,7 +36,14 @@ export default function Forum() {
 
   // Modals state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [selectedThreadId, setSelectedThreadId] = useState(location.state?.threadId || null);
+  const [selectedThreadId, setSelectedThreadId] = useState(queryTargetId || location.state?.threadId || null);
+
+  useEffect(() => {
+    const targetId = searchParams.get("threadId") || searchParams.get("id") || location.state?.threadId;
+    if (targetId) {
+      setSelectedThreadId(targetId);
+    }
+  }, [searchParams, location]);
   const [activeThread, setActiveThread] = useState(null);
   const [isThreadLoading, setIsThreadLoading] = useState(false);
   const [newThreadTitle, setNewThreadTitle] = useState("");

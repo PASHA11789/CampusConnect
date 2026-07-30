@@ -319,7 +319,7 @@ export default function Petitions() {
         socket.disconnect();
       };
     }
-  }, [user, showToast]);
+  }, [user, showToast, checkHasAccess]);
 
   // Auto-open petition detail modal from redirect state
   useEffect(() => {

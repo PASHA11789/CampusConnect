@@ -4,6 +4,7 @@ import { io } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { getInitials, formatDate, SOCKET_URL } from '../../utils/helpers';
 import MyProfileModal from '../profile/MyProfileModal';
+import CreateComplaintModal from '../complaints/CreateComplaintModal';
 
 const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, onToggleSidebar }) => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [isMyProfileOpen, setIsMyProfileOpen] = useState(false);
+  const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
   const [filter, setFilter] = useState('all'); // 'all' or 'unread'
   const [subView, setSubView] = useState(null); // null, 'petitions', 'forums', 'others'
 
@@ -265,7 +267,26 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
         </button>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-5">
+      <div className="flex items-center gap-2.5 sm:gap-3.5">
+
+        {/* Suggestion & Complaint Button */}
+        <div className="group relative">
+          <button
+            onClick={() => setIsComplaintModalOpen(true)}
+            className="w-9 h-9 rounded-full bg-[#FAF7F0] hover:bg-[#F3EEE4] text-[#071A35] border border-[#E8E1D5] hover:border-[#00c2cb] transition-all duration-200 cursor-pointer shadow-sm hover:shadow active:scale-95 flex items-center justify-center"
+            title="Submit Suggestion or Complaint"
+          >
+            <svg className="w-4 h-4 text-[#071A35] group-hover:text-[#00c2cb] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              <line x1="9" y1="9" x2="15" y2="9" />
+              <line x1="9" y1="13" x2="13" y2="13" />
+            </svg>
+          </button>
+          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+            Submit Feedback
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
+          </div>
+        </div>
 
         {/* Notification Bell */}
         <div className="relative notification-bell-container flex items-center">
@@ -555,6 +576,11 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
             } catch (e) { }
           }
         }}
+      />
+      <CreateComplaintModal
+        isOpen={isComplaintModalOpen}
+        onClose={() => setIsComplaintModalOpen(false)}
+        user={user}
       />
     </header>
   );

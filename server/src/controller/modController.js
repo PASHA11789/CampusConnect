@@ -13,9 +13,8 @@ export const getModerationQueue = async (req, res) => {
       return res.status(403).json({ message: "Access denied. Mod Room is restricted." });
     }
 
-    let flaggedForums = [];
-    try {
-      flaggedForums = await Forum.find({
+    const results = await Promise.allSettled([
+      Forum.find({
         $or: [
           { isHidden: true },
           { "reportedBy.0": { $exists: true } },
@@ -27,14 +26,9 @@ export const getModerationQueue = async (req, res) => {
         .populate("replies.author", "name registeration_number avatar")
         .populate("reports.user", "name registeration_number avatar")
         .populate("replies.reports.user", "name registeration_number avatar")
-        .sort({ updatedAt: -1 });
-    } catch (e) {
-      console.error("Error fetching flaggedForums:", e);
-    }
+        .sort({ updatedAt: -1 }),
 
-    let flaggedCareers = [];
-    try {
-      flaggedCareers = await CareerThread.find({
+      CareerThread.find({
         $or: [
           { isHidden: true },
           { "reportedBy.0": { $exists: true } },
@@ -44,14 +38,9 @@ export const getModerationQueue = async (req, res) => {
       })
         .populate("author", "name registeration_number avatar")
         .populate("replies.author", "name registeration_number avatar")
-        .sort({ updatedAt: -1 });
-    } catch (e) {
-      console.error("Error fetching flaggedCareers:", e);
-    }
+        .sort({ updatedAt: -1 }),
 
-    let pendingPetitions = [];
-    try {
-      pendingPetitions = await Petition.find(
+      Petition.find(
         req.user.role === "student_mod"
           ? {
               status: "Pending Mod Approval",
@@ -63,58 +52,44 @@ export const getModerationQueue = async (req, res) => {
           : { status: "Pending Mod Approval" }
       )
         .populate("creator", "name registeration_number avatar")
-        .sort({ createdAt: 1 });
-    } catch (e) {
-      console.error("Error fetching pendingPetitions:", e);
-    }
+        .sort({ createdAt: 1 }),
 
-    let flaggedLostFound = [];
-    try {
-      flaggedLostFound = await LostFound.find({
+      LostFound.find({
         $or: [
           { isHidden: true },
           { "reportedBy.0": { $exists: true } },
         ],
       })
         .populate("reporter", "name registeration_number avatar")
-        .sort({ createdAt: -1 });
-    } catch (e) {
-      console.error("Error fetching flaggedLostFound:", e);
-    }
+        .sort({ createdAt: -1 }),
 
-    let oldUnclaimedLostFound = [];
-    try {
-      oldUnclaimedLostFound = await LostFound.find({
+      LostFound.find({
         status: { $in: ["Open", "At Office"] },
         createdAt: { $lt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) }
       })
         .populate("reporter", "name registeration_number avatar")
-        .sort({ createdAt: -1 });
-    } catch (e) {
-      console.error("Error fetching oldUnclaimedLostFound:", e);
-    }
+        .sort({ createdAt: -1 }),
 
-    let profileReports = [];
-    try {
-      const rawReports = await Report.find({ status: "Pending" })
+      Report.find({ status: "Pending" })
         .populate("reportedBy", "name registeration_number avatar")
         .populate("targetUser", "name registeration_number avatar email department program semester section role")
-        .sort({ createdAt: -1 });
-      profileReports = rawReports.filter((r) => r.targetUser != null);
-    } catch (e) {
-      console.error("Error fetching profileReports:", e);
-    }
+        .sort({ createdAt: -1 })
+        .then((rawReports) => rawReports.filter((r) => r.targetUser != null)),
 
-    let pendingComplaints = [];
-    try {
-      pendingComplaints = await Complaint.find({ status: { $in: ["Pending", "Under Review", "In Progress"] } })
+      Complaint.find({ status: { $in: ["Pending", "Under Review", "In Progress"] } })
         .populate("submittedBy", "name registeration_number avatar department role")
         .populate("adminResponse.respondedBy", "name avatar role")
         .populate("escalatedBy", "name avatar role")
-        .sort({ isEscalated: -1, createdAt: -1 });
-    } catch (e) {
-      console.error("Error fetching pendingComplaints:", e);
-    }
+        .sort({ isEscalated: -1, createdAt: -1 }),
+    ]);
+
+    const flaggedForums = results[0].status === "fulfilled" ? results[0].value : [];
+    const flaggedCareers = results[1].status === "fulfilled" ? results[1].value : [];
+    const pendingPetitions = results[2].status === "fulfilled" ? results[2].value : [];
+    const flaggedLostFound = results[3].status === "fulfilled" ? results[3].value : [];
+    const oldUnclaimedLostFound = results[4].status === "fulfilled" ? results[4].value : [];
+    const profileReports = results[5].status === "fulfilled" ? results[5].value : [];
+    const pendingComplaints = results[6].status === "fulfilled" ? results[6].value : [];
 
     const forumsCount = flaggedForums.length;
     const careersCount = flaggedCareers.length;

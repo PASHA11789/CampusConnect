@@ -41,10 +41,11 @@ export const getPublicProfile = async (req, res) => {
       ? `Student ${targetUser.registeration_number}` 
       : targetUser.name;
 
-    // A user can only see other people's custom images if that user has posted a public post or comment in Forum, Petition, or Career paths
+    // A user can only see other people's custom images if that user has posted a public post or comment in Forum, Petition, or Career paths (Mods/Admins can always see them)
+    const isStaffOrMod = req.user && (req.user.role === 'admin' || req.user.role === 'campus_admin' || req.user.role === 'student_mod');
     const targetHasPublicActivity = await checkUserHasPublicActivity(targetUser._id);
     const viewerHasPublicActivity = req.user ? await checkUserHasPublicActivity(req.user._id) : false;
-    const canSeeImages = targetHasPublicActivity || viewerHasPublicActivity;
+    const canSeeImages = isStaffOrMod || targetHasPublicActivity || viewerHasPublicActivity;
 
     const safeAvatar = canSeeImages 
       ? targetUser.avatar 
@@ -128,7 +129,8 @@ export const warnUser = async (req, res) => {
     }
 
     const { reason, details, sanitizeAvatar } = req.body;
-    const targetUser = await User.findById(req.params.userId);
+    const targetUserId = req.params.id || req.params.userId;
+    const targetUser = await User.findById(targetUserId);
     if (!targetUser) return res.status(404).json({ message: "User not found" });
 
     if (sanitizeAvatar) {
