@@ -13,7 +13,6 @@ export const getModerationQueue = async (req, res) => {
       return res.status(403).json({ message: "Access denied. Mod Room is restricted." });
     }
 
-<<<<<<< HEAD
     let flaggedForums = [];
     try {
       flaggedForums = await Forum.find({
@@ -26,27 +25,12 @@ export const getModerationQueue = async (req, res) => {
       })
         .populate("author", "name registeration_number avatar")
         .populate("replies.author", "name registeration_number avatar")
+        .populate("reports.user", "name registeration_number avatar")
+        .populate("replies.reports.user", "name registeration_number avatar")
         .sort({ updatedAt: -1 });
     } catch (e) {
       console.error("Error fetching flaggedForums:", e);
     }
-=======
-    const [flaggedForums, flaggedCareers, pendingPetitions, flaggedLostFound, oldUnclaimedLostFound, profileReports, unreadNotifications, pendingComplaints] =
-      await Promise.all([
-        Forum.find({
-          $or: [
-            { isHidden: true },
-            { "reportedBy.0": { $exists: true } },
-            { "replies.isHidden": true },
-            { "replies.reportedBy.0": { $exists: true } },
-          ],
-        })
-          .populate("author", "name registeration_number avatar")
-          .populate("replies.author", "name registeration_number avatar")
-          .populate("reports.user", "name registeration_number avatar")
-          .populate("replies.reports.user", "name registeration_number avatar")
-          .sort({ updatedAt: -1 }),
->>>>>>> 376e187aa63cf516b23175060340936246c348bd
 
     let flaggedCareers = [];
     try {
@@ -110,37 +94,27 @@ export const getModerationQueue = async (req, res) => {
       console.error("Error fetching oldUnclaimedLostFound:", e);
     }
 
-<<<<<<< HEAD
     let profileReports = [];
     try {
-      profileReports = await Report.find({ status: "Pending" })
+      const rawReports = await Report.find({ status: "Pending" })
         .populate("reportedBy", "name registeration_number avatar")
         .populate("targetUser", "name registeration_number avatar email department program semester section role")
         .sort({ createdAt: -1 });
+      profileReports = rawReports.filter((r) => r.targetUser != null);
     } catch (e) {
       console.error("Error fetching profileReports:", e);
     }
-=======
-        Report.find({ status: "Pending" })
-          .populate("reportedBy", "name registeration_number avatar")
-          .populate("targetUser", "name registeration_number avatar avatar email")
-          .sort({ createdAt: -1 }),
 
-        Notification.find({ recipient: req.user._id, isRead: false }).select("type"),
-
-        Complaint.find({ status: { $in: ["Pending", "Under Review", "In Progress"] } })
-          .populate("submittedBy", "name registeration_number avatar department role")
-          .populate("adminResponse.respondedBy", "name avatar role")
-          .populate("escalatedBy", "name avatar role")
-          .sort({ isEscalated: -1, createdAt: -1 }),
-      ]);
-
-    const notificationCounts = {
-      forums: unreadNotifications.filter((n) => n.type === "FORUM").length,
-      petitions: unreadNotifications.filter((n) => n.type === "PETITION").length,
-      updates: unreadNotifications.filter((n) => n.type === "ANNOUNCEMENT" || n.type === "GENERAL").length,
-    };
->>>>>>> 376e187aa63cf516b23175060340936246c348bd
+    let pendingComplaints = [];
+    try {
+      pendingComplaints = await Complaint.find({ status: { $in: ["Pending", "Under Review", "In Progress"] } })
+        .populate("submittedBy", "name registeration_number avatar department role")
+        .populate("adminResponse.respondedBy", "name avatar role")
+        .populate("escalatedBy", "name avatar role")
+        .sort({ isEscalated: -1, createdAt: -1 });
+    } catch (e) {
+      console.error("Error fetching pendingComplaints:", e);
+    }
 
     const forumsCount = flaggedForums.length;
     const careersCount = flaggedCareers.length;

@@ -8,6 +8,7 @@ import Restaurant from "./src/models/Restaurants.js";
 import Order from "./src/models/Order.js";
 import CareerThread from "./src/models/CareerThread.js";
 import LostFound from "./src/models/lostFound.js";
+import Report from "./src/models/Report.js";
 import connectDB from "./utils/db.js";
 import bcryptjs from "bcryptjs";
 
@@ -35,6 +36,8 @@ const seedUsers = async () => {
     console.log("previous career threads deleted");
     await LostFound.deleteMany();
     console.log("previous lost and found items deleted");
+    await Report.deleteMany();
+    console.log("previous profile reports deleted");
     
     const Salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash("password123", Salt);

@@ -85,12 +85,6 @@ export default function Petitions() {
   const [isPublicProfileOpen, setIsPublicProfileOpen] = useState(false);
   const [isMyProfileOpen, setIsMyProfileOpen] = useState(false);
 
-  // ── TOAST NOTIFICATION HELPER ──
-  const showToast = useCallback((message, type = 'info') => {
-    setToast({ message, type, id: Date.now() });
-    setTimeout(() => setToast(null), 5500);
-  }, []);
-
   const openPublicProfile = (userId) => {
     if (userId) {
       if (userId === user?._id) {
