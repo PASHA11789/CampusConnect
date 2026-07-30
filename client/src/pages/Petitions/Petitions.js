@@ -66,6 +66,13 @@ export default function Petitions() {
 
   // UI status states
   const [toast, setToast] = useState(null);
+
+  // ── TOAST NOTIFICATION HELPER ──
+  const showToast = useCallback((message, type = 'info') => {
+    setToast({ message, type, id: Date.now() });
+    setTimeout(() => setToast(null), 5500);
+  }, []);
+
   const [signingIds, setSigningIds] = useState(new Set());
   const [selectedPetition, setSelectedPetition] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -89,6 +96,19 @@ export default function Petitions() {
     }
   };
 
+  // Access check helper for client-side filtering
+  const checkHasAccess = useCallback((p, currentUser) => {
+    if (!currentUser || !p) return false;
+    if (currentUser.role === "admin" || currentUser.role === "campus_admin") return true;
+    const creatorId = p.creator?._id || p.creator;
+    if (creatorId && currentUser._id && creatorId.toString() === currentUser._id.toString()) return true;
+    if (p.level === "Campus") return true;
+    if (p.level === "Department" && p.targetGroup === currentUser.department) return true;
+    const classString = `${currentUser.program}-${currentUser.department}-${currentUser.semester}-${currentUser.section}`;
+    if (p.level === "Class" && p.targetGroup === classString) return true;
+    return false;
+  }, []);
+
   // Handle query parameter or state redirection for expansion/modal on mount/change
   useEffect(() => {
     const handleTargetPetition = async () => {
@@ -98,6 +118,11 @@ export default function Petitions() {
 
       const match = petitions.find((p) => p._id === targetId);
       if (match) {
+        if (!checkHasAccess(match, user)) {
+          setAccessDeniedMsg("Sorry, you are not authorized to view this petition");
+          setIsAccessDeniedOpen(true);
+          return;
+        }
         setSelectedPetition(match);
         setIsDetailOpen(true);
         if (location.state?.petitionId) {
@@ -116,12 +141,17 @@ export default function Petitions() {
           const config = { headers: { Authorization: `Bearer ${token}` } };
           const { data } = await axios.get(`/api/petitions/${targetId}`, config);
           if (data.success && data.petition) {
+            if (!checkHasAccess(data.petition, user)) {
+              setAccessDeniedMsg("Sorry, you are not authorized to view this petition");
+              setIsAccessDeniedOpen(true);
+              return;
+            }
             setSelectedPetition(data.petition);
             setIsDetailOpen(true);
           }
         } catch (err) {
           if (err.response?.status === 403 || err.response?.data?.forbidden) {
-            setAccessDeniedMsg(err.response?.data?.message || "You do not have permission to view this petition");
+            setAccessDeniedMsg(err.response?.data?.message || "Sorry, you are not authorized to view this petition");
             setIsAccessDeniedOpen(true);
           } else {
             showToast(err.response?.data?.message || "Petition not found or inaccessible", "error");
@@ -131,10 +161,15 @@ export default function Petitions() {
     };
 
     handleTargetPetition();
-  }, [searchParams, location, petitionsLoaded, petitions, navigate, showToast]);
+  }, [searchParams, location, petitionsLoaded, petitions, navigate, showToast, checkHasAccess, user]);
 
   // Click handler to open details in modal
   const handleCardClick = (petition) => {
+    if (!checkHasAccess(petition, user)) {
+      setAccessDeniedMsg("Sorry, you are not authorized to view this petition");
+      setIsAccessDeniedOpen(true);
+      return;
+    }
     setSelectedPetition(petition);
     setIsDetailOpen(true);
     navigate(`/petitions?id=${petition._id}`, { replace: true });
@@ -145,12 +180,6 @@ export default function Petitions() {
     setSelectedPetition(null);
     navigate(`/petitions`, { replace: true });
   };
-
-  // ── TOAST NOTIFICATION HELPER ──
-  const showToast = useCallback((message, type = 'info') => {
-    setToast({ message, type, id: Date.now() });
-    setTimeout(() => setToast(null), 5500);
-  }, []);
 
 
 
@@ -210,8 +239,9 @@ export default function Petitions() {
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const { data } = await axios.get("/api/petitions", config);
         const serverPetitions = data.petitions || [];
-        const localPetitions = JSON.parse(localStorage.getItem("my_created_petitions") || "[]");
-        const filteredLocal = localPetitions.filter(lp => !serverPetitions.some(sp => sp._id === lp._id));
+        const userStorageKey = user?._id ? `my_created_petitions_${user._id}` : "my_created_petitions";
+        const localPetitions = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
+        const filteredLocal = localPetitions.filter(lp => checkHasAccess(lp, user) && !serverPetitions.some(sp => sp._id === lp._id));
         setPetitions([...filteredLocal, ...serverPetitions]);
       } catch (error) {
         console.error("Error fetching petitions:", error);
@@ -242,7 +272,7 @@ export default function Petitions() {
       });
 
       socket.on("new_petition_published", (newPetition) => {
-        if (newPetition) {
+        if (newPetition && checkHasAccess(newPetition, user)) {
           setPetitions((prev) => {
             const existsIndex = prev.findIndex((p) => p._id === newPetition._id || (p._id?.startsWith("temp-") && p.title === newPetition.title));
             if (existsIndex !== -1) {
@@ -467,8 +497,9 @@ export default function Petitions() {
         createdAt: new Date().toISOString()
       };
 
-      const localPetitions = JSON.parse(localStorage.getItem("my_created_petitions") || "[]");
-      localStorage.setItem("my_created_petitions", JSON.stringify([created, ...localPetitions]));
+      const userStorageKey = user?._id ? `my_created_petitions_${user._id}` : "my_created_petitions";
+      const localPetitions = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
+      localStorage.setItem(userStorageKey, JSON.stringify([created, ...localPetitions]));
 
       if (data.underReview) {
         showToast("Your petition was flagged by AI moderation and sent for review.", "warning");

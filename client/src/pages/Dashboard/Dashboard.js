@@ -35,6 +35,18 @@ export default function Dashboard() {
     busRoutes: []
   });
 
+  const checkHasAccess = (p, currentUser) => {
+    if (!currentUser || !p) return false;
+    if (currentUser.role === "admin" || currentUser.role === "campus_admin") return true;
+    const creatorId = p.creator?._id || p.creator;
+    if (creatorId && currentUser._id && creatorId.toString() === currentUser._id.toString()) return true;
+    if (p.level === "Campus") return true;
+    if (p.level === "Department" && p.targetGroup === currentUser.department) return true;
+    const classString = `${currentUser.program}-${currentUser.department}-${currentUser.semester}-${currentUser.section}`;
+    if (p.level === "Class" && p.targetGroup === classString) return true;
+    return false;
+  };
+
   useEffect(() => {
     // Auth guard
     const token = sessionStorage.getItem("token");
@@ -79,13 +91,14 @@ export default function Dashboard() {
     const tick = setInterval(() => setTime(new Date()), 1000);
 
     // Fetch live dashboard data
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = async (currentUser) => {
       try {
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const { data } = await axios.get("/api/dashboard/summary", config);
-        const serverPetitions = data.petitions || [];
-        const localPetitions = JSON.parse(localStorage.getItem("my_created_petitions") || "[]");
-        const filteredLocal = localPetitions.filter(lp => !serverPetitions.some(sp => sp._id === lp._id));
+        const serverPetitions = (data.petitions || []).filter(sp => checkHasAccess(sp, currentUser));
+        const userStorageKey = currentUser?._id ? `my_created_petitions_${currentUser._id}` : "my_created_petitions";
+        const localPetitions = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
+        const filteredLocal = localPetitions.filter(lp => checkHasAccess(lp, currentUser) && !serverPetitions.some(sp => sp._id === lp._id));
         const mergedPetitions = [...filteredLocal, ...serverPetitions].slice(0, 5);
         setDashboardData({
           ...data,
@@ -96,7 +109,7 @@ export default function Dashboard() {
       }
     };
     if (user) {
-      fetchDashboardData();
+      fetchDashboardData(user);
 
       // Establish Socket.io connection for real-time updates
       const socket = io(SOCKET_URL);
@@ -118,7 +131,7 @@ export default function Dashboard() {
 
       socket.on("new_petition_published", (newPetition) => {
         console.log("⚡ New petition received via socket:", newPetition);
-        if (newPetition) {
+        if (newPetition && checkHasAccess(newPetition, user)) {
           setDashboardData((prevData) => {
             const exists = prevData.petitions.some((p) => p._id === newPetition._id);
             if (exists) return prevData;
