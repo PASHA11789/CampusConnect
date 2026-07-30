@@ -117,3 +117,59 @@ export const reportUserProfile = async (req, res) => {
     res.status(500).json({ message: "Error reporting user profile", error: error.message });
   }
 };
+
+// @desc    Issue a disciplinary warning & sanitize profile
+// @route   POST /api/users/:userId/warn
+// @access  Mod / Admin
+export const warnUser = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'campus_admin' && req.user.role !== 'student_mod') {
+      return res.status(403).json({ message: "Not authorized to issue warnings" });
+    }
+
+    const { reason, details, sanitizeAvatar } = req.body;
+    const targetUser = await User.findById(req.params.userId);
+    if (!targetUser) return res.status(404).json({ message: "User not found" });
+
+    if (sanitizeAvatar) {
+      targetUser.avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(targetUser.name)}&background=071A35&color=00c2cb`;
+    }
+
+    targetUser.activeWarning = {
+      hasWarning: true,
+      reason: reason || "Violation of Campus Guidelines",
+      details: details || "Your profile content/behavior was flagged as inappropriate by campus administration.",
+      issuedAt: new Date(),
+      issuedBy: req.user.name || "Campus Moderation Team",
+      acknowledged: false
+    };
+
+    await targetUser.save();
+
+    const io = req.app.get("socketio");
+    if (io) {
+      io.emit(`user_warned_${targetUser._id}`, targetUser.activeWarning);
+    }
+
+    res.json({ success: true, message: `Warning issued to ${targetUser.name}.`, user: targetUser });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to issue warning", error: error.message });
+  }
+};
+
+// @desc    Acknowledge active warning
+// @route   PUT /api/users/acknowledge-warning
+// @access  Protected
+export const acknowledgeWarning = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (user && user.activeWarning) {
+      user.activeWarning.acknowledged = true;
+      user.activeWarning.hasWarning = false;
+      await user.save();
+    }
+    res.json({ success: true, message: "Warning acknowledged." });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to acknowledge warning", error: error.message });
+  }
+};

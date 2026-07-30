@@ -26,7 +26,7 @@ export default function CanteenHero({
       {/* Hero Banner Card (Matching Forum & Career design) */}
       <div className="bg-[#071A35] rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-white border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative overflow-hidden">
         <div className="flex flex-col text-left z-10">
-          <div className="bg-white/10 text-[#F5B82E] text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-3 border border-white/10">
+          <div className="bg-white/10 text-[#00c2cb] text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-3 border border-white/10">
             <span>🍔</span>
             <span>{getGreeting()}, {user?.name || "Student"} 👏</span>
           </div>
@@ -42,7 +42,7 @@ export default function CanteenHero({
         <div className="relative shrink-0 self-start sm:self-center z-10 w-full sm:w-auto">
           <button
             onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
-            className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 sm:gap-2.5 rounded-full bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35] px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-black transition-all duration-200 cursor-pointer shadow-md border-none"
+            className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 sm:gap-2.5 rounded-full bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-black transition-all duration-200 cursor-pointer shadow-md border-none"
           >
             <div className="flex items-center gap-2 truncate">
               <svg

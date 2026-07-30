@@ -1,7 +1,7 @@
 import express from "express";
 import upload from "../../utils/cloudinaryConfig.js";
 import { protect } from "../middleware/authMiddleware.js";
-import { updateProfile, getPublicProfile,reportUserProfile } from "../controller/userController.js";
+import { updateProfile, getPublicProfile, reportUserProfile, warnUser, acknowledgeWarning } from "../controller/userController.js";
 
 const router = express.Router();
 
@@ -21,10 +21,16 @@ router.post("/upload-avatar", upload.single("avatar"), (req, res) => {
 router.route('/profile')
   .put(updateProfile);
 
+router.route('/acknowledge-warning')
+  .put(acknowledgeWarning);
+
 router.route('/:id/public')
   .get(getPublicProfile);
   
 router.route('/:id/report')
   .post(reportUserProfile);
+
+router.route('/:id/warn')
+  .post(warnUser);
 
 export default router;

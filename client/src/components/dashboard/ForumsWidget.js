@@ -14,7 +14,7 @@ export const ForumsWidget = ({ forums = [], onThreadClick }) => {
       return { label: "Tech Hub", class: "bg-sky-500/10 text-sky-600" };
     }
     if (lower.includes("canteen") || lower.includes("sports") || lower.includes("match") || lower.includes("play") || lower.includes("game")) {
-      return { label: "Campus Life", class: "bg-amber-500/10 text-amber-600" };
+      return { label: "Campus Life", class: "bg-cyan-500/10 text-cyan-600" };
     }
     if (lower.includes("help") || lower.includes("question") || lower.includes("how") || lower.includes("need")) {
       return { label: "Q & A", class: "bg-pink-500/10 text-pink-600" };
@@ -41,7 +41,7 @@ export const ForumsWidget = ({ forums = [], onThreadClick }) => {
           return (
             <div key={i} className="flex items-center gap-3 py-2.5 border-b border-[#E8E1D5]/60 cursor-pointer relative transition-all duration-200 ease-out hover:translate-x-1 [&:last-child]:border-b-0 group" onClick={() => onThreadClick && onThreadClick(post._id)}>
               <div className="relative w-9 h-9 shrink-0">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold shadow-sm border border-[#F5B82E]/30" style={{ background: 'linear-gradient(135deg, #071A35, #102A4A)', color: '#F5B82E' }}>
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold shadow-sm border border-[#00c2cb]/30" style={{ background: 'linear-gradient(135deg, #071A35, #102A4A)', color: '#00c2cb' }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
@@ -71,7 +71,7 @@ export const ForumsWidget = ({ forums = [], onThreadClick }) => {
       </div>
 
       {/* Bottom Button matching Screenshot #3 */}
-      <button 
+      <button
         onClick={() => navigate('/forum', { state: { openModal: true } })}
         className="mt-3 w-full bg-[#DCD9F7] hover:bg-[#D0CBF5] text-[#071A35] py-2.5 rounded-full text-[12px] font-extrabold transition-all border-none cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
       >

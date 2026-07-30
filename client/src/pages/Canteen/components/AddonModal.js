@@ -73,7 +73,7 @@ export default function AddonModal({
                           key={level}
                           onClick={() => update("spiceLevel", level)}
                           className={`rounded-xl px-4 py-2 text-xs font-black cursor-pointer transition-all border ${customizations.spiceLevel === level
-                            ? "bg-[#071A35] border-[#071A35] text-[#F5B82E] shadow-sm"
+                            ? "bg-[#071A35] border-[#071A35] text-[#00c2cb] shadow-sm"
                             : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
                             }`}
                         >
@@ -112,7 +112,7 @@ export default function AddonModal({
                           key={size}
                           onClick={() => update("portionSize", size)}
                           className={`rounded-xl px-4 py-2 text-xs font-black cursor-pointer transition-all border ${customizations.portionSize === size
-                            ? "bg-[#071A35] border-[#071A35] text-[#F5B82E] shadow-sm"
+                            ? "bg-[#071A35] border-[#071A35] text-[#00c2cb] shadow-sm"
                             : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
                             }`}
                         >
@@ -129,7 +129,7 @@ export default function AddonModal({
 
         <button
           onClick={handleConfirmCustomization}
-          className="mt-6 w-full rounded-2xl bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35] py-3.5 sm:py-4 text-xs sm:text-sm font-black uppercase tracking-wider cursor-pointer shadow-md hover:shadow-lg transition-all border-none active:scale-[0.99]"
+          className="mt-6 w-full rounded-2xl bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-3.5 sm:py-4 text-xs sm:text-sm font-black uppercase tracking-wider cursor-pointer shadow-md hover:shadow-lg transition-all border-none active:scale-[0.99]"
         >
           Add Customized Item
         </button>

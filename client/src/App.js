@@ -18,9 +18,12 @@ import RiderMarketplace from './pages/Canteen/RiderMarketplace';
 import BusRoutes from './pages/BusRoutes/BusRoutes';
 import UsersManager from './pages/Admin/UsersManager';
 import RestaurantsManager from './pages/Admin/RestaurantsManager';
+import DisciplinaryWarningModal from './components/common/DisciplinaryWarningModal';
+
 function App() {
   return (
     <Router>
+      <DisciplinaryWarningModal />
       <div className="App w-full h-full max-w-full overflow-hidden">
         <Routes>
           <Route path="/" element={<Home />} />

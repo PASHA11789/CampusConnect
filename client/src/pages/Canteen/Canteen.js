@@ -782,7 +782,7 @@ export default function Canteen() {
 
                       <div className="flex flex-col gap-1 sm:gap-1.5 min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                          <span className="text-[9px] sm:text-[10px] uppercase font-black text-[#F5B82E] bg-white/10 border border-white/10 px-2.5 py-0.5 rounded-full tracking-wider">
+                          <span className="text-[9px] sm:text-[10px] uppercase font-black text-[#00c2cb] bg-white/10 border border-white/10 px-2.5 py-0.5 rounded-full tracking-wider">
                             Selected Canteen
                           </span>
                           <span className="text-[10px] sm:text-[11px] font-bold text-white/70">
@@ -795,7 +795,7 @@ export default function Canteen() {
                         </h2>
 
                         <div className="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-xs font-semibold text-white/80 flex-wrap mt-0.5">
-                          <div className="flex items-center gap-1 bg-white/10 text-[#F5B82E] px-2 py-0.5 rounded-lg border border-white/10 font-black text-[10px] sm:text-[11px]">
+                          <div className="flex items-center gap-1 bg-white/10 text-[#00c2cb] px-2 py-0.5 rounded-lg border border-white/10 font-black text-[10px] sm:text-[11px]">
                             <span className="text-amber-400">★</span>
                             <span>4.8</span>
                           </div>
@@ -809,7 +809,7 @@ export default function Canteen() {
                     <div className="flex items-center self-stretch md:self-center z-10 shrink-0 w-full md:w-auto">
                       <button
                         onClick={() => setActiveRestaurant("")}
-                        className="w-full md:w-auto flex items-center justify-center gap-2 text-xs font-black text-[#071A35] hover:bg-[#FFD05B] bg-[#F5B82E] px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl transition-all cursor-pointer border-none shadow-md group"
+                        className="w-full md:w-auto flex items-center justify-center gap-2 text-xs font-black text-[#071A35] hover:bg-[#00a8b5] bg-[#00c2cb] px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl transition-all cursor-pointer border-none shadow-md group"
                       >
                         <span className="group-hover:-translate-x-0.5 transition-transform">←</span>
                         <span>Select Another Canteen</span>

@@ -39,6 +39,14 @@ const userSchema = new mongoose.Schema(
         ref: "CareerThread",
       },
     ],
+    activeWarning: {
+      hasWarning: { type: Boolean, default: false },
+      reason: { type: String, default: "" },
+      details: { type: String, default: "" },
+      issuedAt: { type: Date },
+      issuedBy: { type: String, default: "Campus Moderation Team" },
+      acknowledged: { type: Boolean, default: true }
+    },
   },
   { timestamps: true },
 );

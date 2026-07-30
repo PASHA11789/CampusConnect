@@ -72,7 +72,7 @@ export default function CreateDiscussionThreadModal({
           {/* Header Bar */}
           <div className="bg-[#071A35] px-7 py-5 flex justify-between items-center border-b border-white/10">
             <div className="text-left flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-white/10 text-[#F5B82E] flex items-center justify-center text-[18px] border border-white/10 shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-[18px] border border-white/10 shrink-0">
                 💼
               </div>
               <div className="flex flex-col">
@@ -164,7 +164,7 @@ export default function CreateDiscussionThreadModal({
               type="submit"
               form="create-career-form"
               disabled={isSubmitting}
-              className="px-7 py-2.5 rounded-full text-[12.5px] font-black text-[#071A35] bg-[#F5B82E] hover:bg-[#FFD05B] transition-all cursor-pointer shadow-md border-none flex items-center gap-2 disabled:opacity-50"
+              className="px-7 py-2.5 rounded-full text-[12.5px] font-black text-[#071A35] bg-[#00c2cb] hover:bg-[#00a8b5] transition-all cursor-pointer shadow-md border-none flex items-center gap-2 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <span className="w-4 h-4 border-2 border-[#071A35]/30 border-t-[#071A35] rounded-full animate-spin"></span>
@@ -189,7 +189,7 @@ export default function CreateDiscussionThreadModal({
         {/* Header area */}
         <div className="bg-[#071A35] px-4 sm:px-7 py-4 sm:py-5 flex justify-between items-center border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 text-[#F5B82E] flex items-center justify-center text-[16px] sm:text-[18px] border border-white/10 shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-[16px] sm:text-[18px] border border-white/10 shrink-0">
               {isEditing ? "✏️" : "💬"}
             </div>
             <div className="flex flex-col text-left">

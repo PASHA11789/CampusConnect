@@ -96,7 +96,7 @@ export default function DiscussionRepliesPane({
     const getCareerCategoryBadge = (cat) => {
       switch (cat) {
         case "job_opportunity":
-          return { label: t("💼 Job Opportunity"), bg: "bg-[#F5B82E]/20 text-[#F5B82E] border-[#F5B82E]/40" };
+          return { label: t("💼 Job Opportunity"), bg: "bg-[#00c2cb]/20 text-[#00c2cb] border-[#00c2cb]/40" };
         case "mentorship_qa":
           return { label: t("🤝 Mentorship Q&A"), bg: "bg-purple-400/20 text-purple-300 border-purple-400/30" };
         case "general_discussion":

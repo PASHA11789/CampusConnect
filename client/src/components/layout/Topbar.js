@@ -283,7 +283,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
                 onClick={() => setSubView('canteen')}
                 title="Canteen Orders & Delivery Notifications"
                 className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'canteen'
-                    ? "bg-[#F5B82E] text-[#071A35] border-[#F5B82E] font-bold"
+                    ? "bg-[#00c2cb] text-[#071A35] border-[#00c2cb] font-bold"
                     : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
                   }`}
               >
@@ -362,7 +362,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
                 onClick={() => setSubView('others')}
                 title="Other Notifications"
                 className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'others'
-                    ? "bg-[#F5B82E] text-[#071A35] border-[#F5B82E]"
+                    ? "bg-[#00c2cb] text-[#071A35] border-[#00c2cb]"
                     : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
                   }`}
               >

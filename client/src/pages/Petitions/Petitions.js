@@ -78,6 +78,12 @@ export default function Petitions() {
   const [isPublicProfileOpen, setIsPublicProfileOpen] = useState(false);
   const [isMyProfileOpen, setIsMyProfileOpen] = useState(false);
 
+  // ── TOAST NOTIFICATION HELPER ──
+  const showToast = useCallback((message, type = 'info') => {
+    setToast({ message, type, id: Date.now() });
+    setTimeout(() => setToast(null), 5500);
+  }, []);
+
   const openPublicProfile = (userId) => {
     if (userId) {
       if (userId === user?._id) {
@@ -145,12 +151,6 @@ export default function Petitions() {
     setSelectedPetition(null);
     navigate(`/petitions`, { replace: true });
   };
-
-  // ── TOAST NOTIFICATION HELPER ──
-  const showToast = useCallback((message, type = 'info') => {
-    setToast({ message, type, id: Date.now() });
-    setTimeout(() => setToast(null), 5500);
-  }, []);
 
 
 
@@ -627,10 +627,10 @@ export default function Petitions() {
             <div className="bg-[#071A35] rounded-[1.5rem] p-5 sm:p-7 text-white border border-white/10 shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
               {/* Background Glow Accents */}
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#00c2cb]/20 rounded-full blur-2xl pointer-events-none" />
-              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#F5B82E]/15 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
 
               <div className="flex flex-col text-left z-10">
-                <div className="bg-white/10 text-[#F5B82E] text-[10px] sm:text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-2.5 border border-white/10">
+                <div className="bg-white/10 text-[#00c2cb] text-[10px] sm:text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-2.5 border border-white/10">
                   <span>✨</span>
                   <span>CAMPUS ADVOCACY</span>
                 </div>
@@ -645,7 +645,7 @@ export default function Petitions() {
               <button
                 type="button"
                 onClick={() => setIsCreateModalOpen(true)}
-                className="bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35] font-black px-5 py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center gap-2 shrink-0 z-10 hover:scale-105 active:scale-95 border-none"
+                className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-black px-5 py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center gap-2 shrink-0 z-10 hover:scale-105 active:scale-95 border-none"
               >
                 <span>+</span> {t("Start a Petition")}
               </button>
@@ -724,7 +724,7 @@ export default function Petitions() {
                                 {/* Scope Level Priority Tag with Hover Tooltip */}
                                 <div className="relative group/tag">
                                   {petition.level === "Class" ? (
-                                    <span className="px-2.5 py-1 rounded-full text-[9.5px] font-black tracking-wider uppercase bg-[#F5B82E] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
+                                    <span className="px-2.5 py-1 rounded-full text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
                                       <span>✨</span> CLASS • HIGH PRIORITY
                                     </span>
                                   ) : petition.level === "Department" ? (
@@ -815,7 +815,7 @@ export default function Petitions() {
                                 </div>
                                 <div className="h-2 bg-[#E8E1D5]/60 rounded-full overflow-hidden">
                                   <div
-                                    className="h-full bg-gradient-to-r from-[#071A35] via-[#00c2cb] to-[#F5B82E] rounded-full transition-all duration-500 ease-out"
+                                    className="h-full bg-gradient-to-r from-[#071A35] to-[#00c2cb] rounded-full transition-all duration-500 ease-out"
                                     style={{ width: `${percentage}%` }}
                                   />
                                 </div>
@@ -842,7 +842,7 @@ export default function Petitions() {
                                       handleSignPetition(petition._id);
                                     }}
                                     disabled={signingIds.has(petition._id)}
-                                    className="flex-1 bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35] py-2.5 px-4 rounded-xl text-[12.5px] font-black flex items-center justify-center gap-2 transition-all duration-300 shadow-md border-none active:scale-95 disabled:opacity-50 cursor-pointer"
+                                    className="flex-1 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-2.5 px-4 rounded-xl text-[12.5px] font-black flex items-center justify-center gap-2 transition-all duration-300 shadow-md border-none active:scale-95 disabled:opacity-50 cursor-pointer"
                                   >
                                     {signingIds.has(petition._id) ? (
                                       <div className="w-4 h-4 border-2 border-[#071A35]/30 border-t-[#071A35] rounded-full animate-spin" />
@@ -979,10 +979,10 @@ export default function Petitions() {
             <div className="relative bg-[#071A35] px-5 sm:px-7 py-4 sm:py-5 flex justify-between items-center text-white overflow-hidden shrink-0 border-b border-[#071A35]">
               {/* Glow accents */}
               <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
-              <div className="absolute -bottom-8 right-16 w-36 h-36 bg-[#F5B82E]/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-8 right-16 w-36 h-36 bg-[#00c2cb]/10 rounded-full blur-2xl pointer-events-none" />
 
               <div className="relative z-10 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-lg text-[#F5B82E]">
+                <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-lg text-[#00c2cb]">
                   📜
                 </div>
                 <div className="flex flex-col">
@@ -1174,7 +1174,7 @@ export default function Petitions() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35] py-3 rounded-xl text-[13px] font-black uppercase tracking-wider cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 border-none shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-50"
+                    className="flex-1 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-3 rounded-xl text-[13px] font-black uppercase tracking-wider cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 border-none shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <div className="flex items-center gap-2">
@@ -1211,7 +1211,7 @@ export default function Petitions() {
             <div className="relative bg-[#071A35] px-5 sm:px-7 py-4 sm:py-5 flex justify-between items-start text-white overflow-hidden shrink-0 border-b border-[#071A35]">
               {/* Subtle Ambient Orbs */}
               <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
-              <div className="absolute -bottom-8 right-16 w-36 h-36 bg-[#F5B82E]/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-8 right-16 w-36 h-36 bg-[#00c2cb]/10 rounded-full blur-2xl pointer-events-none" />
 
               <div className="relative z-10 flex flex-col gap-2 min-w-0 flex-1 pr-8">
                 <div className="flex items-center gap-2.5 flex-wrap">
@@ -1219,7 +1219,7 @@ export default function Petitions() {
                     📜
                   </div>
                   <div className="flex items-center gap-2 flex-wrap min-w-0">
-                    <span className="px-2.5 py-0.5 rounded-full text-[9.5px] font-black bg-white/10 text-[#F5B82E] uppercase tracking-widest border border-white/10 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-full text-[9.5px] font-black bg-white/10 text-[#00c2cb] uppercase tracking-widest border border-white/10 shrink-0">
                       {t(selectedPetition.level)} {t("Level")}
                     </span>
                     <span className={`px-2.5 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-widest border shrink-0 ${selectedPetition.status === "Pending Mod Approval" ? "bg-indigo-500/20 text-indigo-200 border-indigo-400/30" :
@@ -1294,11 +1294,11 @@ export default function Petitions() {
                       <span>
                         {t("Milestone Progress:")} <strong className="text-[#071A35]">{sigsCount}</strong> {t("of")} {targetMilestone} {t("signatures")}
                       </span>
-                      <span className="text-[#F5B82E] font-black">{percentage}%</span>
+                      <span className="text-[#00c2cb] font-black">{percentage}%</span>
                     </div>
                     <div className="h-2.5 bg-[#E8E1D5]/60 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-[#071A35] via-[#00c2cb] to-[#F5B82E] rounded-full transition-all duration-500"
+                        className="h-full bg-gradient-to-r from-[#071A35] to-[#00c2cb] rounded-full transition-all duration-500"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -1338,7 +1338,7 @@ export default function Petitions() {
                           }));
                         }}
                         disabled={signingIds.has(selectedPetition._id)}
-                        className="flex-1 bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35] py-3 rounded-xl text-[13px] font-black transition-all duration-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-md border-none"
+                        className="flex-1 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-3 rounded-xl text-[13px] font-black transition-all duration-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-md border-none"
                       >
                         {signingIds.has(selectedPetition._id) ? (
                           <div className="w-5 h-5 border-2 border-[#071A35]/30 border-t-[#071A35] rounded-full animate-spin mx-auto" />
@@ -1420,7 +1420,7 @@ export default function Petitions() {
                   onClick={() => handleCopyLink(`${window.location.origin}/petitions?id=${sharePetition._id}`)}
                   className={`px-3.5 py-1.5 rounded-lg text-[11px] font-extrabold transition-all cursor-pointer border-none ${copied
                     ? "bg-emerald-500 text-white"
-                    : "bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35]"
+                    : "bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35]"
                     }`}
                 >
                   {copied ? t("Copied!") : t("Copy")}

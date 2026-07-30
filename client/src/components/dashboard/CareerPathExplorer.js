@@ -60,9 +60,8 @@ const CareerPathExplorer = ({ careers = [], onThreadClick }) => {
               className="bg-[#F7F4EC] border border-[#E8E1D5] rounded-[1rem] p-3 flex flex-col gap-1 cursor-pointer transition-all hover:translate-x-1 hover:border-[#2563EB]/30 group"
             >
               <div className="flex items-center justify-between">
-                <span className={`text-[8.5px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                  i === 0 ? "bg-[#F5B82E] text-[#071A35]" : "bg-[#DCD9F7] text-[#071A35]"
-                }`}>
+                <span className={`text-[8.5px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${i === 0 ? "bg-[#00c2cb] text-[#071A35]" : "bg-[#DCD9F7] text-[#071A35]"
+                  }`}>
                   {i === 0 ? 'MENTORSHIP Q&A' : 'GENERAL'}
                 </span>
                 <span className="text-[9px] text-[#211A24]/50 font-semibold">7h ago</span>

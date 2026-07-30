@@ -82,8 +82,8 @@ export default function EditCareerProfileModal({
         {/* Modal Header Bar */}
         <div className="bg-[#071A35] px-6 py-5 flex justify-between items-center border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-2xl bg-white/10 text-[#F5B82E] flex items-center justify-center text-[18px] border border-white/10 shrink-0">
-              ✏️
+            <div className="w-10 h-10 rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-[18px] border border-white/10 shrink-0">
+              💼
             </div>
             <div className="flex flex-col">
               <h2 className="text-[17px] font-black text-white tracking-tight m-0">{t("Edit Career Profile & Skills")}</h2>

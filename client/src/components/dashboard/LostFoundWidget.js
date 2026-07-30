@@ -14,7 +14,7 @@ export const LostFoundWidget = ({ items = [] }) => {
       {/* Header */}
       <div className="flex justify-between items-center pb-2.5 border-b border-[#E8E1D5] mb-2">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-[#F5B82E] text-[#071A35] text-base font-black flex items-center justify-center shadow-sm">
+          <div className="w-9 h-9 rounded-full bg-[#00c2cb] text-[#071A35] text-base font-black flex items-center justify-center shadow-sm">
             🔍
           </div>
           <div className="flex flex-col text-left leading-tight">
@@ -22,7 +22,7 @@ export const LostFoundWidget = ({ items = [] }) => {
             <span className="text-[9.5px] font-semibold text-[#211A24]/60 mt-0.5">Track or report campus items</span>
           </div>
         </div>
-        <button 
+        <button
           onClick={() => navigate('/lost-found')}
           className="bg-transparent border border-[#E8E1D5] rounded-full px-2.5 py-0.5 text-[10.5px] font-extrabold text-[#071A35] hover:bg-[#FAF7F0] transition-colors cursor-pointer flex items-center gap-1"
         >
@@ -32,7 +32,7 @@ export const LostFoundWidget = ({ items = [] }) => {
 
       {/* Stacked Cards Container - Fixed Height Grid */}
       <div className="flex flex-col gap-2.5 flex-1 justify-between">
-        
+
         {/* Top: LOST ITEMS Card (Soft Lavender) */}
         <div className="bg-[#E2DEFC]/60 border border-[#DCD9F7] rounded-[1.1rem] p-3 flex flex-col justify-between text-left h-[105px]">
           <div className="flex flex-col min-h-0">
@@ -64,7 +64,7 @@ export const LostFoundWidget = ({ items = [] }) => {
             </div>
           </div>
 
-          <button 
+          <button
             onClick={() => navigate('/lost-found', { state: { openReportModal: true, type: 'LOST' } })}
             className="w-full bg-white hover:bg-slate-50 border border-white text-[#071A35] py-1 rounded-full text-[10px] font-black transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs mt-1"
           >
@@ -76,8 +76,8 @@ export const LostFoundWidget = ({ items = [] }) => {
         <div className="bg-[#071A35] text-white border border-[#071A35] rounded-[1.1rem] p-3 flex flex-col justify-between text-left h-[105px]">
           <div className="flex flex-col min-h-0">
             <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-[11px] font-black text-[#F5B82E]">✓</span>
-              <span className="text-[10px] font-black text-[#F5B82E] uppercase tracking-wider">FOUND ITEMS</span>
+              <span className="text-[11px] font-black text-[#00c2cb]">✓</span>
+              <span className="text-[10px] font-black text-[#00c2cb] uppercase tracking-wider">FOUND ITEMS</span>
             </div>
 
             {/* Scrollable list with fixed max height */}
@@ -92,7 +92,7 @@ export const LostFoundWidget = ({ items = [] }) => {
                         <span className="text-[8.5px] font-semibold text-white/70 truncate">{item.location || 'Campus'}</span>
                       </div>
                     </div>
-                    <span className="text-[8px] font-bold text-[#F5B82E] shrink-0">{formatDate(item.createdAt)}</span>
+                    <span className="text-[8px] font-bold text-[#00c2cb] shrink-0">{formatDate(item.createdAt)}</span>
                   </div>
                 ))
               ) : (
@@ -103,9 +103,9 @@ export const LostFoundWidget = ({ items = [] }) => {
             </div>
           </div>
 
-          <button 
+          <button
             onClick={() => navigate('/lost-found', { state: { openReportModal: true, type: 'FOUND' } })}
-            className="w-full bg-[#F5B82E] hover:bg-[#FFD05B] text-[#071A35] py-1 rounded-full text-[10px] font-black transition-all flex items-center justify-center gap-1 cursor-pointer shadow-md border-none mt-1"
+            className="w-full bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-1 rounded-full text-[10px] font-black transition-all flex items-center justify-center gap-1 cursor-pointer shadow-md border-none mt-1"
           >
             <span>+</span> Submit Found Item
           </button>

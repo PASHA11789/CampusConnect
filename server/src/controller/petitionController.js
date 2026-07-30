@@ -241,7 +241,7 @@ export const signPetition = async (req, res) => {
 
 export const moderatePetition = async (req, res) => {
   try {
-    if (req.user.role !== 'admin' && req.user.role !== 'student_mod') {
+    if (req.user.role !== 'admin' && req.user.role !== 'student_mod' && req.user.role !== 'campus_admin') {
       return res.status(403).json({ message: "Not authorized to moderate" });
     }
 

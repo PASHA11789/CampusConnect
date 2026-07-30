@@ -314,7 +314,7 @@ export default function Dashboard() {
           {/* Welcome Hero Banner */}
           <div className="bg-white rounded-[1.5rem] p-5 sm:p-7 border border-[#E8E1D5] shadow-[0_10px_35px_rgba(7,26,53,0.05)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6">
             <div className="flex flex-col text-left">
-              <div className="text-[10.5px] sm:text-[11px] font-black text-[#F5B82E] tracking-widest uppercase flex items-center gap-1 mb-1">
+              <div className="text-[10.5px] sm:text-[11px] font-black text-[#00c2cb] tracking-widest uppercase flex items-center gap-1 mb-1">
                 <span>STUDENT DASHBOARD</span>
                 <span>✨</span>
               </div>

@@ -47,8 +47,8 @@ const Sidebar = ({ isOpen, onClose }) => {
       )}
 
       <aside className={`w-[250px] shrink-0 bg-[#071A35] flex flex-col py-6 px-3 h-full overflow-y-auto scrollbar-none border-r border-[#FAF7F0]/10 shadow-[4px_0_24px_rgba(0,0,0,0.15)] transition-all duration-300 ${isOpen
-          ? 'fixed inset-y-0 left-0 shadow-2xl flex z-[160]'
-          : 'hidden md:flex relative z-[90]'
+        ? 'fixed inset-y-0 left-0 shadow-2xl flex z-[160]'
+        : 'hidden md:flex relative z-[90]'
         }`}>
         {/* Brand Header with Original Logo & Cyan Branding */}
         <div className="flex items-center gap-3 px-2 pb-5 border-b border-white/10 mb-3">

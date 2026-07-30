@@ -49,8 +49,8 @@ export default function AskQuestionModal({
         {/* Modal Header */}
         <div className="bg-[#071A35] px-4 sm:px-7 py-4 sm:py-5 flex justify-between items-center border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 text-[#F5B82E] flex items-center justify-center text-[16px] sm:text-[18px] border border-white/10 shrink-0">
-              🙋🏻‍♂️
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-[16px] sm:text-[18px] border border-white/10 shrink-0">
+              ❓
             </div>
             <div className="flex flex-col">
               <h2 className="text-[16px] sm:text-[18px] font-black text-white tracking-tight m-0">{t("Ask Admin & Mentors")}</h2>

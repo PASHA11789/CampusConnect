@@ -12,80 +12,94 @@ export const getModerationQueue = async (req, res) => {
       return res.status(403).json({ message: "Access denied. Mod Room is restricted." });
     }
 
-    const [flaggedForums, flaggedCareers, pendingPetitions, flaggedLostFound, oldUnclaimedLostFound, profileReports, unreadNotifications] =
-      await Promise.all([
-        Forum.find({
-          $or: [
-            { isHidden: true },
-            { "reportedBy.0": { $exists: true } },
-            { "replies.isHidden": true },
-            { "replies.reportedBy.0": { $exists: true } },
-          ],
-        })
-          .populate("author", "name registeration_number avatar")
-          .populate("replies.author", "name registeration_number avatar")
-          .populate("reports.user", "name registeration_number avatar")
-          .populate("replies.reports.user", "name registeration_number avatar")
-          .sort({ updatedAt: -1 }),
+    let flaggedForums = [];
+    try {
+      flaggedForums = await Forum.find({
+        $or: [
+          { isHidden: true },
+          { "reportedBy.0": { $exists: true } },
+          { "replies.isHidden": true },
+          { "replies.reportedBy.0": { $exists: true } },
+        ],
+      })
+        .populate("author", "name registeration_number avatar")
+        .populate("replies.author", "name registeration_number avatar")
+        .sort({ updatedAt: -1 });
+    } catch (e) {
+      console.error("Error fetching flaggedForums:", e);
+    }
 
-        CareerThread.find({
-          $or: [
-            { isHidden: true },
-            { "reportedBy.0": { $exists: true } },
-            { "replies.isHidden": true },
-            { "replies.reportedBy.0": { $exists: true } },
-          ],
-        })
-          .populate("author", "name registeration_number avatar")
-          .populate("replies.author", "name registeration_number avatar")
-          .populate("reports.user", "name registeration_number avatar")
-          .populate("replies.reports.user", "name registeration_number avatar")
-          .sort({ updatedAt: -1 }),
+    let flaggedCareers = [];
+    try {
+      flaggedCareers = await CareerThread.find({
+        $or: [
+          { isHidden: true },
+          { "reportedBy.0": { $exists: true } },
+          { "replies.isHidden": true },
+          { "replies.reportedBy.0": { $exists: true } },
+        ],
+      })
+        .populate("author", "name registeration_number avatar")
+        .populate("replies.author", "name registeration_number avatar")
+        .sort({ updatedAt: -1 });
+    } catch (e) {
+      console.error("Error fetching flaggedCareers:", e);
+    }
 
-        Petition.find(
-          req.user.role === "student_mod"
-            ? {
-                status: "Pending Mod Approval",
-                $or: [
-                  { level: "Campus" },
-                  { level: "Department", targetGroup: req.user.department },
-                ],
-              }
-            : { status: "Pending Mod Approval" }
-        )
-          .populate("creator", "name registeration_number avatar")
-          .populate("reports.user", "name registeration_number avatar")
-          .sort({ createdAt: 1 }),
+    let pendingPetitions = [];
+    try {
+      pendingPetitions = await Petition.find(
+        req.user.role === "student_mod"
+          ? {
+              status: "Pending Mod Approval",
+              $or: [
+                { level: "Campus" },
+                { level: "Department", targetGroup: req.user.department },
+              ],
+            }
+          : { status: "Pending Mod Approval" }
+      )
+        .populate("creator", "name registeration_number avatar")
+        .sort({ createdAt: 1 });
+    } catch (e) {
+      console.error("Error fetching pendingPetitions:", e);
+    }
 
-        LostFound.find({
-          $or: [
-            { isHidden: true },
-            { "reportedBy.0": { $exists: true } },
-          ],
-        })
-          .populate("reporter", "name registeration_number avatar")
-          .sort({ createdAt: -1 }),
+    let flaggedLostFound = [];
+    try {
+      flaggedLostFound = await LostFound.find({
+        $or: [
+          { isHidden: true },
+          { "reportedBy.0": { $exists: true } },
+        ],
+      })
+        .populate("reporter", "name registeration_number avatar")
+        .sort({ createdAt: -1 });
+    } catch (e) {
+      console.error("Error fetching flaggedLostFound:", e);
+    }
 
-        LostFound.find({
-          status: { $in: ["Open", "At Office"] },
-          createdAt: { $lt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) }
-        })
-          .populate("reporter", "name registeration_number avatar")
-          .sort({ createdAt: -1 }),
+    let oldUnclaimedLostFound = [];
+    try {
+      oldUnclaimedLostFound = await LostFound.find({
+        status: { $in: ["Open", "At Office"] },
+        createdAt: { $lt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) }
+      })
+        .populate("reporter", "name registeration_number avatar")
+        .sort({ createdAt: -1 });
+    } catch (e) {
+      console.error("Error fetching oldUnclaimedLostFound:", e);
+    }
 
-        Report.find({ status: "Pending" })
-          .populate("reportedBy", "name registeration_number avatar")
-          .populate("targetUser", "name registeration_number avatar avatar email")
-          .sort({ createdAt: -1 }),
-
-        Notification.find({ recipient: req.user._id, isRead: false }).select("type"),
-      ]);
-
-    const notificationCounts = {
-      forums: unreadNotifications.filter((n) => n.type === "FORUM").length,
-      petitions: unreadNotifications.filter((n) => n.type === "PETITION").length,
-      updates: unreadNotifications.filter((n) => n.type === "ANNOUNCEMENT" || n.type === "GENERAL").length,
-    };
+    let profileReports = [];
+    try {
+      profileReports = await Report.find({ status: "Pending" })
+        .populate("reportedBy", "name registeration_number avatar")
+        .populate("targetUser", "name registeration_number avatar email department program semester section role")
+        .sort({ createdAt: -1 });
+    } catch (e) {
+      console.error("Error fetching profileReports:", e);
+    }
 
     const forumsCount = flaggedForums.length;
     const careersCount = flaggedCareers.length;
@@ -115,6 +129,7 @@ export const getModerationQueue = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Failed to load moderation queue:", error);
     res.status(500).json({
       message: "Failed to load the moderation queue",
       error: error.message,

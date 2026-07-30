@@ -128,7 +128,7 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
         <div className="relative bg-[#071A35] px-4 sm:px-6 py-3.5 sm:py-5 flex justify-between items-center text-white overflow-hidden shrink-0 border-b border-[#071A35]">
           {/* Subtle Ambient Orbs */}
           <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
-          <div className="absolute -bottom-8 right-16 w-36 h-36 bg-[#F5B82E]/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-8 right-16 w-36 h-36 bg-[#00c2cb]/10 rounded-full blur-2xl pointer-events-none" />
 
           {/* Header Content */}
           <div className="relative z-10 flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -140,7 +140,7 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
                 <h2 className="text-base sm:text-lg md:text-[20px] font-black tracking-tight text-white leading-tight">
                   My Profile
                 </h2>
-                <span className="bg-white/10 text-[#F5B82E] text-[8.5px] sm:text-[9.5px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-white/10 shadow-sm shrink-0">
+                <span className="bg-white/10 text-[#00c2cb] text-[8.5px] sm:text-[9.5px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-white/10 shadow-sm shrink-0">
                   Official Member
                 </span>
               </div>
@@ -171,7 +171,7 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
               
               {/* Profile Overview Card */}
               <div className="bg-white border border-[#E8E1D5] rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col items-center text-center relative overflow-hidden">
-                <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#00c2cb] via-[#071A35] to-[#F5B82E]" />
+                <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#00c2cb] to-[#071A35]" />
 
                 {/* Avatar with Ring & Upload Overlay */}
                 <label className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-[#00c2cb] to-[#071A35] p-[3.5px] shadow-md mb-3 sm:mb-3.5 cursor-pointer group block transition-transform duration-300 hover:scale-105">
