@@ -168,6 +168,17 @@ const seedUsers = async () => {
         program: "BSCS",
         section: "C",
       },
+      {
+        name: "Zainab Chaudhry (D.Pharm)",
+        email: "zainab.pharmacy@campusconnect.com",
+        registeration_number: "2024F-muldpharm-170",
+        password: hashedPassword,
+        role: "student",
+        department: "D.Pharm",
+        semester: 4,
+        program: "D.Pharm",
+        section: "A",
+      },
       // --- CLASS-LEVEL TEST USERS (BSCS 6th Semester Section A) ---
       {
         name: "Ahmad Raza (BSCS-6A)",

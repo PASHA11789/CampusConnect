@@ -24,6 +24,7 @@ import campusAdminRoutes from "./src/routes/campusAdminRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
 import careerRoutes from "./src/routes/careerRoutes.js";
 import orderRoutes from "./src/routes/orderRoutes.js";
+import complaintRoutes from "./src/routes/complaintRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -79,6 +80,7 @@ app.use("/api/campus-admin", campusAdminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/careers", careerRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/complaints", complaintRoutes);
 
 
 io.on("connection", (socket) => {

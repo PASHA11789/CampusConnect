@@ -61,7 +61,7 @@ export const getPetitionById = async (req, res) => {
     if (!hasPetitionAccess(petition, req.user)) {
       return res.status(403).json({
         success: false,
-        message: "You do not have permission to view this petition",
+        message: "Sorry, you are not authorized to view this petition",
         forbidden: true,
       });
     }
