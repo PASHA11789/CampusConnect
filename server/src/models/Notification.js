@@ -9,7 +9,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["FORUM", "PETITION", "ANNOUNCEMENT", "GENERAL", "CANTEEN"],
+      enum: ["FORUM", "PETITION", "ANNOUNCEMENT", "GENERAL", "CANTEEN", "COMPLAINT"],
       required: true,
     },
     message: {
@@ -26,7 +26,7 @@ const notificationSchema = new mongoose.Schema(
     },
     onModel: {
       type: String,
-      enum: ["Forum", "Petition"],
+      enum: ["Forum", "Petition", "Complaint"],
     },
   },
   { timestamps: true },

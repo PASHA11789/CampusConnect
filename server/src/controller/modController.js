@@ -5,6 +5,7 @@ import Notification from "../models/Notification.js";
 import CareerThread from "../models/CareerThread.js";
 import Report from "../models/Report.js";
 import User from "../models/User.js";
+import Complaint from "../models/Complaint.js";
 
 export const getModerationQueue = async (req, res) => {
   try {
@@ -12,7 +13,7 @@ export const getModerationQueue = async (req, res) => {
       return res.status(403).json({ message: "Access denied. Mod Room is restricted." });
     }
 
-    const [flaggedForums, flaggedCareers, pendingPetitions, flaggedLostFound, oldUnclaimedLostFound, profileReports, unreadNotifications] =
+    const [flaggedForums, flaggedCareers, pendingPetitions, flaggedLostFound, oldUnclaimedLostFound, profileReports, unreadNotifications, pendingComplaints] =
       await Promise.all([
         Forum.find({
           $or: [
@@ -79,6 +80,12 @@ export const getModerationQueue = async (req, res) => {
           .sort({ createdAt: -1 }),
 
         Notification.find({ recipient: req.user._id, isRead: false }).select("type"),
+
+        Complaint.find({ status: { $in: ["Pending", "Under Review", "In Progress"] } })
+          .populate("submittedBy", "name registeration_number avatar department role")
+          .populate("adminResponse.respondedBy", "name avatar role")
+          .populate("escalatedBy", "name avatar role")
+          .sort({ isEscalated: -1, createdAt: -1 }),
       ]);
 
     const notificationCounts = {
@@ -93,6 +100,7 @@ export const getModerationQueue = async (req, res) => {
     const lostFoundCount = flaggedLostFound.length;
     const oldUnclaimedCount = oldUnclaimedLostFound.length;
     const profileReportsCount = profileReports.length;
+    const complaintsCount = pendingComplaints.length;
 
     res.status(200).json({
       success: true,
@@ -103,7 +111,8 @@ export const getModerationQueue = async (req, res) => {
         lostFound: lostFoundCount,
         oldUnclaimed: oldUnclaimedCount,
         profileReports: profileReportsCount,
-        total: forumsCount + careersCount + petitionsCount + lostFoundCount + oldUnclaimedCount + profileReportsCount,
+        complaints: complaintsCount,
+        total: forumsCount + careersCount + petitionsCount + lostFoundCount + oldUnclaimedCount + profileReportsCount + complaintsCount,
       },
       queue: {
         forums: flaggedForums,
@@ -112,6 +121,7 @@ export const getModerationQueue = async (req, res) => {
         lostFound: flaggedLostFound,
         oldUnclaimed: oldUnclaimedLostFound,
         profileReports: profileReports,
+        complaints: pendingComplaints,
       },
     });
   } catch (error) {
@@ -323,6 +333,47 @@ export const moderateItem = async (req, res) => {
         report.status = "Dismissed";
         await report.save();
         return res.status(200).json({ success: true, message: "Profile report dismissed." });
+      }
+    } else if (contentType === "complaint") {
+      const complaint = await Complaint.findById(id);
+      if (!complaint) return res.status(404).json({ message: "Complaint or suggestion not found" });
+
+      if (action === "Approve") {
+        complaint.status = "Resolved";
+        complaint.adminResponse = {
+          response: req.body.response || "Resolved by moderator.",
+          respondedBy: req.user._id,
+          respondedAt: new Date(),
+        };
+        await complaint.save();
+
+        await Notification.create({
+          recipient: complaint.submittedBy,
+          type: "COMPLAINT",
+          message: `Your ${complaint.type} "${complaint.title}" has been marked as Resolved by moderation.`,
+          relatedItem: complaint._id,
+          onModel: "Complaint",
+        });
+
+        return res.status(200).json({ success: true, message: "Complaint resolved.", complaint });
+      } else if (action === "Reject") {
+        complaint.status = "Rejected";
+        complaint.adminResponse = {
+          response: req.body.response || "Rejected by moderator.",
+          respondedBy: req.user._id,
+          respondedAt: new Date(),
+        };
+        await complaint.save();
+
+        await Notification.create({
+          recipient: complaint.submittedBy,
+          type: "COMPLAINT",
+          message: `Your ${complaint.type} "${complaint.title}" was reviewed and marked as Rejected.`,
+          relatedItem: complaint._id,
+          onModel: "Complaint",
+        });
+
+        return res.status(200).json({ success: true, message: "Complaint rejected.", complaint });
       }
     } else {
       return res.status(400).json({ message: "Invalid content type." });
