@@ -22,7 +22,7 @@ function App() {
   return (
     <Router>
       <DisciplinaryWarningModal />
-      <div className="App w-full min-h-screen max-w-full overflow-y-auto overflow-x-hidden">
+      <div className="App w-full h-screen max-w-full overflow-hidden flex flex-col">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

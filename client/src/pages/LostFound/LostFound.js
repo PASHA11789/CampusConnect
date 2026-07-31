@@ -24,14 +24,29 @@ export default function LostFound() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedTab, setSelectedTab] = useState("all"); // "all", "mine"
+  const [selectedTab, setSelectedTab] = useState("recent"); // "recent", "lost", "found", "returned", "mine"
   const [filterType, setFilterType] = useState("ALL"); // "ALL", "LOST", "FOUND"
   const [filterStatus, setFilterStatus] = useState("ALL"); // "ALL", "Open", "At Office"
+  const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
+  const [sortBy, setSortBy] = useState("latest"); // "latest", "oldest"
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12;
+
+  // Saved / Bookmarked item IDs
+  const [savedIds, setSavedIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem("saved_lost_found_items");
+      return saved ? JSON.parse(saved) : [];
+    } catch (_) {
+      return [];
+    }
+  });
 
   // Create report form states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newItemType, setNewItemType] = useState("LOST"); // "LOST" or "FOUND"
   const [itemName, setItemName] = useState("");
+  const [itemCategory, setItemCategory] = useState("Electronics");
   const [description, setDescription] = useState("");
   const [locationName, setLocationName] = useState("");
   const [surrenderedAt, setSurrenderedAt] = useState("");
@@ -53,6 +68,7 @@ export default function LostFound() {
   // UI toast notification state
   const [toast, setToast] = useState(null);
   const [resolvingIds, setResolvingIds] = useState(new Set());
+  const [deletingIds, setDeletingIds] = useState(new Set());
   const [highlightedItemId, setHighlightedItemId] = useState(null);
 
   // Show toast notifications helper
@@ -61,14 +77,23 @@ export default function LostFound() {
     setTimeout(() => setToast(null), 5500);
   }, []);
 
-
-
   const getPersonalizedAvatar = (url) => {
     if (!url) return `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=random`;
     if (url.includes("name=User")) {
       return `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=random`;
     }
     return url;
+  };
+
+  const toggleSaveItem = (e, itemId) => {
+    e.stopPropagation();
+    setSavedIds((prev) => {
+      const next = prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId];
+      try {
+        localStorage.setItem("saved_lost_found_items", JSON.stringify(next));
+      } catch (_) {}
+      return next;
+    });
   };
 
   // Authenticate user and keep clock running
@@ -156,7 +181,7 @@ export default function LostFound() {
             prev.map((item) => {
               if (item._id !== data.itemId) return item;
               return { ...item, status: "Returned" };
-            }).filter((item) => item._id !== data.itemId) // Optional: remove resolved items from direct active feed
+            }).filter((item) => item._id !== data.itemId)
           );
           showToast("A misplaced item has been successfully returned/claimed!", "info");
         }
@@ -197,6 +222,11 @@ export default function LostFound() {
       }
     }
   }, [searchParams, location, loading, items, navigate]);
+
+  // Reset to page 1 whenever filters, tab, or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, selectedTab, filterType, filterStatus, sortBy]);
 
   // Prevent background scroll when modal detail is active
   useEffect(() => {
@@ -307,6 +337,35 @@ export default function LostFound() {
     }
   };
 
+  // Delete item action (Admin / Student Mod)
+  const handleDeleteItem = async (itemId) => {
+    if (deletingIds.has(itemId)) return;
+    if (!window.confirm("Are you sure you want to permanently delete this report?")) return;
+
+    setDeletingIds((prev) => new Set([...prev, itemId]));
+    try {
+      const token = sessionStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      await axios.delete(`/api/lost-found/${itemId}`, config);
+
+      showToast("Item report permanently deleted.", "info");
+      setItems((prev) => prev.filter((item) => item._id !== itemId));
+
+      if (isDetailOpen && selectedItem?._id === itemId) {
+        handleCloseDetail();
+      }
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      showToast(error.response?.data?.message || "Failed to delete item.", "error");
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(itemId);
+        return next;
+      });
+    }
+  };
+
   // Image upload preview handler
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -317,8 +376,9 @@ export default function LostFound() {
   };
 
   // Report post submit handler
-  const handleCreateReport = async (e) => {
-    e.preventDefault();
+  const handleCreateReport = async (e, forcedType) => {
+    if (e) e.preventDefault();
+    const typeToSubmit = forcedType || newItemType;
     if (!itemName.trim() || !description.trim() || !locationName.trim()) {
       showToast("Please fill in all required fields.", "warning");
       return;
@@ -335,11 +395,12 @@ export default function LostFound() {
       };
 
       const formData = new FormData();
-      formData.append("type", newItemType);
+      formData.append("type", typeToSubmit);
       formData.append("itemName", itemName);
+      formData.append("category", itemCategory);
       formData.append("description", description);
       formData.append("location", locationName);
-      if (newItemType === "FOUND" && surrenderedAt.trim()) {
+      if (typeToSubmit === "FOUND" && surrenderedAt.trim()) {
         formData.append("surrenderedAt", surrenderedAt);
       }
       if (imageFile) {
@@ -359,6 +420,7 @@ export default function LostFound() {
 
       // Reset form variables
       setItemName("");
+      setItemCategory("Electronics");
       setDescription("");
       setLocationName("");
       setSurrenderedAt("");
@@ -430,7 +492,9 @@ export default function LostFound() {
     const matchesSearch =
       (item.itemName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       (item.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.location || "").toLowerCase().includes(searchTerm.toLowerCase());
+      (item.location || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.surrenderedAt || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.submittedTo || "").toLowerCase().includes(searchTerm.toLowerCase());
 
     // Type filter
     const matchesType = filterType === "ALL" || item.type === filterType;
@@ -438,705 +502,981 @@ export default function LostFound() {
     // Status filter
     const matchesStatus = filterStatus === "ALL" || item.status === filterStatus;
 
-    // Mine / All tab filter
-    const matchesTab = selectedTab === "all"
-      ? (item.status === "Open" || item.status === "At Office")
-      : (item.reporter?._id === user?._id);
+    // Tab filter: recent (all active), lost, found, returned, mine
+    let matchesTab = true;
+    if (selectedTab === "lost") {
+      matchesTab = item.type === "LOST" && (item.status === "Open" || item.status === "At Office");
+    } else if (selectedTab === "found") {
+      matchesTab = item.type === "FOUND" && (item.status === "Open" || item.status === "At Office");
+    } else if (selectedTab === "returned") {
+      matchesTab = item.status === "Returned" || item.status === "Claimed";
+    } else if (selectedTab === "mine") {
+      matchesTab = item.reporter?._id === user?._id;
+    } else {
+      // "recent"
+      matchesTab = item.status === "Open" || item.status === "At Office" || item.status === "Claimed";
+    }
 
-    // Categories filter (Mock category mapping based on keywords)
+    // Categories filter
     let matchesCategory = true;
     if (selectedCategory !== "All") {
-      const nameLower = (item.itemName || "").toLowerCase();
-      const descLower = (item.description || "").toLowerCase();
-      if (selectedCategory === "Electronics") {
-        matchesCategory = ["phone", "laptop", "charger", "earbuds", "headphone", "calculator", "device", "mobile"].some(
-          (kw) => nameLower.includes(kw) || descLower.includes(kw)
-        );
-      } else if (selectedCategory === "Documents") {
-        matchesCategory = ["card", "cnic", "id", "license", "file", "document", "booklet", "slip"].some(
-          (kw) => nameLower.includes(kw) || descLower.includes(kw)
-        );
-      } else if (selectedCategory === "Keys") {
-        matchesCategory = nameLower.includes("key") || descLower.includes("key");
-      } else if (selectedCategory === "Books") {
-        matchesCategory = ["book", "notebook", "copy", "register", "syllabus", "page"].some(
-          (kw) => nameLower.includes(kw) || descLower.includes(kw)
-        );
-      } else if (selectedCategory === "Clothing") {
-        matchesCategory = ["coat", "jacket", "shirt", "muffler", "glass", "cap", "ring", "watch", "apparel"].some(
-          (kw) => nameLower.includes(kw) || descLower.includes(kw)
-        );
-      } else if (selectedCategory === "Others") {
-        // Fallback checks
-        const matchesKnown = ["phone", "laptop", "charger", "earbuds", "headphone", "calculator", "device", "mobile", "card", "cnic", "id", "license", "file", "document", "booklet", "slip", "key", "book", "notebook", "copy", "register", "coat", "jacket", "shirt", "muffler", "glass", "cap", "ring", "watch", "apparel"].some(
-          (kw) => nameLower.includes(kw) || descLower.includes(kw)
-        );
-        matchesCategory = !matchesKnown;
+      if (item.category) {
+        matchesCategory = item.category === selectedCategory;
+      } else {
+        const nameLower = (item.itemName || "").toLowerCase();
+        const descLower = (item.description || "").toLowerCase();
+        if (selectedCategory === "Electronics") {
+          matchesCategory = ["phone", "laptop", "charger", "earbuds", "headphone", "calculator", "device", "mobile", "watch", "airpods", "ipad", "usb", "drive"].some(
+            (kw) => nameLower.includes(kw) || descLower.includes(kw)
+          );
+        } else if (selectedCategory === "Books & Notes") {
+          matchesCategory = ["book", "notebook", "copy", "register", "syllabus", "page", "assignment", "diary"].some(
+            (kw) => nameLower.includes(kw) || descLower.includes(kw)
+          );
+        } else if (selectedCategory === "Accessories") {
+          matchesCategory = ["glass", "glasses", "ring", "watch", "umbrella", "bottle", "key", "chain"].some(
+            (kw) => nameLower.includes(kw) || descLower.includes(kw)
+          );
+        } else if (selectedCategory === "Clothing") {
+          matchesCategory = ["coat", "jacket", "shirt", "muffler", "cap", "hoodie", "apparel"].some(
+            (kw) => nameLower.includes(kw) || descLower.includes(kw)
+          );
+        } else if (selectedCategory === "Keys & Cards") {
+          matchesCategory = ["key", "card", "cnic", "id", "license", "file", "document", "slip", "atm", "wallet", "purse"].some(
+            (kw) => nameLower.includes(kw) || descLower.includes(kw)
+          );
+        } else if (selectedCategory === "Others") {
+          const matchesKnown = ["phone", "laptop", "charger", "earbuds", "headphone", "calculator", "device", "mobile", "card", "cnic", "id", "license", "file", "document", "booklet", "slip", "key", "book", "notebook", "copy", "register", "coat", "jacket", "shirt", "muffler", "glass", "cap", "ring", "watch", "apparel", "bag", "backpack", "wallet", "diary"].some(
+            (kw) => nameLower.includes(kw) || descLower.includes(kw)
+          );
+          matchesCategory = !matchesKnown;
+        }
       }
     }
 
     return matchesSearch && matchesType && matchesStatus && matchesTab && matchesCategory;
+  }).sort((a, b) => {
+    if (sortBy === "oldest") return new Date(a.createdAt) - new Date(b.createdAt);
+    return new Date(b.createdAt) - new Date(a.createdAt);
   });
 
-  const tabPills = ["All", "Electronics", "Documents", "Keys", "Books", "Clothing", "Others"];
+  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center h-screen w-full max-w-full overflow-hidden flex-col gap-3.5 bg-[#f0f4f8]">
-        <div className="w-8 h-8 border-3 border-slate-100 border-t-[#00c2cb] rounded-full animate-spin"></div>
-        <p className="font-sans text-slate-500 text-[14.5px] font-semibold">{t("Loading portal state...")}</p>
+      <div className="flex items-center justify-center h-screen w-full max-w-full overflow-hidden flex-col gap-3.5 bg-[#f8fafc] text-slate-800 font-sans">
+        <div className="w-9 h-9 border-3 border-slate-200 border-t-[#2563eb] rounded-full animate-spin"></div>
+        <p className="font-semibold text-slate-600 text-sm">{t("Loading Lost & Found Portal...")}</p>
       </div>
     );
   }
 
+  const isAdminOrMod = user?.role === "admin" || user?.role === "campus_admin" || user?.role === "student_mod";
+
   return (
-    <>
-      <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#f0f4f8] font-sans text-slate-800 animate-fade-in">
-        <Sidebar />
+    <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#FAF7F0] font-sans text-[#211A24] animate-fade-in relative selection:bg-[#00c2cb]/20 selection:text-[#071A35]">
+      <Sidebar />
 
-        <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
-          <Topbar
-            time={time}
-            user={user}
-            setUser={setUser}
-            avatar={getPersonalizedAvatar(avatar)}
-            handleAvatarChange={handleAvatarChange}
-            isUploading={isUploading}
-          />
+      <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto custom-scrollbar">
+        <Topbar
+          time={time}
+          user={user}
+          setUser={setUser}
+          avatar={getPersonalizedAvatar(avatar)}
+          handleAvatarChange={handleAvatarChange}
+          isUploading={isUploading}
+        />
 
-          <div className="flex-1 px-8 py-7 flex flex-col gap-6 overflow-y-auto max-md:p-4">
+        {/* Floating Toast Notification Popup */}
+        {toast && (
+          <div className="fixed top-16 right-3 left-3 sm:left-auto sm:right-6 sm:max-w-sm z-[9999] bg-[#0a2342] text-white px-4 py-3 rounded-2xl shadow-2xl font-bold text-xs border border-slate-700 animate-slide-down flex items-center gap-3">
+            <span className="text-base">
+              {toast.type === "success" ? "✅" : toast.type === "error" ? "❌" : toast.type === "warning" ? "⚠️" : "ℹ️"}
+            </span>
+            <span className="leading-snug">{toast.message}</span>
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════════════════════════════════════
+            MAIN CONTENT AREA MATCHING EXACT DESIGN REFERENCE IMAGE
+           ════════════════════════════════════════════════════════════════════════ */}
+        <div className="flex-1 p-3 sm:p-5 lg:p-7 flex flex-col gap-4 sm:gap-6 max-w-7xl mx-auto w-full pb-24">
+          
+          {/* ── HERO BANNER (Matching Forum & Petitions Theme) ── */}
+          <div className="bg-[#071A35] rounded-[1.25rem] sm:rounded-[1.5rem] p-4 sm:p-6 lg:p-7 text-white border border-white/10 shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
+            {/* Background Glow Accents */}
+            <div className="absolute -top-10 -right-10 w-32 sm:w-40 h-32 sm:h-40 bg-[#00c2cb]/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-10 -left-10 w-32 sm:w-40 h-32 sm:h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="flex flex-col text-left z-10">
+              <div className="bg-white/10 text-[#00c2cb] text-[9.5px] sm:text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-2 border border-white/10">
+                <span>✨</span>
+                <span>CAMPUS BELONGINGS PORTAL</span>
+              </div>
+              <h1 className="text-xl sm:text-[26px] font-black text-white leading-tight tracking-tight mb-1">
+                Lost &amp; Found
+              </h1>
+              <p className="text-[11px] sm:text-[12px] font-semibold text-white/70 max-w-[550px] leading-relaxed m-0">
+                Find your lost items or help others by reporting found items across campus.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap z-10 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  setNewItemType("LOST");
+                  setIsModalOpen(true);
+                }}
+                className="flex-1 sm:flex-none bg-white/10 hover:bg-white/20 text-white font-extrabold px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-[11.5px] sm:text-[12px] border border-white/20 transition-all cursor-pointer text-center"
+              >
+                <span>➕ Report Lost</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setNewItemType("FOUND");
+                  setIsModalOpen(true);
+                }}
+                className="flex-1 sm:flex-none bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-black px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-[11.5px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center justify-center gap-1.5 hover:scale-105 active:scale-95 border-none"
+              >
+                <span>+</span>
+                <span>Report Found</span>
+              </button>
+            </div>
+          </div>
+
+          {/* ── SEARCH & FILTERS SECTION (Forum Theme) ── */}
+          <div className="relative z-10 bg-white rounded-[1.25rem] sm:rounded-[1.5rem] border border-[#E8E1D5] p-3 sm:p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
             
-            {/* Split layout wrapper */}
-            <div className="grid grid-cols-1 gap-6">
-              
-              {/* Header neon banner */}
-              <div className="relative flex justify-between items-center bg-gradient-to-r from-[#0d1b2a] via-[#1b263b] to-[#00c2cb]/90 border border-slate-200/30 rounded-3xl p-8 overflow-hidden shadow-lg animate-slide-down">
-                <div className="absolute -left-10 -bottom-10 w-44 h-44 bg-[#00c2cb]/20 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute right-1/4 -top-12 w-36 h-36 bg-[#00d4ff]/10 rounded-full blur-2xl pointer-events-none" />
+            {/* Search Input Bar */}
+            <div className="relative flex-1 min-w-[260px]">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+              <input
+                type="text"
+                placeholder="Search items (e.g. wallet, phone, keys...)"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-11 pr-8 py-2.5 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] text-xs font-semibold text-[#211A24] placeholder-[#211A24]/50 focus:outline-none focus:ring-2 focus:ring-[#071A35]/20 shadow-inner"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-bold"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
 
-                <div className="flex flex-col z-10">
-                  <h1 className="text-[30px] font-black text-white tracking-tight leading-none drop-shadow-sm">{t("Lost & Found")}</h1>
-                  <p className="text-[14px] text-[#e0f2f1]/90 mt-2.5 font-medium max-w-[500px] leading-relaxed">
-                    {t("Reclaim your misplaced accessories, or report found items to support your peers on campus.")}
-                  </p>
-                </div>
-                
-                <div className="absolute right-8 top-1/2 -translate-y-1/2 select-none text-[#00c2cb] opacity-25 pointer-events-none max-sm:hidden z-10 transition-transform duration-300 hover:scale-105">
-                  <svg className="w-28 h-28 drop-shadow-[0_4px_12px_rgba(0,194,203,0.3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    <path d="M11 8v5h3" />
-                  </svg>
-                </div>
+            {/* Filter Row — horizontally scrollable on mobile */}
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5 md:pb-0 md:justify-end">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="shrink-0 px-3 py-2 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] text-[11px] sm:text-xs font-extrabold text-[#071A35] focus:outline-none focus:ring-2 focus:ring-[#071A35]/20 cursor-pointer"
+              >
+                <option value="All">All Categories</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Books & Notes">Books & Notes</option>
+                <option value="Accessories">Accessories</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Keys & Cards">Keys & Cards</option>
+                <option value="Others">Others</option>
+              </select>
+
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="shrink-0 px-3 py-2 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] text-[11px] sm:text-xs font-extrabold text-[#071A35] focus:outline-none focus:ring-2 focus:ring-[#071A35]/20 cursor-pointer"
+              >
+                <option value="ALL">All Status</option>
+                <option value="Open">Open</option>
+                <option value="At Office">At Office</option>
+                <option value="Claimed">Claimed</option>
+              </select>
+
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedCategory("All");
+                  setFilterType("ALL");
+                  setFilterStatus("ALL");
+                }}
+                className="shrink-0 px-3 py-2 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] text-[11px] sm:text-xs font-extrabold text-[#211A24]/70 hover:bg-[#F3EEE4] hover:text-[#071A35] transition-all flex items-center gap-1 cursor-pointer"
+              >
+                <span>⚙️</span>
+                <span>Reset</span>
+              </button>
+            </div>
+
+          </div>
+
+          {/* ── TAB NAVIGATION & SORT ROW ── */}
+          <div className="flex items-center justify-between gap-2 border-b border-[#E8E1D5] pb-2">
+            {/* Tabs — horizontally scrollable on mobile */}
+            <div className="flex items-center gap-3 sm:gap-5 overflow-x-auto scrollbar-none py-1 flex-1">
+              {[
+                { id: "recent", label: "Recent" },
+                { id: "lost", label: "Lost" },
+                { id: "found", label: "Found" },
+                { id: "returned", label: "Returned" },
+                { id: "mine", label: "Mine" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setSelectedTab(tab.id)}
+                  className={`shrink-0 pb-2 text-[11.5px] sm:text-sm font-extrabold transition-all relative cursor-pointer whitespace-nowrap ${
+                    selectedTab === tab.id
+                      ? "text-[#071A35]"
+                      : "text-[#211A24]/60 hover:text-[#071A35]"
+                  }`}
+                >
+                  {tab.label}
+                  {selectedTab === tab.id && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#071A35] rounded-full animate-fade-in" />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Sort & View toggles */}
+            <div className="flex items-center gap-2 shrink-0">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="bg-transparent border-none text-[11px] font-extrabold text-[#071A35] focus:outline-none cursor-pointer hidden sm:block"
+              >
+                <option value="latest">Latest</option>
+                <option value="oldest">Oldest</option>
+              </select>
+
+              <div className="flex items-center gap-0.5 bg-[#FAF7F0] border border-[#E8E1D5] p-0.5 rounded-lg">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`p-1.5 rounded-md text-xs transition-all ${
+                    viewMode === "grid" ? "bg-[#071A35] text-white shadow-sm" : "text-slate-500"
+                  }`}
+                  title="Grid View"
+                >
+                  ⊞
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`p-1.5 rounded-md text-xs transition-all ${
+                    viewMode === "list" ? "bg-[#071A35] text-white shadow-sm" : "text-slate-500"
+                  }`}
+                  title="List View"
+                >
+                  ☰
+                </button>
               </div>
+            </div>
 
-              {/* Filters Panel */}
-              <div className="flex justify-between items-center gap-4 flex-wrap">
-                {/* Search Bar */}
-                <div className="relative flex items-center bg-white border border-slate-200 rounded-full shadow-sm flex-1 min-w-[240px]">
-                  <svg className="w-4 h-4 text-slate-400 ml-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                  <input
-                    type="text"
-                    placeholder={t("Search by item name, details, or locations...")}
-                    className="bg-transparent border-none text-[13px] font-semibold text-[#0a2342] placeholder-slate-400 focus:outline-none py-2.5 pr-4 flex-1"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
+          </div>
+
+          {/* ─────────────────────────────────────────────────────────────
+              MAIN ITEM CARDS FEED
+             ───────────────────────────────────────────────────────────── */}
+          <div className="space-y-6">
+            
+            {loading ? (
+              <div className="py-24 text-center text-slate-400 font-bold text-xs animate-pulse flex flex-col items-center justify-center gap-3">
+                <div className="w-8 h-8 border-3 border-slate-200 border-t-[#2563eb] rounded-full animate-spin"></div>
+                <span>Fetching lost & found items...</span>
+              </div>
+            ) : filteredItems.length === 0 ? (
+              <div className="py-20 px-6 rounded-2xl bg-white border border-slate-200/80 text-center shadow-sm max-w-md mx-auto flex flex-col items-center justify-center">
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center text-3xl mb-3">
+                  📦
                 </div>
+                <h3 className="text-base font-bold text-slate-900">No Items Found</h3>
+                <p className="text-xs text-slate-500 mt-1 max-w-xs leading-relaxed">
+                  {searchTerm
+                    ? `No results for "${searchTerm}". Try resetting your search query.`
+                    : selectedTab === "mine"
+                    ? "You haven't reported any lost or found items yet."
+                    : "No active lost or found reports available in this category."}
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedCategory("All");
+                    setFilterType("ALL");
+                    setFilterStatus("ALL");
+                    setSelectedTab("recent");
+                  }}
+                  className="mt-4 px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-[#1d4ed8] transition-all cursor-pointer"
+                >
+                  Reset All Filters
+                </button>
+              </div>
+            ) : viewMode === "grid" ? (
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+                {paginatedItems.map((item) => {
+                  const isSaved = savedIds.includes(item._id);
+                  const isHighlight = highlightedItemId === item._id;
 
-                {/* Tab select and Filters */}
-                <div className="flex items-center gap-3 flex-wrap">
-                  {/* Scope Tabs */}
-                  <div className="flex gap-1 bg-slate-200/50 p-1 rounded-full border border-slate-200">
-                    <button
-                      className={`px-4 py-1.5 rounded-full text-[12px] font-bold transition-all ${
-                        selectedTab === "all" ? "bg-[#0a2342] text-white shadow-sm" : "text-slate-600 hover:text-[#0a2342]"
+                  // Category icon & gradient theme mapping
+                  const getCategoryGraphic = (cat) => {
+                    if (cat === "Electronics") return { icon: "💻", gradient: "from-sky-100 via-blue-50 to-[#FAF7F0]" };
+                    if (cat === "Books & Notes") return { icon: "📚", gradient: "from-emerald-100 via-teal-50 to-[#FAF7F0]" };
+                    if (cat === "Accessories") return { icon: "👛", gradient: "from-purple-100 via-pink-50 to-[#FAF7F0]" };
+                    if (cat === "Clothing") return { icon: "👕", gradient: "from-rose-100 via-orange-50 to-[#FAF7F0]" };
+                    if (cat === "Keys & Cards") return { icon: "🔑", gradient: "from-amber-100 via-yellow-50 to-[#FAF7F0]" };
+                    return { icon: item.type === "LOST" ? "🔎" : "🎁", gradient: "from-slate-100 via-sky-50 to-[#FAF7F0]" };
+                  };
+
+                  const graphic = getCategoryGraphic(item.category);
+
+                  return (
+                    <div
+                      key={item._id}
+                      onClick={() => handleCardClick(item)}
+                      className={`group bg-white rounded-[1.5rem] border transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer shadow-[0_8px_25px_rgba(7,26,53,0.04)] hover:shadow-[0_14px_35px_rgba(7,26,53,0.1)] hover:-translate-y-1 relative ${
+                        isHighlight
+                          ? "border-[#00c2cb] ring-2 ring-[#00c2cb]/20"
+                          : "border-[#E8E1D5] hover:border-[#071A35]/30"
                       }`}
-                      onClick={() => setSelectedTab("all")}
                     >
-                      {t("All Feed")}
-                    </button>
-                    <button
-                      className={`px-4 py-1.5 rounded-full text-[12px] font-bold transition-all ${
-                        selectedTab === "mine" ? "bg-[#0a2342] text-white shadow-sm" : "text-slate-600 hover:text-[#0a2342]"
-                      }`}
-                      onClick={() => setSelectedTab("mine")}
-                    >
-                      {t("My Reports")}
-                    </button>
-                  </div>
-
-                  {/* Dropdowns */}
-                  <select
-                    className="bg-white border border-slate-200 rounded-full px-4 py-2 text-xs font-bold text-[#0a2342] focus:outline-none shadow-sm cursor-pointer"
-                    value={filterType}
-                    onChange={(e) => setFilterType(e.target.value)}
-                  >
-                    <option value="ALL">{t("All Categories")}</option>
-                    <option value="LOST">{t("Lost Only")}</option>
-                    <option value="FOUND">{t("Found Only")}</option>
-                  </select>
-
-                  <select
-                    className="bg-white border border-slate-200 rounded-full px-4 py-2 text-xs font-bold text-[#0a2342] focus:outline-none shadow-sm cursor-pointer"
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                  >
-                    <option value="ALL">{t("All Statuses")}</option>
-                    <option value="Open">{t("Open")}</option>
-                    <option value="At Office">{t("At Office")}</option>
-                  </select>
-
-                  {/* New Report Button */}
-                  <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-gradient-to-r from-[#00c2cb] to-[#00a8b0] text-white px-5 py-2.5 rounded-full text-xs font-black transition-all hover:shadow-[0_4px_15px_rgba(0,194,203,0.3)] active:scale-95 shadow-md"
-                  >
-                    + {t("Report Belonging")}
-                  </button>
-                </div>
-              </div>
-
-              {/* Horizontal Category pills filter */}
-              <div className="flex gap-2 overflow-x-auto pb-1.5 scrollbar-none">
-                {tabPills.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
-                      selectedCategory === cat
-                        ? "bg-[#00c2cb]/12 text-[#00c2cb] border-[#00c2cb]/30 font-black"
-                        : "bg-white text-slate-500 border-slate-200 hover:text-[#0a2342]"
-                    }`}
-                  >
-                    {t(cat)}
-                  </button>
-                ))}
-              </div>
-
-              {/* Items Cards listing feed */}
-              {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 gap-3">
-                  <div className="w-8 h-8 border-3 border-slate-100 border-t-[#00c2cb] rounded-full animate-spin" />
-                  <p className="text-slate-400 text-xs font-semibold">{t("Synchronizing Live Feed...")}</p>
-                </div>
-              ) : filteredItems.length > 0 ? (
-                <div className="grid grid-cols-3 gap-6 max-xl:grid-cols-2 max-md:grid-cols-1">
-                  {filteredItems.map((item) => {
-                    const isLost = item.type === "LOST";
-                    const isHighlighted = item._id === highlightedItemId;
-
-                    return (
-                      <div
-                        key={item._id}
-                        onClick={() => handleCardClick(item)}
-                        className={`bg-white border rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col hover:-translate-y-1 relative cursor-pointer group ${
-                          isHighlighted ? "border-[#00c2cb] ring-2 ring-[#00c2cb]/20 animate-pulse" : "border-slate-200"
-                        }`}
-                      >
-                        {/* Image area with absolute Badge type */}
-                        <div className="h-44 bg-slate-100 relative overflow-hidden">
-                          {item.image ? (
+                      {/* Photo / Stylish Header Graphic */}
+                      <div className="relative w-full h-32 sm:h-44 overflow-hidden">
+                        {item.image ? (
+                          <div className="w-full h-full relative">
                             <img
                               src={item.image}
                               alt={item.itemName}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
-                          ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50 border-b border-slate-100">
-                              <span className="text-2xl">📦</span>
-                              <span className="text-[10px] font-black mt-1.5 uppercase tracking-wider">{t("No Photo Attached")}</span>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                          </div>
+                        ) : (
+                          <div className={`w-full h-full bg-gradient-to-br ${graphic.gradient} flex flex-col items-center justify-center relative`}>
+                            <div className="w-16 h-16 rounded-2xl bg-white/80 backdrop-blur-md shadow-sm border border-white/60 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
+                              {graphic.icon}
                             </div>
-                          )}
+                          </div>
+                        )}
+
+                        {/* Top-Left Type Tag */}
+                        <div className="absolute top-3 left-3 z-10">
                           <span
-                            className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[9px] font-black tracking-wider uppercase shadow-sm ${
-                              isLost ? "bg-rose-500 text-white" : "bg-emerald-500 text-white"
+                            className={`px-3 py-1 rounded-full text-[10.5px] font-black uppercase tracking-wider shadow-sm flex items-center gap-1.5 backdrop-blur-md border ${
+                              item.type === "LOST"
+                                ? "bg-rose-500/90 text-white border-rose-400/30"
+                                : "bg-emerald-500/90 text-white border-emerald-400/30"
                             }`}
                           >
-                            {t(item.type)}
+                            <span>{item.type === "LOST" ? "🔴" : "🟢"}</span>
+                            <span>{item.type === "LOST" ? "Lost" : "Found"}</span>
                           </span>
                         </div>
 
-                        {/* Content text */}
-                        <div className="p-5 flex-1 flex flex-col justify-between gap-4">
-                          <div>
-                            <h3 className="font-extrabold text-[#0a2342] text-[16px] leading-tight line-clamp-1 group-hover:text-[#00c2cb] transition-colors">
-                              {item.itemName}
-                            </h3>
+                        {/* Save / Bookmark Button */}
+                        <button
+                          onClick={(e) => toggleSaveItem(e, item._id)}
+                          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-xs shadow-md transition-all ${
+                            isSaved ? "text-blue-600 font-bold scale-110" : "text-slate-400 hover:text-slate-700"
+                          }`}
+                          title={isSaved ? "Saved" : "Save item"}
+                        >
+                          {isSaved ? "🔖" : "🏷️"}
+                        </button>
+                      </div>
 
-                            <div className="flex flex-col gap-1 mt-2.5">
-                              <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold">
-                                <span>📍</span>
-                                <span>{item.location}</span>
-                              </div>
-                              {item.surrenderedAt && (
-                                <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold">
-                                  <span>🏢</span>
-                                  <span>{t("Deposited at")}: {item.surrenderedAt}</span>
-                                </div>
-                              )}
-                            </div>
+                      {/* Card Info Body */}
+                      <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                        <div>
+                          {/* Title */}
+                          <h4 className="text-sm font-extrabold text-[#071A35] line-clamp-1 group-hover:text-[#00c2cb] transition-colors leading-tight">
+                            {item.itemName}
+                          </h4>
 
-                            <p className="text-slate-500 text-[12.5px] leading-relaxed font-medium mt-3.5 line-clamp-3">
-                              {item.description}
-                            </p>
-                          </div>
+                          {/* Description Snippet */}
+                          <p className="text-[11.5px] font-medium text-[#211A24]/70 line-clamp-2 mt-1 leading-snug">
+                            {item.description || "No description details provided."}
+                          </p>
 
-                          {/* Footer with avatar and resolver triggers */}
-                          <div
-                            className="border-t border-slate-100 pt-4 flex justify-between items-center mt-2"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <div className="flex items-center gap-2">
-                              <img
-                                src={item.reporter?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.reporter?.name || "User")}`}
-                                className="w-7 h-7 rounded-full border border-slate-200 object-cover"
-                                alt=""
-                              />
-                              <div className="flex flex-col">
-                                <span className="text-[11px] font-bold text-slate-800 leading-none">{item.reporter?.name}</span>
-                                <span className="text-[9px] text-slate-400 font-bold mt-0.5">
-                                  {item.reporter?.registeration_number || t("Student")}
-                                </span>
-                              </div>
-                            </div>
-
-                            {item.reporter?._id === user?._id ? (
-                              <button
-                                onClick={() => handleResolveItem(item._id)}
-                                disabled={resolvingIds.has(item._id)}
-                                className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3.5 py-2 rounded-xl text-[11px] font-black transition-all border border-emerald-100 active:scale-95 disabled:opacity-50"
-                              >
-                                {resolvingIds.has(item._id) ? (
-                                  <div className="w-3.5 h-3.5 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
-                                ) : (
-                                  t("Mark Claimed")
-                                )}
-                              </button>
-                            ) : (
-                              <div className="flex items-center gap-2">
-                                {item.type === "LOST" && (item.status === "Open" || item.status === "At Office") && (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setClaimTargetItem(item);
-                                      setIsClaimModalOpen(true);
-                                    }}
-                                    className="bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-100 px-3 py-1.5 rounded-xl text-[10px] font-black transition-all active:scale-95 cursor-pointer"
-                                  >
-                                    {t("Found It?")}
-                                  </button>
-                                )}
-                                <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-500">
-                                  {t(item.status)}
-                                </span>
-                              </div>
+                          {/* Category Badge & Location */}
+                          <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+                            {item.category && (
+                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FAF7F0] text-[#071A35] border border-[#E8E1D5]">
+                                {item.category}
+                              </span>
                             )}
+                            <div className="text-[11px] font-bold text-slate-500 flex items-center gap-1 truncate max-w-[170px]">
+                              <span>📍</span>
+                              <span className="truncate">{item.location || "Campus Grounds"}</span>
+                            </div>
                           </div>
                         </div>
+
+                        {/* Footer Info Bar */}
+                        <div className="text-[10.5px] font-semibold text-slate-400 pt-2.5 border-t border-[#E8E1D5] flex items-center justify-between">
+                          <span>⏱️ {formatDate(item.createdAt)}</span>
+                          <span
+                            className={`font-black px-2 py-0.5 rounded-md text-[10px] ${
+                              item.status === "Returned" || item.status === "Claimed"
+                                ? "bg-purple-50 text-purple-700"
+                                : item.status === "At Office"
+                                ? "bg-cyan-50 text-[#00c2cb]"
+                                : "bg-slate-100 text-[#071A35]"
+                            }`}
+                          >
+                            {item.status}
+                          </span>
+                        </div>
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="bg-white border border-slate-200 rounded-3xl p-16 text-center text-slate-400 font-bold shadow-sm animate-fade-in">
-                  <span className="text-3xl block mb-2">🔎</span>
-                  {t("No items match your filter criteria or search keyword.")}
-                </div>
-              )}
-            </div>
-          </div>
-        </main>
-      </div>
 
-      {/* Detail overlay Modal */}
-      {isDetailOpen && selectedItem && (
-        <div
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[2100] p-4 animate-fade-in"
-          onClick={handleCloseDetail}
-        >
-          <div
-            className="bg-white border border-slate-200 rounded-3xl p-7 max-w-[500px] w-full shadow-2xl relative animate-modal-slide-in flex flex-col gap-5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close */}
-            <button
-              className="absolute right-5 top-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200/80 flex items-center justify-center text-slate-500 hover:text-[#0a2342] transition-colors"
-              onClick={handleCloseDetail}
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-
-            {/* Badge type header */}
-            <div className="flex justify-between items-center pr-8">
-              <span
-                className={`px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase ${
-                  selectedItem.type === "LOST" ? "bg-rose-100 text-rose-600" : "bg-emerald-100 text-emerald-600"
-                }`}
-              >
-                {t(selectedItem.type)} Item
-              </span>
-              <span className="text-[11px] text-slate-400 font-bold">{formatDate(selectedItem.createdAt)}</span>
-            </div>
-
-            {/* Image display */}
-            {selectedItem.image ? (
-              <img
-                src={selectedItem.image}
-                alt={selectedItem.itemName}
-                className="w-full max-h-64 object-cover rounded-2xl border border-slate-100 shadow-sm"
-              />
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
-              <div className="h-40 bg-slate-50 rounded-2xl flex flex-col items-center justify-center text-slate-400 border border-slate-100">
-                <span className="text-3xl">📦</span>
-                <span className="text-[11px] font-black mt-1 uppercase tracking-wider">{t("No Image Attached")}</span>
+              /* List View Layout */
+              <div className="space-y-2.5">
+                {paginatedItems.map((item) => (
+                  <div
+                    key={item._id}
+                    onClick={() => handleCardClick(item)}
+                    className="bg-white rounded-2xl p-3 sm:p-4 border border-[#E8E1D5] shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center gap-3"
+                  >
+                    {/* Thumbnail */}
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#FAF7F0] border border-[#E8E1D5] overflow-hidden flex items-center justify-center shrink-0">
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                            const fallback = e.target.nextSibling;
+                            if (fallback) fallback.style.display = "flex";
+                          }}
+                        />
+                      ) : null}
+                      <span
+                        className="text-xl items-center justify-center"
+                        style={{ display: item.image ? "none" : "flex" }}
+                      >
+                        {item.type === "LOST" ? "🔴" : "🟢"}
+                      </span>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      {/* Top row: badge + title */}
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span
+                          className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase ${
+                            item.type === "LOST" ? "bg-rose-100 text-rose-600" : "bg-emerald-100 text-emerald-600"
+                          }`}
+                        >
+                          {item.type}
+                        </span>
+                        <h4 className="text-xs sm:text-sm font-extrabold text-[#071A35] truncate">{item.itemName}</h4>
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-[11px] text-slate-500 truncate leading-snug">{item.description}</p>
+
+                      {/* Location + Time — inline on sm, stacked on xs if needed */}
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-0.5 truncate max-w-[120px] sm:max-w-none">
+                          📍 <span className="truncate">{item.location}</span>
+                        </span>
+                        <span className="text-[10px] font-semibold text-slate-400 shrink-0">
+                          ⏱️ {formatDate(item.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className="shrink-0">
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-bold border ${
+                          item.status === "Open"
+                            ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                            : item.status === "At Office"
+                            ? "bg-blue-50 border-blue-200 text-blue-700"
+                            : "bg-slate-50 border-slate-200 text-slate-600"
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 
-            {/* Body texts details */}
-            <div className="flex flex-col gap-2">
-              <h2 className="text-[20px] font-black text-[#0a2342] leading-tight">{selectedItem.itemName}</h2>
-              <div className="flex flex-col gap-1 mt-1 text-[12.5px] font-semibold text-slate-400">
+            {/* ── PAGINATION CONTROLS ── */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 pt-2">
+                {/* Prev Button */}
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 rounded-full text-xs font-extrabold border transition-all ${
+                    currentPage === 1
+                      ? "bg-[#FAF7F0] border-[#E8E1D5] text-[#211A24]/30 cursor-not-allowed"
+                      : "bg-white border-[#E8E1D5] text-[#071A35] hover:bg-[#F3EEE4] cursor-pointer shadow-sm"
+                  }`}
+                >
+                  ← Prev
+                </button>
+
+                {/* Page Number Buttons */}
                 <div className="flex items-center gap-1.5">
-                  <span>📍</span>
-                  <span>{t("Lost/Found Location")}: <strong className="text-[#0a2342]">{selectedItem.location}</strong></span>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`w-9 h-9 rounded-full text-xs font-extrabold border transition-all cursor-pointer ${
+                            currentPage === page
+                              ? "bg-[#071A35] text-white border-[#071A35] shadow-md"
+                              : "bg-white border-[#E8E1D5] text-[#071A35] hover:bg-[#F3EEE4]"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    } else if (
+                      page === currentPage - 2 ||
+                      page === currentPage + 2
+                    ) {
+                      return (
+                        <span key={page} className="text-[#071A35]/40 font-bold text-xs px-1">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
                 </div>
-                {selectedItem.surrenderedAt && (
-                  <div className="flex items-center gap-1.5">
-                    <span>🏢</span>
-                    <span>{t("Deposited at Office Desk")}: <strong className="text-[#0a2342]">{selectedItem.surrenderedAt}</strong></span>
-                  </div>
-                )}
+
+                {/* Next Button */}
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-full text-xs font-extrabold border transition-all ${
+                    currentPage === totalPages
+                      ? "bg-[#FAF7F0] border-[#E8E1D5] text-[#211A24]/30 cursor-not-allowed"
+                      : "bg-white border-[#E8E1D5] text-[#071A35] hover:bg-[#F3EEE4] cursor-pointer shadow-sm"
+                  }`}
+                >
+                  Next →
+                </button>
+
+                {/* Page Info */}
+                <span className="text-[11px] font-bold text-[#071A35]/50 ml-1">
+                  {currentPage} / {totalPages}
+                </span>
+              </div>
+            )}
+
+          </div>
+
+        </div>
+
+        {/* ══════════════ 8. CREATE REPORT MODAL ══════════════ */}
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-[#0a2342]/75 backdrop-blur-md animate-fade-in">
+            <div className="bg-white text-[#0a2342] rounded-t-3xl sm:rounded-3xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200/80 relative flex flex-col animate-scale-up" style={{maxHeight: '92dvh'}}>
+              
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-3 shrink-0">
+                <div>
+                  <h2 className="text-base font-black text-[#0a2342]">Report Belonging</h2>
+                  <p className="text-[11px] text-slate-500 font-medium mt-0.5">Post a new lost or found report</p>
+                </div>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:text-[#0a2342] hover:bg-slate-200 flex items-center justify-center text-xs font-bold cursor-pointer transition-colors shrink-0"
+                >
+                  ✕
+                </button>
               </div>
 
-              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 mt-2">
-                <p className="text-[13px] text-slate-600 font-medium leading-relaxed">{selectedItem.description}</p>
-              </div>
-
-              {selectedItem.status === "Claimed" && selectedItem.foundBy && (
-                <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 mt-3 flex flex-col gap-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[16px]">🎉</span>
-                    <strong className="text-[13px] text-emerald-800 font-black">{t("Misplaced Item Has Been Located!")}</strong>
+              {/* Form Container */}
+              <form onSubmit={handleCreateReport} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                
+                {/* Scrollable Inputs Area */}
+                <div className="overflow-y-auto flex-1 pr-0.5 space-y-3">
+                  
+                  {/* Segmented Type Picker */}
+                  <div className="grid grid-cols-2 gap-1.5 p-1 rounded-full bg-slate-100 border border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => setNewItemType("LOST")}
+                      className={`py-2 rounded-full text-[11px] font-black transition-all cursor-pointer ${
+                        newItemType === "LOST"
+                          ? "bg-rose-600 text-white shadow-sm"
+                          : "text-slate-600 hover:text-[#0a2342]"
+                      }`}
+                    >
+                      🔴 I Lost Something
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNewItemType("FOUND")}
+                      className={`py-2 rounded-full text-[11px] font-black transition-all cursor-pointer ${
+                        newItemType === "FOUND"
+                          ? "bg-emerald-600 text-white shadow-sm"
+                          : "text-slate-600 hover:text-[#0a2342]"
+                      }`}
+                    >
+                      🟢 I Found Something
+                    </button>
                   </div>
-                  <div className="flex flex-col gap-1.5 text-[12px] text-emerald-700 font-semibold pl-6">
+
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-500 tracking-wider mb-1">
+                      Item Title *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g., Black Leather Wallet, AirPods Pro..."
+                      value={itemName}
+                      onChange={(e) => setItemName(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-[#0a2342] placeholder-slate-400 focus:outline-none focus:border-[#2563eb]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-500 tracking-wider mb-1">
+                      Category *
+                    </label>
+                    <select
+                      value={itemCategory}
+                      onChange={(e) => setItemCategory(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#2563eb] cursor-pointer"
+                    >
+                      <option value="Electronics">Electronics</option>
+                      <option value="Books & Notes">Books &amp; Notes</option>
+                      <option value="Accessories">Accessories</option>
+                      <option value="Clothing">Clothing</option>
+                      <option value="Keys & Cards">Keys &amp; Cards</option>
+                      <option value="Others">Others</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-500 tracking-wider mb-1">
+                      Description *
+                    </label>
+                    <textarea
+                      required
+                      rows={2}
+                      placeholder="Describe color, brand, stickers, contents..."
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-[#0a2342] placeholder-slate-400 focus:outline-none focus:border-[#2563eb] resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-500 tracking-wider mb-1">
+                      {newItemType === "LOST" ? "Last Seen Location *" : "Where Found *"}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g., Library 2nd Floor, Main Cafeteria..."
+                      value={locationName}
+                      onChange={(e) => setLocationName(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-[#0a2342] placeholder-slate-400 focus:outline-none focus:border-[#2563eb]"
+                    />
+                  </div>
+
+                  {newItemType === "FOUND" && (
                     <div>
-                      <span>🔍 {t("Found by")}: </span>
-                      <strong className="text-emerald-900">{selectedItem.foundBy.name} ({selectedItem.foundBy.registeration_number || t("Student")})</strong>
+                      <label className="block text-[10px] font-black uppercase text-[#2563eb] tracking-wider mb-1">
+                        Submitted / Surrendered Location
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g., Security Office Gate 1, Info Desk..."
+                        value={surrenderedAt}
+                        onChange={(e) => setSurrenderedAt(e.target.value)}
+                        className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-[#0a2342] placeholder-slate-400 focus:outline-none focus:border-[#2563eb]"
+                      />
                     </div>
-                    <div>
-                      <span>📍 {t("Where it was found")}: </span>
-                      <strong className="text-emerald-900">{selectedItem.foundLocation}</strong>
-                    </div>
-                    <div>
-                      <span>🏢 {t("Where it was submitted")}: </span>
-                      <strong className="text-emerald-900">{selectedItem.submittedTo}</strong>
-                    </div>
-                    {selectedItem.foundAt && (
-                      <div>
-                        <span>📅 {t("When")}: </span>
-                        <strong className="text-emerald-900">{formatDate(selectedItem.foundAt)}</strong>
+                  )}
+
+                  <div>
+                    <label className="block text-[11px] font-black uppercase text-slate-500 tracking-wider mb-1.5">
+                      Photo Attachment (Optional)
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-slate-900 file:text-white hover:file:bg-slate-800 cursor-pointer"
+                    />
+                    {imagePreview && (
+                      <div className="mt-2 relative w-24 h-24 rounded-2xl overflow-hidden border border-slate-200">
+                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                       </div>
                     )}
                   </div>
-                </div>
-              )}
-            </div>
 
-            {/* Footer with reporter identity */}
-            <div className="flex justify-between items-center border-t border-slate-100 pt-4 flex-wrap gap-3">
-              <div className="flex items-center gap-3">
-                <img
-                  src={selectedItem.reporter?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedItem.reporter?.name || "User")}`}
-                  className="w-9 h-9 rounded-full border border-slate-200 object-cover"
-                  alt=""
-                />
-                <div className="flex flex-col">
-                  <span className="text-[12px] font-black text-slate-800 leading-none">{selectedItem.reporter?.name}</span>
-                  <span className="text-[10px] text-slate-400 font-bold mt-0.5">
-                    {selectedItem.reporter?.registeration_number || t("Student")}
+                </div>
+
+                {/* Fixed Footer Buttons */}
+                <div className="pt-3 mt-2 border-t border-slate-100 flex items-center justify-end gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 rounded-full bg-slate-100 text-slate-600 font-bold text-[11px] hover:bg-slate-200 cursor-pointer transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="px-5 py-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-black text-[11px] shadow-md transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    {isSubmitting ? "Submitting..." : "📢 Broadcast Report"}
+                  </button>
+                </div>
+
+              </form>
+
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════ 9. ITEM DETAILS MODAL ══════════════ */}
+        {isDetailOpen && selectedItem && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-[#0a2342]/75 backdrop-blur-md animate-fade-in overflow-y-auto">
+            <div className="bg-white text-[#0a2342] rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200/80 relative overflow-hidden max-h-[85vh] sm:max-h-[90vh] flex flex-col animate-scale-up my-auto">
+              
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4 shrink-0">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${
+                      selectedItem.type === "LOST" ? "bg-rose-50 text-rose-700 border border-rose-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                    }`}
+                  >
+                    {selectedItem.type}
+                  </span>
+                  <span className="text-xs font-bold text-slate-500">
+                    Status: <span className="text-[#0a2342] font-black">{selectedItem.status}</span>
                   </span>
                 </div>
-              </div>
 
-              {selectedItem.reporter?._id === user?._id && (selectedItem.status === "Open" || selectedItem.status === "At Office") && (
                 <button
-                  onClick={() => handleResolveItem(selectedItem._id)}
-                  disabled={resolvingIds.has(selectedItem._id)}
-                  className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-xs font-black transition-all shadow-md hover:shadow-emerald-500/20 active:scale-95 disabled:opacity-50"
+                  onClick={handleCloseDetail}
+                  className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-[#0a2342] hover:bg-slate-200 flex items-center justify-center text-sm font-bold cursor-pointer transition-colors"
                 >
-                  {resolvingIds.has(selectedItem._id) ? (
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    t("Mark Claimed")
-                  )}
-                </button>
-              )}
-
-              {selectedItem.reporter?._id !== user?._id && selectedItem.type === "LOST" && (selectedItem.status === "Open" || selectedItem.status === "At Office") && (
-                <button
-                  onClick={() => {
-                    setClaimTargetItem(selectedItem);
-                    setIsClaimModalOpen(true);
-                  }}
-                  className="bg-sky-500 hover:bg-sky-600 text-white px-5 py-2.5 rounded-xl text-xs font-black transition-all shadow-md hover:shadow-sky-500/20 active:scale-95 cursor-pointer"
-                >
-                  {t("I Found This")}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Create Modal Wizard overlay */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[2100] p-4 animate-fade-in">
-          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-[500px] shadow-2xl relative animate-modal-slide-in overflow-hidden">
-            {/* Header */}
-            <div className="bg-[#0a2342] text-white p-6 flex justify-between items-center">
-              <h2 className="text-[18px] font-black">{t("Report Misplaced Item")}</h2>
-              <button
-                className="text-white/70 hover:text-white text-[16px] font-bold"
-                onClick={() => setIsModalOpen(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleCreateReport} className="p-6 flex flex-col gap-4 max-h-[75vh] overflow-y-auto custom-scrollbar">
-              {/* Type toggle selection */}
-              <div className="flex gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-inner">
-                <button
-                  type="button"
-                  onClick={() => setNewItemType("LOST")}
-                  className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${
-                    newItemType === "LOST" ? "bg-white text-rose-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  {t("I Lost Something")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setNewItemType("FOUND")}
-                  className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${
-                    newItemType === "FOUND" ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  {t("I Found Something")}
+                  ✕
                 </button>
               </div>
 
-              {/* Item name */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{t("Item Name")} *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder={t("e.g. Leather Wallet, Student ID Card, Keys")}
-                  value={itemName}
-                  onChange={(e) => setItemName(e.target.value)}
-                  className="border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#00c2cb] focus:ring-1 focus:ring-[#00c2cb]"
-                />
-              </div>
+              <div className="overflow-y-auto space-y-4 pr-1.5 custom-scrollbar flex-1">
+                
+                {/* Hero Photo Banner */}
+                {selectedItem.image ? (
+                  <div className="w-full h-56 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
+                    <img src={selectedItem.image} alt={selectedItem.itemName} className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-full h-36 rounded-2xl bg-slate-100 border border-slate-200 flex flex-col items-center justify-center text-slate-400">
+                    <span className="text-4xl mb-1">{selectedItem.type === "LOST" ? "🔴" : "🟢"}</span>
+                    <span className="text-xs font-bold">No photo attached</span>
+                  </div>
+                )}
 
-              {/* Location */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{t("Location")} *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder={t("e.g. Cafeteria Table, Library 2nd Floor, Room 102")}
-                  value={locationName}
-                  onChange={(e) => setLocationName(e.target.value)}
-                  className="border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#00c2cb] focus:ring-1 focus:ring-[#00c2cb]"
-                />
-              </div>
-
-              {/* Deposited office for found items */}
-              {newItemType === "FOUND" && (
-                <div className="flex flex-col gap-1.5 animate-slide-down">
-                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{t("Surrendered Desk (Optional)")}</label>
-                  <input
-                    type="text"
-                    placeholder={t("e.g. Admin Block Front Reception Desk, Library counter")}
-                    value={surrenderedAt}
-                    onChange={(e) => setSurrenderedAt(e.target.value)}
-                    className="border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#00c2cb] focus:ring-1 focus:ring-[#00c2cb]"
-                  />
+                <div>
+                  <h2 className="text-xl font-black text-[#0a2342]">{selectedItem.itemName}</h2>
+                  <p className="text-xs text-slate-600 font-medium mt-2 leading-relaxed whitespace-pre-line bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                    {selectedItem.description}
+                  </p>
                 </div>
-              )}
 
-              {/* Description */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{t("Description & Details")} *</label>
-                <textarea
-                  required
-                  rows="3"
-                  placeholder={t("Mention color, brand logo, serial numbers, keychains, stickers, or notable characteristics...")}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="border border-slate-200 rounded-xl p-4 text-xs font-semibold focus:outline-none focus:border-[#00c2cb] focus:ring-1 focus:ring-[#00c2cb] resize-none"
-                />
-              </div>
+                {/* Location Specs Box */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-500 font-bold">📍 Location:</span>
+                    <span className="text-[#0a2342] font-black">{selectedItem.location || "Campus Point"}</span>
+                  </div>
 
-              {/* Photo upload dropzone */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{t("Item Photo Attachment")}</label>
-                <div className="border border-dashed border-slate-300 rounded-2xl p-5 flex flex-col items-center justify-center cursor-pointer relative hover:bg-slate-50 transition-colors">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                  />
-                  {imagePreview ? (
-                    <img src={imagePreview} className="max-h-36 object-contain rounded-xl shadow-sm" alt="Preview" />
-                  ) : (
-                    <div className="text-center py-2 flex flex-col items-center gap-1">
-                      <span className="text-2xl">📷</span>
-                      <span className="text-[11px] block text-[#00c2cb] font-black mt-1">{t("Select Image File")}</span>
-                      <span className="text-[9px] block text-slate-400 font-bold">{t("JPG, PNG up to 5MB")}</span>
+                  {selectedItem.surrenderedAt && (
+                    <div className="flex items-center gap-2 text-[#2563eb]">
+                      <span className="font-bold">🏢 Surrendered Office:</span>
+                      <span className="font-black">{selectedItem.surrenderedAt}</span>
                     </div>
                   )}
+
+                  {selectedItem.foundLocation && (
+                    <div className="flex items-center gap-2 text-emerald-700">
+                      <span className="font-bold">🤝 Found Location:</span>
+                      <span className="font-black">{selectedItem.foundLocation}</span>
+                    </div>
+                  )}
+
+                  {selectedItem.submittedTo && (
+                    <div className="flex items-center gap-2 text-[#2563eb]">
+                      <span className="font-bold">🛡️ Submitted To:</span>
+                      <span className="font-black">{selectedItem.submittedTo}</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2 text-slate-400 text-[11px] pt-1">
+                    <span>⏱️ Date Reported:</span>
+                    <span>{formatDate(selectedItem.createdAt)}</span>
+                  </div>
                 </div>
+
+                {/* Reporter Profile Card */}
+                <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={getPersonalizedAvatar(selectedItem.reporter?.avatar)}
+                      alt={selectedItem.reporter?.name || "Student"}
+                      className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                    />
+                    <div>
+                      <div className="text-xs font-black text-[#0a2342]">{selectedItem.reporter?.name || "Campus Student"}</div>
+                      <div className="text-[10px] font-bold text-slate-400">Reporter / Submitter</div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-[#0a2342] text-white py-3 rounded-xl text-xs font-black transition-all hover:bg-[#103054] active:scale-95 disabled:opacity-50 mt-2 flex items-center justify-center gap-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>{t("Uploading & Scanning...")}</span>
-                  </>
-                ) : (
-                  <span>{t("Publish Report")}</span>
+              {/* Detail Modal Action Footer */}
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 shrink-0 flex-wrap">
+                
+                {/* Delete button (Admin / Mod) */}
+                {isAdminOrMod && (
+                  <button
+                    onClick={() => handleDeleteItem(selectedItem._id)}
+                    disabled={deletingIds.has(selectedItem._id)}
+                    className="px-3 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-[11px] font-bold transition-all cursor-pointer shrink-0"
+                  >
+                    {deletingIds.has(selectedItem._id) ? "Deleting..." : "🗑️ Delete"}
+                  </button>
                 )}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
-      {/* Claim Found Modal overlay */}
-      {isClaimModalOpen && claimTargetItem && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[2200] p-4 animate-fade-in">
-          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-[450px] shadow-2xl relative animate-modal-slide-in overflow-hidden">
-            {/* Header */}
-            <div className="bg-sky-900 text-white p-6 flex justify-between items-center">
-              <h2 className="text-[17px] font-black">{t("Report Found Item")}</h2>
-              <button
-                type="button"
-                className="text-white/70 hover:text-white text-[16px] font-bold cursor-pointer"
-                onClick={() => {
-                  setIsClaimModalOpen(false);
-                  setClaimTargetItem(null);
-                }}
-              >
-                ✕
-              </button>
+                <div className="flex items-center gap-2 ml-auto flex-wrap justify-end">
+                  {/* If Lost & Open, show 'I Found This Item' */}
+                  {selectedItem.type === "LOST" && selectedItem.status === "Open" && (
+                    <button
+                      onClick={() => {
+                        setClaimTargetItem(selectedItem);
+                        setIsClaimModalOpen(true);
+                      }}
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[11px] sm:text-xs shadow-sm transition-all cursor-pointer whitespace-nowrap"
+                    >
+                      🤝 I Found This!
+                    </button>
+                  )}
+
+                  {/* If user is reporter or admin, show 'Mark Reunited' */}
+                  {(selectedItem.reporter?._id === user?._id || isAdminOrMod) && selectedItem.status !== "Returned" && (
+                    <button
+                      onClick={() => handleResolveItem(selectedItem._id)}
+                      disabled={resolvingIds.has(selectedItem._id)}
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-black text-[11px] sm:text-xs shadow-sm transition-all disabled:opacity-50 cursor-pointer whitespace-nowrap"
+                    >
+                      {resolvingIds.has(selectedItem._id) ? "Updating..." : "✅ Mark Reunited"}
+                    </button>
+                  )}
+                </div>
+
+              </div>
+
             </div>
+          </div>
+        )}
 
-            {/* Form */}
-            <form onSubmit={handleClaimSubmit} className="p-6 flex flex-col gap-4">
-              <p className="text-[12.5px] text-slate-500 font-medium leading-relaxed">
-                {t("You are reporting that you found")} <strong className="text-[#0a2342]">"{claimTargetItem.itemName}"</strong>. {t("Please provide details so the owner can retrieve it.")}
-              </p>
-
-              {/* Where did you find it? */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{t("Where did you find this item?")} *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder={t("e.g. Library 2nd floor, Cafeteria side table")}
-                  value={foundLocationInput}
-                  onChange={(e) => setFoundLocationInput(e.target.value)}
-                  className="border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#00c2cb] focus:ring-1 focus:ring-[#00c2cb]"
-                />
+        {/* ══════════════ 10. CLAIM FOUND ITEM MODAL ══════════════ */}
+        {isClaimModalOpen && claimTargetItem && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 bg-[#0a2342]/75 backdrop-blur-md animate-fade-in overflow-y-auto">
+            <div className="bg-white text-[#0a2342] rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200/80 relative max-h-[85vh] sm:max-h-[90vh] flex flex-col overflow-hidden animate-scale-up my-auto">
+              
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4 shrink-0">
+                <div>
+                  <h2 className="text-base font-black text-[#0a2342]">Report Item Found</h2>
+                  <p className="text-xs text-slate-500 font-medium">Help return "{claimTargetItem.itemName}"</p>
+                </div>
+                <button
+                  onClick={() => setIsClaimModalOpen(false)}
+                  className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:text-[#0a2342] flex items-center justify-center text-xs font-bold cursor-pointer transition-colors"
+                >
+                  ✕
+                </button>
               </div>
 
-              {/* To whom did you submit it? */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{t("To whom/where did you submit it?")} *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder={t("e.g. Front desk security office, keeping it with me")}
-                  value={submittedToInput}
-                  onChange={(e) => setSubmittedToInput(e.target.value)}
-                  className="border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#00c2cb] focus:ring-1 focus:ring-[#00c2cb]"
-                />
-              </div>
+              <form onSubmit={handleClaimSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                <div className="overflow-y-auto custom-scrollbar flex-1 pr-1 space-y-4">
+                  <div>
+                    <label className="block text-[11px] font-black uppercase text-slate-500 tracking-wider mb-1.5">
+                      Where did you find this item? *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g., Computer Lab 3 Bench, Library Stairs..."
+                      value={foundLocationInput}
+                      onChange={(e) => setFoundLocationInput(e.target.value)}
+                      className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-[#0a2342] placeholder-slate-400 focus:outline-none focus:border-[#2563eb]"
+                    />
+                  </div>
 
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={isClaimSubmitting}
-                className="bg-sky-600 text-white py-3 rounded-xl text-xs font-black transition-all hover:bg-sky-700 active:scale-95 disabled:opacity-50 mt-2 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                {isClaimSubmitting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>{t("Submitting...")}</span>
-                  </>
-                ) : (
-                  <span>{t("Submit Report")}</span>
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+                  <div>
+                    <label className="block text-[11px] font-black uppercase text-slate-500 tracking-wider mb-1.5">
+                      To whom / where did you hand it over? *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g., Security Gate 1 Officer, Student Info Desk..."
+                      value={submittedToInput}
+                      onChange={(e) => setSubmittedToInput(e.target.value)}
+                      className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-[#0a2342] placeholder-slate-400 focus:outline-none focus:border-[#2563eb]"
+                    />
+                  </div>
+                </div>
 
-      {/* Floating Global Toast notifications */}
-      {toast && (
-        <div className={`fixed top-24 right-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl z-[3000] flex gap-3 w-[360px] animate-modal-slide-in ${
-          toast.type === "warning"
-            ? "border-l-4 border-l-amber-500"
-            : toast.type === "error"
-            ? "border-l-4 border-l-red-500"
-            : toast.type === "success"
-            ? "border-l-4 border-l-emerald-500"
-            : "border-l-4 border-l-[#00c2cb]"
-        }`}>
-          <div className="text-[18px] mt-0.5">
-            {toast.type === "warning" && <span>⚠️</span>}
-            {toast.type === "error" && <span>❌</span>}
-            {toast.type === "success" && <span>✅</span>}
-            {toast.type === "info" && <span>ℹ️</span>}
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsClaimModalOpen(false)}
+                    className="px-4 py-2 rounded-full bg-slate-100 text-slate-600 font-bold text-xs hover:bg-slate-200 cursor-pointer transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isClaimSubmitting}
+                    className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    {isClaimSubmitting ? "Notifying Owner..." : "Submit Found Report"}
+                  </button>
+                </div>
+
+              </form>
+
+            </div>
           </div>
-          <div className="flex-1 flex flex-col gap-0.5">
-            <strong className="text-[13px] font-black text-[#0a2342]">
-              {toast.type === "warning"
-                ? t("AI Moderation Alert")
-                : toast.type === "error"
-                ? t("Error occurred")
-                : toast.type === "success"
-                ? t("Success")
-                : t("Portal Notice")}
-            </strong>
-            <p className="text-[12px] text-slate-500 leading-normal">{toast.message}</p>
-          </div>
-          <button
-            className="text-[18px] text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1"
-            onClick={() => setToast(null)}
-          >
-            ×
-          </button>
-        </div>
-      )}
-    </>
+        )}
+
+      </main>
+    </div>
   );
 }

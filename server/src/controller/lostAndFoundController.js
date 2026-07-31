@@ -25,7 +25,7 @@ export const getLostFoundItems = async (req, res)=>{
 
 export const reportItem = async (req, res) =>{
     try{
-        const {type , itemName , description, location, surrenderedAt, isFlagged } = req.body
+        const {type , itemName , category, description, location, surrenderedAt, isFlagged } = req.body
 
         if(!type || !itemName || !description || !location){
             return res.status(400).json({message: "Please provide all required fields"})
@@ -38,6 +38,7 @@ export const reportItem = async (req, res) =>{
         const newItem = await LostFound.create({
             type,
             itemName,
+            category: category || "Others",
             description,
             location,
             surrenderedAt: type === "FOUND"? surrenderedAt : "",

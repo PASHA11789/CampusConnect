@@ -182,11 +182,11 @@ export default function RiderMarketplace() {
 
   // Reset student coming alert whenever active order changes or status is not arrived
   useEffect(() => {
-      const status = activeClaimedOrder?.status;
-      if (!activeClaimedOrder || status !== "arrived") {
-        setStudentComingAlert(null);
-      }
-    }, [activeClaimedOrder?.orderId, activeClaimedOrder?.status]);
+    const status = activeClaimedOrder?.status;
+    if (!activeClaimedOrder || status !== "arrived") {
+      setStudentComingAlert(null);
+    }
+  }, [activeClaimedOrder]);
 
     const [completedDeliveries, setCompletedDeliveries] = useState(() => {
       try {

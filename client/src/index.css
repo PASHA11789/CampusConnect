@@ -9,7 +9,6 @@
     width: 100%;
     height: 100%;
     max-width: 100vw;
-    overflow: hidden;
   }
 
   body {
@@ -24,7 +23,6 @@
     width: 100%;
     height: 100%;
     max-width: 100%;
-    overflow: hidden;
   }
 
   /* Prevent keyframe animations from causing temporary overflow during initial page load */
