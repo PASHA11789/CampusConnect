@@ -153,5 +153,6 @@ Contributions, issues, and feature requests are welcome! Feel free to check the 
 This project is licensed under the **ISC License**.
 
 <div align="center">
-  <sub>Built with ❤️ for a better campus experience.</sub>
+  <sub>Built with ❤️ for a better campus experience.</sub><br>
+  <b>An idea by Mr. Sagheer Ahmad & Mr. Shujaat Ali Hashim</b>
 </div>
