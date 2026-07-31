@@ -4,7 +4,7 @@ import Restaurant from '../models/Restaurants.js';
 export const getActiveRestaurants = async (req, res) => {
   try {
     const restaurants = await Restaurant.find({ isActive: true })
-      .select('name phone address coverImage deliveryRadiusKm');
+      .select('name phone address coverImage deliveryRadiusKm isActive');
     res.status(200).json({ success: true, count: restaurants.length, restaurants });
   } catch (error) {
     res.status(500).json({ message: "Failed to load restaurants", error: error.message });

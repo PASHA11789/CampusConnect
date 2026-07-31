@@ -155,6 +155,14 @@ export const updateOrderStatus = async (req, res) => {
           status: "preparing",
           message: `Your order from ${restaurant.name} is now being prepared! 🍳`
         });
+        // Broadcast new ticket to all riders
+        io.to("riders").emit("new_ticket", {
+          orderId: order.orderId,
+          deliveryDestination: order.deliveryLocation || "University Main Gate",
+          totalAmount: order.totalAmount,
+          restaurantName: restaurant.name,
+          createdAt: order.createdAt
+        });
         // Notify assigned rider if any
         if (order.rider) {
           io.to(order.rider.toString()).emit("order_status_update", {
@@ -191,14 +199,20 @@ export const updateOrderStatus = async (req, res) => {
       await order.save();
 
       if (io) {
+        const readyPayload = {
+          orderId: order.orderId,
+          status: "ready",
+          message: `🍔 Order #${order.orderId} is READY for pickup at ${restaurant.name}! Head over now.`,
+          restaurantName: restaurant.name,
+          deliveryDestination: order.deliveryLocation
+        };
+
+        // Broadcast ready notification to riders pool
+        io.to("riders").emit("order_ready_for_pickup", readyPayload);
+
         // Notify assigned rider specifically — "Come pick it up NOW!"
         if (order.rider) {
-          io.to(order.rider.toString()).emit("order_ready_for_pickup", {
-            orderId: order.orderId,
-            message: `🍔 Order ${order.orderId} is READY for pickup at ${restaurant.name}! Head over now.`,
-            restaurantName: restaurant.name,
-            deliveryDestination: order.deliveryLocation
-          });
+          io.to(order.rider.toString()).emit("order_ready_for_pickup", readyPayload);
         } else {
           // No rider claimed yet — re-broadcast ticket as urgent to riders pool
           io.to("riders").emit("new_ticket", {

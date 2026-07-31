@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
 import { SOCKET_URL } from "../../utils/helpers";
+import { startArrivalAlertLoop, stopArrivalAlertLoop } from "../../utils/audioAlert";
 
 // Layout
 import Sidebar from "../../components/layout/Sidebar";
@@ -234,6 +235,67 @@ export default function Canteen() {
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [activeOrder, setActiveOrder] = useState(null);
   const [orderId, setOrderId] = useState("");
+  const [isNotifyingRider, setIsNotifyingRider] = useState(false);
+  const [isStudentComingNotified, setIsStudentComingNotified] = useState(false);
+
+  // Trigger continuous un-muteable 5s bell ring / 8s pause loop when rider arrives
+  useEffect(() => {
+    const statusStr = (activeOrder?.status || "").toLowerCase().trim();
+    if (statusStr === "arrived" && !isStudentComingNotified) {
+      startArrivalAlertLoop();
+    } else {
+      stopArrivalAlertLoop();
+    }
+    return () => {
+      stopArrivalAlertLoop();
+    };
+  }, [activeOrder?.status, isStudentComingNotified]);
+
+  // Reset student coming state when order status changes away from arrived
+  useEffect(() => {
+    const statusStr = (activeOrder?.status || "").toLowerCase().trim();
+    if (statusStr !== "arrived") {
+      setIsStudentComingNotified(false);
+    }
+  }, [activeOrder?.status]);
+
+  const handleNotifyRiderComing = async () => {
+    // Immediately stop bell audio ringing & update student UI state
+    stopArrivalAlertLoop();
+    setIsStudentComingNotified(true);
+
+    const targetOrderId = activeOrder?._id || activeOrder?.id || orderId;
+
+    // Send BroadcastChannel event for instant cross-tab notification
+    try {
+      const channel = new BroadcastChannel("campus_connect_orders");
+      channel.postMessage({
+        type: "student_nudge_arrival",
+        nudgeType: "student_coming",
+        orderId: targetOrderId,
+        message: `🏃‍♂️ Student is heading to collect Order ${activeOrder?.orderId || targetOrderId} — they're on their way!`
+      });
+      channel.close();
+    } catch (_) {}
+
+    if (!targetOrderId) {
+      showToast("🏃 Rider notified! Heading to meetup point.", "success");
+      return;
+    }
+
+    try {
+      setIsNotifyingRider(true);
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+      await axios.post(`/api/orders/${targetOrderId}/nudge-rider`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      showToast("🏃 Notification sent! Rider knows you are coming to pick up food.", "success");
+    } catch (err) {
+      showToast("🏃 Rider notified! Heading to meetup point.", "info");
+    } finally {
+      setIsNotifyingRider(false);
+    }
+  };
 
   // ── Auth & Profile Mount ─────────────────────────────────────────
   useEffect(() => {
@@ -368,16 +430,20 @@ export default function Canteen() {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (data.success && data.orders && data.orders.length > 0) {
-          const currentActive = data.orders.find(
-            (o) => o.status !== "Delivered" && o.status !== "Cancelled"
-          );
+          const currentActive = data.orders.find((o) => {
+            const s = (o.status || "").toLowerCase().trim();
+            return s !== "delivered" && s !== "cancelled" && s !== "completed";
+          });
           if (currentActive) {
             setActiveOrder(currentActive);
             setOrderId(currentActive._id);
           } else {
-            setActiveOrder(data.orders[0]);
-            setOrderId(data.orders[0]._id);
+            setActiveOrder(null);
+            setOrderId("");
           }
+        } else {
+          setActiveOrder(null);
+          setOrderId("");
         }
       } catch (err) {
         console.error("Error loading past orders:", err);
@@ -397,6 +463,7 @@ export default function Canteen() {
     const handleIncomingStatus = (status, msg) => {
       if (!status) return;
       const sKey = getNormalizedStatus(status);
+      if (!sKey) return; // Do not mutate status on student_coming nudges
 
       // Prevent duplicate toast popups within 3 seconds for same status key
       const now = Date.now();
@@ -415,12 +482,22 @@ export default function Canteen() {
         }
       }
 
-      setActiveOrder((prev) => {
-        if (prev && prev.status === sKey) return prev;
-        const updated = { ...(prev || {}), status: sKey };
-        localStorage.setItem("active_canteen_order", JSON.stringify(updated));
-        return updated;
-      });
+      if (sKey === "completed" || sKey === "delivered" || sKey === "cancelled") {
+        stopArrivalAlertLoop();
+        setTimeout(() => {
+          setActiveOrder(null);
+          setOrderId("");
+          setCart([]);
+          localStorage.removeItem("active_canteen_order");
+        }, 2000);
+      } else {
+        setActiveOrder((prev) => {
+          if (prev && prev.status === sKey) return prev;
+          const updated = { ...(prev || {}), status: sKey };
+          localStorage.setItem("active_canteen_order", JSON.stringify(updated));
+          return updated;
+        });
+      }
     };
 
     // 1. Socket.io
@@ -446,6 +523,7 @@ export default function Canteen() {
     try {
       channel = new BroadcastChannel("campus_connect_orders");
       channel.onmessage = (event) => {
+        if (event.data && event.data.type === "student_nudge_arrival") return;
         if (event.data && event.data.status) {
           handleIncomingStatus(event.data.status, event.data.message);
         }
@@ -679,9 +757,10 @@ export default function Canteen() {
   const getNormalizedStatus = (rawStatus) => {
     if (!rawStatus) return "preparing";
     const s = String(rawStatus).toLowerCase().trim();
-    if (s === "pending" || s === "preparing" || s === "placed" || s === "new") return "preparing";
+    if (s === "student_coming" || s === "student_nudge_arrival") return null;
+    if (s === "pending" || s === "accepted" || s === "preparing" || s === "placed" || s === "new") return "preparing";
     if (s === "ready" || s === "dispatched" || s === "food_ready" || s === "order_ready") return "ready";
-    if (s === "on_the_way" || s === "on-the-way" || s === "in_transit" || s === "on the way" || s === "accepted") return "on_the_way";
+    if (s === "on_the_way" || s === "on-the-way" || s === "in_transit" || s === "on the way" || s === "picked_up" || s === "pickedup") return "on_the_way";
     if (s === "arrived" || s === "at_location" || s === "rider_arrived" || s === "location") return "arrived";
     if (s === "completed" || s === "delivered") return "completed";
     return s;
@@ -748,6 +827,58 @@ export default function Canteen() {
               activeTab={activeTab}
               setActiveTab={setActiveTab}
             />
+
+            {/* ── STICKY RIDER ARRIVAL ALERT BANNER ── */}
+            {activeOrder && (activeOrder.status === "arrived" || (activeOrder.status || "").toLowerCase().includes("arrived")) && (
+              <div className={`sticky top-4 z-50 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-2xl border-2 transition-all duration-300 ${
+                isStudentComingNotified
+                  ? "bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white border-emerald-300"
+                  : "bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white border-amber-300 animate-pulse"
+              }`}>
+                <div className="flex items-center gap-3.5">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-2xl shadow-inner shrink-0">
+                    {isStudentComingNotified ? "🏃" : "📍"}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                        isStudentComingNotified ? "bg-white text-emerald-800" : "bg-white text-red-700"
+                      }`}>
+                        {isStudentComingNotified ? "Student On The Way" : "Rider at Delivery Location"}
+                      </span>
+                      <span className={`text-xs font-bold ${isStudentComingNotified ? "text-emerald-100" : "text-amber-200"}`}>
+                        {isStudentComingNotified ? "🔔 Bell Stopped • Rider Notified" : "🔔 Continuous Alert Active (5s Ring • 8s Pause)"}
+                      </span>
+                    </div>
+                    <h4 className="text-sm sm:text-base font-black text-white mt-1 m-0">
+                      {isStudentComingNotified ? "Rider Notified! You are heading out to collect food 🛵" : "Rider Has Arrived! 🛵 Please collect your order!"}
+                    </h4>
+                    <p className={`text-xs font-medium mt-0.5 m-0 ${isStudentComingNotified ? "text-emerald-100" : "text-rose-100"}`}>
+                      {isStudentComingNotified
+                        ? "Rider knows you are coming. Meet your rider at the designated campus delivery location."
+                        : "Your food is ready at the delivery location. Meet your rider to receive it."}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                  <button
+                    onClick={handleNotifyRiderComing}
+                    disabled={isNotifyingRider || isStudentComingNotified}
+                    className={`flex-1 sm:flex-none px-5 py-3 rounded-xl font-black text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border-2 ${
+                      isStudentComingNotified
+                        ? "bg-white/20 text-white border-white/40 cursor-default"
+                        : "bg-white text-rose-700 hover:bg-rose-50 border-amber-200 cursor-pointer active:scale-95"
+                    }`}
+                  >
+                    {isStudentComingNotified
+                      ? "✅ Rider Notified (On My Way 🏃)"
+                      : isNotifyingRider
+                        ? "Notifying Rider..."
+                        : "🏃 I'm Coming to Pick Up! (Notify Rider)"}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* ── BROWSE TAB: STEP 1 (RESTAURANTS ONLY) VS STEP 2 (MENU + CART) ── */}
             {activeTab === "browse" && (
@@ -1004,7 +1135,19 @@ export default function Canteen() {
                               <button
                                 key={st.id}
                                 onClick={() => {
-                                  setActiveOrder(prev => (prev ? { ...prev, status: st.id } : prev));
+                                  if (st.id === "completed" || st.id === "delivered") {
+                                    stopArrivalAlertLoop();
+                                    setActiveOrder(prev => (prev ? { ...prev, status: st.id } : prev));
+                                    showToast("✅ Order Delivered! Active order info reset.", "success");
+                                    setTimeout(() => {
+                                      setActiveOrder(null);
+                                      setOrderId("");
+                                      setCart([]);
+                                      localStorage.removeItem("active_canteen_order");
+                                    }, 2000);
+                                  } else {
+                                    setActiveOrder(prev => (prev ? { ...prev, status: st.id } : prev));
+                                  }
                                 }}
                                 className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold cursor-pointer border transition-all ${getNormalizedStatus(activeOrder.status) === st.id
                                   ? "bg-[#00c2cb] text-[#0a2342] border-[#00c2cb]"
@@ -1027,13 +1170,6 @@ export default function Canteen() {
                           >
                             💬 Contact via WhatsApp
                           </a>
-
-                          <button
-                            onClick={() => setIsTrackingOpen(true)}
-                            className="bg-[#00c2cb] hover:bg-[#00a3ab] text-[#0a2342] border-none px-5 py-2.5 rounded-xl text-xs font-black cursor-pointer transition-all duration-200 shadow-md hover:scale-105"
-                          >
-                            Open Full Modal Tracker →
-                          </button>
                         </div>
                       </div>
                     ) : (
@@ -1103,7 +1239,7 @@ export default function Canteen() {
 
       {/* ── TOAST NOTIFICATION (Ultra Compact) ── */}
       {toast && (
-        <div className={`fixed top-14 sm:top-18 right-3 sm:right-6 max-w-[270px] sm:max-w-[300px] bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl px-3 py-2 shadow-xl z-[3000] flex items-center gap-2 animate-modal-slide-in ${toast.type === 'warning' ? 'border-l-3 border-l-amber-500' : toast.type === 'error' ? 'border-l-3 border-l-red-500' : toast.type === 'success' ? 'border-l-3 border-l-emerald-500' : 'border-l-3 border-l-[#00c2cb]'}`}>
+        <div className={`fixed top-24 sm:top-28 right-3 sm:right-6 max-w-[270px] sm:max-w-[300px] bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl px-3 py-2 shadow-xl z-[3000] flex items-center gap-2 animate-modal-slide-in ${toast.type === 'warning' ? 'border-l-3 border-l-amber-500' : toast.type === 'error' ? 'border-l-3 border-l-red-500' : toast.type === 'success' ? 'border-l-3 border-l-emerald-500' : 'border-l-3 border-l-[#00c2cb]'}`}>
           <div className="text-xs shrink-0">
             {toast.type === 'warning' && <span>⚠️</span>}
             {toast.type === 'error' && <span>❌</span>}

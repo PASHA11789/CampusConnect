@@ -3,6 +3,7 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import { SOCKET_URL } from "../../../utils/helpers";
 import OrderRatingModal from "../../../components/canteen/OrderRatingModal";
+import { startArrivalAlertLoop, stopArrivalAlertLoop } from "../../../utils/audioAlert";
 
 const STEPS = [
   { id: "preparing", label: "Preparing" },
@@ -38,11 +39,28 @@ export default function OrderTracker({
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [riderNudgeSent, setRiderNudgeSent] = useState(false);
 
+  // Trigger continuous un-muteable 5s bell ring / 8s pause loop when liveStatus is arrived
+  useEffect(() => {
+    if (!isTrackingOpen) {
+      stopArrivalAlertLoop();
+      return;
+    }
+    const s = (liveStatus || "").toLowerCase().trim();
+    if (s === "arrived") {
+      startArrivalAlertLoop();
+    } else {
+      stopArrivalAlertLoop();
+    }
+    return () => {
+      stopArrivalAlertLoop();
+    };
+  }, [liveStatus, isTrackingOpen]);
+
   const getCurrentStep = (status) => {
     const s = (status || "").toLowerCase().trim();
-    if (s === "pending" || s === "preparing" || s === "placed" || s === "new") return 0;
+    if (s === "pending" || s === "accepted" || s === "preparing" || s === "placed" || s === "new") return 0;
     if (s === "ready" || s === "dispatched" || s === "food_ready" || s === "order_ready") return 1;
-    if (s === "on_the_way" || s === "on-the-way" || s === "in_transit" || s === "picked_up" || s === "accepted") return 2;
+    if (s === "on_the_way" || s === "on-the-way" || s === "in_transit" || s === "picked_up" || s === "pickedup") return 2;
     if (s === "arrived" || s === "completed" || s === "delivered") return 3;
     return 0;
   };
@@ -152,6 +170,29 @@ export default function OrderTracker({
     }
   };
 
+  const handleNotifyRiderComing = async () => {
+    try {
+      const channel = new BroadcastChannel("campus_connect_orders");
+      channel.postMessage({
+        type: "student_nudge_arrival",
+        nudgeType: "student_coming",
+        orderId: orderId,
+        message: `🏃‍♂️ Student is heading to collect Order ${orderId} — they're on their way!`
+      });
+      channel.close();
+    } catch (_) {}
+
+    try {
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+      await axios.post(`/api/orders/${orderId}/nudge-rider`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setRiderNudgeSent(true);
+    } catch (err) {
+      setRiderNudgeSent(true);
+    }
+  };
+
   const handleNudgeRiderArrival = async () => {
     try {
       setRiderNudgeSent(true);
@@ -225,6 +266,27 @@ export default function OrderTracker({
               })}
             </div>
           </div>
+
+          {/* Rider Arrived Special Alert Banner */}
+          {liveStatus === "arrived" && (
+            <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white text-center shadow-lg border-2 border-amber-300 animate-pulse">
+              <div className="text-3xl mb-1">📍</div>
+              <p className="text-xs font-black uppercase tracking-wider text-amber-200">
+                Rider has arrived at delivery location!
+              </p>
+              <p className="text-[11px] font-semibold text-rose-100 mt-1">
+                {arrivalMessage || "Your rider is waiting at the delivery spot. Please go collect your food!"}
+              </p>
+              <div className="mt-3 flex items-center justify-center gap-2">
+                <button
+                  onClick={handleNotifyRiderComing}
+                  className="px-4 py-2 bg-white text-rose-700 hover:bg-rose-50 rounded-xl text-xs font-black shadow-md cursor-pointer transition-all active:scale-95 flex items-center gap-1.5 border border-amber-200"
+                >
+                  🏃 {riderNudgeSent ? "Rider Notified!" : "I'm Coming to Pick Up! (Notify Rider)"}
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Status Message Card */}
           {liveStatus === "cancelled" ? (

@@ -447,20 +447,27 @@ export const nudgeRiderOnArrival = async (req, res) => {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    if (order.status !== "arrived") {
+    if (order.status !== "arrived" && order.status !== "picked_up") {
       return res.status(400).json({
         success: false,
-        message: `Arrival nudge is only available when rider has arrived. Current status: '${order.status}'`
+        message: `Arrival nudge is available when rider has arrived or picked up order. Current status: '${order.status}'`
       });
     }
 
     const io = req.app.get("socketio");
-    if (io && order.rider) {
-      io.to(order.rider.toString()).emit("student_nudge_arrival", {
+    if (io) {
+      const payload = {
         orderId: order.orderId,
         message: `🏃‍♂️ Student is heading to collect Order ${order.orderId} — they're on their way!`,
         timestamp: new Date()
-      });
+      };
+
+      if (order.rider) {
+        const riderIdStr = order.rider._id ? order.rider._id.toString() : order.rider.toString();
+        io.to(riderIdStr).emit("student_nudge_arrival", payload);
+      }
+      // Broadcast to riders room as failsafe
+      io.to("riders").emit("student_nudge_arrival", payload);
     }
 
     return res.status(200).json({
@@ -474,13 +481,49 @@ export const nudgeRiderOnArrival = async (req, res) => {
 };
 
 /**
+ * GET /api/orders/marketplace/my-active
+ * Fetch currently claimed active order for the logged-in rider.
+ */
+export const getRiderActiveOrder = async (req, res) => {
+  try {
+    const activeOrder = await Order.findOne({
+      rider: req.user._id,
+      status: { $in: ["accepted", "preparing", "ready", "picked_up", "arrived"] }
+    }).populate('restaurant', 'name phone coverImage address');
+
+    if (!activeOrder) {
+      return res.status(200).json({ success: true, activeOrder: null });
+    }
+
+    return res.status(200).json({
+      success: true,
+      activeOrder: {
+        _id: activeOrder._id,
+        orderId: activeOrder.orderId,
+        status: activeOrder.status,
+        totalAmount: activeOrder.totalAmount,
+        deliveryLocation: activeOrder.deliveryLocation,
+        contactNumber: activeOrder.contactNumber,
+        studentPhone: activeOrder.studentPhone,
+        restaurantName: activeOrder.restaurant?.name || "Campus Canteen",
+        restaurantPhone: activeOrder.restaurant?.phone || "+923001234567",
+        items: activeOrder.items || []
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching rider active order:", error);
+    return res.status(500).json({ success: false, message: "Error fetching active order", error: error.message });
+  }
+};
+
+/**
  * GET /api/orders/marketplace/tickets
  * Riders browse available tickets: orders in 'accepted' or 'ready' status with no rider assigned.
  */
 export const getMarketplaceTickets = async (req, res) => {
   try {
     const tickets = await Order.find({
-      status: { $in: ["accepted", "ready"] },
+      status: { $in: ["accepted", "preparing", "ready"] },
       rider: null
     })
       .select("orderId deliveryLocation totalAmount createdAt status")

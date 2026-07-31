@@ -14,6 +14,7 @@ export default function VendorDashboard() {
   const [menu, setMenu] = useState([]);
   const [newNotifications, setNewNotifications] = useState(0);
   const [orderSubTab, setOrderSubTab] = useState("active"); // "active" or "completed"
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const [toast, setToast] = useState(null);
   const showToast = React.useCallback((message, type = "info") => {
@@ -534,22 +535,101 @@ export default function VendorDashboard() {
         </div>
       </aside>
 
+      {/* ── MOBILE DRAWER NAVIGATION OVERLAY ── */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/60 z-50 md:hidden flex animate-fade-in"
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <aside
+            className="w-[280px] bg-white h-full flex flex-col justify-between py-6 px-4 shadow-2xl animate-slide-right"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div>
+              <div className="px-3 pb-6 border-b border-slate-50 mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🍳</span>
+                  <span className="text-[15px] font-black text-[#0a2342] tracking-tight">
+                    Campus<span className="text-[#e2725b]">Connect</span>
+                  </span>
+                </div>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-xl font-black text-slate-400 p-1 hover:text-slate-600 border-none bg-none"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <nav className="space-y-1">
+                {[
+                  { id: "dashboard", icon: "🏠", label: "Dashboard" },
+                  { id: "orders", icon: "🛍️", label: "Orders", badge: activeOrdersCount },
+                  { id: "menu", icon: "🍴", label: "Menu Management" },
+                  { id: "riders", icon: "🛵", label: "Delivery Riders" },
+                  { id: "profile", icon: "👤", label: "Profile" },
+                  { id: "settings", icon: "⚙️", label: "Settings" }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveSection(item.id);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-extrabold transition-all cursor-pointer ${
+                      activeSection === item.id ? "bg-[#fff1f2] text-[#e2725b]" : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                    }`}
+                  >
+                    <span className="flex items-center gap-3">
+                      <span>{item.icon}</span> {item.label}
+                    </span>
+                    {item.badge > 0 && (
+                      <span className="bg-[#e2725b] text-white text-[9px] font-black px-2 py-0.5 rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </nav>
+            </div>
+
+            <div className="pt-4 border-t border-slate-50">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-extrabold text-rose-500 hover:bg-rose-50/50 transition-all"
+              >
+                <span>🚪</span> Logout
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
+
       {/* ── MAIN CONTENT CONTAINER ── */}
       <main className="flex-1 flex flex-col overflow-y-auto custom-scrollbar relative">
 
         {/* Header bar */}
-        <header className="sticky top-0 bg-slate-50/80 backdrop-blur-md px-8 py-5 border-b border-slate-100 flex items-center justify-between z-10">
-          <div>
-            <p className="text-[10px] font-bold text-slate-400">Good afternoon, {vendorUser.name} 👋</p>
-            <h2 className="text-xl font-black text-[#0a2342] mt-0.5 capitalize">
-              {activeSection === "dashboard" ? "Dashboard" : activeSection.replace("-", " ")}
-            </h2>
-            <p className="text-[10px] font-bold text-slate-400 mt-0.5">
-              Here's an overview of your restaurant today.
-            </p>
+        <header className="sticky top-0 bg-slate-50/90 backdrop-blur-md px-4 sm:px-8 py-3.5 sm:py-5 border-b border-slate-100 flex items-center justify-between z-20">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2.5 rounded-xl bg-white border border-slate-200/80 text-[#0a2342] text-lg shrink-0 shadow-sm hover:bg-slate-100 active:scale-95 cursor-pointer transition-all"
+              title="Toggle Menu"
+            >
+              {isMobileMenuOpen ? "✕" : "☰"}
+            </button>
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 leading-tight">Good afternoon, {vendorUser.name} 👋</p>
+              <h2 className="text-base sm:text-xl font-black text-[#0a2342] mt-0.5 capitalize leading-tight">
+                {activeSection === "dashboard" ? "Dashboard" : activeSection.replace("-", " ")}
+              </h2>
+              <p className="text-[9.5px] sm:text-[10px] font-bold text-slate-400 mt-0.5 hidden xs:block">
+                Here's an overview of your restaurant today.
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-2.5 sm:gap-5">
             {/* Notifications */}
             <div
               onClick={() => {
@@ -558,29 +638,29 @@ export default function VendorDashboard() {
               }}
               className="relative cursor-pointer p-2 bg-white rounded-full border border-slate-200/60 shadow-sm"
             >
-              <span className="text-lg">🔔</span>
+              <span className="text-base sm:text-lg">🔔</span>
               {newNotifications > 0 && (
                 <span className="absolute top-0.5 right-0.5 bg-rose-500 w-2.5 h-2.5 rounded-full border-2 border-white"></span>
               )}
             </div>
 
             {/* Restaurant Selector */}
-            <div className="flex items-center gap-2.5 bg-white border border-slate-200/60 pl-3.5 pr-4 py-1.5 rounded-full shadow-sm">
+            <div className="flex items-center gap-2 sm:gap-2.5 bg-white border border-slate-200/60 pl-2.5 sm:pl-3.5 pr-3 sm:pr-4 py-1.5 rounded-full shadow-sm">
               <img
                 src={vendorUser.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200"}
                 alt="Avatar"
-                className="w-7 h-7 rounded-full object-cover border border-slate-100"
+                className="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover border border-slate-100"
               />
               <div className="flex flex-col items-start leading-tight">
-                <span className="text-[11px] font-black text-[#0a2342]">{selectedRestaurant}</span>
-                <span className="text-[8.5px] font-black text-emerald-600">Active</span>
+                <span className="text-[10px] sm:text-[11px] font-black text-[#0a2342] max-w-[90px] sm:max-w-none truncate">{selectedRestaurant}</span>
+                <span className="text-[8px] sm:text-[8.5px] font-black text-emerald-600">Active</span>
               </div>
             </div>
           </div>
         </header>
 
         {/* Dynamic Pages Area */}
-        <div className="p-8 flex-1">
+        <div className="p-4 sm:p-6 lg:p-8 flex-1 pb-24 md:pb-8">
           {activeSection === "dashboard" && (
             <div className="flex flex-col gap-8">
 
@@ -1525,6 +1605,33 @@ export default function VendorDashboard() {
           © 2026 CampusConnect. Mr. Sagheer Ahmad &amp; Mr. Shujaat Ali Hashim. All rights reserved.
         </footer>
       </main>
+
+      {/* ── MOBILE BOTTOM NAVIGATION BAR ── */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1.5 flex justify-around items-center shadow-lg">
+        {[
+          { id: "dashboard", icon: "🏠", label: "Dashboard" },
+          { id: "orders", icon: "🛍️", label: "Orders", badge: activeOrdersCount },
+          { id: "menu", icon: "🍴", label: "Menu" },
+          { id: "riders", icon: "🛵", label: "Riders" },
+          { id: "profile", icon: "👤", label: "Profile" }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveSection(tab.id)}
+            className={`relative flex flex-col items-center py-1 px-3 rounded-xl transition-all border-none bg-none cursor-pointer ${
+              activeSection === tab.id ? "text-[#e2725b] font-black" : "text-slate-400 font-bold"
+            }`}
+          >
+            <span className="text-base">{tab.icon}</span>
+            <span className="text-[9.5px] mt-0.5">{tab.label}</span>
+            {tab.badge > 0 && (
+              <span className="absolute -top-1 right-1 bg-[#e2725b] text-white text-[8px] font-black px-1.5 py-0.2 rounded-full">
+                {tab.badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
 
       {/* ── ADD/EDIT MENU ITEM MODAL ── */}
       {isMenuModalOpen && (

@@ -10,6 +10,7 @@ import {
   nudgeOrder,
   nudgeRiderOnArrival,
   getMarketplaceTickets,
+  getRiderActiveOrder,
   getOrderById
 } from "../controller/orderController.js";
 
@@ -20,6 +21,7 @@ router.route("/").post(protect, createOrder);
 
 // Marketplace — riders browse available tickets
 router.route("/marketplace/tickets").get(protect, getMarketplaceTickets);
+router.route("/marketplace/my-active").get(protect, getRiderActiveOrder);
 
 // Single order lookup
 router.route("/:id").get(protect, getOrderById);
