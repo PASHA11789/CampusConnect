@@ -58,6 +58,24 @@ app.use(
 app.use(cors());  
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+// NoSQL Injection Defence — Express 5 compatible custom sanitizer.
+// express-mongo-sanitize is incompatible with Express 5 (req.query is read-only).
+// This middleware strips MongoDB operator keys ($) from req.body and req.params.
+const stripDollarKeys = (obj) => {
+  if (typeof obj !== "object" || obj === null) return obj;
+  if (Array.isArray(obj)) return obj.map(stripDollarKeys);
+  return Object.keys(obj).reduce((acc, key) => {
+    if (key.startsWith("$")) return acc; // drop operator keys
+    acc[key] = stripDollarKeys(obj[key]);
+    return acc;
+  }, {});
+};
+app.use((req, _res, next) => {
+  if (req.body) req.body = stripDollarKeys(req.body);
+  if (req.params) req.params = stripDollarKeys(req.params);
+  next();
+});
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }

@@ -1,7 +1,10 @@
 import Order from "../models/Order.js";
 import Restaurant from "../models/Restaurants.js";
 import Notification from "../models/Notification.js";
+import User from "../models/User.js";
 import { generateOrderId } from "../utils/orderUtils.js";
+import { sendWebPushNotification } from "../utils/pushNotification.js";
+
 
 /**
  * Helper to strip personal contact information before sending order data to riders
@@ -256,6 +259,17 @@ export const pickupOrder = async (req, res) => {
       message: `Your order ${order.orderId} has been picked up! The rider is on the way to you. 🛵`
     });
 
+    // Web Push fallback — fires if the student's tab is closed / no socket connection
+    User.findById(order.student).select("pushSubscription").then((student) => {
+      if (student?.pushSubscription) {
+        sendWebPushNotification(student.pushSubscription, {
+          title: "CampusConnect 🛵",
+          body: `Your order ${order.orderId} has been picked up and is on the way!`,
+          url: "/canteen/orders"
+        });
+      }
+    }).catch(() => {});
+
     const sanitizedOrder = sanitizeOrderForRider(order);
     return res.status(200).json({
       success: true,
@@ -317,6 +331,17 @@ export const arriveOrder = async (req, res) => {
       message: `📍 Rider has arrived with order ${order.orderId}! Please meet them at ${order.deliveryLocation}.`
     });
 
+    // Web Push fallback — most urgent event; student MUST be notified even if tab is closed
+    User.findById(order.student).select("pushSubscription").then((student) => {
+      if (student?.pushSubscription) {
+        sendWebPushNotification(student.pushSubscription, {
+          title: "📍 Rider Arrived! — CampusConnect",
+          body: `Your rider is at ${order.deliveryLocation}. Please come collect order ${order.orderId}!`,
+          url: "/canteen/orders"
+        });
+      }
+    }).catch(() => {});
+
     const sanitizedOrder = sanitizeOrderForRider(order);
     return res.status(200).json({
       success: true,
@@ -345,6 +370,11 @@ export const completeOrder = async (req, res) => {
       return res.status(403).json({ success: false, message: "Only the assigned rider can complete this order." });
     }
 
+    // Idempotent guard: if already completed, return success
+    if (order.status === "completed") {
+      return res.status(200).json({ success: true, message: "Order was already completed.", order: sanitizeOrderForRider(order) });
+    }
+
     // Guard: Must arrive first
     if (order.status !== "arrived") {
       return res.status(400).json({ success: false, message: `Cannot complete order. Must mark 'arrived' first. Current: '${order.status}'` });
@@ -360,6 +390,11 @@ export const completeOrder = async (req, res) => {
         orderId: order.orderId,
         status: "completed",
         message: "🎉 Your order has been delivered! Enjoy your meal."
+      });
+      // Notify rider — clears their active delivery panel
+      io.to(req.user._id.toString()).emit("order_status_update", {
+        orderId: order.orderId,
+        status: "completed"
       });
       // Notify vendor
       const vendorId = await getVendorId(order.restaurant);
@@ -377,6 +412,17 @@ export const completeOrder = async (req, res) => {
       type: "CANTEEN",
       message: `🎉 Order ${order.orderId} has been delivered! Enjoy your meal. Please rate your experience.`
     });
+
+    // Web Push fallback — notifies student the order is complete even if tab was closed
+    User.findById(order.student).select("pushSubscription").then((student) => {
+      if (student?.pushSubscription) {
+        sendWebPushNotification(student.pushSubscription, {
+          title: "🎉 Order Delivered! — CampusConnect",
+          body: `Order ${order.orderId} has been delivered. Enjoy your meal!`,
+          url: "/canteen/orders"
+        });
+      }
+    }).catch(() => {});
 
     const sanitizedOrder = sanitizeOrderForRider(order);
     return res.status(200).json({

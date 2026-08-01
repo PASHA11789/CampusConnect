@@ -1,6 +1,8 @@
 import User from "../models/User.js"
 import Report from "../models/Report.js"
 import { checkUserHasPublicActivity } from "../utils/activityCheck.js";
+import { sendWebPushNotification } from "../utils/pushNotification.js";
+
 
 export const updateProfile = async (req, res) =>{
     try{
@@ -119,12 +121,36 @@ export const reportUserProfile = async (req, res) => {
   }
 };
 
+export const subscribePushNotification = async (req, res) => {
+  try {
+    const { subscription } = req.body;
+    if (!subscription) {
+      return res.status(400).json({ message: "Subscription object is required." });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    user.pushSubscription = subscription;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Push subscription saved successfully.",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to save push subscription", error: error.message });
+  }
+};
+
 // @desc    Issue a disciplinary warning & sanitize profile
 // @route   POST /api/users/:userId/warn
 // @access  Mod / Admin
 export const warnUser = async (req, res) => {
   try {
-    if (req.user.role !== 'admin' && req.user.role !== 'campus_admin' && req.user.role !== 'student_mod') {
+    if (req.user.role !== 'admin' && req.user.role !== 'campus_admin' && req.user.role !== 'student_mod' && req.user.role !== 'super_admin') {
       return res.status(403).json({ message: "Not authorized to issue warnings" });
     }
 
@@ -142,7 +168,7 @@ export const warnUser = async (req, res) => {
       reason: reason || "Violation of Campus Guidelines",
       details: details || "Your profile content/behavior was flagged as inappropriate by campus administration.",
       issuedAt: new Date(),
-      issuedBy: req.user.name || "Campus Moderation Team",
+      issuedBy: req.user._id,
       acknowledged: false
     };
 
@@ -175,3 +201,44 @@ export const acknowledgeWarning = async (req, res) => {
     res.status(500).json({ message: "Failed to acknowledge warning", error: error.message });
   }
 };
+
+// @desc    Return the VAPID public key (public — no auth needed)
+// @route   GET /api/users/vapid-public-key
+// @access  Public
+export const getVapidPublicKey = (req, res) => {
+  const key = process.env.VAPID_PUBLIC_KEY;
+  if (!key) {
+    return res.status(503).json({ message: "Push notifications are not configured on this server." });
+  }
+  res.json({ vapidPublicKey: key });
+};
+
+// @desc    Send a test push notification to the currently logged-in user
+// @route   POST /api/users/test-push
+// @access  Protected
+export const testPushNotification = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("pushSubscription name");
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+    if (!user.pushSubscription) {
+      return res.status(400).json({
+        message: "No push subscription found for this user. Make sure you allowed notifications in the browser and that the subscription was saved."
+      });
+    }
+    const success = await sendWebPushNotification(user.pushSubscription, {
+      title: "CampusConnect Test 🔔",
+      body: `Hello ${user.name}! Push notifications are working correctly.`,
+      url: "/dashboard"
+    });
+    if (success) {
+      res.json({ success: true, message: "Test push notification sent! Check your browser/OS notifications." });
+    } else {
+      res.status(500).json({ success: false, message: "Failed to send push notification. Check server logs." });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error sending test push", error: error.message });
+  }
+};
+

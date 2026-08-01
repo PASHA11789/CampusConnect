@@ -342,7 +342,7 @@ export default function RiderMarketplace() {
         setStudentComingAlert(data);
       });
 
-      // Handle status updates (e.g., vendor cancels while rider has active order)
+      // Handle status updates from backend (cancelled / completed)
       socket.on("order_status_update", (data) => {
         if (data.status === "cancelled") {
           setActiveClaimedOrder((prev) => {
@@ -353,6 +353,24 @@ export default function RiderMarketplace() {
             }
             return prev;
           });
+        } else if (data.status === "completed") {
+          // Handles stale-state recovery: if backend confirms completion, clear the active panel
+          setActiveClaimedOrder((prev) => {
+            if (prev && (!data.orderId || prev.orderId === data.orderId)) {
+              setCompletedDeliveries((cPrev) => [
+                {
+                  ...prev,
+                  completedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                },
+                ...cPrev
+              ]);
+              showToast(`🎉 Order ${prev.orderId} confirmed delivered!`, "info");
+              localStorage.removeItem("active_claimed_order");
+              return null;
+            }
+            return prev;
+          });
+          fetchTickets();
         }
       });
 

@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ["student", "alumni", "student_mod", "admin", "vendor", "campus_admin", "rider"],
+      enum: ["super_admin", "campus_admin", "student", "student_mod", "alumni", "rider", "vendor", "admin"],
       default: "student",
     },
     department: { type: String, default: "" },
@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema(
       default: "https://ui-avatars.com/api/?name=User&background=random", // Nice fallback!
     },
     isNameHidden: { type: Boolean, default: false },
+    pushSubscription: { type: Object, default: null },
     images: [String],
     careerBio: {
       type: String,
@@ -44,7 +45,7 @@ const userSchema = new mongoose.Schema(
       reason: { type: String, default: "" },
       details: { type: String, default: "" },
       issuedAt: { type: Date },
-      issuedBy: { type: String, default: "Campus Moderation Team" },
+      issuedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       acknowledged: { type: Boolean, default: true }
     },
   },

@@ -1,0 +1,1025 @@
+================================================================================
+CAMPUSCONNECT: COMPLETE NOTIFICATION SYSTEM & ORDER PIPELINE — AUTHORITATIVE CONTEXT PROMPT
+================================================================================
+Reviewed by: Full source analysis of all 15 controllers, 3 middleware files, 11 models,
+             all routes, and client-side socket listeners.
+================================================================================
+
+This document is a precise, code-verified reference of every notification pipeline
+in CampusConnect. Every socket event, every Notification.create() call, every
+listener, and every delivery route is traced directly from source code.
+
+================================================================================
+SECTION 1: INFRASTRUCTURE — SOCKET.IO SERVER SETUP
+================================================================================
+
+FILE: server/server.js
+
+The Socket.io server is initialized with the HTTP server and stored on the Express
+app instance for use inside any controller via req.app.get("socketio").
+
+  const io = new Server(httpServer, {
+    cors: { origin: "http://localhost:3000", methods: ["GET","POST","PUT","DELETE"] }
+  });
+  app.set("socketio", io);
+
+SOCKET ROOM REGISTRY — Who joins which room on connect:
+
+  EVENT: "join_user_room"  -> socket.join(userId)
+    Joined by: Every logged-in student, moderator, admin, vendor, rider on login.
+    Purpose: Private direct messaging channel for personal notifications.
+
+  EVENT: "join_room"  -> socket.join(roomName)
+    Used for:
+      - "riders"            -> All active delivery riders join this on Rider Marketplace load.
+      - "mod_room"          -> All student mods, admins, campus_admins join on Moderation Room load.
+      - "mod_room_<dept>"   -> Department-scoped moderator room (e.g. "mod_room_CS").
+      - "Campus"            -> Campus-wide broadcast target for approved Campus petitions.
+      - "<targetGroup>"     -> Scoped group room (e.g. a class string like "BSCS-CS-5-A").
+
+USER ROLES:
+  - student         -> Base role. Receives personal notifications.
+  - student_mod     -> Moderator. Joins mod_room. Can moderate content.
+  - admin           -> System admin. Joins mod_room. Receives escalation pings.
+  - campus_admin    -> Campus-level admin. Same as admin for notifications.
+  - alumni          -> Can post job opportunities. No special notification channels.
+  - rider           -> Delivery rider. Joins "riders" room.
+  - vendor          -> Canteen operator. Uses private user room for orders.
+
+================================================================================
+SECTION 2: NOTIFICATION DATA MODEL
+================================================================================
+
+FILE: server/src/models/Notification.js
+
+  {
+    recipient : ObjectId -> ref: "User"    (required — who receives it)
+    type      : String   -> ENUM: ["FORUM", "PETITION", "ANNOUNCEMENT",
+                                   "GENERAL", "CANTEEN", "COMPLAINT"]
+    message   : String   -> Human-readable text shown in Topbar dropdown.
+    isRead    : Boolean  -> default: false
+    relatedItem: ObjectId -> (optional) ref to Forum / Petition / Complaint
+    onModel   : String   -> ENUM: ["Forum", "Petition", "Complaint"]
+    timestamps: createdAt, updatedAt (auto)
+  }
+
+Notifications are fetched by Topbar via:
+  GET /api/notifications  -> returns last 20 by createdAt DESC for req.user._id
+  PUT /api/notifications/:id/read  -> sets isRead: true
+
+================================================================================
+SECTION 3: AI MODERATION MIDDLEWARE PIPELINE
+================================================================================
+
+FILE: server/src/middleware/aiModeration.js
+
+This middleware runs BEFORE the controller on content-creation endpoints
+(forum posts, replies, petitions, lost & found reports, career threads).
+
+HOW IT WORKS:
+
+  Step 1 — Extract text: Concatenates req.body.title + req.body.content +
+            req.body.description + req.body.itemName.
+
+  Step 2 — Local vulgar pattern check (instant, no API call):
+            VULGAR_PATTERNS regex list checks for explicit Urdu/English slurs.
+            If matched -> req.body.isFlagged = true, immediately calls next().
+
+  Step 3 — Groq LLM (Primary AI): Calls groq.chat.completions with model
+            "llama-3.1-8b-instant". If fails, falls back to "llama-3.3-70b-specdec".
+
+  Step 4 — Gemini Fallback (Secondary AI): If both Groq models fail, calls
+            GoogleGenAI with "gemini-2.5-flash".
+
+  Step 5 — Result: sets req.body.isFlagged = result.isObscene (true/false).
+
+  Step 6 — Production safety net: If ALL AI services fail in production,
+            defaults to req.body.isFlagged = true (auto-held for manual review).
+            In development/test, defaults to isFlagged = false (bypass).
+
+APPLIED TO THESE ROUTES:
+  - POST /api/forums           (createForumThread)
+  - PUT  /api/forums/:id       (updateForumThread)
+  - POST /api/forums/:id/replies  (addThreadReply)
+  - PUT  /api/forums/:threadId/replies/:replyId (updateThreadReply)
+  - POST /api/petitions        (createPetition)
+  - POST /api/lost-found       (reportItem)
+  [Career threads use isFlagged from request body — no AI middleware applied]
+
+================================================================================
+SECTION 4: COMPLETE FORUM NOTIFICATION PIPELINES
+================================================================================
+
+FILE: server/src/controller/forumController.js
+
+----- 4A: CREATE FORUM THREAD (POST /api/forums) -----
+
+  AI middleware runs first and sets req.body.isFlagged.
+
+  PATH A — isFlagged = true (content flagged):
+    DB Action:   Forum created with isHidden: true.
+    DB Notif:    Notification.create({
+                   recipient: req.user._id,
+                   type: "GENERAL",
+                   message: "Your recent forum post is under review by moderators..."
+                 })
+    Socket:      io.to(req.user._id).emit("new_notification", warningNotification)
+                 io.to("mod_room").emit("new_flagged_content", { message, threadID })
+    Response:    HTTP 202 with underReview: true (post NOT shown publicly).
+
+  PATH B — isFlagged = false (clean content):
+    DB Action:   Forum created with isHidden: false.
+    DB Notif:    NONE (thread creation does not persist a notification for non-flagged).
+    Socket:      io.emit("new_forum_thread", { message, thread })
+                 [Broadcasts to ALL connected clients — visible in Dashboard and Forum pages]
+    Response:    HTTP 201 with thread data.
+
+----- 4B: UPDATE FORUM THREAD (PUT /api/forums/:id) -----
+
+  Same flagged/clean branching as 4A.
+  Flagged path: io.to(userId).emit("new_notification", warning) +
+                io.to("mod_room").emit("new_flagged_content", { threadID })
+  Clean path:   io.emit("thread_updated", { threadId, title, content })
+                [No persistent Notification created for clean edits]
+
+----- 4C: DELETE FORUM THREAD (DELETE /api/forums/:id) -----
+
+  Auth check: Only author, admin, student_mod, campus_admin can delete.
+  Socket:     io.emit("thread_deleted", { threadID })
+  DB Notif:   NONE (deletion emits to all clients but no Notification record).
+
+----- 4D: TOGGLE HIDE THREAD — MOD ACTION (PUT /api/forums/:id/hide) -----
+
+  Auth check: Only admin, student_mod, campus_admin.
+  Socket:     io.emit("thread_moderated", { threadId, isHidden, moderatedBy })
+  DB Notif:   NONE (no Notification saved — UI updates live via socket).
+
+----- 4E: ADD REPLY (POST /api/forums/:id/replies) -----
+
+  AI middleware runs first and sets req.body.isFlagged.
+
+  PATH A — isFlagged = true:
+    DB Action:   Reply added with isHidden: true.
+    DB Notif:    Notification.create({
+                   recipient: req.user._id,
+                   type: "GENERAL",
+                   message: "Your recent reply is under review by moderators...",
+                   relatedItem: thread._id, onModel: "Forum"
+                 })
+    Socket:      io.to(req.user._id).emit("new_notification", warningNotification)
+                 io.to("mod_room").emit("new_flagged_content", { threadID, replyID })
+    Response:    HTTP 202.
+
+  PATH B — isFlagged = false (clean reply):
+    DB Action:   Reply added with isHidden: false.
+    Socket:      io.emit("new_reply", { threadId, reply, repliesCount })
+                 [Broadcasts to ALL clients]
+    Notification to thread author (if author != replier):
+      DB Notif:  Notification.create({
+                   recipient: thread.author,
+                   type: "FORUM",
+                   message: "[Username] replied to your discussion: \"[Thread Title]\"",
+                   relatedItem: thread._id, onModel: "Forum"
+                 })
+      Socket:    io.to(thread.author).emit("new_notification", replyNotification)
+    Response:    HTTP 201.
+
+----- 4F: UPDATE REPLY (PUT /api/forums/:threadId/replies/:replyId) -----
+
+  Same flagged/clean branching as 4E.
+  Flagged path: warning notification + io.to(userId).emit("new_notification", ...) +
+                io.to("mod_room").emit("new_flagged_content", { threadID, replyID })
+  Clean path:   io.emit("reply_updated", { threadId, replyid, content })
+                [No Notification record created for clean updates]
+
+----- 4G: DELETE REPLY (DELETE /api/forums/:threadId/replies/:replyId) -----
+
+  Auth check: Reply author, admin, student_mod, campus_admin.
+  Cascade:    Also deletes all child replies (nested thread support).
+  Socket:     io.emit("reply_deleted", { threadId, replyId, repliesCount })
+  DB Notif:   NONE.
+
+----- 4H: REPORT FORUM THREAD (POST /api/forums/:id/report) -----
+
+  DB Action:  Thread reportedBy array updated, isHidden = true immediately.
+  Socket:     io.to("mod_room").emit("new_reported_content", {
+                message, threadId, reason
+              })
+  DB Notif:   Notification.create({
+                recipient: thread.author,
+                type: "GENERAL",
+                message: "Your forum post was flagged by the community and is
+                          temporarily hidden pending moderator review",
+                relatedItem: thread._id, onModel: "Forum"
+              })
+  [Author notified persistently; Mod room notified via socket only]
+
+----- 4I: REPORT FORUM REPLY (POST /api/forums/:threadId/replies/:replyId/report) -----
+
+  DB Action:  Reply reportedBy updated, reply isHidden = true.
+  Socket:     io.to("mod_room").emit("new_reported_content", { message, threadId, replyId, reason })
+  DB Notif:   Notification.create({
+                recipient: reply.author,
+                type: "GENERAL",
+                message: "Your reply was flagged by the community and is
+                          temporarily hidden pending moderator review",
+                relatedItem: thread._id, onModel: "Forum"
+              })
+
+================================================================================
+SECTION 5: PETITION NOTIFICATION PIPELINES
+================================================================================
+
+FILE: server/src/controller/petitionController.js
+
+----- 5A: CREATE PETITION (POST /api/petitions) -----
+
+  AI middleware runs first. Level-based routing logic:
+    - Class petitions   -> initialStatus = "Active" (UNLESS isFlagged)
+    - Department/Campus -> initialStatus = "Pending Mod Approval" (UNLESS isFlagged)
+
+  PATH A — isFlagged = true:
+    DB Action:   Petition created with isHidden: true, status: "Pending Mod Approval".
+    DB Notif:    Notification.create({ recipient: req.user._id, type: "GENERAL",
+                   message: "Your petition is under review by moderators due to flagged keywords." })
+    Socket:      io.to(req.user._id).emit("new_notification", warningNotification)
+                 io.to("mod_room").emit("new_flagged_content", { message, petitionId })
+    Response:    HTTP 202 with underReview: true.
+
+  PATH B — Pending Mod Approval (Department or Campus level, clean content):
+    DB Action:   Petition created with status: "Pending Mod Approval".
+    DB Notif:    NONE.
+    Socket:      Routing logic:
+                   - level == "Department" -> io.to("mod_room_<dept>").emit("new_petition_pending", {...})
+                   - level == "Class"      -> io.to("mod_room_<dept>").emit("new_petition_pending", {...})
+                   - level == "Campus"     -> io.to("mod_room").emit("new_petition_pending", {...})
+    Response:    HTTP 201 (awaiting approval, not publicly visible).
+
+  PATH C — Instant Publish (Class level, clean content):
+    DB Action:   Petition created with status: "Active", isHidden: false.
+    DB Notif:    NONE.
+    Socket:      io.to(derivedTargetGroup).emit("new_petition_published", populatedPetition)
+                 [Only students in the matching class group room receive this]
+    Response:    HTTP 201.
+
+----- 5B: SIGN PETITION (PUT /api/petitions/:id/sign) -----
+
+  Validates access scope using hasPetitionAccess() helper.
+
+  SUB-PATH: Milestone reached (signatures >= milestone):
+    Status changes to "Under Review".
+    DB Notif:  Notification.create({
+                 recipient: petition.creator,
+                 type: "PETITION",
+                 message: "Congratulations! Your petition \"[Title]\" reached its goal
+                           and is now under administrative review.",
+                 relatedItem: petition._id, onModel: "Petition"
+               })
+    Socket:    io.to(petition.creator).emit("new_notification", milestoneNotif)
+               io.to("mod_room").emit("petition_milestone_reached", { petitionId, title })
+
+  ALWAYS (after save):
+    Socket:    io.emit("petition_signed", { petitionId, currentSignatures, status })
+               [Broadcasts counter update to ALL connected clients — Dashboard + Petitions page]
+    DB Notif:  NONE for the signing event itself.
+
+----- 5C: MODERATE PETITION — CREATOR'S MODERATION ROUTE
+          (PUT /api/petitions/:id/moderate) -----
+
+  Auth: admin, student_mod, campus_admin only.
+
+  PATH A — Approve:
+    DB Action:   petition.status = "Active", isHidden = false, moderatedBy = req.user._id.
+    DB Notif:    Notification.create({
+                   recipient: petition.creator._id, type: "PETITION",
+                   message: "Your petition \"[Title]\" has been approved and is now live!",
+                   relatedItem: petition._id, onModel: "Petition"
+                 })
+    Socket:      io.to(petition.creator._id).emit("new_notification", approvedNotif)
+                 targetRoom = (level == "Campus") ? "Campus" : petition.targetGroup
+                 io.to(targetRoom).emit("new_petition_published", petition)
+
+  PATH B — Reject:
+    DB Action:   petition.deleteOne() — permanently deleted.
+    DB Notif:    Notification.create({
+                   recipient: petition.creator._id, type: "GENERAL",
+                   message: "Your petition \"[Title]\" was rejected by moderation as it
+                             violated community guidelines."
+                 })
+    Socket:      io.to(petition.creator._id).emit("new_notification", rejectedNotif)
+
+----- 5D: REPORT PETITION (POST /api/petitions/:id/report) -----
+
+  DB Action:  reportedBy updated, isHidden = true.
+  Socket:     io.to("mod_room").emit("new_reported_content", { message, petitionId, reason })
+  DB Notif:   NONE (reporter gets no confirmation notification, mod room gets socket only).
+
+================================================================================
+SECTION 6: MODERATION ROOM — MODERATEITEM PIPELINE
+================================================================================
+
+FILE: server/src/controller/modController.js -> moderateItem()
+ROUTE: PUT /api/moderation/:contentType/:id
+
+Auth gate: admin, student_mod, campus_admin only.
+
+This is the single unified moderation endpoint. Action = "Approve" | "Reject".
+contentType values and their notification behaviours:
+
+  contentType == "petition":
+    Approve: petition.status = "Active", petition.isHidden = false
+             DB Notif: { recipient: petition.creator._id, type: "PETITION",
+                         message: "Your petition \"[Title]\" has been approved and is now live!" }
+             Socket: io.to(targetRoom).emit("new_petition_published", petition)
+    Reject:  petition.deleteOne()
+             DB Notif: { recipient: petition.creator._id, type: "GENERAL",
+                         message: "Your petition \"[Title]\" was rejected by moderation." }
+
+  contentType == "forum":
+    Approve: thread.isHidden = false, reportedBy = []
+             Socket: io.emit("thread_moderated", { threadId, isHidden: false, moderatedBy })
+             DB Notif: NONE.
+    Reject:  thread.deleteOne()
+             DB Notif: { recipient: thread.author, type: "GENERAL",
+                         message: "Your forum thread \"[Title]\" was removed by moderation." }
+
+  contentType == "career":
+    Approve: thread.isHidden = false, reportedBy = []
+             DB Notif: NONE. Socket: NONE.
+    Reject:  thread.deleteOne()
+             DB Notif: { recipient: thread.author, type: "GENERAL",
+                         message: "Your career thread \"[Title]\" was removed by moderation." }
+
+  contentType == "reply":
+    Approve: reply.isHidden = false, reply.reportedBy = []
+             DB Notif: NONE. Socket: NONE.
+    Reject:  reply.deleteOne() (cascade to children NOT done here — use forumController)
+             DB Notif: { recipient: replyAuthor, type: "GENERAL",
+                         message: "One of your forum replies was removed by moderation." }
+
+  contentType == "career_reply":
+    Approve: reply.isHidden = false, reportedBy = []
+             DB Notif: NONE. Socket: NONE.
+    Reject:  reply.deleteOne()
+             DB Notif: { recipient: replyAuthor, type: "GENERAL",
+                         message: "One of your career path replies was removed by moderation." }
+
+  contentType == "lostfound":
+    Approve: item.isHidden = false, reportedBy = []
+             Socket: io.emit("new_lost_found_item", item) [broadcasts to all clients]
+             DB Notif: NONE.
+    Reject:  item.deleteOne()
+             DB Notif: { recipient: item.reporter._id, type: "GENERAL",
+                         message: "Your Lost & Found report for \"[itemName]\" was rejected by moderation." }
+
+  contentType == "report" | "profile_report":
+    Approve: report.status = "Resolved"
+             targetUser.avatar = fallback URL (sanitize)
+             DB Notif: { recipient: report.targetUser._id, type: "GENERAL",
+                         message: "Your profile image/content was flagged and removed due to
+                                   a community policy violation." }
+    Reject:  report.status = "Dismissed"
+             DB Notif: NONE.
+
+  contentType == "complaint":
+    Approve: complaint.status = "Resolved", adminResponse object saved.
+             DB Notif: { recipient: complaint.submittedBy, type: "COMPLAINT",
+                         message: "Your [type] \"[Title]\" has been marked as Resolved by moderation.",
+                         relatedItem: complaint._id, onModel: "Complaint" }
+    Reject:  complaint.status = "Rejected", adminResponse object saved.
+             DB Notif: { recipient: complaint.submittedBy, type: "COMPLAINT",
+                         message: "Your [type] \"[Title]\" was reviewed and marked as Rejected.",
+                         relatedItem: complaint._id, onModel: "Complaint" }
+    Both paths also emit to mod_room:
+             Socket: io.to("mod_room").emit("mod_queue_item_updated", { type: "complaint", item })
+
+MODERATION QUEUE LOADER (GET /api/moderation/queue):
+  Returns 7 sub-queues with item counts:
+    forums         -> flagged/reported Forum docs (isHidden:true or reportedBy exists)
+    careers        -> flagged/reported CareerThread docs
+    petitions      -> Petition docs with status "Pending Mod Approval"
+                      (student_mods only see their dept; admins see all)
+    lostFound      -> flagged/reported LostFound docs
+    oldUnclaimed   -> LostFound items "Open"/"At Office" older than 10 days
+    profileReports -> Report docs with status "Pending" (non-null targetUser)
+    complaints     -> Complaint docs with status Pending/Under Review/In Progress
+
+================================================================================
+SECTION 7: COMPLAINT & SUGGESTION NOTIFICATION PIPELINES
+================================================================================
+
+FILE: server/src/controller/complaintController.js
+
+----- 7A: CREATE COMPLAINT/SUGGESTION (POST /api/complaints) -----
+
+  No AI middleware. Submitted directly.
+  DB Action:  Complaint created. isAnonymous supported (hides identity from other students).
+  DB Notif:   NONE (no notification to submitter on creation).
+  Socket:     io.to("mod_room").emit("new_mod_queue_item", { type, item: populatedComplaint })
+              [Mod room gets instant live update — new item appears in queue without refresh]
+
+----- 7B: UPDATE COMPLAINT STATUS (PUT /api/complaints/:id/status) -----
+
+  Auth: admin, campus_admin, student_mod only.
+  Can update: status, priority, adminResponse text.
+  DB Notif:   Notification.create({
+                recipient: complaint.submittedBy,
+                type: "COMPLAINT",
+                message: "Your [type] \"[Title]\" has been updated to status \"[status]\".
+                          [Admin comment added.]" (conditional suffix)
+                relatedItem: complaint._id, onModel: "Complaint"
+              })
+  Socket (2 events):
+    1. io.to(complaint.submittedBy).emit("complaint_status_updated", {
+         complaintId, status, adminResponse
+       })
+       [Direct ping to submitter's user room]
+    2. io.to("mod_room").emit("mod_queue_item_updated", { type: "complaint", item })
+       [Mod room gets live item update]
+
+----- 7C: URGENT ESCALATION / PING ADMINS (POST /api/complaints/:id/ping-admin) -----
+
+  Auth: admin, campus_admin, student_mod only.
+  DB Action:  complaint.isEscalated = true, complaint.priority = "Urgent",
+              complaint.status -> "Under Review" (if was "Pending"),
+              complaint.escalatedBy = req.user._id,
+              complaint.escalatedAt = new Date(),
+              complaint.escalationReason = reason
+
+  DB Notif (BULK — one per admin):
+    const admins = User.find({ role: { $in: ["admin", "campus_admin"] } })
+    Notification.insertMany(admins.map(admin => ({
+      recipient: admin._id,
+      type: "COMPLAINT",
+      message: "[URGENT ESCALATION] [escalatorName] ([role]) pinged admins regarding
+                [type]: \"[Title]\". Reason: [reason]",
+      relatedItem: complaint._id, onModel: "Complaint"
+    })))
+
+  Socket (2 types):
+    1. Per-admin direct ping:
+       admins.forEach(admin =>
+         io.to(admin._id.toString()).emit("admin_escalation_alert", {
+           complaintId, title, escalatedBy: req.user.name, reason
+         })
+       )
+    2. Mod room broadcast:
+       io.to("mod_room").emit("mod_queue_item_escalated", {
+         complaintId, escalatedBy: req.user.name, reason
+       })
+
+================================================================================
+SECTION 8: DISCIPLINARY WARNING PIPELINE
+================================================================================
+
+FILE: server/src/controller/userController.js
+
+----- 8A: WARN USER (POST /api/users/:id/warn) -----
+
+  Auth: admin, campus_admin, student_mod.
+  DB Action:  targetUser.activeWarning = {
+                hasWarning: true, reason, details, issuedAt, issuedBy, acknowledged: false
+              }
+              If sanitizeAvatar=true: resets user's avatar to ui-avatars fallback.
+
+  Socket:     io.emit("user_warned_${targetUser._id}", targetUser.activeWarning)
+              [GLOBAL broadcast — any socket tab for that user ID will catch this]
+
+  DB Notif:   NONE. The socket event IS the notification mechanism.
+
+  Client-side:
+    DisciplinaryWarningModal.js listens on: socket.on("user_warned_${user._id}", handler)
+    Triggers an un-dismissable full-screen modal overlay on the student's screen.
+    The student must click "I Acknowledge" to close it.
+
+----- 8B: ACKNOWLEDGE WARNING (PUT /api/users/acknowledge-warning) -----
+
+  DB Action:  user.activeWarning.acknowledged = true, hasWarning = false.
+  Socket:     NONE.
+  DB Notif:   NONE.
+
+----- 8C: REPORT USER PROFILE (POST /api/users/:id/report) -----
+
+  DB Action:  Report.create({ reportedBy, targetUser, type: "Profile_Violation",
+                              reason, details, status: "Pending" })
+  Socket:     io.to("mod_room").emit("new_reported_content", {
+                message: "User Profile Reported: \"[reason]\"",
+                reportId, targetUserId, reason, details
+              })
+  DB Notif:   NONE (reporter gets no persistent notification; mod room gets socket only).
+
+================================================================================
+SECTION 9: LOST & FOUND NOTIFICATION PIPELINES
+================================================================================
+
+FILE: server/src/controller/lostAndFoundController.js
+
+----- 9A: REPORT ITEM (POST /api/lost-found) -----
+
+  AI middleware runs first.
+
+  PATH A — isFlagged = true:
+    DB Action:  LostFound created with isHidden: true.
+    DB Notif:   Notification.create({ recipient: req.user._id, type: "GENERAL",
+                  message: "Your Lost & Found is under review by moderators due to flagged keywords." })
+    Socket:     io.to(req.user._id).emit("new_notification", warningNotification)
+                io.to("mod_room").emit("new_flagged_content", { message, itemId })
+    Response:   HTTP 202.
+
+  PATH B — isFlagged = false:
+    DB Action:  LostFound created (LOST -> "Open", FOUND -> "At Office").
+    DB Notif:   NONE.
+    Socket:     io.emit("new_lost_found_item", populatedItem) [broadcasts to ALL clients]
+    Response:   HTTP 201.
+
+----- 9B: RESOLVE ITEM — Owner collects (PUT /api/lost-found/:id/resolve) -----
+
+  DB Action:  item.status = "Returned".
+  IF item.type === "FOUND" (someone found and returned another person's item):
+    DB Notif:  Notification.create({
+                 recipient: item.reporter,
+                 type: "GENERAL",
+                 message: "Great news! The owner retrieved the [itemName] you dropped off
+                           at [surrenderedAt]. Thank you for helping the community!"
+               })
+    Socket:    io.to(item.reporter).emit("new_notification", heroNotif)
+               [Hero finder is personally thanked]
+  ALWAYS:
+    Socket:    io.emit("item_resolved", { itemId, status: "Returned" }) [broadcasts to all]
+
+----- 9C: CLAIM FOUND ITEM — Student reports they found someone's lost item
+          (PUT /api/lost-found/:id/claim) -----
+
+  DB Action:  item.status = "Claimed", item.foundBy = req.user._id,
+              item.foundLocation, item.submittedTo, item.foundAt = new Date().
+  DB Notif:   Notification.create({
+                recipient: item.reporter,    [the person who LOST the item]
+                type: "GENERAL",
+                message: "[Finder name] reported they found your lost item \"[itemName]\"
+                          at [foundLocation] and submitted it to [submittedTo]."
+              })
+  Socket (2 events):
+    io.to(item.reporter).emit("new_notification", ownerNotification)
+    io.emit("item_resolved", { itemId, status: "Claimed", item: populatedItem })
+
+----- 9D: DELETE ITEM — MOD ONLY (DELETE /api/lost-found/:id) -----
+
+  Auth: admin, student_mod, campus_admin only.
+  DB Action:  item.deleteOne().
+  Socket:     io.emit("item_deleted", { itemId }) [broadcasts to all clients]
+  DB Notif:   NONE.
+
+================================================================================
+SECTION 10: CAREER THREADS NOTIFICATION PIPELINES
+================================================================================
+
+FILE: server/src/controller/careerController.js
+
+NOTE: Career threads do NOT use the aiModeration middleware. The isFlagged flag
+comes directly from the client (middleware is not applied on these routes).
+
+----- 10A: CREATE CAREER THREAD (POST /api/careers) -----
+
+  isFlagged handled client-side (no AI middleware on server).
+  DB Action:  CareerThread created with isHidden = isFlagged.
+  DB Notif:   NONE.
+  Socket:     NONE.
+  [Career threads are silently held — no socket broadcast even for clean content]
+
+----- 10B: REPLY TO THREAD (POST /api/careers/:id/reply) -----
+
+  Server rejects if isFlagged = true with HTTP 400. No hidden replies stored.
+  DB Action:  Reply added to thread.replies.
+  DB Notif:   NONE.
+  Socket:     NONE.
+
+----- 10C: REPORT CAREER THREAD (POST /api/careers/:id/report) -----
+
+  DB Action:  thread.isHidden = true, reportedBy updated.
+  Socket:     io.to("mod_room").emit("new_reported_content", {
+                message: "A student reported a career thread: \"[reason]\"",
+                threadId, reason
+              })
+  DB Notif:   NONE (thread author NOT notified — only mod room socket).
+
+----- 10D: REPORT CAREER REPLY (POST /api/careers/:threadId/replies/:replyId/report) -----
+
+  DB Action:  reply.isHidden = true, reportedBy updated.
+  Socket:     io.to("mod_room").emit("new_reported_content", {
+                message: "A student reported a career reply: \"[reason]\"",
+                threadId, replyId, reason
+              })
+  DB Notif:   NONE.
+
+================================================================================
+SECTION 11: DASHBOARD NOTIFICATION AGGREGATION
+================================================================================
+
+FILE: server/src/controller/dashboardController.js
+ROUTE: GET /api/dashboard/summary
+
+This endpoint powers the Student Dashboard cards and notification badge counts.
+It does NOT emit any socket events and does NOT create any Notification records.
+It READS from the Notification collection for the logged-in user.
+
+DATA RETURNED:
+  notifications:
+    forums:   count of unread Notifications with type = "FORUM"
+    petitions: count of unread Notifications with type = "PETITION"
+    updates:  count of unread Notifications with type = "ANNOUNCEMENT" or "GENERAL"
+    [CANTEEN and COMPLAINT types are NOT included in dashboard badge counts]
+
+  forums:    5 most recent non-hidden Forum threads (author populated)
+  petitions: Up to 5 Active petitions scoped to user:
+               - Campus level (all students)
+               - Department level (matching user.department)
+               - Class level (matching program-dept-semester-section)
+               - Creator (own petitions always visible)
+             SORTED: Class first > Department > Campus > createdAt DESC
+  lostAndFound: 3 most recent Open items
+  careers:   3 most recent non-flagged, active CareerThreads
+  busRoutes: Static hardcoded data (no real-time)
+
+REAL-TIME DASHBOARD SOCKET LISTENERS (Dashboard.js client-side):
+  socket.on("new_petition_published", newPetition)
+    -> Prepends petition to petitions list; replaces if same ID already exists.
+  socket.on("petition_signed", data)
+    -> Updates signatures counter and status on matching petition card.
+  socket.on("new_forum_thread", data)
+    -> Prepends new thread to recent discussions widget.
+  socket.on("new_reply", data)
+    -> Updates repliesCount on matching forum thread card.
+
+================================================================================
+SECTION 12: FOOD ORDER & DELIVERY COMPLETE NOTIFICATION PIPELINE
+================================================================================
+
+FILES: server/src/controller/orderController.js
+       server/src/controller/vendorCanteenController.js
+
+ORDER STATUS STATE MACHINE:
+  pending -> accepted -> preparing -> ready -> picked_up -> arrived -> completed
+                                              -> cancelled (terminal, any stage)
+
+Order Schema key fields:
+  orderId:          Custom string "ODR-XXXXX-<Initials>" (generated by orderUtils.js)
+  student:          ObjectId -> User
+  rider:            ObjectId -> User (null until claimed)
+  restaurant:       ObjectId -> Restaurant
+  status:           Enum (see above)
+  deliveryLocation: String (default: "University Main Gate")
+  contactNumber:    String (shared with vendor, hidden from riders via sanitizeOrderForRider)
+  studentPhone:     String (same privacy rules)
+
+----- 12A: PLACE ORDER — STAGE 1: pending
+     (POST /api/orders) [orderController.js -> createOrder] -----
+
+  Validates: restaurant exists, restaurant.isActive = true.
+  DB Action:  Order.create({ orderId, student, contactNumber, restaurant, items,
+                              totalAmount, deliveryLocation, status: "pending" })
+  DB Notif:   NONE at placement.
+  Socket:     io.to(restaurant.owner.toString()).emit("new_vendor_order", populatedOrder)
+              [Only vendor's private room receives this — populated with student name + restaurant info]
+
+  VENDOR SIDE (VendorDashboard.js):
+    Listens:  socket.on("new_vendor_order", newOrder)
+    Action:   Plays audio chime. Shows toast notification. Adds order to pending queue.
+
+  STUDENT SIDE (Canteen.js + OrderTracker.js):
+    Listens:  socket.on("order_status_update", ...) and socket.on("order_arrived", ...)
+              [Note: OrderTracker tracks status from HTTP polling too, not just socket]
+    Action:   Order tracker shows "Awaiting vendor confirmation" step.
+
+----- 12B: VENDOR ACCEPTS — STAGE 2: accepted
+     (PUT /api/vendor/orders/:orderId/status, body: {status: "accepted"})
+     [vendorCanteenController.js -> updateOrderStatus] -----
+
+  Guard: order.status must be "pending".
+  DB Action:  order.status = "accepted".
+  DB Notif:   Notification.create({
+                recipient: order.student, type: "CANTEEN",
+                message: "Your order [orderId] from [restaurantName] has been accepted!
+                          We're finding a rider for you."
+              })
+  Socket (3 events):
+    1. io.to("riders").emit("new_ticket", {
+         orderId, deliveryDestination, totalAmount, restaurantName, createdAt
+       })
+       [All riders in "riders" room see new ticket appear in marketplace]
+    2. io.to(order.student.toString()).emit("order_status_update", {
+         orderId, status: "accepted",
+         message: "Your order from [restaurantName] has been accepted! Finding a rider..."
+       })
+    3. io.to(restaurant.owner.toString()).emit("order_status_update", {
+         orderId, status: "accepted"
+       })
+       [Multi-tab sync for vendor — if dashboard open on multiple tabs]
+
+----- 12C: RIDER CLAIMS TICKET — (STAGE 2 with rider assigned)
+     (PUT /api/orders/:id/accept-rider)
+     [orderController.js -> acceptRiderTicket] -----
+
+  Guard: Rider must not already have an active order (checked pre-atomically).
+  ATOMIC CLAIM:
+    Order.findOneAndUpdate(
+      { ($or: [_id match OR orderId match]), rider: null,
+        status: { $in: ["accepted", "ready"] } },
+      { $set: { rider: req.user._id } },
+      { new: true }
+    )
+    If returns null -> conflict. Another rider already claimed it.
+    If status wrong -> 400 error.
+    If rider is same person re-claiming -> idempotent 200 OK.
+
+  On success:
+  DB Notif:   Notification.create({
+                recipient: order.student, type: "CANTEEN",
+                message: "Rider [riderName] has accepted your order [orderId] and is on the way!"
+              })
+  Socket (3 events):
+    1. io.to("riders").emit("ticket_accepted", { orderId })
+       [ALL riders' screens remove this ticket from their available list]
+    2. io.to(order.student.toString()).emit("order_status_update", {
+         orderId, status: order.status,
+         riderName: req.user.name,
+         message: "A rider ([riderName]) has accepted your delivery! 🛵"
+       })
+    3. io.to(vendorId).emit("rider_accepted_order", { orderId, riderName })
+
+  RIDER SIDE (RiderMarketplace.js):
+    Listens: socket.on("ticket_accepted", ({orderId}))
+    Action:  Removes the ticket card from all riders' available ticket lists.
+
+  VENDOR SIDE (VendorDashboard.js):
+    Listens: socket.on("rider_accepted_order", data)
+    Action:  Shows toast "Rider [name] accepted order [orderId]".
+
+----- 12D: VENDOR STARTS PREPARING — STAGE 3: preparing
+     (PUT /api/vendor/orders/:orderId/status, body: {status: "preparing"})
+     [vendorCanteenController.js -> updateOrderStatus] -----
+
+  Guard: order.status must be "accepted".
+  DB Action:  order.status = "preparing".
+  DB Notif:   Notification.create({
+                recipient: order.student, type: "CANTEEN",
+                message: "Your order [orderId] from [restaurantName] is now being prepared! 🍳"
+              })
+  Socket (4 events):
+    1. io.to(order.student.toString()).emit("order_status_update", {
+         orderId, status: "preparing",
+         message: "Your order from [restaurantName] is now being prepared! 🍳"
+       })
+    2. io.to("riders").emit("new_ticket", {
+         orderId, deliveryDestination, totalAmount, restaurantName, createdAt
+       })
+       [Re-broadcasts ticket to riders in case no rider claimed yet during "accepted" stage]
+    3. If order.rider exists:
+       io.to(order.rider.toString()).emit("order_status_update", {
+         orderId, status: "preparing",
+         message: "Order [orderId] is now being prepared at [restaurantName]."
+       })
+    4. io.to(restaurant.owner.toString()).emit("order_status_update", {
+         orderId, status: "preparing"
+       })
+
+----- 12E: VENDOR MARKS READY — STAGE 4: ready
+     (PUT /api/vendor/orders/:orderId/status, body: {status: "ready"})
+     [vendorCanteenController.js -> updateOrderStatus] -----
+
+  Guard: order.status must be "preparing".
+  DB Action:  order.status = "ready".
+  DB Notif:   Notification.create({
+                recipient: order.student, type: "CANTEEN",
+                message: "Your order [orderId] is ready and waiting for the rider! 🍔"
+              })
+  Socket (4-5 events):
+    1. io.to("riders").emit("order_ready_for_pickup", {
+         orderId, status: "ready",
+         message: "🍔 Order #[orderId] is READY for pickup at [restaurantName]! Head over now.",
+         restaurantName, deliveryDestination
+       })
+       [All riders in "riders" room see urgent alert]
+    2. If order.rider exists (rider already claimed):
+       io.to(order.rider.toString()).emit("order_ready_for_pickup", readyPayload)
+       [Direct ping to assigned rider's private room — duplicate for certainty]
+    3. If NO rider yet:
+       io.to("riders").emit("new_ticket", {
+         orderId, deliveryDestination, totalAmount, restaurantName, urgent: true, createdAt
+       })
+       [Re-broadcasts as URGENT ticket so riders know food is ready NOW]
+    4. io.to(order.student.toString()).emit("order_status_update", {
+         orderId, status: "ready",
+         message: "Your food is ready! The rider is picking it up now. 🛵"
+       })
+    5. io.to(restaurant.owner.toString()).emit("order_status_update", {
+         orderId, status: "ready"
+       })
+
+----- 12F: RIDER PICKUP — STAGE 5: picked_up
+     (PUT /api/orders/:id/pickup)
+     [orderController.js -> pickupOrder] -----
+
+  Guard: Only assigned rider. order.status must be "ready".
+  DB Action:  order.status = "picked_up".
+  DB Notif:   Notification.create({
+                recipient: order.student, type: "CANTEEN",
+                message: "Your order [orderId] has been picked up! The rider is on the way to you. 🛵"
+              })
+  Socket (2 events):
+    1. io.to(order.student.toString()).emit("order_status_update", {
+         orderId, status: "picked_up",
+         message: "🛵 Your order has been picked up and is en route to you!"
+       })
+    2. io.to(vendorId).emit("order_status_update", { orderId, status: "picked_up" })
+
+----- 12G: RIDER ARRIVES — STAGE 6: arrived
+     (PUT /api/orders/:id/arrive)
+     [orderController.js -> arriveOrder] -----
+
+  Guard: Only assigned rider. order.status must be "picked_up".
+  DB Action:  order.status = "arrived".
+  DB Notif:   Notification.create({
+                recipient: order.student, type: "CANTEEN",
+                message: "📍 Rider has arrived with order [orderId]!
+                          Please meet them at [order.deliveryLocation]."
+              })
+  Socket (2 events):
+    1. io.to(order.student.toString()).emit("order_status_update", {
+         orderId, status: "arrived",
+         message: "📍 Your delivery rider has arrived at the delivery point!
+                   Please come collect your order."
+       })
+    2. io.to(vendorId).emit("order_status_update", { orderId, status: "arrived" })
+
+----- 12H: ORDER COMPLETED — STAGE 7: completed
+     (PUT /api/orders/:id/complete)
+     [orderController.js -> completeOrder] -----
+
+  Guard: Only assigned rider. order.status must be "arrived".
+  DB Action:  order.status = "completed".
+  DB Notif:   Notification.create({
+                recipient: order.student, type: "CANTEEN",
+                message: "🎉 Order [orderId] has been delivered! Enjoy your meal.
+                          Please rate your experience."
+              })
+  Socket (2 events):
+    1. io.to(order.student.toString()).emit("order_status_update", {
+         orderId, status: "completed",
+         message: "🎉 Your order has been delivered! Enjoy your meal."
+       })
+    2. io.to(vendorId).emit("order_completed_by_rider", {
+         orderId, status: "completed", riderName: req.user.name
+       })
+
+----- 12I: VENDOR CANCELS — TERMINAL: cancelled
+     (PUT /api/vendor/orders/:orderId/status, body: {status: "cancelled"})
+     [vendorCanteenController.js -> updateOrderStatus] -----
+
+  Guard: Cannot cancel an already completed or cancelled order.
+  DB Action:  order.status = "cancelled".
+  DB Notif:   Notification.create({
+                recipient: order.student, type: "CANTEEN",
+                message: "Your order [orderId] from [restaurantName] has been cancelled.
+                          We apologize for the inconvenience."
+              })
+  Socket (3 events):
+    1. io.to(order.student.toString()).emit("order_status_update", {
+         orderId, status: "cancelled",
+         message: "We're sorry — your order from [restaurantName] has been cancelled."
+       })
+    2. If order.rider exists:
+       io.to(order.rider.toString()).emit("order_status_update", {
+         orderId, status: "cancelled",
+         message: "Order [orderId] was cancelled by the vendor."
+       })
+    3. io.to("riders").emit("ticket_cancelled", { orderId })
+       [Removes the ticket from ALL riders' active tracking]
+
+----- 12J: STUDENT NUDGES VENDOR (POST /api/orders/:id/nudge)
+     [orderController.js -> nudgeOrder] -----
+
+  Guard: Order must be in ["pending", "accepted", "preparing"]. Rate limited by nudgeRateLimiter.js.
+  DB Notif:   NONE.
+  Socket:     io.to(restaurant.owner.toString()).emit("order_nudge", {
+                orderId,
+                message: "🔔 Nudge from student! Order [orderId] — student is asking for an update.",
+                timestamp: new Date()
+              })
+
+  VENDOR SIDE (VendorDashboard.js):
+    Listens: socket.on("order_nudge", data)
+    Action:  Displays warning-style toast with audio.
+
+----- 12K: STUDENT NUDGES RIDER ON ARRIVAL (POST /api/orders/:id/nudge-rider)
+     [orderController.js -> nudgeRiderOnArrival] -----
+
+  Guard: Order must be "arrived" or "picked_up".
+  DB Notif:   NONE.
+  Socket (2 events):
+    1. If order.rider: io.to(riderIdStr).emit("student_nudge_arrival", {
+         orderId,
+         message: "🏃‍♂️ Student is heading to collect Order [orderId] — they're on their way!",
+         timestamp: new Date()
+       })
+    2. io.to("riders").emit("student_nudge_arrival", payload)
+       [Failsafe broadcast to entire riders room]
+
+================================================================================
+SECTION 13: COMPLETE SOCKET EVENT MASTER TABLE
+================================================================================
+
+EVENT NAME                | EMITTER SOURCE             | TARGET ROOM          | CLIENT LISTENER(S)
+--------------------------|----------------------------|----------------------|------------------------
+new_vendor_order          | orderController            | restaurant.owner     | VendorDashboard.js
+new_ticket                | vendorCanteenController    | "riders"             | RiderMarketplace.js
+ticket_accepted           | orderController            | "riders"             | RiderMarketplace.js
+ticket_cancelled          | vendorCanteenController    | "riders"             | VendorDashboard.js, RiderMarketplace.js
+rider_accepted_order      | orderController            | vendorId             | VendorDashboard.js
+order_ready_for_pickup    | vendorCanteenController    | "riders" + riderId   | RiderMarketplace.js
+order_status_update       | order + vendor controllers | order.student + vendor| OrderTracker.js, Canteen.js, VendorDashboard.js, RiderMarketplace.js
+order_completed_by_rider  | orderController            | vendorId             | VendorDashboard.js
+order_nudge               | orderController            | restaurant.owner     | VendorDashboard.js
+student_nudge_arrival     | orderController            | riderId + "riders"   | RiderMarketplace.js
+complaint_status_updated  | complaintController        | complaint.submittedBy| (Student's complaint page)
+new_notification          | forum/petition/lostfound/canteen controllers | userId | Topbar.js, Petitions.js, LostFound.js
+new_forum_thread          | forumController            | ALL (io.emit)        | Forum.js, Dashboard.js
+new_reply                 | forumController            | ALL (io.emit)        | Forum.js, Dashboard.js
+thread_updated            | forumController            | ALL (io.emit)        | Forum.js
+thread_deleted            | forumController            | ALL (io.emit)        | Forum.js
+thread_moderated          | forumController, modController | ALL (io.emit)   | Forum.js
+reply_updated             | forumController            | ALL (io.emit)        | Forum.js
+reply_deleted             | forumController            | ALL (io.emit)        | Forum.js
+petition_signed           | petitionController         | ALL (io.emit)        | Petitions.js, Dashboard.js
+petition_milestone_reached| petitionController         | "mod_room"           | ModerationRoom.js
+new_petition_published    | petitionController, modController | targetGroup room | Petitions.js, Dashboard.js
+new_petition_pending      | petitionController         | mod_room_<dept> or mod_room | ModerationRoom.js
+new_lost_found_item       | lostAndFoundController, modController | ALL       | LostFound.js
+item_resolved             | lostAndFoundController     | ALL (io.emit)        | LostFound.js
+item_deleted              | lostAndFoundController     | ALL (io.emit)        | LostFound.js
+new_flagged_content       | forum/petition/lostfound/order controllers | "mod_room" | ModerationRoom.js
+new_reported_content      | forum/career/user controllers | "mod_room"       | ModerationRoom.js
+new_mod_queue_item        | complaintController        | "mod_room"           | ModerationRoom.js
+mod_queue_item_updated    | complaintController        | "mod_room"           | ModerationRoom.js
+mod_queue_item_escalated  | complaintController        | "mod_room"           | ModerationRoom.js
+admin_escalation_alert    | complaintController        | each admin's userId  | Admin notification panel
+user_warned_<userId>      | userController             | ALL (io.emit)        | DisciplinaryWarningModal.js
+
+================================================================================
+SECTION 14: NOTIFICATION DELIVERY SUMMARY — WHAT GETS PERSISTED vs SOCKET ONLY
+================================================================================
+
+ALWAYS PERSISTED TO MONGODB (Notification.create / insertMany):
+  - AI-flagged content warning to author (type: GENERAL)
+  - Forum reply on your thread (type: FORUM)
+  - Forum thread reported — notification to thread author (type: GENERAL)
+  - Forum reply reported — notification to reply author (type: GENERAL)
+  - Forum thread removed by mod — notification to author (type: GENERAL)
+  - Forum reply removed by mod — notification to author (type: GENERAL)
+  - Petition approved — notification to creator (type: PETITION)
+  - Petition rejected — notification to creator (type: GENERAL)
+  - Petition milestone reached — notification to creator (type: PETITION)
+  - Career thread removed by mod — notification to author (type: GENERAL)
+  - Career reply removed by mod — notification to author (type: GENERAL)
+  - Profile violation resolved — notification to offending user (type: GENERAL)
+  - Profile report resolved — notification to offending user (type: GENERAL)
+  - Lost & Found: FOUND item returned — thank you to hero finder (type: GENERAL)
+  - Lost & Found: Item claimed — notification to original owner (type: GENERAL)
+  - Lost & Found item rejected by mod — notification to reporter (type: GENERAL)
+  - Lost & Found flagged content — warning to reporter (type: GENERAL)
+  - Order accepted by vendor (type: CANTEEN)
+  - Rider assigned to order (type: CANTEEN)
+  - Order preparing (type: CANTEEN)
+  - Order ready for pickup (type: CANTEEN)
+  - Order picked up (type: CANTEEN)
+  - Rider arrived (type: CANTEEN)
+  - Order completed (type: CANTEEN)
+  - Order cancelled (type: CANTEEN)
+  - Complaint/Suggestion status updated (type: COMPLAINT)
+  - Complaint/Suggestion resolved by mod room (type: COMPLAINT)
+  - Complaint/Suggestion rejected by mod room (type: COMPLAINT)
+  - Urgent complaint escalation — ALL admins receive individual records (type: COMPLAINT)
+
+SOCKET ONLY (not persisted to Notification collection):
+  - new_vendor_order (vendor receives new order)
+  - new_ticket / ticket_accepted / ticket_cancelled (rider marketplace)
+  - rider_accepted_order (vendor sees rider name)
+  - order_ready_for_pickup (rider urgent ping)
+  - order_completed_by_rider (vendor completion signal)
+  - order_nudge (student pings vendor)
+  - student_nudge_arrival (student pings rider)
+  - new_forum_thread / thread_updated / thread_deleted / thread_moderated (global UI sync)
+  - new_reply / reply_updated / reply_deleted (global UI sync)
+  - petition_signed (counter update)
+  - new_lost_found_item / item_resolved / item_deleted (global UI sync)
+  - new_flagged_content (mod room real-time queue alert)
+  - new_reported_content (mod room real-time queue alert)
+  - new_mod_queue_item / mod_queue_item_updated / mod_queue_item_escalated (mod room live updates)
+  - admin_escalation_alert (admin direct ping — counterpart saved as DB Notif separately)
+  - user_warned_<userId> (disciplinary warning — no DB Notif, socket IS the delivery)
+  - petition_milestone_reached (mod room only)
+
+================================================================================
+END OF CAMPUSCONNECT NOTIFICATION SYSTEM CONTEXT PROMPT
+Generated from full source code review — 15 controllers, 3 middleware files,
+11 models, client socket listeners verified.
+================================================================================

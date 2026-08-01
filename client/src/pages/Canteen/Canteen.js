@@ -5,6 +5,8 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import { SOCKET_URL } from "../../utils/helpers";
 import { startArrivalAlertLoop, stopArrivalAlertLoop } from "../../utils/audioAlert";
+import { showOrderStatusNotification } from "../../utils/browserNotification";
+
 
 // Layout
 import Sidebar from "../../components/layout/Sidebar";
@@ -508,15 +510,20 @@ export default function Canteen() {
 
     socket.on("order_status_update", (data) => {
       handleIncomingStatus(data.status, data.message);
+      // Show OS-level browser notification when tab is minimized
+      showOrderStatusNotification(data.status, data.message);
     });
 
     socket.on("order_arrived", (data) => {
       handleIncomingStatus("arrived", data.message);
+      showOrderStatusNotification("arrived", data.message);
     });
 
     socket.on("order_delivered", (data) => {
       handleIncomingStatus("completed", data.message);
+      showOrderStatusNotification("completed", data.message);
     });
+
 
     // 2. BroadcastChannel for Instant Cross-Tab Communication
     let channel;

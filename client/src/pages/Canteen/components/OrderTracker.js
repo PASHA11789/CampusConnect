@@ -4,6 +4,8 @@ import { io } from "socket.io-client";
 import { SOCKET_URL } from "../../../utils/helpers";
 import OrderRatingModal from "../../../components/canteen/OrderRatingModal";
 import { startArrivalAlertLoop, stopArrivalAlertLoop } from "../../../utils/audioAlert";
+import { showOrderStatusNotification } from "../../../utils/browserNotification";
+
 
 const STEPS = [
   { id: "preparing", label: "Preparing" },
@@ -93,20 +95,25 @@ export default function OrderTracker({
     socket.on("order_status_update", (data) => {
       if (!orderId || data.orderId === orderId) {
         updateStatusLocally(data.status, data.message);
+        // Fire OS-level notification when browser is minimized
+        showOrderStatusNotification(data.status, data.message);
       }
     });
 
     socket.on("order_arrived", (data) => {
       if (!orderId || data.orderId === orderId) {
         updateStatusLocally("arrived", data.message);
+        showOrderStatusNotification("arrived", data.message);
       }
     });
 
     socket.on("order_delivered", (data) => {
       if (!orderId || data.orderId === orderId) {
         updateStatusLocally("completed", data.message);
+        showOrderStatusNotification("completed", data.message);
       }
     });
+
 
     let channel;
     try {

@@ -6,7 +6,9 @@ const nudgeCache = new Map();
  * Restricts requests to 1 per 3 minutes (180,000 ms) per user/IP.
  */
 export const nudgeRateLimiter = (req, res, next) => {
-  const key = req.user ? req.user._id.toString() : req.ip;
+  const orderId = req.params.id || req.params.orderId || "global";
+  const userId = req.user ? req.user._id.toString() : req.ip;
+  const key = `${orderId}:${userId}`;
   const now = Date.now();
   const COOLDOWN_MS = 3 * 60 * 1000; // 3 minutes
 
@@ -18,7 +20,7 @@ export const nudgeRateLimiter = (req, res, next) => {
       const remainingSeconds = Math.ceil((COOLDOWN_MS - timeElapsed) / 1000);
       return res.status(429).json({
         success: false,
-        message: `Too Many Requests: You can only send a nudge once every 3 minutes. Please try again in ${remainingSeconds} seconds.`,
+        message: "Please wait 3 minutes before nudging again.",
         retryAfterSeconds: remainingSeconds
       });
     }

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login/Login';
 import Home from './pages/Home/Home';
@@ -17,8 +18,20 @@ import BusRoutes from './pages/BusRoutes/BusRoutes';
 import UsersManager from './pages/Admin/UsersManager';
 import RestaurantsManager from './pages/Admin/RestaurantsManager';
 import DisciplinaryWarningModal from './components/common/DisciplinaryWarningModal';
+import { setupPushNotifications } from './utils/pushNotificationSetup';
+
 
 function App() {
+  // Set up Web Push Notifications once the app loads, if the user is logged in.
+  // Safe to call on every render cycle — setupPushNotifications() bails out early
+  // if the service worker is already registered and a subscription already exists.
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      setupPushNotifications();
+    }
+  }, []);
+
   return (
     <Router>
       <DisciplinaryWarningModal />

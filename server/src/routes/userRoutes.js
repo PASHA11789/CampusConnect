@@ -1,11 +1,21 @@
 import express from "express";
 import upload from "../../utils/cloudinaryConfig.js";
 import { protect } from "../middleware/authMiddleware.js";
-import { updateProfile, getPublicProfile, reportUserProfile, warnUser, acknowledgeWarning } from "../controller/userController.js";
+import { updateProfile, getPublicProfile, reportUserProfile, warnUser, acknowledgeWarning, subscribePushNotification, getVapidPublicKey, testPushNotification } from "../controller/userController.js";
+
+
 
 const router = express.Router();
 
+// Public route — no auth needed (frontend needs this to create a push subscription)
+router.get("/vapid-public-key", getVapidPublicKey);
+
 router.use(protect);
+
+router.post("/subscribe", subscribePushNotification);
+router.post("/test-push", testPushNotification);
+
+
 
 router.post("/upload-avatar", upload.single("avatar"), (req, res) => {
   if (!req.file) {

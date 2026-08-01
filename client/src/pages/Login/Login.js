@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { setupPushNotifications } from '../../utils/pushNotificationSetup';
+
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -18,7 +20,11 @@ const Login = () => {
             const response = await axios.post('/api/auth/login', { email, password });
             sessionStorage.setItem('token', response.data.token);
             sessionStorage.setItem('user', JSON.stringify(response.data));
+            // Trigger push notification setup immediately after login
+            // so the browser permission prompt appears while the user is active
+            setupPushNotifications();
             navigate('/dashboard');
+
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
         } finally {
