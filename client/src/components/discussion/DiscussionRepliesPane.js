@@ -61,17 +61,17 @@ export default function DiscussionRepliesPane({
   setReplyingTo,
   onAvatarClick,
   variant = "forum",
-  
+
   // Image attachment props (FB / IG comment style)
   replyImage = "",
-  setReplyImage = () => {},
+  setReplyImage = () => { },
 
   // Career-specific action overrides
   onReportThread,
   onReportReply
 }) {
   const [showImageInput, setShowImageInput] = React.useState(false);
-  
+
   React.useEffect(() => {
     if (replyingTo && variant === "forum") {
       const textarea = document.getElementById("reply-textarea");
@@ -373,8 +373,8 @@ export default function DiscussionRepliesPane({
     <div className={`w-full flex-grow bg-white flex flex-col relative h-full max-h-full min-h-0 overflow-hidden border border-slate-200 lg:rounded-2xl max-lg:rounded-none max-lg:border-x-0 p-3 sm:p-4 lg:p-4.5 min-w-0 ${mobileView === "list" ? "max-lg:hidden" : ""}`}>
       {/* Mobile Back Button Row */}
       <div className="lg:hidden flex items-center w-full mb-2 shrink-0">
-        <button 
-          className="bg-[#071A35] hover:bg-[#0A2246] text-white text-[11.5px] font-black py-1.5 px-3.5 rounded-full cursor-pointer border-none shadow-sm transition-all flex items-center gap-1.5" 
+        <button
+          className="bg-[#071A35] hover:bg-[#0A2246] text-white text-[11.5px] font-black py-1.5 px-3.5 rounded-full cursor-pointer border-none shadow-sm transition-all flex items-center gap-1.5"
           onClick={() => {
             setMobileView("list");
             if (onClose) onClose();
@@ -459,9 +459,9 @@ export default function DiscussionRepliesPane({
                 </div>
 
                 {onClose && (
-                  <button 
+                  <button
                     type="button"
-                    className="bg-slate-200/60 hover:bg-red-50 hover:text-red-500 text-slate-500 w-6 h-6 rounded-full cursor-pointer flex items-center justify-center transition-all duration-200 border-none shadow-2xs hover:shadow active:scale-95 ml-1" 
+                    className="bg-slate-200/60 hover:bg-red-50 hover:text-red-500 text-slate-500 w-6 h-6 rounded-full cursor-pointer flex items-center justify-center transition-all duration-200 border-none shadow-2xs hover:shadow active:scale-95 ml-1"
                     onClick={onClose}
                     title={t("Close Discussion")}
                   >
@@ -545,11 +545,10 @@ export default function DiscussionRepliesPane({
                             onAvatarClick={onAvatarClick}
                           />
                           {children.length > 0 && (
-                            <div className={`pl-4 flex flex-col gap-2 mt-1 mb-2 w-[85%] ${
-                              isParentOwner 
-                                ? 'self-end ml-14 mr-2 border-l-2 border-[#1a5269]/40' 
+                            <div className={`pl-4 flex flex-col gap-2 mt-1 mb-2 w-[85%] ${isParentOwner
+                                ? 'self-end ml-14 mr-2 border-l-2 border-[#1a5269]/40'
                                 : 'self-start ml-8 mr-14 border-l-2 border-slate-300'
-                            }`}>
+                              }`}>
                               {children.map((child, idx) => (
                                 <DiscussionReplyBubble
                                   key={child._id || idx}
@@ -597,9 +596,9 @@ export default function DiscussionRepliesPane({
                 <span className="text-[10px] font-bold text-[#4f46e5]">
                   Replying to <span className="underline">{replyingTo.authorName}</span>
                 </span>
-                <button 
-                  type="button" 
-                  className="bg-transparent border-none text-slate-400 hover:text-slate-600 cursor-pointer text-xs font-bold p-0.5 leading-none" 
+                <button
+                  type="button"
+                  className="bg-transparent border-none text-slate-400 hover:text-slate-600 cursor-pointer text-xs font-bold p-0.5 leading-none"
                   onClick={() => setReplyingTo(null)}
                 >
                   ✕
@@ -611,10 +610,10 @@ export default function DiscussionRepliesPane({
             {replyImage && (
               <div className="relative mb-2.5 w-fit group">
                 <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-[#00c2cb] shadow-md bg-slate-900/10">
-                  <img 
-                    src={replyImage} 
-                    alt="Attachment preview" 
-                    className="w-full h-full object-cover" 
+                  <img
+                    src={replyImage}
+                    alt="Attachment preview"
+                    className="w-full h-full object-cover"
                     onError={(e) => { e.target.style.display = 'none'; }}
                   />
                 </div>
@@ -631,7 +630,7 @@ export default function DiscussionRepliesPane({
 
             {/* Optional Image Upload / Attachment Popup */}
             {showImageInput && (
-              <div 
+              <div
                 className="flex flex-col gap-2 mb-2 bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm animate-modal-slide-in"
                 onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 onDrop={(e) => {
@@ -713,11 +712,10 @@ export default function DiscussionRepliesPane({
               <button
                 type="button"
                 onClick={() => setShowImageInput(!showImageInput)}
-                className={`h-[42px] w-[42px] rounded-xl text-base border border-slate-200/90 transition-all cursor-pointer shrink-0 flex items-center justify-center ${
-                  replyImage || showImageInput
+                className={`h-[42px] w-[42px] rounded-xl text-base border border-slate-200/90 transition-all cursor-pointer shrink-0 flex items-center justify-center ${replyImage || showImageInput
                     ? "bg-[#00c2cb]/10 text-[#00c2cb] border-[#00c2cb]/40 font-bold"
                     : "bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-                }`}
+                  }`}
                 title={t("Attach photo to reply")}
               >
                 📷

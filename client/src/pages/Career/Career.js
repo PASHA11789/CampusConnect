@@ -50,64 +50,335 @@ const getSkillLevelBadgeStyle = (level) => {
   }
 };
 
-const CS_DAILY_PROBLEMS = [
+const DEPARTMENT_CHALLENGES = {
+  tech: {
+    badge: "🧩 Daily Tech & CS Challenge",
+    btnText: "Solve Challenge on LeetCode →",
+    problems: [
+      {
+        title: "Binary Tree Zigzag Level Order Traversal",
+        difficulty: "Medium",
+        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
+        tags: ["DSA", "Trees", "BFS / DFS"],
+        estTime: "20 mins",
+        solved: "148 Students Solved",
+        link: "https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/",
+      },
+      {
+        title: "Longest Substring Without Repeating Characters",
+        difficulty: "Medium",
+        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
+        tags: ["Strings", "Sliding Window", "HashTable"],
+        estTime: "15 mins",
+        solved: "215 Students Solved",
+        link: "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+      },
+      {
+        title: "Merge K Sorted Linked Lists",
+        difficulty: "Hard",
+        diffColor: "bg-red-100 text-red-800 border-red-200",
+        tags: ["Heaps", "Linked List", "Divide & Conquer"],
+        estTime: "25 mins",
+        solved: "94 Students Solved",
+        link: "https://leetcode.com/problems/merge-k-sorted-lists/",
+      },
+      {
+        title: "Validate Binary Search Tree",
+        difficulty: "Medium",
+        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
+        tags: ["Trees", "DFS", "Binary Search"],
+        estTime: "15 mins",
+        solved: "182 Students Solved",
+        link: "https://leetcode.com/problems/validate-binary-search-tree/",
+      },
+      {
+        title: "Valid Anagram & Group Anagrams",
+        difficulty: "Easy",
+        diffColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+        tags: ["Strings", "Sorting", "HashTable"],
+        estTime: "10 mins",
+        solved: "310 Students Solved",
+        link: "https://leetcode.com/problems/valid-anagram/",
+      },
+      {
+        title: "Course Schedule II (Topological Sort)",
+        difficulty: "Medium",
+        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
+        tags: ["Graphs", "Topological Sort", "BFS"],
+        estTime: "22 mins",
+        solved: "112 Students Solved",
+        link: "https://leetcode.com/problems/course-schedule-ii/",
+      },
+    ],
+  },
+  business: {
+    badge: "📊 Daily Business & Finance Case",
+    btnText: "Analyze Case Study →",
+    problems: [
+      {
+        title: "Market Expansion Strategy: EV Fleet Valuation & Entry",
+        difficulty: "Medium",
+        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
+        tags: ["Strategy", "Financial Valuation", "Market Entry"],
+        estTime: "25 mins",
+        solved: "164 Students Analyzed",
+        link: "https://hbr.org/case-studies",
+      },
+      {
+        title: "Financial Ratio & Liquidity Analysis (DuPont Model)",
+        difficulty: "Hard",
+        diffColor: "bg-red-100 text-red-800 border-red-200",
+        tags: ["Finance", "DuPont Analysis", "Balance Sheet"],
+        estTime: "30 mins",
+        solved: "88 Students Solved",
+        link: "https://hbr.org/case-studies",
+      },
+      {
+        title: "Customer Acquisition Cost (CAC) vs Lifetime Value (LTV)",
+        difficulty: "Easy",
+        diffColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+        tags: ["Marketing", "Metrics", "SaaS Growth"],
+        estTime: "15 mins",
+        solved: "240 Students Solved",
+        link: "https://hbr.org/case-studies",
+      },
+    ],
+  },
+  engineering: {
+    badge: "⚙️ Daily Engineering Challenge",
+    btnText: "Solve Technical Challenge →",
+    problems: [
+      {
+        title: "Op-Amp Circuit Gain & Signal Filtering Calculations",
+        difficulty: "Medium",
+        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
+        tags: ["Electrical", "Analog Circuits", "Filters"],
+        estTime: "20 mins",
+        solved: "105 Students Solved",
+        link: "https://www.engineering.com",
+      },
+      {
+        title: "Finite Element Stress Analysis on Cantilever Beam",
+        difficulty: "Hard",
+        diffColor: "bg-red-100 text-red-800 border-red-200",
+        tags: ["Mechanical", "FEA", "Structural Analysis"],
+        estTime: "30 mins",
+        solved: "72 Students Solved",
+        link: "https://www.engineering.com",
+      },
+      {
+        title: "PID Controller Tuning for Automated Servo Motor",
+        difficulty: "Medium",
+        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
+        tags: ["Mechatronics", "Control Systems", "PID"],
+        estTime: "25 mins",
+        solved: "130 Students Solved",
+        link: "https://www.engineering.com",
+      },
+    ],
+  },
+  design_arts: {
+    badge: "🎨 Daily Design & UX Brief",
+    btnText: "Explore Design Challenge →",
+    problems: [
+      {
+        title: "Accessibility Redesign: Mobile Checkout Flow for Elderly Users",
+        difficulty: "Medium",
+        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
+        tags: ["UI/UX", "Accessibility", "Figma Design"],
+        estTime: "20 mins",
+        solved: "190 Designers Participated",
+        link: "https://www.uicoach.io",
+      },
+      {
+        title: "Brand Identity & Micro-Interaction Animation Guidelines",
+        difficulty: "Easy",
+        diffColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+        tags: ["Branding", "Micro-Animations", "Design System"],
+        estTime: "15 mins",
+        solved: "220 Designers Participated",
+        link: "https://www.uicoach.io",
+      },
+    ],
+  },
+  general: {
+    badge: "💡 Daily Career & Aptitude Challenge",
+    btnText: "Practice Interview Case →",
+    problems: [
+      {
+        title: "Behavioral Interview Case: Conflict Resolution & Leadership",
+        difficulty: "Easy",
+        diffColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+        tags: ["STAR Method", "Leadership", "Communication"],
+        estTime: "15 mins",
+        solved: "340 Students Practiced",
+        link: "https://www.linkedin.com/learning",
+      },
+      {
+        title: "Analytical Aptitude & Logical Reasoning Test",
+        difficulty: "Medium",
+        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
+        tags: ["Aptitude", "Logic", "Problem Solving"],
+        estTime: "20 mins",
+        solved: "280 Students Practiced",
+        link: "https://www.linkedin.com/learning",
+      },
+    ],
+  },
+};
+
+const getDepartmentCategoryKey = (deptStr) => {
+  const s = (deptStr || "").toLowerCase();
+  if (s.includes("computer") || s.includes("cs") || s.includes("software") || s.includes("se") || s.includes("information") || s.includes("it") || s.includes("data") || s.includes("ai") || s.includes("cyber") || s.includes("tech")) {
+    return "tech";
+  }
+  if (s.includes("bba") || s.includes("business") || s.includes("finance") || s.includes("accounting") || s.includes("management") || s.includes("marketing") || s.includes("mba") || s.includes("commerce")) {
+    return "business";
+  }
+  if (s.includes("engineer") || s.includes("electrical") || s.includes("mechanical") || s.includes("civil") || s.includes("mechatronic")) {
+    return "engineering";
+  }
+  if (s.includes("art") || s.includes("design") || s.includes("media") || s.includes("fine") || s.includes("graphics") || s.includes("ux") || s.includes("ui")) {
+    return "design_arts";
+  }
+  return "general";
+};
+
+const getDailyProblemForDept = (deptStr) => {
+  const categoryKey = getDepartmentCategoryKey(deptStr);
+  const deptData = DEPARTMENT_CHALLENGES[categoryKey] || DEPARTMENT_CHALLENGES.general;
+  // Calculate today's date seed (Midnight hash)
+  const todaySeed = Math.floor(new Date().setHours(0, 0, 0, 0) / 86400000);
+  const dailyIndex = Math.abs(todaySeed) % deptData.problems.length;
+  return {
+    ...deptData.problems[dailyIndex],
+    badge: deptData.badge,
+    btnText: deptData.btnText,
+    categoryKey,
+  };
+};
+
+
+
+const DEFAULT_MOCK_CAREER_THREADS = [
   {
-    title: "Binary Tree Zigzag Level Order Traversal",
-    difficulty: "Medium",
-    diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-    tags: ["DSA", "Trees", "BFS / DFS"],
-    estTime: "20 mins",
-    solved: "148 Students Solved",
-    link: "https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/",
+    _id: "mock-career-1",
+    title: "Frontend Developer Intern (React.js & Tailwind CSS)",
+    content: "We are hiring a Frontend Intern at Systems Ltd Lahore office! Looking for CS students strong in React.js, JavaScript (ES6+), and Responsive Web Design. 3-month paid internship with full-time job offer possibility upon graduation.",
+    category: "job_opportunity",
+    location: "Lahore, Pakistan (Hybrid)",
+    jobType: "Paid Internship",
+    qualification: "BSCS / BSSE 7th-8th Semester",
+    company: "Systems Ltd",
+    likesCount: 38,
+    viewsCount: 240,
+    createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+    author: {
+      _id: "alumni-1",
+      name: "Javeria Khan",
+      role: "alumni",
+      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80"
+    },
+    replies: [
+      {
+        _id: "mock-r1",
+        content: "Is this role open for 6th semester students as well?",
+        createdAt: new Date(Date.now() - 3600 * 1000).toISOString(),
+        author: { name: "Hamza Malik", role: "student" }
+      },
+      {
+        _id: "mock-r2",
+        content: "Yes! If you have strong React projects in your portfolio, feel free to apply.",
+        createdAt: new Date(Date.now() - 1800 * 1000).toISOString(),
+        author: { name: "Javeria Khan", role: "alumni" }
+      }
+    ]
   },
   {
-    title: "Longest Substring Without Repeating Characters",
-    difficulty: "Medium",
-    diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-    tags: ["Strings", "Sliding Window", "HashTable"],
-    estTime: "15 mins",
-    solved: "215 Students Solved",
-    link: "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+    _id: "mock-career-2",
+    title: "How to prepare for AI & Data Science roles in 2026?",
+    content: "Many juniors ask what skills matter most for AI roles. Focus on: 1) Python & NumPy/Pandas, 2) SQL & Data Pipeline basics, 3) Hands-on LLM / RAG projects with Gemini API or PyTorch. Don't just learn theory; build end-to-end projects.",
+    category: "mentorship_qa",
+    location: "Campus Mentorship",
+    jobType: "Career Guidance",
+    qualification: "All Programs",
+    likesCount: 52,
+    viewsCount: 310,
+    createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
+    author: {
+      _id: "alumni-2",
+      name: "Javeria Khan",
+      role: "alumni",
+      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80"
+    },
+    replies: [
+      {
+        _id: "mock-r3",
+        content: "Thank you for sharing this! Should we prioritize LeetCode or building ML projects?",
+        createdAt: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
+        author: { name: "Student 2024F-mulbscs-055", role: "student" }
+      },
+      {
+        _id: "mock-r4",
+        content: "A mix of both! DSA for technical screening rounds, and ML projects for resume shortlisting.",
+        createdAt: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
+        author: { name: "Javeria Khan", role: "alumni" }
+      }
+    ]
   },
   {
-    title: "Merge K Sorted Linked Lists",
-    difficulty: "Hard",
-    diffColor: "bg-red-100 text-red-800 border-red-200",
-    tags: ["Heaps", "Linked List", "Divide & Conquer"],
-    estTime: "25 mins",
-    solved: "94 Students Solved",
-    link: "https://leetcode.com/problems/merge-k-sorted-lists/",
+    _id: "mock-career-3",
+    title: "Summer Internship 2026 - MERN Stack Developer",
+    content: "TechSoft Solutions is accepting applications for Summer 2026 Software Internships. Great environment for learning Node.js, Express, MongoDB, and React. Apply before May 15.",
+    category: "internship",
+    location: "Lahore (On-site)",
+    jobType: "Full-time Internship",
+    qualification: "BSCS / BSSE / BSIT",
+    likesCount: 29,
+    viewsCount: 185,
+    createdAt: new Date(Date.now() - 8 * 3600 * 1000).toISOString(),
+    author: {
+      _id: "student-1",
+      name: "Shujaat Ali",
+      role: "student",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    },
+    replies: [
+      {
+        _id: "mock-r5",
+        content: "Applied! Thanks for sharing this opportunity.",
+        createdAt: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
+        author: { name: "Hamza Malik", role: "student" }
+      }
+    ]
   },
   {
-    title: "Validate Binary Search Tree",
-    difficulty: "Medium",
-    diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-    tags: ["Trees", "DFS", "Binary Search"],
-    estTime: "15 mins",
-    solved: "182 Students Solved",
-    link: "https://leetcode.com/problems/validate-binary-search-tree/",
-  },
-  {
-    title: "Valid Anagram & Group Anagrams",
-    difficulty: "Easy",
-    diffColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
-    tags: ["Strings", "Sorting", "HashTable"],
-    estTime: "10 mins",
-    solved: "310 Students Solved",
-    link: "https://leetcode.com/problems/valid-anagram/",
-  },
-  {
-    title: "Course Schedule II (Topological Sort)",
-    difficulty: "Medium",
-    diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-    tags: ["Graphs", "Topological Sort", "BFS"],
-    estTime: "22 mins",
-    solved: "112 Students Solved",
-    link: "https://leetcode.com/problems/course-schedule-ii/",
-  },
+    _id: "mock-career-4",
+    title: "Which cloud platform should CS students learn first: AWS or GCP?",
+    content: "Both AWS and GCP are widely used in Pakistan's tech market. Which one do you recommend starting with for containerization (Docker/Kubernetes) and cloud deployment?",
+    category: "general_discussion",
+    location: "Discussion Forum",
+    jobType: "Community Poll",
+    qualification: "All CS / IT Students",
+    likesCount: 41,
+    viewsCount: 270,
+    createdAt: new Date(Date.now() - 12 * 3600 * 1000).toISOString(),
+    author: {
+      _id: "student-2",
+      name: "Usama Syed",
+      role: "student",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80"
+    },
+    replies: [
+      {
+        _id: "mock-r6",
+        content: "Start with GCP for beginner-friendly interface and Google AI integrations, then learn AWS EC2/S3 basics.",
+        createdAt: new Date(Date.now() - 10 * 3600 * 1000).toISOString(),
+        author: { name: "Javeria Khan", role: "alumni" }
+      }
+    ]
+  }
 ];
-
-
 
 export default function Career() {
   const navigate = useNavigate();
@@ -117,7 +388,7 @@ export default function Career() {
   const [isUploading] = useState(false);
   const [time, setTime] = useState(new Date());
 
-  const [threads, setThreads] = useState([]);
+  const [threads, setThreads] = useState(DEFAULT_MOCK_CAREER_THREADS);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -167,22 +438,35 @@ export default function Career() {
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (e) {}
+      } catch (e) { }
     }
     return DEFAULT_CS_SKILLS;
   });
 
   const [isEditCareerProfileOpen, setIsEditCareerProfileOpen] = useState(false);
   const [isAskQuestionOpen, setIsAskQuestionOpen] = useState(false);
+  const [expandedThreadId, setExpandedThreadId] = useState(null);
+  const [inlineReplyText, setInlineReplyText] = useState({});
 
   const [dailyProblem, setDailyProblem] = useState(() => {
-    return CS_DAILY_PROBLEMS[Math.floor(Math.random() * CS_DAILY_PROBLEMS.length)];
+    return getDailyProblemForDept(localStorage.getItem("career_dept") || "BS Computer Science (BSCS)");
   });
 
+  useEffect(() => {
+    setDailyProblem(getDailyProblemForDept(careerDept || user?.department || user?.program));
+  }, [careerDept, user]);
+
   const handleShuffleProblem = () => {
-    setDailyProblem((prev) => {
-      const remaining = CS_DAILY_PROBLEMS.filter((p) => p.title !== prev.title);
-      return remaining[Math.floor(Math.random() * remaining.length)];
+    const categoryKey = getDepartmentCategoryKey(careerDept || user?.department || user?.program);
+    const deptData = DEPARTMENT_CHALLENGES[categoryKey] || DEPARTMENT_CHALLENGES.general;
+    const remaining = deptData.problems.filter((p) => p.title !== dailyProblem.title);
+    const pool = remaining.length > 0 ? remaining : deptData.problems;
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    setDailyProblem({
+      ...pool[randomIndex],
+      badge: deptData.badge,
+      btnText: deptData.btnText,
+      categoryKey,
     });
   };
 
@@ -257,7 +541,7 @@ export default function Career() {
         if (parsedUser.avatar) {
           setAvatar(parsedUser.avatar);
         }
-      } catch (e) {}
+      } catch (e) { }
     }
 
     const fetchUserProfile = async () => {
@@ -296,6 +580,8 @@ export default function Career() {
     return () => clearInterval(tick);
   }, [navigate]);
 
+
+
   useEffect(() => {
     const fetchThreads = async () => {
       try {
@@ -304,15 +590,15 @@ export default function Career() {
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const { data } = await axios.get("/api/careers", config);
         const fetched = data.threads || data || [];
-        setThreads(fetched);
+        setThreads(fetched.length > 0 ? fetched : DEFAULT_MOCK_CAREER_THREADS);
         const initialSavedMap = {};
-        fetched.forEach((t) => {
+        (fetched.length > 0 ? fetched : DEFAULT_MOCK_CAREER_THREADS).forEach((t) => {
           if (t.isSaved) initialSavedMap[t._id] = true;
         });
         setSavedPosts(initialSavedMap);
       } catch (error) {
         console.error("Error fetching career threads:", error);
-        setThreads([]);
+        setThreads(DEFAULT_MOCK_CAREER_THREADS);
       }
     };
 
@@ -534,7 +820,44 @@ export default function Career() {
     );
   };
 
-  const handleAvatarChange = async () => {};
+  const handleInlineReplySubmit = async (thread, e) => {
+    if (e) e.preventDefault();
+    const text = inlineReplyText[thread._id];
+    if (!text || !text.trim()) return;
+
+    const newReplyObj = {
+      _id: `reply-${Date.now()}`,
+      content: text.trim(),
+      author: user,
+      createdAt: new Date().toISOString(),
+    };
+
+    handleReplyAdded(thread._id, newReplyObj);
+    setInlineReplyText((prev) => ({ ...prev, [thread._id]: "" }));
+
+    try {
+      const token = sessionStorage.getItem("token");
+      if (token && !thread._id.startsWith("mock-")) {
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const { data } = await axios.post(
+          `/api/careers/${thread._id}/reply`,
+          { content: text.trim() },
+          config
+        );
+        if (data.underReview) {
+          showToast("Your comment contains flagged keywords and is under review.", "warning");
+        } else {
+          showToast("Comment posted successfully.", "success");
+        }
+        return;
+      }
+    } catch (error) {
+      console.log("Posted comment locally:", error);
+    }
+    showToast("Comment posted successfully.", "success");
+  };
+
+  const handleAvatarChange = async () => { };
 
   const getPersonalizedAvatar = (url) => {
     if (!url) return `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=random`;
@@ -641,9 +964,9 @@ export default function Career() {
 
   return (
     <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#FAF7F0] font-sans text-[#211A24] animate-fade-in">
-      <Sidebar 
-        isOpen={isMobileSidebarOpen} 
-        onClose={() => setIsMobileSidebarOpen(false)} 
+      <Sidebar
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
       />
 
       <main className="flex-1 flex flex-col h-full min-w-0 overflow-y-auto overflow-x-hidden">
@@ -658,7 +981,7 @@ export default function Career() {
         />
 
         <div className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-6 max-w-full [&>*]:animate-fade-in">
-          
+
           {/* Hero Banner (Matching Design Theme) */}
           <div className="bg-[#071A35] rounded-[1.5rem] p-6 sm:p-8 text-white border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
             <div className="flex flex-col text-left z-10">
@@ -689,16 +1012,15 @@ export default function Career() {
 
           {/* Search & Category Filter Section */}
           <div className="bg-white rounded-[1.5rem] border border-[#E8E1D5] p-4 flex flex-col xl:flex-row xl:items-center justify-between gap-4 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
-            
+
             {/* CATEGORY FILTER TABS BAR */}
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1 w-full xl:w-auto">
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${
-                  selectedCategory === "All"
-                    ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
-                    : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${selectedCategory === "All"
+                  ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
+                  : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
+                  }`}
                 onClick={() => setSelectedCategory("All")}
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -708,11 +1030,10 @@ export default function Career() {
               </button>
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${
-                  selectedCategory === "job_opportunity"
-                    ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
-                    : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${selectedCategory === "job_opportunity"
+                  ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
+                  : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
+                  }`}
                 onClick={() => setSelectedCategory("job_opportunity")}
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -722,11 +1043,10 @@ export default function Career() {
               </button>
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${
-                  selectedCategory === "general_discussion"
-                    ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
-                    : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${selectedCategory === "general_discussion"
+                  ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
+                  : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
+                  }`}
                 onClick={() => setSelectedCategory("general_discussion")}
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -736,11 +1056,10 @@ export default function Career() {
               </button>
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${
-                  selectedCategory === "internship"
-                    ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
-                    : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${selectedCategory === "internship"
+                  ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
+                  : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
+                  }`}
                 onClick={() => setSelectedCategory("internship")}
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -751,11 +1070,10 @@ export default function Career() {
               </button>
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${
-                  selectedCategory === "mentorship_qa"
-                    ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
-                    : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${selectedCategory === "mentorship_qa"
+                  ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
+                  : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
+                  }`}
                 onClick={() => setSelectedCategory("mentorship_qa")}
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -766,21 +1084,13 @@ export default function Career() {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full xl:w-auto mt-2 xl:mt-0">
-              {/* Filter button */}
-              <button className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full border border-slate-200 bg-white text-slate-600 text-[12px] font-bold hover:bg-slate-50 transition-colors cursor-pointer shrink-0 w-full sm:w-auto">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                </svg>
-                {t("Filter")}
-              </button>
-
               {/* Search Container */}
-              <div className="relative flex items-center w-full sm:w-[300px] shadow-sm shrink-0">
-                <span className="absolute left-4 text-slate-400 text-sm">🔍</span>
+              <div className="relative flex items-center w-full sm:w-[200px] shadow-sm shrink-0">
+                <span className="absolute left-3.5 text-slate-400 text-xs">🔍</span>
                 <input
                   type="text"
-                  placeholder={t("Search jobs, companies, alumni...")}
-                  className="bg-[#FAF7F0] border border-[#E8E1D5] rounded-full pl-10 pr-4 py-2.5 text-[12px] font-medium text-[#211A24] placeholder-[#211A24]/50 outline-none w-full shadow-inner focus:ring-2 focus:ring-[#071A35]/20 focus:border-[#071A35] transition-all"
+                  placeholder={t("Search jobs, companies...")}
+                  className="bg-[#FAF7F0] border border-[#E8E1D5] rounded-full pl-9 pr-3 py-1.5 text-[11.5px] font-medium text-[#211A24] placeholder-[#211A24]/50 outline-none w-full shadow-inner focus:ring-2 focus:ring-[#071A35]/20 focus:border-[#071A35] transition-all"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -892,27 +1202,32 @@ export default function Career() {
                 </div>
               </div>
 
-              {/* FEED POST CARDS */}
+              {/* FEED POST CARDS (WITH IN-FEED INLINE EXPANSION) */}
               <div className="flex flex-col gap-4">
                 {filteredThreads.length === 0 ? (
-                  <div className="bg-white border border-slate-200/80 rounded-2xl p-12 text-center text-slate-500 flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-xl">🔍</div>
-                    <p className="font-semibold text-sm">{t("No career posts found.")}</p>
+                  <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-12 text-center text-slate-500 flex flex-col items-center gap-3 shadow-xs">
+                    <div className="w-12 h-12 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center text-xl">🔍</div>
+                    <p className="font-extrabold text-sm text-[#071A35]">{t("No career posts found.")}</p>
                     <p className="text-xs text-slate-400">{t("Be the first to share an opportunity or start a discussion!")}</p>
                   </div>
                 ) : (
                   filteredThreads.map((post) => {
                     const badge = getCategoryBadgeStyle(post.category);
                     const authorName = post.author?.name || t("Community Member");
-                    const authorRole = post.author?.roleTitle || (post.author?.role === "alumni" ? "Alumni" : "Student");
+                    const authorRole = post.author?.role || (post.author?.roleTitle ? post.author.roleTitle.toLowerCase() : "student");
+                    const isExpanded = expandedThreadId === post._id;
                     const isBookmarked = savedPosts[post._id];
 
                     return (
                       <div
                         key={post._id}
-                        className="bg-white border border-slate-200/80 border-l-4 border-l-transparent hover:border-[#cbd5e1] hover:border-l-[#071A35] rounded-2xl p-5 shadow-xs hover:shadow-[0_3px_10px_rgba(0,0,0,0.05)] hover:translate-x-[2px] transition-all duration-200 flex flex-col gap-3.5 relative group text-left"
+                        className={`bg-white border rounded-[1.5rem] p-5 shadow-xs transition-all duration-200 flex flex-col gap-3.5 relative group text-left ${
+                          isExpanded
+                            ? "border-[#00c2cb] ring-2 ring-[#00c2cb]/15"
+                            : "border-[#E8E1D5] hover:border-[#071A35]/30 hover:shadow-md"
+                        }`}
                       >
-                        {/* CARD TOP: AUTHOR INFO & BADGE */}
+                        {/* CARD TOP: AUTHOR INFO & ROLE & CATEGORY */}
                         <div className="flex justify-between items-start gap-3">
                           <div className="flex items-center gap-3">
                             <img
@@ -921,44 +1236,44 @@ export default function Career() {
                                 `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random`
                               }
                               alt={authorName}
-                              className="w-10 h-10 rounded-full object-cover border border-slate-200 cursor-pointer"
+                              className="w-10 h-10 rounded-full object-cover border border-slate-200 cursor-pointer shadow-2xs"
                               onClick={() => openPublicProfile(post.author?._id || post.author)}
                             />
                             <div className="flex flex-col">
                               <div className="flex items-center gap-2">
                                 <span
-                                  className="text-xs font-bold text-slate-900 hover:text-[#071A35] cursor-pointer transition-colors"
+                                  className="text-xs font-extrabold text-[#071A35] hover:text-[#00c2cb] transition-colors cursor-pointer"
                                   onClick={() => openPublicProfile(post.author?._id || post.author)}
                                 >
                                   {authorName}
                                 </span>
+                                {authorRole === "alumni" && (
+                                  <span className="text-[9.5px] font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200 uppercase tracking-wider">
+                                    🎓 Alumni
+                                  </span>
+                                )}
                               </div>
-                              <span className="text-[11px] font-medium text-slate-500">
-                                {authorRole} • {formatDate(post.createdAt)}
+                              <span className="text-[11px] font-semibold text-slate-400">
+                                {formatDate(post.createdAt)}
                               </span>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2">
-                            <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-md border tracking-wider uppercase ${badge.bg}`}>
-                              {badge.label}
-                            </span>
-                            <button className="text-slate-400 hover:text-slate-600 p-1 text-sm rounded-full hover:bg-slate-100 transition-colors">
-                              ⋮
-                            </button>
-                          </div>
+                          <span className={`text-[10.5px] font-black px-3 py-1 rounded-full border uppercase tracking-wider ${badge.bg}`}>
+                            {badge.label}
+                          </span>
                         </div>
 
                         {/* TITLE & CONTENT */}
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1 flex flex-col gap-1.5">
                             <h3
-                              className="text-base font-extrabold text-slate-900 hover:text-[#071A35] cursor-pointer transition-colors leading-snug"
-                              onClick={() => handleThreadClick(post)}
+                              className="text-base font-black text-[#071A35] hover:text-[#0079c2] transition-colors leading-snug cursor-pointer m-0"
+                              onClick={() => setExpandedThreadId(isExpanded ? null : post._id)}
                             >
                               {post.title}
                             </h3>
-                            <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
+                            <p className="text-xs text-slate-600 leading-relaxed font-normal m-0 whitespace-pre-wrap">
                               {post.content}
                             </p>
                           </div>
@@ -968,54 +1283,61 @@ export default function Career() {
                             <img
                               src={post.companyLogo}
                               alt={post.company || "Company"}
-                              className="w-20 h-20 rounded-xl object-cover border border-slate-100 shrink-0 max-sm:hidden"
+                              className="w-20 h-20 rounded-2xl object-cover border border-slate-200 shrink-0 max-sm:hidden"
                             />
                           )}
                         </div>
 
-                        {/* METADATA PILLS (LOCATION, JOB TYPE, QUALIFICATION) */}
-                        <div className="flex items-center gap-2 flex-wrap pt-1">
+                        {/* METADATA PILLS */}
+                        <div className="flex items-center gap-2 flex-wrap pt-0.5">
                           {post.location && (
-                            <span className="flex items-center gap-1 text-[11px] font-semibold text-slate-600 bg-slate-100/80 px-2.5 py-1 rounded-md">
+                            <span className="flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
                               <span>📍</span> {post.location}
                             </span>
                           )}
                           {post.jobType && (
-                            <span className="flex items-center gap-1 text-[11px] font-semibold text-slate-600 bg-slate-100/80 px-2.5 py-1 rounded-md">
+                            <span className="flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
                               <span>💼</span> {post.jobType}
                             </span>
                           )}
                           {post.qualification && (
-                            <span className="flex items-center gap-1 text-[11px] font-semibold text-slate-600 bg-slate-100/80 px-2.5 py-1 rounded-md">
+                            <span className="flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
                               <span>🎓</span> {post.qualification}
                             </span>
                           )}
                         </div>
 
-                        {/* CARD FOOTER METRICS & ACTIONS */}
+                        {/* CARD FOOTER METRICS & INLINE TOGGLE ACTIONS */}
                         <div className="flex justify-between items-center pt-3 border-t border-slate-100 mt-1">
-                          <div className="flex items-center gap-4 text-xs font-semibold text-slate-500">
-                            <span className="flex items-center gap-1.5 hover:text-slate-700 cursor-pointer">
-                              <span>💬</span> {post.replies?.length || 0}
-                            </span>
+                          <div className="flex items-center gap-4 text-xs font-bold text-slate-500">
+                            <button
+                              type="button"
+                              onClick={() => setExpandedThreadId(isExpanded ? null : post._id)}
+                              className={`flex items-center gap-1.5 border-none bg-transparent cursor-pointer transition-colors px-2 py-1 rounded-lg ${
+                                isExpanded ? "bg-[#00c2cb]/10 text-[#0079c2] font-black" : "hover:bg-slate-100 hover:text-slate-700"
+                              }`}
+                            >
+                              <span>💬</span>
+                              <span>{post.replies?.length || 0} {post.replies?.length === 1 ? "Comment" : "Comments"}</span>
+                            </button>
+
                             <button
                               type="button"
                               className={`flex items-center gap-1.5 border-none bg-transparent cursor-pointer transition-colors ${
-                                post.isLiked ? "text-[#071A35] font-bold" : "text-slate-500 hover:text-slate-700"
+                                post.isLiked ? "text-[#0079c2] font-extrabold" : "hover:text-slate-700"
                               }`}
-                              onClick={(e) => toggleLikePost(post._id, e)}
+                              onClick={() => toggleLikePost(post._id)}
                               title={post.isLiked ? "Unlike" : "Like"}
                             >
                               <span>👍</span> {post.likesCount || 0}
                             </button>
-                            <span className="flex items-center gap-1.5 text-slate-400">
-                              <span>👁️</span> {post.viewsCount || 145}
-                            </span>
+
                             <button
-                              className={`p-1 rounded hover:bg-slate-100 transition-colors ${
+                              type="button"
+                              className={`p-1 rounded-full hover:bg-slate-100 transition-colors border-none bg-transparent cursor-pointer ${
                                 isBookmarked ? "text-[#071A35]" : "text-slate-400 hover:text-slate-600"
                               }`}
-                              onClick={(e) => toggleSavePost(post._id, e)}
+                              onClick={() => toggleSavePost(post._id)}
                               title={isBookmarked ? "Bookmarked" : "Save Post"}
                             >
                               🔖
@@ -1023,13 +1345,110 @@ export default function Career() {
                           </div>
 
                           <button
-                            className="flex items-center gap-1 text-xs font-bold text-[#071A35] hover:text-[#102A4A] hover:bg-[#071A35]/10 px-3 py-1.5 rounded-lg transition-all"
-                            onClick={() => handleThreadClick(post)}
+                            type="button"
+                            onClick={() => setExpandedThreadId(isExpanded ? null : post._id)}
+                            className="flex items-center gap-1 text-xs font-black text-[#071A35] hover:text-[#0079c2] transition-colors border-none bg-transparent cursor-pointer"
                           >
-                            <span>{post.category === "general_discussion" || post.category === "Discussion" ? t("Join Discussion") : t("View Details")}</span>
-                            <span>→</span>
+                            <span>{isExpanded ? t("Collapse") : t("Join Discussion")}</span>
+                            <span>{isExpanded ? "▲" : "▼"}</span>
                           </button>
                         </div>
+
+                        {/* IN-FEED INLINE EXPANDED COMMENTS SECTION (FACEBOOK STYLE COMPACT) */}
+                        {isExpanded && (
+                          <div className="mt-3 pt-3 border-t border-slate-100 flex flex-col gap-3 animate-fade-in text-left">
+                            <div className="flex justify-between items-center px-1">
+                              <h4 className="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5 m-0">
+                                <span>💬</span>
+                                <span>{t("Comments")}</span>
+                                <span className="bg-[#00c2cb]/15 text-[#0079c2] px-2 py-0.2 rounded-full text-[10px] font-extrabold border border-[#00c2cb]/20">
+                                  {post.replies?.length || 0}
+                                </span>
+                              </h4>
+                            </div>
+
+                            {/* Comments List Stream - Compact Scrollable Facebook Bubbles */}
+                            <div className="flex flex-col gap-2.5 max-h-[200px] overflow-y-auto pr-1.5 [scrollbar-width:thin] [scrollbar-color:#cbd5e1_transparent]">
+                              {post.replies && post.replies.length > 0 ? (
+                                post.replies.map((reply, rIdx) => {
+                                  const rAuthorName = reply.author?.name || t("Community Member");
+                                  const rAuthorRole = reply.author?.role || "student";
+
+                                  return (
+                                    <div key={reply._id || rIdx} className="flex items-start gap-2 text-left group">
+                                      <img
+                                        src={
+                                          reply.author?.avatar ||
+                                          `https://ui-avatars.com/api/?name=${encodeURIComponent(rAuthorName)}&background=random`
+                                        }
+                                        alt={rAuthorName}
+                                        className="w-7 h-7 rounded-full object-cover border border-slate-200 mt-0.5 shrink-0 cursor-pointer"
+                                        onClick={() => openPublicProfile(reply.author?._id || reply.author)}
+                                      />
+                                      <div className="flex flex-col max-w-[88%]">
+                                        <div className="bg-[#F0F2F5] hover:bg-[#E4E6EB] px-3.5 py-2 rounded-[18px] text-left max-w-fit flex flex-col gap-0.5 transition-colors border border-slate-200/50 break-words">
+                                          <div className="flex items-center gap-1.5">
+                                            <span
+                                              className="text-[11.5px] font-black text-[#071A35] hover:underline cursor-pointer leading-tight"
+                                              onClick={() => openPublicProfile(reply.author?._id || reply.author)}
+                                            >
+                                              {rAuthorName}
+                                            </span>
+                                            {rAuthorRole === "alumni" && (
+                                              <span className="text-[8.5px] font-black bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded uppercase">
+                                                Alumni
+                                              </span>
+                                            )}
+                                          </div>
+                                          <p className="text-[11.5px] text-slate-800 leading-snug font-normal m-0 whitespace-pre-wrap break-words">
+                                            {reply.content}
+                                          </p>
+                                        </div>
+                                        <span className="text-[9.5px] text-slate-400 font-semibold pl-2 mt-0.5">
+                                          {formatDate(reply.createdAt)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  );
+                                })
+                              ) : (
+                                <div className="bg-[#F0F2F5] border border-dashed border-slate-200 rounded-2xl p-3 text-center text-slate-500 text-xs font-semibold">
+                                  💬 {t("No comments yet. Be the first to comment!")}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Facebook Style Compact Composer Bar */}
+                            <form onSubmit={(e) => handleInlineReplySubmit(post, e)} className="flex items-center gap-2 pt-1">
+                              <img
+                                src={user?.avatar || getPersonalizedAvatar(avatar)}
+                                alt={user?.name}
+                                className="w-7 h-7 rounded-full object-cover border border-slate-200 shrink-0"
+                              />
+                              <div className="relative flex-1 flex items-center">
+                                <input
+                                  type="text"
+                                  placeholder={t("Write a comment...")}
+                                  className="w-full bg-[#F0F2F5] border border-slate-200/80 rounded-full px-4 py-2 text-[11.5px] font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/15 transition-all pr-16"
+                                  value={inlineReplyText[post._id] || ""}
+                                  onChange={(e) =>
+                                    setInlineReplyText((prev) => ({
+                                      ...prev,
+                                      [post._id]: e.target.value,
+                                    }))
+                                  }
+                                />
+                                <button
+                                  type="submit"
+                                  disabled={!inlineReplyText[post._id]?.trim()}
+                                  className="absolute right-1.5 bg-[#071A35] hover:bg-[#0079c2] text-white px-3 py-1 rounded-full text-[10.5px] font-black transition-all disabled:opacity-30 disabled:cursor-not-allowed border-none cursor-pointer"
+                                >
+                                  {t("Post")}
+                                </button>
+                              </div>
+                            </form>
+                          </div>
+                        )}
                       </div>
                     );
                   })
@@ -1038,8 +1457,8 @@ export default function Career() {
 
               {/* LOAD MORE BUTTON */}
               <div className="flex justify-center pt-2 pb-6">
-                <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold px-6 py-2.5 rounded-full shadow-xs transition-all cursor-pointer">
-                  <span>{t("Load More")}</span>
+                <button className="flex items-center gap-2 bg-white border border-[#E8E1D5] text-[#071A35] hover:bg-[#FAF7F0] text-xs font-extrabold px-6 py-2.5 rounded-full shadow-xs transition-all cursor-pointer">
+                  <span>{t("Load More Posts")}</span>
                   <span>↓</span>
                 </button>
               </div>
@@ -1048,7 +1467,7 @@ export default function Career() {
             {/* RIGHT COLUMN: SIDEBAR WIDGETS */}
             <div className="flex flex-col gap-5 sticky top-4">
               {/* YOUR PROFILE CARD */}
-              <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col gap-4 text-left relative">
+              <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-5 shadow-xs flex flex-col gap-4 text-left relative">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">{t("Your Profile")}</h3>
                 </div>
@@ -1079,12 +1498,10 @@ export default function Career() {
                     {t("Edit Profile")}
                   </button>
                 </div>
-
-
               </div>
 
               {/* SKILLS CARD */}
-              <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col gap-3 text-left">
+              <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-5 shadow-xs flex flex-col gap-3 text-left">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">{t("Skills")}</h3>
                   <button className="text-xs font-bold text-[#071A35] hover:underline border-none bg-transparent cursor-pointer" onClick={() => setIsEditCareerProfileOpen(true)}>
@@ -1097,7 +1514,7 @@ export default function Career() {
                     <p className="text-xs text-slate-400 italic py-1">{t("No skills added.")}</p>
                   ) : (
                     careerSkills.map((skill, index) => (
-                      <div key={index} className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-all">
+                      <div key={index} className="flex justify-between items-center p-2.5 rounded-xl bg-[#FAF7F0] border border-[#E8E1D5] transition-all">
                         <span className="text-xs font-bold text-slate-800">{skill.name}</span>
                         <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border ${getSkillLevelBadgeStyle(skill.level)}`}>
                           {formatSkillLevel(skill.level)}
@@ -1108,16 +1525,18 @@ export default function Career() {
                 </div>
               </div>
 
-              {/* DAILY CODING CHALLENGE CARD */}
-              <div className="bg-white border border-amber-200/80 rounded-2xl p-5 shadow-xs flex flex-col gap-3 text-left relative overflow-hidden transition-all">
+              {/* FIELD-CUSTOMIZED DAILY CHALLENGE CARD (AUTOMATIC DAILY ROTATION FOR ALL DEPARTMENTS) */}
+              <div className="bg-white border border-amber-200/80 rounded-[1.5rem] p-5 shadow-xs flex flex-col gap-3 text-left relative overflow-hidden transition-all">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-1.5">
                     <span className="text-sm">🧩</span>
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">{t("Daily CS Challenge")}</h3>
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                      {dailyProblem.badge || t("Daily Challenge")}
+                    </h3>
                     <button
                       className="text-slate-400 hover:text-amber-600 p-0.5 text-xs transition-colors border-none bg-transparent cursor-pointer ml-1"
                       onClick={handleShuffleProblem}
-                      title="Next Random Problem"
+                      title="Next Random Challenge in your field"
                     >
                       🎲
                     </button>
@@ -1132,7 +1551,7 @@ export default function Career() {
                     {dailyProblem.title}
                   </h4>
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    {dailyProblem.tags.map((tag, idx) => (
+                    {dailyProblem.tags && dailyProblem.tags.map((tag, idx) => (
                       <span key={idx} className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
                         {tag}
                       </span>
@@ -1152,70 +1571,16 @@ export default function Career() {
                     rel="noopener noreferrer"
                     className="w-full py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-black text-center transition-all cursor-pointer shadow-xs no-underline block"
                   >
-                    Solve Challenge on LeetCode →
+                    {dailyProblem.btnText || t("Explore Challenge →")}
                   </a>
                 </div>
               </div>
 
-              {/* NEED HELP CARD */}
-              <div className="bg-gradient-to-br from-[#e0f7fa] to-[#e0f2fe] border border-teal-100 rounded-2xl p-5 shadow-xs flex flex-col gap-3 text-left relative overflow-hidden">
-                <div className="flex justify-between items-start">
-                  <div className="flex flex-col gap-1 z-10">
-                    <h3 className="text-sm font-extrabold text-slate-900">{t("Need Help?")}</h3>
-                    <p className="text-xs text-slate-600 leading-relaxed max-w-[200px]">
-                      {t("Connect with mentors or ask your questions to the community.")}
-                    </p>
-                  </div>
-                  <div className="text-3xl opacity-80 z-10">💬</div>
-                </div>
 
-                <button
-                  className="bg-[#071A35] hover:bg-[#102A4A] text-white py-2 px-4 rounded-xl text-xs font-bold cursor-pointer transition-all shadow-xs w-fit z-10"
-                  onClick={() => setIsAskQuestionOpen(true)}
-                >
-                  {t("Ask a Question →")}
-                </button>
-              </div>
             </div>
           </div>
         </div>
       </main>
-
-      {/* THREAD DETAILS FLOATING POP-UP MODAL (RIGHT-ALIGNED) */}
-      {selectedThreadId && activeThread && (
-        <div
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-[2500] flex justify-end items-center p-3 sm:p-6 animate-fade-in"
-          onClick={() => {
-            setSelectedThreadId(null);
-            setActiveThread(null);
-          }}
-        >
-          <div
-            className="w-[760px] max-md:w-full max-h-[92vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-slide-in border border-slate-100/90 my-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <CareerRepliesPane
-              variant="career"
-              activeThread={activeThread}
-              user={user}
-              onClose={() => {
-                setSelectedThreadId(null);
-                setActiveThread(null);
-              }}
-              showToast={showToast}
-              replyContent={replyContent}
-              setReplyContent={setReplyContent}
-              isSubmittingReply={isSubmittingReply}
-              onReplySubmit={handleReplySubmit}
-              onAvatarClick={openPublicProfile}
-              onReportThread={handleReportThread}
-              onReportReply={handleReportReply}
-              activeDropdown={activeDropdown}
-              setActiveDropdown={setActiveDropdown}
-            />
-          </div>
-        </div>
-      )}
 
       {/* MODALS */}
       <CreateCareerThreadModal
@@ -1277,25 +1642,24 @@ export default function Career() {
       {/* TOAST NOTIFICATION */}
       {toast && (
         <div
-          className={`fixed top-20 right-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl z-[3000] flex gap-3 w-[360px] animate-modal-slide-in ${
-            toast.type === "warning"
-              ? "border-l-4 border-l-amber-500"
-              : toast.type === "error"
+          className={`fixed top-20 right-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl z-[3000] flex gap-3 w-[360px] animate-modal-slide-in ${toast.type === "warning"
+            ? "border-l-4 border-l-amber-500"
+            : toast.type === "error"
               ? "border-l-4 border-l-red-500"
               : toast.type === "success"
-              ? "border-l-4 border-l-emerald-500"
-              : "border-l-4 border-l-[#071A35]"
-          }`}
+                ? "border-l-4 border-l-emerald-500"
+                : "border-l-4 border-l-[#071A35]"
+            }`}
         >
           <div className="flex-1 flex flex-col gap-0.5 text-left">
             <strong className="text-xs font-black text-slate-900">
               {toast.type === "warning"
                 ? "Warning"
                 : toast.type === "error"
-                ? "Error"
-                : toast.type === "success"
-                ? "Success"
-                : "Notice"}
+                  ? "Error"
+                  : toast.type === "success"
+                    ? "Success"
+                    : "Notice"}
             </strong>
             <p className="text-xs text-slate-500 leading-normal">{toast.message}</p>
           </div>

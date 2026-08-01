@@ -38,7 +38,7 @@ const seedUsers = async () => {
     console.log("previous lost and found items deleted");
     await Report.deleteMany();
     console.log("previous profile reports deleted");
-    
+
     const Salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash("password123", Salt);
     const dummyUsers = [
@@ -1132,6 +1132,8 @@ const seedUsers = async () => {
 
     await Petition.insertMany(dummyPetitions);
     console.log("✅ Class, Department, and Campus Petitions seeded successfully!");
+
+
 
     process.exit();
   } catch (error) {
