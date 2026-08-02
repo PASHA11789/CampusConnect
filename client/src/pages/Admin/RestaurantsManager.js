@@ -11,6 +11,7 @@ const RestaurantsManager = () => {
   const [error, setError] = useState(null);
   const [time, setTime] = useState(new Date());
   const [currentUser, setCurrentUser] = useState(null);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Modal states
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -98,9 +99,12 @@ const RestaurantsManager = () => {
   return (
     <>
       <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#f0f4f8] font-sans text-slate-800 animate-fade-in">
-        <Sidebar />
+        <Sidebar
+          isOpen={isMobileSidebarOpen}
+          onClose={() => setIsMobileSidebarOpen(false)}
+        />
         <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
-          <Topbar time={time} user={currentUser} />
+          <Topbar time={time} user={currentUser} onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)} />
 
           <div className="flex-1 px-8 py-7 flex flex-col gap-6 overflow-y-auto max-md:p-4">
 

@@ -18,6 +18,7 @@ export default function LostFound() {
   const [avatar, setAvatar] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [time, setTime] = useState(new Date());
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Lost & Found items states
   const [items, setItems] = useState([]);
@@ -579,7 +580,10 @@ export default function LostFound() {
 
   return (
     <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#FAF7F0] font-sans text-[#211A24] animate-fade-in relative selection:bg-[#00c2cb]/20 selection:text-[#071A35]">
-      <Sidebar />
+      <Sidebar
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
+      />
 
       <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto custom-scrollbar">
         <Topbar
@@ -589,6 +593,7 @@ export default function LostFound() {
           avatar={getPersonalizedAvatar(avatar)}
           handleAvatarChange={handleAvatarChange}
           isUploading={isUploading}
+          onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
         />
 
         {/* Floating Toast Notification Popup */}

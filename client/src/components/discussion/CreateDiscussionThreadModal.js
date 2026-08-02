@@ -64,32 +64,32 @@ export default function CreateDiscussionThreadModal({
 
   if (variant === "career") {
     return (
-      <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 overflow-y-auto bg-[#071A35]/60 backdrop-blur-md animate-modal-fade-in" onClick={onCancel}>
+      <div className="fixed inset-0 z-[2000] flex items-center justify-center p-3 sm:p-4 overflow-y-auto bg-[#071A35]/60 backdrop-blur-md animate-modal-fade-in" onClick={onCancel}>
         <div 
-          className="bg-white rounded-[2rem] w-full max-w-[580px] shadow-[0_25px_60px_rgba(7,26,53,0.3)] overflow-hidden animate-modal-slide-in flex flex-col border border-[#E8E1D5] font-sans"
+          className="bg-white rounded-2xl sm:rounded-[2rem] w-full max-w-[580px] shadow-[0_25px_60px_rgba(7,26,53,0.3)] overflow-hidden animate-modal-slide-in flex flex-col border border-[#E8E1D5] font-sans max-h-[90vh]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header Bar */}
-          <div className="bg-[#071A35] px-7 py-5 flex justify-between items-center border-b border-white/10">
-            <div className="text-left flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-[18px] border border-white/10 shrink-0">
+          <div className="bg-[#071A35] px-5 sm:px-7 py-4 sm:py-5 flex justify-between items-center border-b border-white/10 shrink-0">
+            <div className="text-left flex items-center gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-[16px] sm:text-[18px] border border-white/10 shrink-0">
                 💼
               </div>
               <div className="flex flex-col">
-                <h2 className="text-[18px] font-black text-white tracking-tight m-0">{t("Create Career Path")}</h2>
-                <p className="text-[11.5px] text-white/70 font-semibold mt-0.5 m-0">{t("Share an opportunity, ask for advice, or start a discussion")}</p>
+                <h2 className="text-[16px] sm:text-[18px] font-black text-white tracking-tight m-0">{t("Create Career Path")}</h2>
+                <p className="text-[10.5px] sm:text-[11.5px] text-white/70 font-semibold mt-0.5 m-0">{t("Share an opportunity, ask for advice, or start a discussion")}</p>
               </div>
             </div>
             <button 
               onClick={onCancel}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-all border-none cursor-pointer"
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-all border-none cursor-pointer shrink-0 ml-2"
             >
               ✕
             </button>
           </div>
 
-          <div className="p-7 overflow-y-auto max-h-[75vh]">
-            <form id="create-career-form" onSubmit={onSubmit} className="flex flex-col gap-5 text-left">
+          <div className="p-5 sm:p-7 overflow-y-auto flex-1">
+            <form id="create-career-form" onSubmit={onSubmit} className="flex flex-col gap-4 sm:gap-5 text-left">
               
               <div className="flex flex-col gap-2">
                 <label className="text-[11.5px] font-black text-[#071A35] uppercase tracking-wider ml-1">{t("Discussion Title")}</label>

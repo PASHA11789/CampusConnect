@@ -1,5 +1,6 @@
 import CareerThread from "../models/CareerThread.js";
 import User from "../models/User.js";
+import { getDepartmentDefaults, getDepartmentCategoryKey } from "../utils/fieldDefaults.js";
 
 // Helper to format safe thread object with author anonymity
 const formatSafeThread = (thread, currentUserId, userSavedPosts = []) => {
@@ -269,19 +270,32 @@ export const getCareerProfile = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const postsCount = await CareerThread.countDocuments({ author: req.user._id, isHidden: false });
+    const userDept = user.careerDept || user.department || user.program || "";
+    const defaults = getDepartmentDefaults(userDept);
+    const categoryKey = getDepartmentCategoryKey(userDept);
+
+    const OLD_CS_BIO = "Aspiring Software Engineer & Full-Stack Developer | Passionate about DSA, Web Dev & AI | Lifelong learner.";
+
+    let bio = user.careerBio;
+    if (!bio || (bio === OLD_CS_BIO && categoryKey !== "tech")) {
+      bio = defaults.defaultBio;
+    }
+
+    let skills = user.careerSkills;
+    const isCsDefaultSkills = skills && skills.length === 5 && skills[0]?.name === "Full-Stack Web Development";
+    if (!skills || skills.length === 0 || (isCsDefaultSkills && categoryKey !== "tech")) {
+      skills = defaults.skills;
+    }
 
     res.status(200).json({
       success: true,
       profile: {
-        bio: user.careerBio || "Aspiring Software Engineer & Full-Stack Developer | Passionate about DSA, Web Dev & AI | Lifelong learner.",
-        department: user.careerDept || user.department || "BS Computer Science (BSCS)",
-        skills: user.careerSkills && user.careerSkills.length > 0 ? user.careerSkills : [
-          { name: "Full-Stack Web Development", level: 90 },
-          { name: "Data Structures & Algorithms", level: 85 },
-          { name: "Python & AI / Machine Learning", level: 80 },
-          { name: "Database Management (SQL & NoSQL)", level: 75 },
-          { name: "DevOps & Cloud (Git, Docker, AWS)", level: 65 },
-        ],
+        bio,
+        department: user.careerDept || user.department || defaults.defaultDeptLabel,
+        skills,
+        categoryKey,
+        dailyChallengeBadge: defaults.dailyChallengeBadge,
+        dailyChallengeBtn: defaults.dailyChallengeBtn,
         stats: {
           posts: postsCount,
           connections: 156,
@@ -323,72 +337,28 @@ export const updateCareerProfile = async (req, res) => {
   }
 };
 
-// GET /api/careers/daily-challenge - Daily CS coding challenge pool
+// GET /api/careers/daily-challenge - Daily challenge pool tailored for user's department
 export const getDailyChallenge = async (req, res) => {
-  const challenges = [
-    {
-      id: "cs-1",
-      title: "Binary Tree Zigzag Level Order Traversal",
-      difficulty: "Medium",
-      diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-      tags: ["DSA", "Trees", "BFS / DFS"],
-      estTime: "20 mins",
-      solved: "148 Students Solved",
-      link: "https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/",
-    },
-    {
-      id: "cs-2",
-      title: "Longest Substring Without Repeating Characters",
-      difficulty: "Medium",
-      diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-      tags: ["Strings", "Sliding Window", "HashTable"],
-      estTime: "15 mins",
-      solved: "215 Students Solved",
-      link: "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
-    },
-    {
-      id: "cs-3",
-      title: "Merge K Sorted Linked Lists",
-      difficulty: "Hard",
-      diffColor: "bg-red-100 text-red-800 border-red-200",
-      tags: ["Heaps", "Linked List", "Divide & Conquer"],
-      estTime: "25 mins",
-      solved: "94 Students Solved",
-      link: "https://leetcode.com/problems/merge-k-sorted-lists/",
-    },
-    {
-      id: "cs-4",
-      title: "Validate Binary Search Tree",
-      difficulty: "Medium",
-      diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-      tags: ["Trees", "DFS", "Binary Search"],
-      estTime: "15 mins",
-      solved: "182 Students Solved",
-      link: "https://leetcode.com/problems/validate-binary-search-tree/",
-    },
-    {
-      id: "cs-5",
-      title: "Valid Anagram & Group Anagrams",
-      difficulty: "Easy",
-      diffColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
-      tags: ["Strings", "Sorting", "HashTable"],
-      estTime: "10 mins",
-      solved: "310 Students Solved",
-      link: "https://leetcode.com/problems/valid-anagram/",
-    },
-    {
-      id: "cs-6",
-      title: "Course Schedule II (Topological Sort)",
-      difficulty: "Medium",
-      diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-      tags: ["Graphs", "Topological Sort", "BFS"],
-      estTime: "22 mins",
-      solved: "112 Students Solved",
-      link: "https://leetcode.com/problems/course-schedule-ii/",
-    },
-  ];
+  try {
+    const user = req.user ? await User.findById(req.user._id) : null;
+    const userDept = user ? (user.careerDept || user.department || user.program || "") : "";
+    const defaults = getDepartmentDefaults(userDept);
 
-  res.status(200).json({ success: true, challenges });
+    const todaySeed = Math.floor(new Date().setHours(0, 0, 0, 0) / 86400000);
+    const dailyIndex = Math.abs(todaySeed) % defaults.dailyChallenges.length;
+    const todayChallenge = defaults.dailyChallenges[dailyIndex];
+
+    res.status(200).json({
+      success: true,
+      badge: defaults.dailyChallengeBadge,
+      btnText: defaults.dailyChallengeBtn,
+      categoryKey: getDepartmentCategoryKey(userDept),
+      challenge: todayChallenge,
+      challenges: defaults.dailyChallenges,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching daily challenge", error: error.message });
+  }
 };
 
 // DELETE /api/careers/:id - Delete a career thread

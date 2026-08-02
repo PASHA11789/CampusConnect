@@ -72,42 +72,42 @@ export default function EditCareerProfileModal({
 
   return (
     <div
-      className="fixed inset-0 z-[2200] flex items-start justify-center pt-[6vh] pb-6 overflow-y-auto bg-slate-900/40 backdrop-blur-xs animate-fade-in"
+      className="fixed inset-0 z-[2200] flex items-center justify-center p-3 sm:p-4 overflow-y-auto bg-slate-900/50 backdrop-blur-xs animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-3xl w-full max-w-[560px] shadow-2xl overflow-hidden animate-slide-in flex flex-col max-h-[88vh] border border-slate-100 text-left"
+        className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-[560px] shadow-2xl overflow-hidden animate-slide-in flex flex-col max-h-[90vh] border border-slate-100 text-left"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header Bar */}
-        <div className="bg-[#071A35] px-6 py-5 flex justify-between items-center border-b border-white/10 shrink-0">
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-[18px] border border-white/10 shrink-0">
+        <div className="bg-[#071A35] px-4 sm:px-6 py-3.5 sm:py-5 flex justify-between items-center border-b border-white/10 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-[16px] sm:text-[18px] border border-white/10 shrink-0">
               💼
             </div>
-            <div className="flex flex-col">
-              <h2 className="text-[17px] font-black text-white tracking-tight m-0">{t("Edit Career Profile & Skills")}</h2>
-              <p className="text-[11.5px] text-white/70 font-semibold mt-0.5 m-0">{t("Update your career bio, department, and custom skills list.")}</p>
+            <div className="flex flex-col min-w-0">
+              <h2 className="text-base sm:text-[17px] font-black text-white tracking-tight m-0 truncate">{t("Edit Career Profile & Skills")}</h2>
+              <p className="text-[10.5px] sm:text-[11.5px] text-white/70 font-semibold mt-0.5 m-0 leading-tight">{t("Update your career bio, department, and custom skills list.")}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-all border-none cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-all border-none cursor-pointer shrink-0 ml-2"
           >
             ✕
           </button>
         </div>
 
         {/* Modal Form Body */}
-        <form id="edit-career-profile-form" onSubmit={handleSubmit} className="p-6 overflow-y-auto flex-1 flex flex-col gap-5">
+        <form id="edit-career-profile-form" onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto flex-1 flex flex-col gap-4 sm:gap-5">
           {/* Department / Specialization */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-black text-slate-800 uppercase tracking-wider">{t("Degree / Specialization")}</label>
+            <label className="text-[11px] sm:text-xs font-black text-slate-800 uppercase tracking-wider">{t("Degree / Specialization")}</label>
             <input
               type="text"
               placeholder={t("e.g. BS Computer Science (BSCS)")}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#00c2cb] focus:bg-white focus:ring-2 focus:ring-[#00c2cb]/20 transition-all"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 sm:px-4 py-2.5 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#00c2cb] focus:bg-white focus:ring-2 focus:ring-[#00c2cb]/20 transition-all"
               value={localDept}
               onChange={(e) => setLocalDept(e.target.value)}
               required
@@ -116,10 +116,10 @@ export default function EditCareerProfileModal({
 
           {/* Career Bio */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-black text-slate-800 uppercase tracking-wider">{t("Career Bio")}</label>
+            <label className="text-[11px] sm:text-xs font-black text-slate-800 uppercase tracking-wider">{t("Career Bio")}</label>
             <textarea
               placeholder={t("Write a short professional bio describing your focus and interests...")}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#00c2cb] focus:bg-white focus:ring-2 focus:ring-[#00c2cb]/20 transition-all min-h-[90px] resize-y leading-relaxed"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 sm:px-4 py-2.5 text-xs font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#00c2cb] focus:bg-white focus:ring-2 focus:ring-[#00c2cb]/20 transition-all min-h-[85px] sm:min-h-[90px] resize-y leading-relaxed"
               value={localBio}
               onChange={(e) => setLocalBio(e.target.value)}
             />
@@ -128,7 +128,7 @@ export default function EditCareerProfileModal({
           {/* Skills & Levels */}
           <div className="flex flex-col gap-3 pt-2 border-t border-slate-100">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-black text-slate-800 uppercase tracking-wider">{t("Skills & Levels")}</label>
+              <label className="text-[11px] sm:text-xs font-black text-slate-800 uppercase tracking-wider">{t("Skills & Levels")}</label>
               <button
                 type="button"
                 className="text-xs font-bold text-[#00c2cb] hover:text-[#009da5] hover:underline flex items-center gap-1 cursor-pointer bg-none border-none"
@@ -138,38 +138,40 @@ export default function EditCareerProfileModal({
               </button>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5 sm:gap-3">
               {localSkills.length === 0 ? (
                 <p className="text-xs text-slate-400 italic py-2">{t("No skills added yet. Click '+ Add Skill' to add your skills.")}</p>
               ) : (
                 localSkills.map((skill, index) => (
-                  <div key={index} className="bg-slate-50/80 border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-2">
+                  <div key={index} className="bg-slate-50/80 border border-slate-200 rounded-xl p-2.5 sm:p-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
                     <input
                       type="text"
                       placeholder={t("Skill Name (e.g. React.js, Python, DSA)")}
-                      className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c2cb]"
+                      className="flex-1 min-w-[130px] sm:min-w-[140px] bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c2cb]"
                       value={skill.name}
                       onChange={(e) => handleSkillNameChange(index, e.target.value)}
                       required
                     />
-                    <select
-                      className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c2cb] cursor-pointer"
-                      value={formatSkillLevel(skill.level)}
-                      onChange={(e) => handleSkillLevelChange(index, e.target.value)}
-                    >
-                      <option value="Beginner">{t("Beginner")}</option>
-                      <option value="Intermediate">{t("Intermediate")}</option>
-                      <option value="Advanced">{t("Advanced")}</option>
-                      <option value="Expert">{t("Expert")}</option>
-                    </select>
-                    <button
-                      type="button"
-                      className="text-slate-400 hover:text-red-500 p-1 text-sm border-none bg-transparent cursor-pointer transition-colors shrink-0 ml-1"
-                      onClick={() => handleRemoveSkill(index)}
-                      title="Remove Skill"
-                    >
-                      🗑️
-                    </button>
+                    <div className="flex items-center gap-1.5 shrink-0 ml-auto sm:ml-0">
+                      <select
+                        className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c2cb] cursor-pointer"
+                        value={formatSkillLevel(skill.level)}
+                        onChange={(e) => handleSkillLevelChange(index, e.target.value)}
+                      >
+                        <option value="Beginner">{t("Beginner")}</option>
+                        <option value="Intermediate">{t("Intermediate")}</option>
+                        <option value="Advanced">{t("Advanced")}</option>
+                        <option value="Expert">{t("Expert")}</option>
+                      </select>
+                      <button
+                        type="button"
+                        className="text-slate-400 hover:text-red-500 p-1 text-sm border-none bg-transparent cursor-pointer transition-colors shrink-0"
+                        onClick={() => handleRemoveSkill(index)}
+                        title="Remove Skill"
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -178,18 +180,18 @@ export default function EditCareerProfileModal({
         </form>
 
         {/* Modal Footer Actions */}
-        <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/70 flex justify-end gap-3 shrink-0">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-slate-100 bg-slate-50/70 flex justify-end gap-2.5 sm:gap-3 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 rounded-full border border-slate-200 bg-white text-slate-600 text-xs font-bold hover:bg-slate-50 transition-all cursor-pointer shadow-xs"
+            className="px-4 sm:px-5 py-2 rounded-full border border-slate-200 bg-white text-slate-600 text-xs font-bold hover:bg-slate-50 transition-all cursor-pointer shadow-xs"
           >
             {t("Cancel")}
           </button>
           <button
             type="submit"
             form="edit-career-profile-form"
-            className="px-6 py-2 rounded-full border-none bg-[#00c2cb] hover:bg-[#00a3ab] text-white text-xs font-black cursor-pointer shadow-sm transition-all"
+            className="px-5 sm:px-6 py-2 rounded-full border-none bg-[#00c2cb] hover:bg-[#00a3ab] text-white text-xs font-black cursor-pointer shadow-sm transition-all"
           >
             {t("Save Changes")}
           </button>

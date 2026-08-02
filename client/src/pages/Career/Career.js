@@ -8,7 +8,6 @@ import Sidebar from "../../components/layout/Sidebar";
 import Topbar from "../../components/layout/Topbar";
 
 // Subcomponents & Modals
-import CareerRepliesPane from "../../components/discussion/DiscussionRepliesPane";
 import CreateCareerThreadModal from "../../components/discussion/CreateDiscussionThreadModal";
 import PublicProfileModal from "../../components/profile/PublicProfileModal";
 import MyProfileModal from "../../components/profile/MyProfileModal";
@@ -16,14 +15,6 @@ import EditCareerProfileModal from "../../components/profile/EditCareerProfileMo
 import AskQuestionModal from "../../components/discussion/AskQuestionModal";
 
 const t = (s) => s;
-
-const DEFAULT_CS_SKILLS = [
-  { name: "Full-Stack Web Development", level: "Expert" },
-  { name: "Data Structures & Algorithms", level: "Advanced" },
-  { name: "Python & AI / Machine Learning", level: "Advanced" },
-  { name: "Database Management (SQL & NoSQL)", level: "Intermediate" },
-  { name: "DevOps & Cloud (Git, Docker, AWS)", level: "Intermediate" },
-];
 
 const formatSkillLevel = (level) => {
   if (typeof level === "number") {
@@ -393,8 +384,7 @@ export default function Career() {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [selectedThreadId, setSelectedThreadId] = useState(null);
-  const [activeThread, setActiveThread] = useState(null);
+  const [, setActiveThread] = useState(null);
 
   // Modal / Input states
   const [newThreadTitle, setNewThreadTitle] = useState("");
@@ -402,8 +392,6 @@ export default function Career() {
   const [category, setCategory] = useState("general_discussion");
   const [postImage, setPostImage] = useState("");
   const [isSubmittingThread, setIsSubmittingThread] = useState(false);
-  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
-  const [replyContent, setReplyContent] = useState("");
   const [activeDropdown, setActiveDropdown] = useState({ type: null, id: null });
   const [savedPosts, setSavedPosts] = useState({});
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -424,24 +412,10 @@ export default function Career() {
 
   const [toast, setToast] = useState(null);
 
-  // Career Profile & Skills customization states with localStorage persistence
-  const [careerBio, setCareerBio] = useState(() => {
-    return localStorage.getItem("career_bio") || "Aspiring Software Engineer & Full-Stack Developer | Passionate about DSA, Web Dev & AI | Lifelong learner.";
-  });
-
-  const [careerDept, setCareerDept] = useState(() => {
-    return localStorage.getItem("career_dept") || "BS Computer Science (BSCS)";
-  });
-
-  const [careerSkills, setCareerSkills] = useState(() => {
-    const saved = localStorage.getItem("career_skills");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) { }
-    }
-    return DEFAULT_CS_SKILLS;
-  });
+  // Career Profile & Skills customization states
+  const [careerBio, setCareerBio] = useState("");
+  const [careerDept, setCareerDept] = useState("");
+  const [careerSkills, setCareerSkills] = useState([]);
 
   const [isEditCareerProfileOpen, setIsEditCareerProfileOpen] = useState(false);
   const [isAskQuestionOpen, setIsAskQuestionOpen] = useState(false);
@@ -449,7 +423,7 @@ export default function Career() {
   const [inlineReplyText, setInlineReplyText] = useState({});
 
   const [dailyProblem, setDailyProblem] = useState(() => {
-    return getDailyProblemForDept(localStorage.getItem("career_dept") || "BS Computer Science (BSCS)");
+    return getDailyProblemForDept(user?.department || user?.program || "");
   });
 
   useEffect(() => {
@@ -474,9 +448,6 @@ export default function Career() {
     setCareerBio(bio);
     setCareerDept(department);
     setCareerSkills(skills);
-    localStorage.setItem("career_bio", bio);
-    localStorage.setItem("career_dept", department);
-    localStorage.setItem("career_skills", JSON.stringify(skills));
     try {
       const token = sessionStorage.getItem("token");
       if (token) {
@@ -573,8 +544,26 @@ export default function Career() {
       }
     };
 
+    const fetchDailyChallenge = async () => {
+      try {
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const { data } = await axios.get("/api/careers/daily-challenge", config);
+        if (data.success && data.challenge) {
+          setDailyProblem({
+            ...data.challenge,
+            badge: data.badge,
+            btnText: data.btnText,
+            categoryKey: data.categoryKey,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching daily challenge from backend:", error);
+      }
+    };
+
     fetchUserProfile();
     fetchCareerProfile();
+    fetchDailyChallenge();
 
     const tick = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(tick);
@@ -613,7 +602,6 @@ export default function Career() {
       if (threadIdFromState) {
         const found = threads.find((t) => t._id === threadIdFromState);
         if (found) {
-          setSelectedThreadId(found._id);
           setActiveThread(found);
         }
       }
@@ -633,26 +621,6 @@ export default function Career() {
   const showToast = useCallback((message, type = "info") => {
     setToast({ message, type, id: Date.now() });
     setTimeout(() => setToast(null), 5500);
-  }, []);
-
-  const handleThreadClick = useCallback(async (thread) => {
-    setSelectedThreadId(thread._id);
-    setActiveThread(thread);
-    try {
-      const token = sessionStorage.getItem("token");
-      if (token && thread._id && !thread._id.startsWith("mock-")) {
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-        const { data } = await axios.get(`/api/careers/${thread._id}`, config);
-        if (data.success && data.thread) {
-          setActiveThread(data.thread);
-          setThreads((prev) =>
-            prev.map((t) => (t._id === thread._id ? data.thread : t))
-          );
-        }
-      }
-    } catch (e) {
-      console.error("Error fetching thread detail:", e);
-    }
   }, []);
 
   const toggleSavePost = async (postId, e) => {
@@ -773,43 +741,6 @@ export default function Career() {
     }
   };
 
-  const handleReplySubmit = async (e) => {
-    e.preventDefault();
-    if (!replyContent.trim() || !activeThread) return;
-
-    setIsSubmittingReply(true);
-    const newReplyObj = {
-      _id: `reply-${Date.now()}`,
-      content: replyContent,
-      author: user,
-      createdAt: new Date().toISOString(),
-    };
-
-    try {
-      const token = sessionStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      const { data } = await axios.post(
-        `/api/careers/${activeThread._id}/reply`,
-        { content: replyContent },
-        config
-      );
-
-      if (data.underReview) {
-        showToast("Your reply contains flagged keywords and has been sent for moderator review.", "warning");
-      } else {
-        showToast("Reply posted successfully.", "success");
-        handleReplyAdded(activeThread._id, data.reply || newReplyObj);
-      }
-    } catch (error) {
-      console.log("Posting reply locally:", error);
-      showToast("Reply posted successfully.", "success");
-      handleReplyAdded(activeThread._id, newReplyObj);
-    } finally {
-      setReplyContent("");
-      setIsSubmittingReply(false);
-    }
-  };
-
   const handleReplyAdded = (threadId, newReply) => {
     setActiveThread((prev) => ({
       ...prev,
@@ -868,48 +799,6 @@ export default function Career() {
     if (userId) {
       setSelectedPublicUserId(userId);
       setIsPublicProfileOpen(true);
-    }
-  };
-
-  const handleReportThread = async (threadId) => {
-    try {
-      const token = sessionStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      const { data } = await axios.post(`/api/careers/${threadId}/report`, {}, config);
-      showToast(data.message || "Post reported to moderators for review.", "success");
-    } catch (error) {
-      showToast("Post reported to moderators for review.", "success");
-    } finally {
-      setThreads((prev) => prev.filter((t) => t._id !== threadId));
-      setSelectedThreadId(null);
-      setActiveThread(null);
-    }
-  };
-
-  const handleReportReply = async (threadId, replyId) => {
-    try {
-      const token = sessionStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      const { data } = await axios.post(`/api/careers/${threadId}/replies/${replyId}/report`, {}, config);
-      showToast(data.message || "Reply comment reported to moderators for review.", "success");
-    } catch (error) {
-      showToast("Reply comment reported to moderators for review.", "success");
-    } finally {
-      setActiveThread((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          replies: (prev.replies || []).filter((r) => r._id !== replyId),
-        };
-      });
-      setThreads((prev) =>
-        prev.map((t) => {
-          if (t._id === threadId) {
-            return { ...t, replies: (t.replies || []).filter((r) => r._id !== replyId) };
-          }
-          return t;
-        })
-      );
     }
   };
 
@@ -980,19 +869,18 @@ export default function Career() {
           onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
         />
 
-        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-6 max-w-full [&>*]:animate-fade-in">
-
+        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-6 max-w-full">
           {/* Hero Banner (Matching Design Theme) */}
-          <div className="bg-[#071A35] rounded-[1.5rem] p-6 sm:p-8 text-white border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
+          <div className="bg-[#071A35] rounded-2xl sm:rounded-[1.5rem] p-5 sm:p-8 text-white border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
             <div className="flex flex-col text-left z-10">
-              <div className="bg-white/10 text-[#00c2cb] text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-3 border border-white/10">
+              <div className="bg-white/10 text-[#00c2cb] text-[10px] sm:text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-2.5 sm:mb-3 border border-white/10">
                 <span>💼</span>
                 <span>ALUMNI &amp; CAREER NETWORK</span>
               </div>
-              <h1 className="text-[24px] sm:text-[28px] font-black text-white leading-tight tracking-tight mb-2">
+              <h1 className="text-[20px] sm:text-[28px] font-black text-white leading-tight tracking-tight mb-2">
                 Career Paths &amp; Mentorship
               </h1>
-              <p className="text-[12px] font-semibold text-white/70 max-w-[550px] leading-relaxed m-0">
+              <p className="text-[11.5px] sm:text-[12px] font-semibold text-white/70 max-w-[550px] leading-relaxed m-0">
                 Connect with alumni, explore job posts, ask for career guidance, and grow your professional journey.
               </p>
             </div>
@@ -1004,20 +892,20 @@ export default function Career() {
                 setCategory("general_discussion");
                 setIsCreateOpen(true);
               }}
-              className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-extrabold px-5 py-3 rounded-full text-[12.5px] transition-all cursor-pointer shadow-md flex items-center justify-center gap-2 shrink-0 z-10 w-full sm:w-auto"
+              className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-extrabold px-5 py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center justify-center gap-2 shrink-0 z-10 w-full sm:w-auto mt-1 sm:mt-0"
             >
               <span>+</span> Share Opportunity
             </button>
           </div>
 
           {/* Search & Category Filter Section */}
-          <div className="bg-white rounded-[1.5rem] border border-[#E8E1D5] p-4 flex flex-col xl:flex-row xl:items-center justify-between gap-4 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
+          <div className="bg-white rounded-2xl sm:rounded-[1.5rem] border border-[#E8E1D5] p-3.5 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
 
             {/* CATEGORY FILTER TABS BAR */}
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1 w-full xl:w-auto">
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none pb-1 md:pb-0 w-full md:w-auto flex-nowrap">
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${selectedCategory === "All"
+                className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap shrink-0 ${selectedCategory === "All"
                   ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
                   : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
                   }`}
@@ -1030,7 +918,7 @@ export default function Career() {
               </button>
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${selectedCategory === "job_opportunity"
+                className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap shrink-0 ${selectedCategory === "job_opportunity"
                   ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
                   : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
                   }`}
@@ -1043,7 +931,7 @@ export default function Career() {
               </button>
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${selectedCategory === "general_discussion"
+                className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap shrink-0 ${selectedCategory === "general_discussion"
                   ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
                   : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
                   }`}
@@ -1056,7 +944,7 @@ export default function Career() {
               </button>
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${selectedCategory === "internship"
+                className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap shrink-0 ${selectedCategory === "internship"
                   ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
                   : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
                   }`}
@@ -1070,27 +958,27 @@ export default function Career() {
               </button>
 
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap ${selectedCategory === "mentorship_qa"
+                className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer border whitespace-nowrap shrink-0 ${selectedCategory === "mentorship_qa"
                   ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
                   : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
                   }`}
                 onClick={() => setSelectedCategory("mentorship_qa")}
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20H2v-2a3 3 0 015.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 {t("Mentorship Q&A")}
               </button>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full xl:w-auto mt-2 xl:mt-0">
+            <div className="flex items-center gap-3 shrink-0 w-full md:w-auto">
               {/* Search Container */}
-              <div className="relative flex items-center w-full sm:w-[200px] shadow-sm shrink-0">
+              <div className="relative flex items-center w-full md:w-[240px] shadow-xs shrink-0">
                 <span className="absolute left-3.5 text-slate-400 text-xs">🔍</span>
                 <input
                   type="text"
                   placeholder={t("Search jobs, companies...")}
-                  className="bg-[#FAF7F0] border border-[#E8E1D5] rounded-full pl-9 pr-3 py-1.5 text-[11.5px] font-medium text-[#211A24] placeholder-[#211A24]/50 outline-none w-full shadow-inner focus:ring-2 focus:ring-[#071A35]/20 focus:border-[#071A35] transition-all"
+                  className="bg-[#FAF7F0] border border-[#E8E1D5] rounded-full pl-9 pr-3 py-2 text-[11.5px] font-medium text-[#211A24] placeholder-[#211A24]/50 outline-none w-full shadow-inner focus:ring-2 focus:ring-[#071A35]/20 focus:border-[#071A35] transition-all"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -1145,10 +1033,10 @@ export default function Career() {
                   </div>
                 )}
 
-                <div className="flex justify-between items-center pt-2 border-t border-slate-100">
-                  <div className="flex items-center gap-2 overflow-x-auto">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                  <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none pb-1 sm:pb-0 shrink-0">
                     <button
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/70 text-emerald-700 text-xs font-semibold cursor-pointer transition-colors"
+                      className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/70 text-emerald-700 text-[11px] sm:text-xs font-semibold cursor-pointer transition-colors whitespace-nowrap shrink-0"
                       onClick={() => {
                         setCategory("job_opportunity");
                         setIsCreateOpen(true);
@@ -1157,7 +1045,7 @@ export default function Career() {
                       <span>💼</span> {t("Job Post")}
                     </button>
                     <button
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/60 hover:bg-blue-100/70 text-blue-700 text-xs font-semibold cursor-pointer transition-colors"
+                      className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/60 hover:bg-blue-100/70 text-blue-700 text-[11px] sm:text-xs font-semibold cursor-pointer transition-colors whitespace-nowrap shrink-0"
                       onClick={() => {
                         setCategory("general_discussion");
                         setIsCreateOpen(true);
@@ -1166,7 +1054,7 @@ export default function Career() {
                       <span>💬</span> {t("General Discussion")}
                     </button>
                     <button
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-purple-200 bg-purple-50/60 hover:bg-purple-100/70 text-purple-700 text-xs font-semibold cursor-pointer transition-colors"
+                      className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-purple-200 bg-purple-50/60 hover:bg-purple-100/70 text-purple-700 text-[11px] sm:text-xs font-semibold cursor-pointer transition-colors whitespace-nowrap shrink-0"
                       onClick={() => {
                         setCategory("internship");
                         setIsCreateOpen(true);
@@ -1176,8 +1064,8 @@ export default function Career() {
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 text-slate-400 max-sm:hidden">
+                  <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                    <div className="flex items-center gap-2 text-slate-400">
                       <button
                         type="button"
                         className="hover:text-[#071A35] hover:bg-slate-100 rounded-lg p-1.5 transition-colors border-none bg-transparent cursor-pointer flex items-center gap-1.5 text-xs font-bold text-slate-600"
@@ -1205,7 +1093,7 @@ export default function Career() {
               {/* FEED POST CARDS (WITH IN-FEED INLINE EXPANSION) */}
               <div className="flex flex-col gap-4">
                 {filteredThreads.length === 0 ? (
-                  <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-12 text-center text-slate-500 flex flex-col items-center gap-3 shadow-xs">
+                  <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-8 sm:p-12 text-center text-slate-500 flex flex-col items-center gap-3 shadow-xs">
                     <div className="w-12 h-12 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center text-xl">🔍</div>
                     <p className="font-extrabold text-sm text-[#071A35]">{t("No career posts found.")}</p>
                     <p className="text-xs text-slate-400">{t("Be the first to share an opportunity or start a discussion!")}</p>
@@ -1221,26 +1109,25 @@ export default function Career() {
                     return (
                       <div
                         key={post._id}
-                        className={`bg-white border rounded-[1.5rem] p-5 shadow-xs transition-all duration-200 flex flex-col gap-3.5 relative group text-left ${
-                          isExpanded
+                        className={`bg-white border rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-xs transition-all duration-200 flex flex-col gap-3 sm:gap-3.5 relative group text-left ${isExpanded
                             ? "border-[#00c2cb] ring-2 ring-[#00c2cb]/15"
                             : "border-[#E8E1D5] hover:border-[#071A35]/30 hover:shadow-md"
-                        }`}
+                          }`}
                       >
                         {/* CARD TOP: AUTHOR INFO & ROLE & CATEGORY */}
-                        <div className="flex justify-between items-start gap-3">
-                          <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap sm:flex-nowrap justify-between items-start gap-2 sm:gap-3">
+                          <div className="flex items-center gap-2.5 sm:gap-3">
                             <img
                               src={
                                 post.author?.avatar ||
                                 `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random`
                               }
                               alt={authorName}
-                              className="w-10 h-10 rounded-full object-cover border border-slate-200 cursor-pointer shadow-2xs"
+                              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border border-slate-200 cursor-pointer shadow-2xs shrink-0"
                               onClick={() => openPublicProfile(post.author?._id || post.author)}
                             />
                             <div className="flex flex-col">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                                 <span
                                   className="text-xs font-extrabold text-[#071A35] hover:text-[#00c2cb] transition-colors cursor-pointer"
                                   onClick={() => openPublicProfile(post.author?._id || post.author)}
@@ -1248,32 +1135,32 @@ export default function Career() {
                                   {authorName}
                                 </span>
                                 {authorRole === "alumni" && (
-                                  <span className="text-[9.5px] font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200 uppercase tracking-wider">
+                                  <span className="text-[9px] sm:text-[9.5px] font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200 uppercase tracking-wider">
                                     🎓 Alumni
                                   </span>
                                 )}
                               </div>
-                              <span className="text-[11px] font-semibold text-slate-400">
+                              <span className="text-[10.5px] sm:text-[11px] font-semibold text-slate-400">
                                 {formatDate(post.createdAt)}
                               </span>
                             </div>
                           </div>
 
-                          <span className={`text-[10.5px] font-black px-3 py-1 rounded-full border uppercase tracking-wider ${badge.bg}`}>
+                          <span className={`text-[9.5px] sm:text-[10.5px] font-black px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border uppercase tracking-wider shrink-0 ${badge.bg}`}>
                             {badge.label}
                           </span>
                         </div>
 
                         {/* TITLE & CONTENT */}
-                        <div className="flex justify-between items-start gap-4">
-                          <div className="flex-1 flex flex-col gap-1.5">
+                        <div className="flex justify-between items-start gap-3 sm:gap-4">
+                          <div className="flex-1 flex flex-col gap-1.5 min-w-0">
                             <h3
-                              className="text-base font-black text-[#071A35] hover:text-[#0079c2] transition-colors leading-snug cursor-pointer m-0"
+                              className="text-sm sm:text-base font-black text-[#071A35] hover:text-[#0079c2] transition-colors leading-snug cursor-pointer m-0 break-words"
                               onClick={() => setExpandedThreadId(isExpanded ? null : post._id)}
                             >
                               {post.title}
                             </h3>
-                            <p className="text-xs text-slate-600 leading-relaxed font-normal m-0 whitespace-pre-wrap">
+                            <p className="text-xs text-slate-600 leading-relaxed font-normal m-0 whitespace-pre-wrap break-words">
                               {post.content}
                             </p>
                           </div>
@@ -1283,39 +1170,38 @@ export default function Career() {
                             <img
                               src={post.companyLogo}
                               alt={post.company || "Company"}
-                              className="w-20 h-20 rounded-2xl object-cover border border-slate-200 shrink-0 max-sm:hidden"
+                              className="hidden sm:block w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl object-cover border border-slate-200 shrink-0"
                             />
                           )}
                         </div>
 
                         {/* METADATA PILLS */}
-                        <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pt-0.5">
                           {post.location && (
-                            <span className="flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
+                            <span className="flex items-center gap-1 text-[10.5px] sm:text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
                               <span>📍</span> {post.location}
                             </span>
                           )}
                           {post.jobType && (
-                            <span className="flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
+                            <span className="flex items-center gap-1 text-[10.5px] sm:text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
                               <span>💼</span> {post.jobType}
                             </span>
                           )}
                           {post.qualification && (
-                            <span className="flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
+                            <span className="flex items-center gap-1 text-[10.5px] sm:text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
                               <span>🎓</span> {post.qualification}
                             </span>
                           )}
                         </div>
 
                         {/* CARD FOOTER METRICS & INLINE TOGGLE ACTIONS */}
-                        <div className="flex justify-between items-center pt-3 border-t border-slate-100 mt-1">
-                          <div className="flex items-center gap-4 text-xs font-bold text-slate-500">
+                        <div className="flex flex-wrap sm:flex-nowrap justify-between items-center gap-2 sm:gap-4 pt-3 border-t border-slate-100 mt-1">
+                          <div className="flex items-center gap-2.5 sm:gap-4 text-xs font-bold text-slate-500 flex-wrap">
                             <button
                               type="button"
                               onClick={() => setExpandedThreadId(isExpanded ? null : post._id)}
-                              className={`flex items-center gap-1.5 border-none bg-transparent cursor-pointer transition-colors px-2 py-1 rounded-lg ${
-                                isExpanded ? "bg-[#00c2cb]/10 text-[#0079c2] font-black" : "hover:bg-slate-100 hover:text-slate-700"
-                              }`}
+                              className={`flex items-center gap-1 sm:gap-1.5 border-none bg-transparent cursor-pointer transition-colors px-1.5 sm:px-2 py-1 rounded-lg text-[11px] sm:text-xs ${isExpanded ? "bg-[#00c2cb]/10 text-[#0079c2] font-black" : "hover:bg-slate-100 hover:text-slate-700"
+                                }`}
                             >
                               <span>💬</span>
                               <span>{post.replies?.length || 0} {post.replies?.length === 1 ? "Comment" : "Comments"}</span>
@@ -1323,9 +1209,8 @@ export default function Career() {
 
                             <button
                               type="button"
-                              className={`flex items-center gap-1.5 border-none bg-transparent cursor-pointer transition-colors ${
-                                post.isLiked ? "text-[#0079c2] font-extrabold" : "hover:text-slate-700"
-                              }`}
+                              className={`flex items-center gap-1 sm:gap-1.5 border-none bg-transparent cursor-pointer transition-colors text-[11px] sm:text-xs ${post.isLiked ? "text-[#0079c2] font-extrabold" : "hover:text-slate-700"
+                                }`}
                               onClick={() => toggleLikePost(post._id)}
                               title={post.isLiked ? "Unlike" : "Like"}
                             >
@@ -1334,9 +1219,8 @@ export default function Career() {
 
                             <button
                               type="button"
-                              className={`p-1 rounded-full hover:bg-slate-100 transition-colors border-none bg-transparent cursor-pointer ${
-                                isBookmarked ? "text-[#071A35]" : "text-slate-400 hover:text-slate-600"
-                              }`}
+                              className={`p-1 rounded-full hover:bg-slate-100 transition-colors border-none bg-transparent cursor-pointer text-[12px] ${isBookmarked ? "text-[#071A35]" : "text-slate-400 hover:text-slate-600"
+                                }`}
                               onClick={() => toggleSavePost(post._id)}
                               title={isBookmarked ? "Bookmarked" : "Save Post"}
                             >
@@ -1347,7 +1231,7 @@ export default function Career() {
                           <button
                             type="button"
                             onClick={() => setExpandedThreadId(isExpanded ? null : post._id)}
-                            className="flex items-center gap-1 text-xs font-black text-[#071A35] hover:text-[#0079c2] transition-colors border-none bg-transparent cursor-pointer"
+                            className="flex items-center gap-1 text-[11px] sm:text-xs font-black text-[#071A35] hover:text-[#0079c2] transition-colors border-none bg-transparent cursor-pointer shrink-0 ml-auto sm:ml-0"
                           >
                             <span>{isExpanded ? t("Collapse") : t("Join Discussion")}</span>
                             <span>{isExpanded ? "▲" : "▼"}</span>
@@ -1368,7 +1252,7 @@ export default function Career() {
                             </div>
 
                             {/* Comments List Stream - Compact Scrollable Facebook Bubbles */}
-                            <div className="flex flex-col gap-2.5 max-h-[200px] overflow-y-auto pr-1.5 [scrollbar-width:thin] [scrollbar-color:#cbd5e1_transparent]">
+                            <div className="flex flex-col gap-2.5 max-h-[220px] overflow-y-auto pr-1.5 [scrollbar-width:thin] [scrollbar-color:#cbd5e1_transparent]">
                               {post.replies && post.replies.length > 0 ? (
                                 post.replies.map((reply, rIdx) => {
                                   const rAuthorName = reply.author?.name || t("Community Member");
@@ -1385,7 +1269,7 @@ export default function Career() {
                                         className="w-7 h-7 rounded-full object-cover border border-slate-200 mt-0.5 shrink-0 cursor-pointer"
                                         onClick={() => openPublicProfile(reply.author?._id || reply.author)}
                                       />
-                                      <div className="flex flex-col max-w-[88%]">
+                                      <div className="flex flex-col max-w-[85%] sm:max-w-[88%]">
                                         <div className="bg-[#F0F2F5] hover:bg-[#E4E6EB] px-3.5 py-2 rounded-[18px] text-left max-w-fit flex flex-col gap-0.5 transition-colors border border-slate-200/50 break-words">
                                           <div className="flex items-center gap-1.5">
                                             <span
@@ -1425,11 +1309,11 @@ export default function Career() {
                                 alt={user?.name}
                                 className="w-7 h-7 rounded-full object-cover border border-slate-200 shrink-0"
                               />
-                              <div className="relative flex-1 flex items-center">
+                              <div className="flex-1 flex items-center gap-1.5 bg-[#F0F2F5] border border-slate-200/80 rounded-full px-3 py-1 focus-within:bg-white focus-within:border-[#00c2cb] focus-within:ring-2 focus-within:ring-[#00c2cb]/15 transition-all">
                                 <input
                                   type="text"
                                   placeholder={t("Write a comment...")}
-                                  className="w-full bg-[#F0F2F5] border border-slate-200/80 rounded-full px-4 py-2 text-[11.5px] font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/15 transition-all pr-16"
+                                  className="w-full bg-transparent border-none text-[11.5px] font-medium text-slate-800 placeholder-slate-400 focus:outline-none py-1"
                                   value={inlineReplyText[post._id] || ""}
                                   onChange={(e) =>
                                     setInlineReplyText((prev) => ({
@@ -1441,7 +1325,7 @@ export default function Career() {
                                 <button
                                   type="submit"
                                   disabled={!inlineReplyText[post._id]?.trim()}
-                                  className="absolute right-1.5 bg-[#071A35] hover:bg-[#0079c2] text-white px-3 py-1 rounded-full text-[10.5px] font-black transition-all disabled:opacity-30 disabled:cursor-not-allowed border-none cursor-pointer"
+                                  className="bg-[#071A35] hover:bg-[#0079c2] text-white px-3 py-1 rounded-full text-[10.5px] font-black transition-all disabled:opacity-30 disabled:cursor-not-allowed border-none cursor-pointer shrink-0"
                                 >
                                   {t("Post")}
                                 </button>
@@ -1465,9 +1349,9 @@ export default function Career() {
             </div>
 
             {/* RIGHT COLUMN: SIDEBAR WIDGETS */}
-            <div className="flex flex-col gap-5 sticky top-4">
+            <div className="flex flex-col gap-5 lg:sticky lg:top-4">
               {/* YOUR PROFILE CARD */}
-              <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-5 shadow-xs flex flex-col gap-4 text-left relative">
+              <div className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-xs flex flex-col gap-4 text-left relative">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">{t("Your Profile")}</h3>
                 </div>
@@ -1480,7 +1364,7 @@ export default function Career() {
                   />
                   <div className="flex flex-col">
                     <h4 className="text-sm font-extrabold text-slate-900">{user.name || "Hamza Student"}</h4>
-                    <span className="text-xs font-bold text-[#00c2cb]">{careerDept || user.department || "BS Computer Science (BSCS)"}</span>
+                    <span className="text-xs font-bold text-[#00c2cb]">{careerDept || user.department || user.program || t("Student")}</span>
                     <span className="text-[11px] text-slate-400 font-medium">
                       {user.registeration_number || "2024F-mulbscs-055"} • Lahore, Pakistan
                     </span>
@@ -1501,7 +1385,7 @@ export default function Career() {
               </div>
 
               {/* SKILLS CARD */}
-              <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-5 shadow-xs flex flex-col gap-3 text-left">
+              <div className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-xs flex flex-col gap-3 text-left">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">{t("Skills")}</h3>
                   <button className="text-xs font-bold text-[#071A35] hover:underline border-none bg-transparent cursor-pointer" onClick={() => setIsEditCareerProfileOpen(true)}>
@@ -1526,7 +1410,7 @@ export default function Career() {
               </div>
 
               {/* FIELD-CUSTOMIZED DAILY CHALLENGE CARD (AUTOMATIC DAILY ROTATION FOR ALL DEPARTMENTS) */}
-              <div className="bg-white border border-amber-200/80 rounded-[1.5rem] p-5 shadow-xs flex flex-col gap-3 text-left relative overflow-hidden transition-all">
+              <div className="bg-white border border-amber-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-xs flex flex-col gap-3 text-left relative overflow-hidden transition-all">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-1.5">
                     <span className="text-sm">🧩</span>
@@ -1642,7 +1526,7 @@ export default function Career() {
       {/* TOAST NOTIFICATION */}
       {toast && (
         <div
-          className={`fixed top-20 right-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl z-[3000] flex gap-3 w-[360px] animate-modal-slide-in ${toast.type === "warning"
+          className={`fixed top-16 sm:top-20 right-3 sm:right-6 left-3 sm:left-auto bg-white border border-slate-200 rounded-2xl p-4 shadow-xl z-[3000] flex gap-3 w-auto sm:w-[360px] max-w-[calc(100vw-1.5rem)] animate-modal-slide-in ${toast.type === "warning"
             ? "border-l-4 border-l-amber-500"
             : toast.type === "error"
               ? "border-l-4 border-l-red-500"

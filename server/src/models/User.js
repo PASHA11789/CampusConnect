@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
     images: [String],
     careerBio: {
       type: String,
-      default: "Aspiring Software Engineer & Full-Stack Developer | Passionate about DSA, Web Dev & AI | Lifelong learner.",
+      default: "",
     },
     careerDept: { type: String, default: "" },
     careerSkills: [

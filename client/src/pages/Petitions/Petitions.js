@@ -655,17 +655,17 @@ export default function Petitions() {
           <div className="flex-1 px-4 sm:px-8 py-6 sm:py-7 flex flex-col gap-6 max-md:p-4 [&>*]:animate-fade-in">
 
             {/* ── HERO BANNER (Matching Forum Theme) ── */}
-            <div className="bg-[#071A35] rounded-[1.5rem] p-5 sm:p-7 text-white border border-white/10 shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
+            <div className="bg-[#071A35] rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-7 text-white border border-white/10 shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
               {/* Background Glow Accents */}
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#00c2cb]/20 rounded-full blur-2xl pointer-events-none" />
               <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
 
               <div className="flex flex-col text-left z-10">
-                <div className="bg-white/10 text-[#00c2cb] text-[10px] sm:text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-2.5 border border-white/10">
+                <div className="bg-white/10 text-[#00c2cb] text-[9.5px] sm:text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-2 sm:mb-2.5 border border-white/10">
                   <span>✨</span>
                   <span>CAMPUS ADVOCACY</span>
                 </div>
-                <h1 className="text-[22px] sm:text-[26px] font-black text-white leading-tight tracking-tight mb-1.5">
+                <h1 className="text-xl sm:text-[26px] font-black text-white leading-tight tracking-tight mb-1.5">
                   {t("Campus Petitions")}
                 </h1>
                 <p className="text-[11.5px] sm:text-[12px] font-semibold text-white/70 max-w-[550px] leading-relaxed m-0">
@@ -676,7 +676,7 @@ export default function Petitions() {
               <button
                 type="button"
                 onClick={() => setIsCreateModalOpen(true)}
-                className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-black px-5 py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center gap-2 shrink-0 z-10 hover:scale-105 active:scale-95 border-none"
+                className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-black px-5 py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center justify-center gap-2 shrink-0 z-10 hover:scale-105 active:scale-95 border-none w-full sm:w-auto"
               >
                 <span>+</span> {t("Start a Petition")}
               </button>
@@ -686,7 +686,7 @@ export default function Petitions() {
             <div className="w-full flex flex-col gap-6">
 
                 {/* ── SEARCH & LEVEL FILTER SECTION (Forum Theme) ── */}
-                <div className="relative z-10 bg-white rounded-[1.5rem] border border-[#E8E1D5] p-4 flex flex-col gap-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
+                <div className="relative z-10 bg-white rounded-2xl sm:rounded-[1.5rem] border border-[#E8E1D5] p-3.5 sm:p-4 flex flex-col gap-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
                   {/* Search Input */}
                   <div className="relative flex items-center w-full">
                     <span className="absolute left-4 text-slate-400 text-sm">🔍</span>
@@ -700,7 +700,7 @@ export default function Petitions() {
                   </div>
 
                   {/* Level Selection Tabs */}
-                  <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1">
+                  <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none py-1 flex-nowrap">
                     {levelTabs.map((lvl) => {
                       const isActive = selectedLevel === lvl;
                       return (
@@ -708,7 +708,7 @@ export default function Petitions() {
                           key={lvl}
                           type="button"
                           onClick={() => setSelectedLevel(lvl)}
-                          className={`px-4 py-1.5 rounded-full text-[11.5px] font-extrabold transition-all duration-200 cursor-pointer whitespace-nowrap border ${
+                          className={`px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-[11.5px] font-extrabold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 border ${
                             isActive
                               ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
                               : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
@@ -744,26 +744,26 @@ export default function Petitions() {
                             key={petition._id}
                             id={`petition-card-${petition._id}`}
                             onClick={() => handleCardClick(petition)}
-                            className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-6 flex flex-col gap-4 shadow-[0_8px_25px_rgba(7,26,53,0.04)] hover:shadow-xl hover:-translate-y-1 hover:border-[#071A35]/30 transition-all duration-300 relative group overflow-hidden cursor-pointer"
+                            className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-6 flex flex-col gap-3.5 sm:gap-4 shadow-[0_8px_25px_rgba(7,26,53,0.04)] hover:shadow-xl hover:-translate-y-1 hover:border-[#071A35]/30 transition-all duration-300 relative group overflow-hidden cursor-pointer"
                           >
                             {/* Card Top: Category Icon, Scope Priority Tag & Status Badge */}
-                            <div className="flex justify-between items-center gap-2">
+                            <div className="flex flex-wrap sm:flex-nowrap justify-between items-center gap-2">
                               <div className="flex items-center gap-2">
-                                <div className="w-10 h-10 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center shrink-0">
+                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center shrink-0">
                                   {getPetitionIcon(petition.title, petition.level)}
                                 </div>
                                 {/* Scope Level Priority Tag with Hover Tooltip */}
                                 <div className="relative group/tag">
                                   {petition.level === "Class" ? (
-                                    <span className="px-2.5 py-1 rounded-full text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
+                                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
                                       <span>✨</span> CLASS • HIGH PRIORITY
                                     </span>
                                   ) : petition.level === "Department" ? (
-                                    <span className="px-2.5 py-1 rounded-full text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
+                                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
                                       <span>🏢</span> DEPT • MEDIUM PRIORITY
                                     </span>
                                   ) : (
-                                    <span className="px-2.5 py-1 rounded-full text-[9.5px] font-black tracking-wider uppercase bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
+                                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
                                       <span>🎓</span> CAMPUS
                                     </span>
                                   )}
@@ -786,29 +786,29 @@ export default function Petitions() {
                                   </div>
                                 </div>
                               </div>
-                              <span className={`px-3 py-1 rounded-full text-[10.5px] font-bold shrink-0 ${badgeBg}`}>
+                              <span className={`px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9.5px] sm:text-[10.5px] font-bold shrink-0 ${badgeBg}`}>
                                 {t(petition.status)}
                               </span>
                             </div>
 
                             {/* Title & Description */}
-                            <div className="flex flex-col gap-2">
-                              <h3 className="text-[16px] font-extrabold text-[#071A35] line-clamp-1 leading-tight group-hover:text-[#00c2cb] transition-colors">
+                            <div className="flex flex-col gap-1.5 sm:gap-2">
+                              <h3 className="text-sm sm:text-[16px] font-extrabold text-[#071A35] line-clamp-1 leading-tight group-hover:text-[#00c2cb] transition-colors break-words">
                                 {petition.title}
                               </h3>
                               {petition.image && (
-                                <div className="rounded-xl overflow-hidden max-h-[180px] bg-slate-900/5 my-1 border border-[#E8E1D5] shadow-xs">
-                                  <img src={petition.image} alt={petition.title} className="w-full h-full object-cover max-h-[180px]" onError={(e) => { e.target.style.display = 'none'; }} />
+                                <div className="rounded-xl overflow-hidden max-h-[160px] sm:max-h-[180px] bg-slate-900/5 my-1 border border-[#E8E1D5] shadow-xs">
+                                  <img src={petition.image} alt={petition.title} className="w-full h-full object-cover max-h-[160px] sm:max-h-[180px]" onError={(e) => { e.target.style.display = 'none'; }} />
                                 </div>
                               )}
-                              <p className="text-[12.5px] text-[#211A24]/70 font-medium leading-relaxed line-clamp-3">
+                              <p className="text-xs sm:text-[12.5px] text-[#211A24]/70 font-medium leading-relaxed line-clamp-3 break-words">
                                 {petition.description}
                               </p>
                             </div>
 
                             {/* Creator Details */}
                             <div
-                              className="flex items-center gap-3 py-1 border-t border-[#E8E1D5]/60 mt-2 cursor-pointer hover:bg-[#FAF7F0] rounded-lg p-1 transition-colors -ml-1 -mr-1"
+                              className="flex items-center gap-2.5 sm:gap-3 py-1 border-t border-[#E8E1D5]/60 mt-1 sm:mt-2 cursor-pointer hover:bg-[#FAF7F0] rounded-lg p-1 transition-colors -ml-1 -mr-1"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 openPublicProfile(petition.creator?._id || petition.creator);
@@ -817,13 +817,13 @@ export default function Petitions() {
                               <img
                                 src={getPersonalizedAvatar(petition.creator?.avatar)}
                                 alt={petition.creator?.registeration_number || "Creator"}
-                                className="w-8 h-8 rounded-full object-cover border border-[#071A35]/10"
+                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border border-[#071A35]/10 shrink-0"
                               />
-                              <div className="flex flex-col">
-                                <span className="text-[11.5px] font-bold text-[#071A35] group-hover:text-[#00c2cb] transition-colors">
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-[11px] sm:text-[11.5px] font-bold text-[#071A35] group-hover:text-[#00c2cb] transition-colors truncate">
                                   {t("Started by")} {petition.creator?.registeration_number || t("Anonymous")}
                                 </span>
-                                <span className="text-[10px] text-[#211A24]/50 font-semibold">
+                                <span className="text-[9.5px] sm:text-[10px] text-[#211A24]/50 font-semibold truncate">
                                   {formatDate(petition.createdAt)} • {t(petition.level)} ({petition.targetGroup})
                                 </span>
                               </div>
@@ -831,14 +831,14 @@ export default function Petitions() {
 
                             {/* Progress Meter / No Limit Badge */}
                             {!hasMilestone ? (
-                              <div className="flex items-center mt-2" onClick={(e) => e.stopPropagation()}>
-                                <span className="px-3 py-1.5 rounded-xl text-[11px] font-bold bg-[#071A35]/5 text-[#071A35] border border-[#071A35]/10">
+                              <div className="flex items-center mt-1 sm:mt-2" onClick={(e) => e.stopPropagation()}>
+                                <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-[10.5px] sm:text-[11px] font-bold bg-[#071A35]/5 text-[#071A35] border border-[#071A35]/10">
                                   {sigsCount} {sigsCount === 1 ? t("Signature") : t("Signatures")} ({t("No Limit")})
                                 </span>
                               </div>
                             ) : (
-                              <div className="flex flex-col gap-1.5 mt-2" onClick={(e) => e.stopPropagation()}>
-                                <div className="flex justify-between text-[11px] font-bold text-[#211A24]/50">
+                              <div className="flex flex-col gap-1 sm:gap-1.5 mt-1 sm:mt-2" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex justify-between text-[10.5px] sm:text-[11px] font-bold text-[#211A24]/50">
                                   <span>
                                     <strong className="text-[#071A35]">{sigsCount}</strong> / {targetMilestone} {t("signatures")}
                                   </span>
@@ -854,12 +854,12 @@ export default function Petitions() {
                             )}
 
                             {/* Card Footer Actions */}
-                            <div className="flex gap-2 items-center mt-3 pt-3 border-t border-[#E8E1D5]/60" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex gap-2 items-center mt-2 sm:mt-3 pt-2.5 sm:pt-3 border-t border-[#E8E1D5]/60" onClick={(e) => e.stopPropagation()}>
                               {petition.status === "Active" ? (
                                 isSignedByMe ? (
                                   <button
                                     disabled
-                                    className="flex-1 bg-emerald-50 text-emerald-600 border border-emerald-200 py-2.5 px-4 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2 cursor-not-allowed"
+                                    className="flex-1 bg-emerald-50 text-emerald-600 border border-emerald-200 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold flex items-center justify-center gap-1.5 cursor-not-allowed"
                                   >
                                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                                       <polyline points="20 6 9 17 4 12" />
@@ -873,7 +873,7 @@ export default function Petitions() {
                                       handleSignPetition(petition._id);
                                     }}
                                     disabled={signingIds.has(petition._id)}
-                                    className="flex-1 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-2.5 px-4 rounded-xl text-[12.5px] font-black flex items-center justify-center gap-2 transition-all duration-300 shadow-md border-none active:scale-95 disabled:opacity-50 cursor-pointer"
+                                    className="flex-1 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-[11.5px] sm:text-[12.5px] font-black flex items-center justify-center gap-1.5 transition-all duration-300 shadow-md border-none active:scale-95 disabled:opacity-50 cursor-pointer"
                                   >
                                     {signingIds.has(petition._id) ? (
                                       <div className="w-4 h-4 border-2 border-[#071A35]/30 border-t-[#071A35] rounded-full animate-spin" />
@@ -885,7 +885,7 @@ export default function Petitions() {
                               ) : petition.status === "Resolved" ? (
                                 <button
                                   disabled
-                                  className="flex-1 bg-[#FAF7F0] text-[#211A24]/60 border border-[#E8E1D5] py-2.5 px-4 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2"
+                                  className="flex-1 bg-[#FAF7F0] text-[#211A24]/60 border border-[#E8E1D5] py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold flex items-center justify-center gap-1.5"
                                 >
                                   <svg className="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                     <circle cx="12" cy="12" r="10" />
@@ -896,7 +896,7 @@ export default function Petitions() {
                               ) : (
                                 <button
                                   disabled
-                                  className="flex-1 bg-[#FAF7F0] text-[#211A24]/50 border border-[#E8E1D5] py-2.5 px-4 rounded-xl text-[12.5px] font-bold"
+                                  className="flex-1 bg-[#FAF7F0] text-[#211A24]/50 border border-[#E8E1D5] py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold"
                                 >
                                   {t("Under Review")}
                                 </button>
@@ -908,7 +908,7 @@ export default function Petitions() {
                                   e.stopPropagation();
                                   setSharePetition(petition);
                                 }}
-                                className="w-9 h-9 rounded-xl bg-[#FAF7F0] hover:bg-[#F3EEE4] border border-[#E8E1D5] flex items-center justify-center text-[#211A24]/70 hover:text-[#00c2cb] transition-colors"
+                                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#FAF7F0] hover:bg-[#F3EEE4] border border-[#E8E1D5] flex items-center justify-center text-[#211A24]/70 hover:text-[#00c2cb] transition-colors shrink-0"
                                 title={t("Share & QR Code")}
                               >
                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -926,12 +926,12 @@ export default function Petitions() {
 
                       {/* Pagination Controls */}
                       {totalPages > 1 && (
-                        <div className="col-span-2 flex items-center justify-between bg-white border border-[#E8E1D5] rounded-[1.5rem] p-4 shadow-[0_8px_25px_rgba(7,26,53,0.04)] mt-4 animate-fade-in">
+                        <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-3.5 sm:p-4 shadow-[0_8px_25px_rgba(7,26,53,0.04)] mt-4 animate-fade-in">
                           <button
                             type="button"
                             disabled={currentPage === 1}
                             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                            className="px-4 py-2 rounded-xl text-[12.5px] font-bold border border-[#E8E1D5] text-[#211A24]/80 hover:text-[#071A35] hover:bg-[#FAF7F0] transition-all duration-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer"
+                            className="px-3.5 sm:px-4 py-2 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold border border-[#E8E1D5] text-[#211A24]/80 hover:text-[#071A35] hover:bg-[#FAF7F0] transition-all duration-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer w-full sm:w-auto justify-center"
                           >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -939,7 +939,7 @@ export default function Petitions() {
                             {t("Previous")}
                           </button>
 
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center">
                             {Array.from({ length: totalPages }).map((_, idx) => {
                               const pageNum = idx + 1;
                               return (
@@ -947,7 +947,7 @@ export default function Petitions() {
                                   type="button"
                                   key={pageNum}
                                   onClick={() => setCurrentPage(pageNum)}
-                                  className={`w-9 h-9 rounded-xl text-[12px] font-black transition-all duration-200 cursor-pointer ${currentPage === pageNum
+                                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl text-[11.5px] sm:text-[12px] font-black transition-all duration-200 cursor-pointer ${currentPage === pageNum
                                     ? "bg-[#071A35] text-white shadow-md scale-105"
                                     : "text-[#211A24]/70 hover:bg-[#FAF7F0] hover:text-[#071A35]"
                                     }`}
@@ -962,7 +962,7 @@ export default function Petitions() {
                             type="button"
                             disabled={currentPage === totalPages}
                             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                            className="px-4 py-2 rounded-xl text-[12.5px] font-bold border border-[#E8E1D5] text-[#211A24]/80 hover:text-[#071A35] hover:bg-[#FAF7F0] transition-all duration-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer"
+                            className="px-3.5 sm:px-4 py-2 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold border border-[#E8E1D5] text-[#211A24]/80 hover:text-[#071A35] hover:bg-[#FAF7F0] transition-all duration-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer w-full sm:w-auto justify-center"
                           >
                             {t("Next")}
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
@@ -999,28 +999,28 @@ export default function Petitions() {
       {/* ── CREATE PETITION MODAL POPUP ── */}
       {isCreateModalOpen && (
         <div
-          className="fixed inset-0 bg-[#071A35]/65 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 animate-fade-in"
+          className="fixed inset-0 bg-[#071A35]/65 backdrop-blur-sm flex items-center justify-center z-[2000] p-3 sm:p-4 animate-fade-in"
           onClick={() => setIsCreateModalOpen(false)}
         >
           <div
-            className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-3xl max-w-[620px] w-full shadow-[0_20px_50px_rgba(7,26,53,0.25)] relative animate-modal-slide-in flex flex-col overflow-hidden max-h-[90vh]"
+            className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-3xl max-w-[620px] w-full shadow-[0_20px_50px_rgba(7,26,53,0.25)] relative animate-modal-slide-in flex flex-col overflow-hidden max-h-[88vh] sm:max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header Banner */}
-            <div className="relative bg-[#071A35] px-5 sm:px-7 py-4 sm:py-5 flex justify-between items-center text-white overflow-hidden shrink-0 border-b border-[#071A35]">
+            <div className="relative bg-[#071A35] px-4 sm:px-7 py-3 sm:py-5 flex justify-between items-center text-white overflow-hidden shrink-0 border-b border-[#071A35]">
               {/* Glow accents */}
               <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
               <div className="absolute -bottom-8 right-16 w-36 h-36 bg-[#00c2cb]/10 rounded-full blur-2xl pointer-events-none" />
 
-              <div className="relative z-10 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-lg text-[#00c2cb]">
+              <div className="relative z-10 flex items-center gap-2.5 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-base sm:text-lg text-[#00c2cb] shrink-0">
                   📜
                 </div>
-                <div className="flex flex-col">
-                  <h2 className="text-lg sm:text-xl font-black text-white leading-tight">
+                <div className="flex flex-col min-w-0">
+                  <h2 className="text-base sm:text-xl font-black text-white leading-tight truncate">
                     {t("Start a New Petition")}
                   </h2>
-                  <p className="text-[11.5px] text-white/70 font-semibold m-0">
+                  <p className="text-[10px] sm:text-[11.5px] text-white/70 font-semibold m-0 leading-tight">
                     {t("Have an idea to improve campus life? Start a petition and make it happen.")}
                   </p>
                 </div>
@@ -1028,7 +1028,7 @@ export default function Petitions() {
 
               <button
                 type="button"
-                className="relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 text-white/90 hover:text-white border border-white/20 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+                className="relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 text-white/90 hover:text-white border border-white/20 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shrink-0 ml-2"
                 onClick={() => setIsCreateModalOpen(false)}
               >
                 ✕
@@ -1036,12 +1036,12 @@ export default function Petitions() {
             </div>
 
             {/* Modal Body / Form */}
-            <div className="p-5 sm:p-7 overflow-y-auto flex-1 bg-[#FAF7F0]/60 flex flex-col gap-4">
-              <form onSubmit={handleCreatePetition} className="flex flex-col gap-4">
+            <div className="p-4 sm:p-7 overflow-y-auto flex-1 bg-[#FAF7F0]/60 flex flex-col gap-3.5 sm:gap-4">
+              <form onSubmit={handleCreatePetition} className="flex flex-col gap-3.5 sm:gap-4">
 
                 {/* Title field */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#071A35]">
+                <div className="flex flex-col gap-1 sm:gap-1.5">
+                  <label className="text-[11px] sm:text-[12px] font-extrabold text-[#071A35]">
                     {t("Title")} <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -1049,26 +1049,26 @@ export default function Petitions() {
                     maxLength={100}
                     required
                     placeholder={t("Enter a clear and descriptive title")}
-                    className="w-full bg-white border border-[#E8E1D5] rounded-xl px-4 py-2.5 text-[12.5px] font-semibold text-[#211A24] placeholder-[#211A24]/50 focus:outline-none focus:border-[#071A35] transition-colors"
+                    className="w-full bg-white border border-[#E8E1D5] rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-[12.5px] font-semibold text-[#211A24] placeholder-[#211A24]/50 focus:outline-none focus:border-[#071A35] transition-colors"
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                   />
-                  <div className="text-[10px] text-[#211A24]/50 text-right font-semibold">
+                  <div className="text-[9.5px] sm:text-[10px] text-[#211A24]/50 text-right font-semibold">
                     {newTitle.length} / 100
                   </div>
                 </div>
 
                 {/* Scope & Target Milestone Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {/* Scope / Level selection */}
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[12px] font-extrabold text-[#071A35]">
+                  <div className="flex flex-col gap-1 sm:gap-1.5">
+                    <label className="text-[11px] sm:text-[12px] font-extrabold text-[#071A35]">
                       {t("Scope")} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <select
                         required
-                        className="w-full bg-white border border-[#E8E1D5] rounded-xl px-4 py-2.5 text-[12.5px] font-semibold text-[#211A24] focus:outline-none focus:border-[#071A35] appearance-none cursor-pointer"
+                        className="w-full bg-white border border-[#E8E1D5] rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-[12.5px] font-semibold text-[#211A24] focus:outline-none focus:border-[#071A35] appearance-none cursor-pointer"
                         value={newLevel}
                         onChange={(e) => setNewLevel(e.target.value)}
                       >
@@ -1085,8 +1085,8 @@ export default function Petitions() {
                   </div>
 
                   {/* Target Milestone field */}
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[12px] font-extrabold text-[#071A35]">
+                  <div className="flex flex-col gap-1 sm:gap-1.5">
+                    <label className="text-[11px] sm:text-[12px] font-extrabold text-[#071A35]">
                       {t("Target Signatures (Optional)")}
                     </label>
                     <input
@@ -1094,7 +1094,7 @@ export default function Petitions() {
                       min={5}
                       max={10000}
                       placeholder={t("e.g. 100 (blank = no limit)")}
-                      className="w-full bg-white border border-[#E8E1D5] rounded-xl px-4 py-2.5 text-[12.5px] font-semibold text-[#211A24] placeholder-[#211A24]/50 focus:outline-none focus:border-[#071A35] transition-colors"
+                      className="w-full bg-white border border-[#E8E1D5] rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-[12.5px] font-semibold text-[#211A24] placeholder-[#211A24]/50 focus:outline-none focus:border-[#071A35] transition-colors"
                       value={newMilestone}
                       onChange={(e) => setNewMilestone(e.target.value === "" ? "" : (parseInt(e.target.value) || ""))}
                     />
@@ -1102,36 +1102,36 @@ export default function Petitions() {
                 </div>
 
                 {/* Description field */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#071A35]">
+                <div className="flex flex-col gap-1 sm:gap-1.5">
+                  <label className="text-[11px] sm:text-[12px] font-extrabold text-[#071A35]">
                     {t("Description")} <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     maxLength={1000}
                     required
-                    rows={4}
+                    rows={3}
                     placeholder={t("Describe your petition. What change are you seeking and why is it important?")}
-                    className="w-full bg-white border border-[#E8E1D5] rounded-xl px-4 py-2.5 text-[12.5px] font-semibold text-[#211A24] placeholder-[#211A24]/50 focus:outline-none focus:border-[#071A35] transition-colors resize-none scrollbar-none"
+                    className="w-full bg-white border border-[#E8E1D5] rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-[12.5px] font-semibold text-[#211A24] placeholder-[#211A24]/50 focus:outline-none focus:border-[#071A35] transition-colors resize-none scrollbar-none"
                     value={newDescription}
                     onChange={(e) => setNewDescription(e.target.value)}
                   />
-                  <div className="text-[10px] text-[#211A24]/50 text-right font-semibold">
+                  <div className="text-[9.5px] sm:text-[10px] text-[#211A24]/50 text-right font-semibold">
                     {newDescription.length} / 1000
                   </div>
                 </div>
 
                 {/* Optional Image Attachment */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#071A35]">
+                <div className="flex flex-col gap-1 sm:gap-1.5">
+                  <label className="text-[11px] sm:text-[12px] font-extrabold text-[#071A35]">
                     {t("Header / Attachment Image (Optional)")}
                   </label>
 
                   {newImage ? (
-                    <div className="relative rounded-2xl overflow-hidden border-2 border-[#00c2cb] bg-slate-900/10 max-h-[180px] flex items-center justify-center group shadow-sm">
+                    <div className="relative rounded-2xl overflow-hidden border-2 border-[#00c2cb] bg-slate-900/10 max-h-[160px] sm:max-h-[180px] flex items-center justify-center group shadow-sm">
                       <img
                         src={newImage}
                         alt="Petition attachment preview"
-                        className="w-full h-full object-cover max-h-[180px]"
+                        className="w-full h-full object-cover max-h-[160px] sm:max-h-[180px]"
                         onError={(e) => { e.target.style.display = 'none'; }}
                       />
                       <button
@@ -1154,7 +1154,7 @@ export default function Petitions() {
                             processImageFile(file, setNewImage);
                           }
                         }}
-                        className="border-2 border-dashed border-[#E8E1D5] hover:border-[#071A35] bg-white rounded-2xl p-4 flex flex-col items-center justify-center text-center transition-all cursor-pointer group"
+                        className="border-2 border-dashed border-[#E8E1D5] hover:border-[#071A35] bg-white rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center transition-all cursor-pointer group"
                         onClick={() => {
                           const input = document.getElementById("petition-file-input");
                           if (input) input.click();
@@ -1172,19 +1172,19 @@ export default function Petitions() {
                             }
                           }}
                         />
-                        <div className="w-9 h-9 rounded-full bg-[#071A35]/10 text-[#071A35] flex items-center justify-center text-base mb-1.5 group-hover:scale-110 transition-transform">
+                        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#071A35]/10 text-[#071A35] flex items-center justify-center text-sm sm:text-base mb-1 group-hover:scale-110 transition-transform">
                           🖼️
                         </div>
-                        <p className="text-[12px] font-bold text-[#071A35] m-0 mb-0.5">
+                        <p className="text-xs sm:text-[12px] font-bold text-[#071A35] m-0 mb-0.5">
                           {t("Drag & Drop image here, or")} <span className="text-[#00c2cb] underline">{t("Browse Device")}</span>
                         </p>
-                        <span className="text-[9.5px] text-[#211A24]/50 font-semibold">{t("Supports JPG, PNG, WEBP, GIF")}</span>
+                        <span className="text-[9px] sm:text-[9.5px] text-[#211A24]/50 font-semibold">{t("Supports JPG, PNG, WEBP, GIF")}</span>
                       </div>
 
                       <input
                         type="url"
                         placeholder={t("Or paste image URL (https://...)...")}
-                        className="w-full bg-white border border-[#E8E1D5] rounded-xl px-4 py-2 text-[11.5px] font-semibold text-[#211A24] placeholder-[#211A24]/50 focus:outline-none focus:border-[#071A35]"
+                        className="w-full bg-white border border-[#E8E1D5] rounded-xl px-3.5 sm:px-4 py-2 text-xs sm:text-[11.5px] font-semibold text-[#211A24] placeholder-[#211A24]/50 focus:outline-none focus:border-[#071A35]"
                         value={newImage}
                         onChange={(e) => setNewImage(e.target.value)}
                       />
@@ -1193,11 +1193,11 @@ export default function Petitions() {
                 </div>
 
                 {/* Submit Button */}
-                <div className="flex gap-3 mt-2 pt-2 border-t border-[#E8E1D5]">
+                <div className="flex items-center gap-2.5 sm:gap-3 mt-1 sm:mt-2 pt-2.5 sm:pt-3 border-t border-[#E8E1D5]">
                   <button
                     type="button"
                     onClick={() => setIsCreateModalOpen(false)}
-                    className="flex-1 bg-white hover:bg-[#F3EEE4] text-[#071A35] border border-[#E8E1D5] py-3 rounded-xl text-[13px] font-bold transition-all duration-200 cursor-pointer"
+                    className="flex-1 bg-white hover:bg-[#F3EEE4] text-[#071A35] border border-[#E8E1D5] py-2.5 sm:py-3 px-3 rounded-xl text-xs sm:text-[13px] font-bold transition-all duration-200 cursor-pointer shadow-xs whitespace-nowrap"
                   >
                     {t("Cancel")}
                   </button>
@@ -1205,25 +1205,24 @@ export default function Petitions() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-3 rounded-xl text-[13px] font-black uppercase tracking-wider cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 border-none shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-50"
+                    className="flex-[1.3] sm:flex-1 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-2.5 sm:py-3 px-3 rounded-xl text-xs sm:text-[13px] font-black cursor-pointer transition-all duration-300 flex items-center justify-center gap-1.5 border-none shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-50 whitespace-nowrap"
                   >
                     {isSubmitting ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 border-2 border-[#071A35]/30 border-t-[#071A35] rounded-full animate-spin" />
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-[#071A35]/30 border-t-[#071A35] rounded-full animate-spin" />
                         <span>{t("Submitting...")}</span>
                       </div>
                     ) : (
                       <>
-                        <svg className="w-4 h-4 rotate-45 -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 rotate-45 -mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                           <line x1="22" y1="2" x2="11" y2="13" />
                           <polygon points="22 2 15 22 11 13 2 9 22 2" />
                         </svg>
-                        {t("Create Petition")}
+                        <span>{t("Create Petition")}</span>
                       </>
                     )}
                   </button>
                 </div>
-
               </form>
             </div>
           </div>
@@ -1232,28 +1231,28 @@ export default function Petitions() {
 
       {/* ── PETITION DETAIL MODAL ── */}
       {isDetailOpen && selectedPetition && (
-        <div className="fixed inset-0 bg-[#071A35]/65 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 animate-fade-in" onClick={handleCloseDetail}>
+        <div className="fixed inset-0 bg-[#071A35]/65 backdrop-blur-sm flex items-center justify-center z-[2000] p-3 sm:p-4 animate-fade-in" onClick={handleCloseDetail}>
           <div
-            className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-3xl max-w-[600px] w-full shadow-[0_20px_50px_rgba(7,26,53,0.25)] relative animate-modal-slide-in flex flex-col overflow-hidden max-h-[90vh]"
+            className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-3xl max-w-[600px] w-full shadow-[0_20px_50px_rgba(7,26,53,0.25)] relative animate-modal-slide-in flex flex-col overflow-hidden max-h-[88vh] sm:max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
 
             {/* ── Dark Navy Header Banner (Profile Style) ── */}
-            <div className="relative bg-[#071A35] px-5 sm:px-7 py-4 sm:py-5 flex justify-between items-start text-white overflow-hidden shrink-0 border-b border-[#071A35]">
+            <div className="relative bg-[#071A35] px-4 sm:px-6 py-3.5 sm:py-5 flex justify-between items-start text-white overflow-hidden shrink-0 border-b border-[#071A35]">
               {/* Subtle Ambient Orbs */}
               <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
               <div className="absolute -bottom-8 right-16 w-36 h-36 bg-[#00c2cb]/10 rounded-full blur-2xl pointer-events-none" />
 
-              <div className="relative z-10 flex flex-col gap-2 min-w-0 flex-1 pr-8">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-lg shadow-inner text-[#00c2cb] shrink-0">
+              <div className="relative z-10 flex flex-col gap-1.5 sm:gap-2 min-w-0 flex-1 pr-4 sm:pr-8">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-base sm:text-lg shadow-inner text-[#00c2cb] shrink-0">
                     📜
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap min-w-0">
-                    <span className="px-2.5 py-0.5 rounded-full text-[9.5px] font-black bg-white/10 text-[#00c2cb] uppercase tracking-widest border border-white/10 shrink-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+                    <span className="px-2 sm:px-2.5 py-0.5 rounded-full text-[9px] sm:text-[9.5px] font-black bg-white/10 text-[#00c2cb] uppercase tracking-widest border border-white/10 shrink-0">
                       {t(selectedPetition.level)} {t("Level")}
                     </span>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-widest border shrink-0 ${selectedPetition.status === "Pending Mod Approval" ? "bg-indigo-500/20 text-indigo-200 border-indigo-400/30" :
+                    <span className={`px-2 sm:px-2.5 py-0.5 rounded-full text-[9px] sm:text-[9.5px] font-black uppercase tracking-widest border shrink-0 ${selectedPetition.status === "Pending Mod Approval" ? "bg-indigo-500/20 text-indigo-200 border-indigo-400/30" :
                       selectedPetition.status === "Under Review" ? "bg-amber-500/20 text-amber-200 border-amber-400/30" :
                         selectedPetition.status === "Resolved" ? "bg-emerald-500/20 text-emerald-200 border-emerald-400/30" :
                           selectedPetition.status === "Closed" ? "bg-rose-500/20 text-rose-200 border-rose-400/30" : "bg-[#00c2cb]/20 text-[#00c2cb] border-[#00c2cb]/30"
@@ -1262,7 +1261,7 @@ export default function Petitions() {
                     </span>
                   </div>
                 </div>
-                <h2 className="text-lg sm:text-xl font-black text-white leading-tight tracking-tight line-clamp-2">
+                <h2 className="text-base sm:text-xl font-black text-white leading-tight tracking-tight line-clamp-2">
                   {selectedPetition.title}
                 </h2>
               </div>
@@ -1279,20 +1278,20 @@ export default function Petitions() {
             </div>
 
             {/* ── Modal Body (Warm Ivory Background) ── */}
-            <div className="p-5 sm:p-7 overflow-y-auto flex-1 bg-[#FAF7F0]/60 flex flex-col gap-5">
+            <div className="p-4 sm:p-7 overflow-y-auto flex-1 bg-[#FAF7F0]/60 flex flex-col gap-4 sm:gap-5">
 
               {/* Creator details */}
-              <div className="flex items-center gap-3.5 bg-white p-4 rounded-2xl border border-[#E8E1D5] shadow-sm">
+              <div className="flex items-center gap-3 sm:gap-3.5 bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#E8E1D5] shadow-sm">
                 <img
                   src={getPersonalizedAvatar(selectedPetition.creator?.avatar)}
                   alt={selectedPetition.creator?.registeration_number || "Creator"}
-                  className="w-11 h-11 rounded-full object-cover border-2 border-[#071A35]/10 shadow-sm"
+                  className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-[#071A35]/10 shadow-sm shrink-0"
                 />
-                <div className="flex flex-col">
-                  <span className="text-[12.5px] font-extrabold text-[#071A35]">
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs sm:text-[12.5px] font-extrabold text-[#071A35] truncate">
                     {t("Started by")} {selectedPetition.creator?.registeration_number || t("Anonymous")}
                   </span>
-                  <span className="text-[11px] text-[#211A24]/50 font-semibold">
+                  <span className="text-[10px] sm:text-[11px] text-[#211A24]/50 font-semibold truncate">
                     {t("Created on")} {new Date(selectedPetition.createdAt).toLocaleDateString()} • {t("Scope:")} {selectedPetition.targetGroup}
                   </span>
                 </div>
@@ -1300,16 +1299,16 @@ export default function Petitions() {
 
               {/* Full Description */}
               {selectedPetition.image && (
-                <div className="rounded-2xl overflow-hidden max-h-[300px] border border-[#E8E1D5] shadow-sm bg-slate-900/5">
-                  <img src={selectedPetition.image} alt={selectedPetition.title} className="w-full h-full object-cover max-h-[300px]" onError={(e) => { e.target.style.display = 'none'; }} />
+                <div className="rounded-xl sm:rounded-2xl overflow-hidden max-h-[220px] sm:max-h-[300px] border border-[#E8E1D5] shadow-sm bg-slate-900/5">
+                  <img src={selectedPetition.image} alt={selectedPetition.title} className="w-full h-full object-cover max-h-[220px] sm:max-h-[300px]" onError={(e) => { e.target.style.display = 'none'; }} />
                 </div>
               )}
-              <div className="flex flex-col gap-2 bg-white p-4 sm:p-5 rounded-2xl border border-[#E8E1D5] shadow-sm">
-                <h4 className="text-[13px] font-black text-[#071A35] flex items-center gap-2">
+              <div className="flex flex-col gap-1.5 sm:gap-2 bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#E8E1D5] shadow-sm">
+                <h4 className="text-[12px] sm:text-[13px] font-black text-[#071A35] flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#00c2cb] inline-block"></span>
                   {t("Description")}
                 </h4>
-                <p className="text-[13px] text-[#211A24]/70 font-medium leading-relaxed whitespace-pre-line">
+                <p className="text-xs sm:text-[13px] text-[#211A24]/70 font-medium leading-relaxed whitespace-pre-line break-words">
                   {selectedPetition.description}
                 </p>
               </div>
@@ -1320,8 +1319,8 @@ export default function Petitions() {
                 const targetMilestone = selectedPetition.milestone || 100;
                 const percentage = Math.min(Math.round((sigsCount / targetMilestone) * 100), 100);
                 return (
-                  <div className="flex flex-col gap-2.5 bg-white p-4 sm:p-5 rounded-2xl border border-[#E8E1D5] shadow-sm">
-                    <div className="flex justify-between text-[12px] font-bold text-[#211A24]/50">
+                  <div className="flex flex-col gap-2 sm:gap-2.5 bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-[#E8E1D5] shadow-sm">
+                    <div className="flex justify-between text-[11px] sm:text-[12px] font-bold text-[#211A24]/50">
                       <span>
                         {t("Milestone Progress:")} <strong className="text-[#071A35]">{sigsCount}</strong> {t("of")} {targetMilestone} {t("signatures")}
                       </span>
@@ -1338,10 +1337,10 @@ export default function Petitions() {
               })()}
 
               {/* Actions inside modal */}
-              <div className="flex gap-3 mt-1">
+              <div className="flex gap-2.5 sm:gap-3 mt-1">
                 <button
                   onClick={handleCloseDetail}
-                  className="flex-1 bg-white hover:bg-[#F3EEE4] text-[#071A35] border border-[#E8E1D5] py-3 rounded-xl text-[13px] font-bold transition-all duration-200 cursor-pointer"
+                  className="flex-1 bg-white hover:bg-[#F3EEE4] text-[#071A35] border border-[#E8E1D5] py-2.5 sm:py-3 rounded-xl text-xs sm:text-[13px] font-bold transition-all duration-200 cursor-pointer"
                 >
                   {t("Close")}
                 </button>
@@ -1352,7 +1351,7 @@ export default function Petitions() {
                     return isSignedByMe ? (
                       <button
                         disabled
-                        className="flex-1 bg-emerald-50 text-emerald-600 border border-emerald-200 py-3 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 cursor-not-allowed"
+                        className="flex-1 bg-emerald-50 text-emerald-600 border border-emerald-200 py-2.5 sm:py-3 rounded-xl text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 cursor-not-allowed"
                       >
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                           <polyline points="20 6 9 17 4 12" />
@@ -1369,10 +1368,10 @@ export default function Petitions() {
                           }));
                         }}
                         disabled={signingIds.has(selectedPetition._id)}
-                        className="flex-1 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-3 rounded-xl text-[13px] font-black transition-all duration-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-md border-none"
+                        className="flex-1 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-2.5 sm:py-3 rounded-xl text-xs sm:text-[13px] font-black transition-all duration-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-md border-none"
                       >
                         {signingIds.has(selectedPetition._id) ? (
-                          <div className="w-5 h-5 border-2 border-[#071A35]/30 border-t-[#071A35] rounded-full animate-spin mx-auto" />
+                          <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-[#071A35]/30 border-t-[#071A35] rounded-full animate-spin mx-auto" />
                         ) : (
                           t("Sign Petition")
                         )}
