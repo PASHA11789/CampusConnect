@@ -17,6 +17,7 @@ import RiderMarketplace from './pages/Canteen/RiderMarketplace';
 import BusRoutes from './pages/BusRoutes/BusRoutes';
 import UsersManager from './pages/Admin/UsersManager';
 import RestaurantsManager from './pages/Admin/RestaurantsManager';
+import MULClone from './pages/MUL-clone';
 import DisciplinaryWarningModal from './components/common/DisciplinaryWarningModal';
 import { setupPushNotifications } from './utils/pushNotificationSetup';
 
@@ -71,6 +72,9 @@ function App() {
           <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
           <Route path="/admin/users" element={<UsersManager />} />
           <Route path="/admin/restaurants" element={<RestaurantsManager />} />
+
+          {/* MUL Login Clone Standalone Route */}
+          <Route path="/mul-clone" element={<MULClone />} />
         </Routes>
       </div>
     </Router>
