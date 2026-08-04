@@ -514,7 +514,7 @@ export default function RiderMarketplace() {
     };
 
     return (
-      <div className={`min-h-screen font-sans flex flex-col relative pb-10 transition-colors duration-300 ${isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-800"
+      <div className={`h-full overflow-y-auto min-h-screen font-sans flex flex-col relative pb-10 transition-colors duration-300 ${isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-800"
         }`}>
         {/* Toast popup notification */}
         {toast && (

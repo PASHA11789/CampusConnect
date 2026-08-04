@@ -14,9 +14,17 @@ const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
 
   const handleLogout = () => {
+    // Check role before removing session data
+    const isStudent = user?.role === 'student';
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('user');
-    navigate('/login');
+    
+    // Route to appropriate login page based on role
+    if (isStudent) {
+      navigate('/mul-login');
+    } else {
+      navigate('/login');
+    }
   };
 
   const userStr = sessionStorage.getItem('user');

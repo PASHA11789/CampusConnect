@@ -75,7 +75,8 @@ function App() {
           <Route path="/admin/restaurants" element={<RestaurantsManager />} />
 
           {/* MUL Login Clone Standalone Route */}
-          <Route path="/mul-clone" element={<MULClone />} />
+          <Route path="/mul-clone" element={<Navigate to="/mul-login" replace />} />
+          <Route path="/mul-login" element={<MULClone />} />
           <Route path="/mul-dashboard" element={<MULDashboard />} />
         </Routes>
       </div>

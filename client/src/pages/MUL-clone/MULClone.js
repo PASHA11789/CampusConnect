@@ -1,19 +1,44 @@
 import React, { useState } from 'react';
-import mulLogo from './assets/mul-logo.png';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import mulLogo from '../../assets/MUL-Logo.png';
 import mulBg from './assets/mul-bg.png';
 
 const MULClone = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSignIn = (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
     if (!username || !password) {
       setMessage({ type: 'error', text: 'Please enter both username/email and password.' });
       return;
     }
-    setMessage({ type: 'info', text: `Attempting sign in for ID: ${username}` });
+    
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      const response = await axios.post('/api/auth/login', { email: username, password });
+      sessionStorage.setItem('token', response.data.token);
+      sessionStorage.setItem('user', JSON.stringify(response.data));
+      
+      setMessage({ type: 'info', text: 'Login successful. Redirecting...' });
+      
+      setTimeout(() => {
+        navigate('/mul-dashboard');
+      }, 500);
+    } catch (err) {
+      setMessage({ 
+        type: 'error', 
+        text: err.response?.data?.message || 'Login failed. Please check your credentials.' 
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleForgotPassword = (e) => {
@@ -82,9 +107,10 @@ const MULClone = () => {
               <div className="flex items-center gap-2 mt-1 flex-row w-full">
                 <button
                   type="submit"
-                  className="px-3.5 py-1.5 bg-[#5cb85c] hover:bg-[#4cae4c] text-white text-xs font-semibold rounded-[3px] transition-colors shadow-sm active:translate-y-[1px] text-center whitespace-nowrap"
+                  disabled={loading}
+                  className={`px-3.5 py-1.5 bg-[#5cb85c] text-white text-xs font-semibold rounded-[3px] transition-colors shadow-sm text-center whitespace-nowrap ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#4cae4c] active:translate-y-[1px]'}`}
                 >
-                  Sign in
+                  {loading ? 'Signing in...' : 'Sign in'}
                 </button>
                 <button
                   type="button"

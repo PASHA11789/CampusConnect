@@ -1020,7 +1020,7 @@ export default function Canteen() {
                       </div>
 
                       <h2 className="text-[20px] font-black text-white leading-tight">
-                        {activeOrder ? (activeOrder.canteenName || activeOrder.restaurantName || "Campus Canteen") : "Canteen Active Order"}
+                        {activeOrder ? (activeOrder.canteenName || activeOrder.restaurantName || activeOrder.restaurant?.name || DEFAULT_CANTEENS.find(c => c._id === (activeOrder.restaurant?._id || activeOrder.restaurant))?.name || "Campus Canteen") : "Canteen Active Order"}
                       </h2>
                       <p className="text-[12px] text-slate-300 font-medium">
                         Real-time status updates: Kitchen Preparation → Food Ready → Rider Picked Up → Arrival at Location
@@ -1034,7 +1034,7 @@ export default function Canteen() {
                           <div>
                             <div className="text-[11px] font-bold text-slate-400 uppercase">Canteen Vendor</div>
                             <div className="text-base font-black text-[#0a2342]">
-                              {activeOrder.canteenName || activeOrder.restaurantName || "Cafe Aroma"}
+                              {activeOrder.canteenName || activeOrder.restaurantName || activeOrder.restaurant?.name || DEFAULT_CANTEENS.find(c => c._id === (activeOrder.restaurant?._id || activeOrder.restaurant))?.name || "Campus Canteen"}
                             </div>
                             <div className="text-xs text-slate-500 font-semibold mt-0.5">
                               {activeOrder.items && activeOrder.items.length > 0
