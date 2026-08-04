@@ -18,6 +18,7 @@ import BusRoutes from './pages/BusRoutes/BusRoutes';
 import UsersManager from './pages/Admin/UsersManager';
 import RestaurantsManager from './pages/Admin/RestaurantsManager';
 import MULClone from './pages/MUL-clone';
+import MULDashboard from './pages/MUL-clone/MULDashboard';
 import DisciplinaryWarningModal from './components/common/DisciplinaryWarningModal';
 import { setupPushNotifications } from './utils/pushNotificationSetup';
 
@@ -75,6 +76,7 @@ function App() {
 
           {/* MUL Login Clone Standalone Route */}
           <Route path="/mul-clone" element={<MULClone />} />
+          <Route path="/mul-dashboard" element={<MULDashboard />} />
         </Routes>
       </div>
     </Router>
