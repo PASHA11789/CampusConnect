@@ -303,15 +303,6 @@ async function runTests() {
     }
   }
 
-  // 1.17 GET /api/careers/daily-challenge — static challenges
-  {
-    const { status, data } = await api("GET", "/api/careers/daily-challenge", null, studentToken);
-    if (status === 200 && data.success && Array.isArray(data.challenges) && data.challenges.length > 0) {
-      log("PASS", "GET /api/careers/daily-challenge — returns challenges", `Count: ${data.challenges.length}`);
-    } else {
-      log("FAIL", "GET /api/careers/daily-challenge", `Status: ${status}`);
-    }
-  }
 
   // 1.18 POST /api/careers/:id/report — report career thread
   if (createdCareerThreadId) {
@@ -618,7 +609,7 @@ async function runTests() {
     ["GET", "/api/careers/profile"],
     ["PUT", "/api/careers/profile"],
     ["GET", "/api/careers/saved"],
-    ["GET", "/api/careers/daily-challenge"],
+
     ["GET", "/api/forums"],
     ["POST", "/api/forums"],
     ["GET", "/api/petitions"],

@@ -1,6 +1,5 @@
 import CareerThread from "../models/CareerThread.js";
 import User from "../models/User.js";
-import { getDepartmentDefaults, getDepartmentCategoryKey } from "../utils/fieldDefaults.js";
 
 // Helper to format safe thread object with author anonymity
 const formatSafeThread = (thread, currentUserId, userSavedPosts = []) => {
@@ -337,29 +336,6 @@ export const updateCareerProfile = async (req, res) => {
   }
 };
 
-// GET /api/careers/daily-challenge - Daily challenge pool tailored for user's department
-export const getDailyChallenge = async (req, res) => {
-  try {
-    const user = req.user ? await User.findById(req.user._id) : null;
-    const userDept = user ? (user.careerDept || user.department || user.program || "") : "";
-    const defaults = getDepartmentDefaults(userDept);
-
-    const todaySeed = Math.floor(new Date().setHours(0, 0, 0, 0) / 86400000);
-    const dailyIndex = Math.abs(todaySeed) % defaults.dailyChallenges.length;
-    const todayChallenge = defaults.dailyChallenges[dailyIndex];
-
-    res.status(200).json({
-      success: true,
-      badge: defaults.dailyChallengeBadge,
-      btnText: defaults.dailyChallengeBtn,
-      categoryKey: getDepartmentCategoryKey(userDept),
-      challenge: todayChallenge,
-      challenges: defaults.dailyChallenges,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching daily challenge", error: error.message });
-  }
-};
 
 // DELETE /api/careers/:id - Delete a career thread
 export const deleteCareerThread = async (req, res) => {

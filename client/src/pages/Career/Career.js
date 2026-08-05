@@ -12,6 +12,7 @@ import CreateCareerThreadModal from "../../components/discussion/CreateDiscussio
 import PublicProfileModal from "../../components/profile/PublicProfileModal";
 import MyProfileModal from "../../components/profile/MyProfileModal";
 import EditCareerProfileModal from "../../components/profile/EditCareerProfileModal";
+import ShowCareerProfileModal from "../../components/profile/ShowCareerProfileModal";
 import AskQuestionModal from "../../components/discussion/AskQuestionModal";
 
 const t = (s) => s;
@@ -41,213 +42,6 @@ const getSkillLevelBadgeStyle = (level) => {
   }
 };
 
-const DEPARTMENT_CHALLENGES = {
-  tech: {
-    badge: "🧩 Daily Tech & CS Challenge",
-    btnText: "Solve Challenge on LeetCode →",
-    problems: [
-      {
-        title: "Binary Tree Zigzag Level Order Traversal",
-        difficulty: "Medium",
-        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-        tags: ["DSA", "Trees", "BFS / DFS"],
-        estTime: "20 mins",
-        solved: "148 Students Solved",
-        link: "https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/",
-      },
-      {
-        title: "Longest Substring Without Repeating Characters",
-        difficulty: "Medium",
-        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-        tags: ["Strings", "Sliding Window", "HashTable"],
-        estTime: "15 mins",
-        solved: "215 Students Solved",
-        link: "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
-      },
-      {
-        title: "Merge K Sorted Linked Lists",
-        difficulty: "Hard",
-        diffColor: "bg-red-100 text-red-800 border-red-200",
-        tags: ["Heaps", "Linked List", "Divide & Conquer"],
-        estTime: "25 mins",
-        solved: "94 Students Solved",
-        link: "https://leetcode.com/problems/merge-k-sorted-lists/",
-      },
-      {
-        title: "Validate Binary Search Tree",
-        difficulty: "Medium",
-        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-        tags: ["Trees", "DFS", "Binary Search"],
-        estTime: "15 mins",
-        solved: "182 Students Solved",
-        link: "https://leetcode.com/problems/validate-binary-search-tree/",
-      },
-      {
-        title: "Valid Anagram & Group Anagrams",
-        difficulty: "Easy",
-        diffColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
-        tags: ["Strings", "Sorting", "HashTable"],
-        estTime: "10 mins",
-        solved: "310 Students Solved",
-        link: "https://leetcode.com/problems/valid-anagram/",
-      },
-      {
-        title: "Course Schedule II (Topological Sort)",
-        difficulty: "Medium",
-        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-        tags: ["Graphs", "Topological Sort", "BFS"],
-        estTime: "22 mins",
-        solved: "112 Students Solved",
-        link: "https://leetcode.com/problems/course-schedule-ii/",
-      },
-    ],
-  },
-  business: {
-    badge: "📊 Daily Business & Finance Case",
-    btnText: "Analyze Case Study →",
-    problems: [
-      {
-        title: "Market Expansion Strategy: EV Fleet Valuation & Entry",
-        difficulty: "Medium",
-        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-        tags: ["Strategy", "Financial Valuation", "Market Entry"],
-        estTime: "25 mins",
-        solved: "164 Students Analyzed",
-        link: "https://hbr.org/case-studies",
-      },
-      {
-        title: "Financial Ratio & Liquidity Analysis (DuPont Model)",
-        difficulty: "Hard",
-        diffColor: "bg-red-100 text-red-800 border-red-200",
-        tags: ["Finance", "DuPont Analysis", "Balance Sheet"],
-        estTime: "30 mins",
-        solved: "88 Students Solved",
-        link: "https://hbr.org/case-studies",
-      },
-      {
-        title: "Customer Acquisition Cost (CAC) vs Lifetime Value (LTV)",
-        difficulty: "Easy",
-        diffColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
-        tags: ["Marketing", "Metrics", "SaaS Growth"],
-        estTime: "15 mins",
-        solved: "240 Students Solved",
-        link: "https://hbr.org/case-studies",
-      },
-    ],
-  },
-  engineering: {
-    badge: "⚙️ Daily Engineering Challenge",
-    btnText: "Solve Technical Challenge →",
-    problems: [
-      {
-        title: "Op-Amp Circuit Gain & Signal Filtering Calculations",
-        difficulty: "Medium",
-        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-        tags: ["Electrical", "Analog Circuits", "Filters"],
-        estTime: "20 mins",
-        solved: "105 Students Solved",
-        link: "https://www.engineering.com",
-      },
-      {
-        title: "Finite Element Stress Analysis on Cantilever Beam",
-        difficulty: "Hard",
-        diffColor: "bg-red-100 text-red-800 border-red-200",
-        tags: ["Mechanical", "FEA", "Structural Analysis"],
-        estTime: "30 mins",
-        solved: "72 Students Solved",
-        link: "https://www.engineering.com",
-      },
-      {
-        title: "PID Controller Tuning for Automated Servo Motor",
-        difficulty: "Medium",
-        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-        tags: ["Mechatronics", "Control Systems", "PID"],
-        estTime: "25 mins",
-        solved: "130 Students Solved",
-        link: "https://www.engineering.com",
-      },
-    ],
-  },
-  design_arts: {
-    badge: "🎨 Daily Design & UX Brief",
-    btnText: "Explore Design Challenge →",
-    problems: [
-      {
-        title: "Accessibility Redesign: Mobile Checkout Flow for Elderly Users",
-        difficulty: "Medium",
-        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-        tags: ["UI/UX", "Accessibility", "Figma Design"],
-        estTime: "20 mins",
-        solved: "190 Designers Participated",
-        link: "https://www.uicoach.io",
-      },
-      {
-        title: "Brand Identity & Micro-Interaction Animation Guidelines",
-        difficulty: "Easy",
-        diffColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
-        tags: ["Branding", "Micro-Animations", "Design System"],
-        estTime: "15 mins",
-        solved: "220 Designers Participated",
-        link: "https://www.uicoach.io",
-      },
-    ],
-  },
-  general: {
-    badge: "💡 Daily Career & Aptitude Challenge",
-    btnText: "Practice Interview Case →",
-    problems: [
-      {
-        title: "Behavioral Interview Case: Conflict Resolution & Leadership",
-        difficulty: "Easy",
-        diffColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
-        tags: ["STAR Method", "Leadership", "Communication"],
-        estTime: "15 mins",
-        solved: "340 Students Practiced",
-        link: "https://www.linkedin.com/learning",
-      },
-      {
-        title: "Analytical Aptitude & Logical Reasoning Test",
-        difficulty: "Medium",
-        diffColor: "bg-amber-100 text-amber-800 border-amber-200",
-        tags: ["Aptitude", "Logic", "Problem Solving"],
-        estTime: "20 mins",
-        solved: "280 Students Practiced",
-        link: "https://www.linkedin.com/learning",
-      },
-    ],
-  },
-};
-
-const getDepartmentCategoryKey = (deptStr) => {
-  const s = (deptStr || "").toLowerCase();
-  if (s.includes("computer") || s.includes("cs") || s.includes("software") || s.includes("se") || s.includes("information") || s.includes("it") || s.includes("data") || s.includes("ai") || s.includes("cyber") || s.includes("tech")) {
-    return "tech";
-  }
-  if (s.includes("bba") || s.includes("business") || s.includes("finance") || s.includes("accounting") || s.includes("management") || s.includes("marketing") || s.includes("mba") || s.includes("commerce")) {
-    return "business";
-  }
-  if (s.includes("engineer") || s.includes("electrical") || s.includes("mechanical") || s.includes("civil") || s.includes("mechatronic")) {
-    return "engineering";
-  }
-  if (s.includes("art") || s.includes("design") || s.includes("media") || s.includes("fine") || s.includes("graphics") || s.includes("ux") || s.includes("ui")) {
-    return "design_arts";
-  }
-  return "general";
-};
-
-const getDailyProblemForDept = (deptStr) => {
-  const categoryKey = getDepartmentCategoryKey(deptStr);
-  const deptData = DEPARTMENT_CHALLENGES[categoryKey] || DEPARTMENT_CHALLENGES.general;
-  // Calculate today's date seed (Midnight hash)
-  const todaySeed = Math.floor(new Date().setHours(0, 0, 0, 0) / 86400000);
-  const dailyIndex = Math.abs(todaySeed) % deptData.problems.length;
-  return {
-    ...deptData.problems[dailyIndex],
-    badge: deptData.badge,
-    btnText: deptData.btnText,
-    categoryKey,
-  };
-};
 
 
 
@@ -418,31 +212,12 @@ export default function Career() {
   const [careerSkills, setCareerSkills] = useState([]);
 
   const [isEditCareerProfileOpen, setIsEditCareerProfileOpen] = useState(false);
+  const [isShowCareerProfileOpen, setIsShowCareerProfileOpen] = useState(false);
   const [isAskQuestionOpen, setIsAskQuestionOpen] = useState(false);
   const [expandedThreadId, setExpandedThreadId] = useState(null);
   const [inlineReplyText, setInlineReplyText] = useState({});
 
-  const [dailyProblem, setDailyProblem] = useState(() => {
-    return getDailyProblemForDept(user?.department || user?.program || "");
-  });
 
-  useEffect(() => {
-    setDailyProblem(getDailyProblemForDept(careerDept || user?.department || user?.program));
-  }, [careerDept, user]);
-
-  const handleShuffleProblem = () => {
-    const categoryKey = getDepartmentCategoryKey(careerDept || user?.department || user?.program);
-    const deptData = DEPARTMENT_CHALLENGES[categoryKey] || DEPARTMENT_CHALLENGES.general;
-    const remaining = deptData.problems.filter((p) => p.title !== dailyProblem.title);
-    const pool = remaining.length > 0 ? remaining : deptData.problems;
-    const randomIndex = Math.floor(Math.random() * pool.length);
-    setDailyProblem({
-      ...pool[randomIndex],
-      badge: deptData.badge,
-      btnText: deptData.btnText,
-      categoryKey,
-    });
-  };
 
   const handleSaveCareerProfile = async ({ bio, department, skills }) => {
     setCareerBio(bio);
@@ -544,26 +319,9 @@ export default function Career() {
       }
     };
 
-    const fetchDailyChallenge = async () => {
-      try {
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-        const { data } = await axios.get("/api/careers/daily-challenge", config);
-        if (data.success && data.challenge) {
-          setDailyProblem({
-            ...data.challenge,
-            badge: data.badge,
-            btnText: data.btnText,
-            categoryKey: data.categoryKey,
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching daily challenge from backend:", error);
-      }
-    };
 
     fetchUserProfile();
     fetchCareerProfile();
-    fetchDailyChallenge();
 
     const tick = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(tick);
@@ -1110,8 +868,8 @@ export default function Career() {
                       <div
                         key={post._id}
                         className={`bg-white border rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-xs transition-all duration-200 flex flex-col gap-3 sm:gap-3.5 relative group text-left ${isExpanded
-                            ? "border-[#00c2cb] ring-2 ring-[#00c2cb]/15"
-                            : "border-[#E8E1D5] hover:border-[#071A35]/30 hover:shadow-md"
+                          ? "border-[#00c2cb] ring-2 ring-[#00c2cb]/15"
+                          : "border-[#E8E1D5] hover:border-[#071A35]/30 hover:shadow-md"
                           }`}
                       >
                         {/* CARD TOP: AUTHOR INFO & ROLE & CATEGORY */}
@@ -1351,9 +1109,12 @@ export default function Career() {
             {/* RIGHT COLUMN: SIDEBAR WIDGETS */}
             <div className="flex flex-col gap-5 lg:sticky lg:top-4">
               {/* YOUR PROFILE CARD */}
-              <div className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-xs flex flex-col gap-4 text-left relative">
+              <div 
+                className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-xs flex flex-col gap-4 text-left relative cursor-pointer hover:border-[#00c2cb] hover:shadow-md transition-all group"
+                onClick={() => setIsShowCareerProfileOpen(true)}
+              >
                 <div className="flex justify-between items-center">
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">{t("Your Profile")}</h3>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 group-hover:text-[#00c2cb] transition-colors">{t("Your Profile")}</h3>
                 </div>
 
                 <div className="flex flex-col items-center text-center gap-2 pt-1">
@@ -1377,7 +1138,7 @@ export default function Career() {
                 <div className="pt-2">
                   <button
                     className="w-full py-2 px-3 rounded-xl border border-slate-200 hover:border-[#071A35] bg-white text-slate-700 text-xs font-bold hover:text-[#071A35] transition-all cursor-pointer shadow-xs"
-                    onClick={() => setIsEditCareerProfileOpen(true)}
+                    onClick={(e) => { e.stopPropagation(); setIsEditCareerProfileOpen(true); }}
                   >
                     {t("Edit Profile")}
                   </button>
@@ -1385,10 +1146,16 @@ export default function Career() {
               </div>
 
               {/* SKILLS CARD */}
-              <div className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-xs flex flex-col gap-3 text-left">
+              <div 
+                className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-xs flex flex-col gap-3 text-left cursor-pointer hover:border-[#00c2cb] hover:shadow-md transition-all group"
+                onClick={() => setIsShowCareerProfileOpen(true)}
+              >
                 <div className="flex justify-between items-center">
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">{t("Skills")}</h3>
-                  <button className="text-xs font-bold text-[#071A35] hover:underline border-none bg-transparent cursor-pointer" onClick={() => setIsEditCareerProfileOpen(true)}>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 group-hover:text-[#00c2cb] transition-colors">{t("Skills")}</h3>
+                  <button 
+                    className="text-xs font-bold text-[#071A35] hover:underline border-none bg-transparent cursor-pointer" 
+                    onClick={(e) => { e.stopPropagation(); setIsEditCareerProfileOpen(true); }}
+                  >
                     {t("Edit")}
                   </button>
                 </div>
@@ -1409,56 +1176,7 @@ export default function Career() {
                 </div>
               </div>
 
-              {/* FIELD-CUSTOMIZED DAILY CHALLENGE CARD (AUTOMATIC DAILY ROTATION FOR ALL DEPARTMENTS) */}
-              <div className="bg-white border border-amber-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-xs flex flex-col gap-3 text-left relative overflow-hidden transition-all">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm">🧩</span>
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
-                      {dailyProblem.badge || t("Daily Challenge")}
-                    </h3>
-                    <button
-                      className="text-slate-400 hover:text-amber-600 p-0.5 text-xs transition-colors border-none bg-transparent cursor-pointer ml-1"
-                      onClick={handleShuffleProblem}
-                      title="Next Random Challenge in your field"
-                    >
-                      🎲
-                    </button>
-                  </div>
-                  <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${dailyProblem.diffColor}`}>
-                    {dailyProblem.difficulty}
-                  </span>
-                </div>
 
-                <div className="flex flex-col gap-1.5 pt-1">
-                  <h4 className="text-xs font-black text-slate-900 leading-snug hover:text-[#071A35] transition-colors cursor-pointer">
-                    {dailyProblem.title}
-                  </h4>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    {dailyProblem.tags && dailyProblem.tags.map((tag, idx) => (
-                      <span key={idx} className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center text-[11px] text-slate-400 font-medium pt-1 border-t border-slate-100">
-                  <span>⏱️ {dailyProblem.estTime}</span>
-                  <span>⭐ {dailyProblem.solved}</span>
-                </div>
-
-                <div className="pt-1">
-                  <a
-                    href={dailyProblem.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-black text-center transition-all cursor-pointer shadow-xs no-underline block"
-                  >
-                    {dailyProblem.btnText || t("Explore Challenge →")}
-                  </a>
-                </div>
-              </div>
 
 
             </div>
@@ -1503,6 +1221,18 @@ export default function Career() {
         handleAvatarChange={handleAvatarChange}
         isUploading={isUploading}
         showToast={showToast}
+      />
+
+      <ShowCareerProfileModal
+        isOpen={isShowCareerProfileOpen}
+        onClose={() => setIsShowCareerProfileOpen(false)}
+        user={user}
+        avatar={getPersonalizedAvatar(avatar)}
+        bio={careerBio}
+        department={careerDept}
+        skills={careerSkills}
+        onEditClick={() => setIsEditCareerProfileOpen(true)}
+        t={t}
       />
 
       <EditCareerProfileModal

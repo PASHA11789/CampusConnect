@@ -11,7 +11,6 @@ import {
   getSavedCareerThreads,
   getCareerProfile,
   updateCareerProfile,
-  getDailyChallenge,
   deleteCareerThread,
   reportCareerThread,
   reportCareerReply,
@@ -32,8 +31,6 @@ router.route("/profile")
 router.route("/saved")
   .get(getSavedCareerThreads);
 
-router.route("/daily-challenge")
-  .get(getDailyChallenge);
 
 router.route("/:id")
   .get(getCareerThreadById)

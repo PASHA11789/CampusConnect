@@ -22,7 +22,7 @@ export default function CheckoutCart({
   setStudentPhone,
 }) {
   return (
-    <aside className="sticky top-20 h-fit flex flex-col gap-4 w-full max-[1200px]:static">
+    <aside className="sticky top-28 h-fit flex flex-col gap-4 w-full max-lg:static">
       {/* Main Cart Card Container */}
       <div className="rounded-[28px] border border-slate-200/90 bg-white p-5 shadow-xl hover:shadow-2xl hover:border-[#071A35]/30 transition-all duration-300 shrink-0">
         {/* Header */}
@@ -230,39 +230,7 @@ export default function CheckoutCart({
         </button>
       </div>
 
-      {/* Bottom widgets area */}
-      <div className="flex flex-col gap-2.5 shrink-0">
-        {/* Scooter confirmation widget */}
-        <div className="flex gap-2.5 bg-emerald-50/50 border border-emerald-100 rounded-2xl p-3 items-center shadow-2xs">
-          <span className="text-xl shrink-0">🛵</span>
-          <div className="flex flex-col gap-0.5 text-left">
-            <h4 className="text-[10.5px] font-extrabold text-emerald-800 leading-tight">
-              Order Confirmation
-            </h4>
-            <p className="text-[9px] text-emerald-600 font-semibold leading-tight">
-              Order will be confirmed via WhatsApp call or message.
-            </p>
-          </div>
-        </div>
 
-        {/* Support widget */}
-        <a
-          href="https://wa.me/+923001234567?text=Hi%20CampusConnect%20Support!%20I%20need%20help%20with%20my%20order."
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex gap-2.5 bg-blue-50/50 border border-blue-100 rounded-2xl p-3 items-center shadow-2xs text-left no-underline hover:border-blue-200 transition-colors group"
-        >
-          <span className="text-xl shrink-0">🎧</span>
-          <div className="flex flex-col gap-0.5">
-            <h4 className="text-[10.5px] font-extrabold text-blue-800 leading-tight group-hover:text-blue-900 transition-colors">
-              Need Help?
-            </h4>
-            <p className="text-[9px] text-blue-600 font-semibold leading-tight">
-              Contact us on WhatsApp for 24/7 support.
-            </p>
-          </div>
-        </a>
-      </div>
     </aside>
   );
 }

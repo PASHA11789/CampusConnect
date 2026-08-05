@@ -51,14 +51,6 @@ const CATEGORIES = [
 
 const DEFAULT_CANTEENS = [];
 
-const getFallbackMenuForRestaurant = (resId) => {
-  return [
-    { _id: "mc1", name: "Big Mac Burger", price: 950, category: "Fast Food", description: "Classic double beef patty burger with special sauce, lettuce & cheese.", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80" },
-    { _id: "mc2", name: "McChicken Burger", price: 650, category: "Fast Food", description: "Crispy chicken patty with mayonnaise and lettuce.", image: "https://images.unsplash.com/photo-1615297928064-24977384d0da?w=500&q=80" },
-    { _id: "mc3", name: "Crispy French Fries", price: 350, category: "Fast Food", description: "Golden salted crispy French fries.", image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&q=80" },
-    { _id: "mc4", name: "6 Pc Chicken McNuggets", price: 750, category: "Fast Food", description: "Golden tender chicken McNuggets with dipping sauce.", image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=500&q=80" }
-  ];
-};
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
@@ -87,6 +79,7 @@ export default function Canteen() {
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(true);
   // eslint-disable-next-line no-unused-vars
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
+  const hasAutoSelectedRef = React.useRef(false);
 
   // ── Delivery ────────────────────────────────────────────────────
   const [orderType, setOrderType] = useState("delivery");
@@ -171,7 +164,7 @@ export default function Canteen() {
         message: `🏃‍♂️ Student is heading to collect Order ${activeOrder?.orderId || targetOrderId} — they're on their way!`
       });
       channel.close();
-    } catch (_) {}
+    } catch (_) { }
 
     if (!targetOrderId) {
       showToast("🏃 Rider notified! Heading to meetup point.", "success");
@@ -253,19 +246,17 @@ export default function Canteen() {
         );
       }
 
-      if (foundIndex !== -1) {
+      if (foundIndex !== -1 && !hasAutoSelectedRef.current) {
         setActiveRestaurant(mergedList[foundIndex]._id || mergedList[foundIndex].id);
         setSelectedVisualIndex(foundIndex);
-      } else if (mergedList.length > 0 && !activeRestaurant) {
-        setActiveRestaurant(mergedList[0]._id || mergedList[0].id);
-        setSelectedVisualIndex(0);
+        hasAutoSelectedRef.current = true;
       }
     } catch (err) {
       setRestaurantsList([]);
     } finally {
       setIsLoadingRestaurants(false);
     }
-  }, [location.state, activeRestaurant]);
+  }, [location.state]);
 
   useEffect(() => {
     fetchRestaurants();
@@ -696,7 +687,7 @@ export default function Canteen() {
           onClose={() => setIsMobileSidebarOpen(false)}
         />
 
-        <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
+        <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto overflow-x-hidden">
           <Topbar
             time={time}
             user={user}
@@ -727,20 +718,18 @@ export default function Canteen() {
 
             {/* ── STICKY RIDER ARRIVAL ALERT BANNER ── */}
             {activeOrder && (activeOrder.status === "arrived" || (activeOrder.status || "").toLowerCase().includes("arrived")) && (
-              <div className={`sticky top-4 z-50 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-2xl border-2 transition-all duration-300 ${
-                isStudentComingNotified
+              <div className={`sticky top-4 z-50 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-2xl border-2 transition-all duration-300 ${isStudentComingNotified
                   ? "bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white border-emerald-300"
                   : "bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white border-amber-300 animate-pulse"
-              }`}>
+                }`}>
                 <div className="flex items-center gap-3.5">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-2xl shadow-inner shrink-0">
                     {isStudentComingNotified ? "🏃" : "📍"}
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                        isStudentComingNotified ? "bg-white text-emerald-800" : "bg-white text-red-700"
-                      }`}>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${isStudentComingNotified ? "bg-white text-emerald-800" : "bg-white text-red-700"
+                        }`}>
                         {isStudentComingNotified ? "Student On The Way" : "Rider at Delivery Location"}
                       </span>
                       <span className={`text-xs font-bold ${isStudentComingNotified ? "text-emerald-100" : "text-amber-200"}`}>
@@ -761,11 +750,10 @@ export default function Canteen() {
                   <button
                     onClick={handleNotifyRiderComing}
                     disabled={isNotifyingRider || isStudentComingNotified}
-                    className={`flex-1 sm:flex-none px-5 py-3 rounded-xl font-black text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border-2 ${
-                      isStudentComingNotified
+                    className={`flex-1 sm:flex-none px-5 py-3 rounded-xl font-black text-xs shadow-md transition-all flex items-center justify-center gap-1.5 border-2 ${isStudentComingNotified
                         ? "bg-white/20 text-white border-white/40 cursor-default"
                         : "bg-white text-rose-700 hover:bg-rose-50 border-amber-200 cursor-pointer active:scale-95"
-                    }`}
+                      }`}
                   >
                     {isStudentComingNotified
                       ? "✅ Rider Notified (On My Way 🏃)"
@@ -845,8 +833,8 @@ export default function Canteen() {
                     </div>
                   </div>
 
-                  {/* 2-Column Grid: Menu Board + Checkout Cart (Stacks cleanly under 1200px to avoid overflow) */}
-                  <div className="grid grid-cols-1 min-[1200px]:grid-cols-[1fr_320px] gap-6 items-start w-full min-w-0">
+                  {/* 2-Column Grid: Menu Board + Checkout Cart (Stacks cleanly under 1024px to avoid overflow) */}
+                  <div className="grid grid-cols-1 lg:grid-cols-[auto_260px] xl:grid-cols-[auto_300px] justify-center gap-4 sm:gap-6 items-start w-full min-w-0">
                     <MenuBoard
                       popularDishes={POPULAR_DISHES}
                       restaurants={restaurantsList}
