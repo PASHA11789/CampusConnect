@@ -1,21 +1,33 @@
 import Restaurant from '../models/Restaurants.js'
 import Order from "../models/Order.js"
 import Notification from "../models/Notification.js"
+import User from "../models/User.js"
 
 
 export const addMenuItem = async (req,res)=>{
     try{
-        const {name, price, description, image} = req.body;
+        const {name, price, category, description, image} = req.body;
         const imageUrl = req.file && req.file.path? req.file.path : (image || "");
 
         const restaurant = await Restaurant.findOne({owner: req.user._id})
         if(!restaurant) return res.status(404).json({message:"Restaurant profile not found"})
          
-        const newItem = {name, price, description, image: imageUrl, isAvailable:true}
+        const newItem = {
+          name: name.trim(),
+          price: Number(price),
+          category: (category || "Fast Food").trim(),
+          description: description || "",
+          image: imageUrl,
+          isAvailable: true
+        }
         restaurant.menu.push(newItem)
-        restaurant.isActive = false; // Closed for now since menu is updating
         await restaurant.save()
         
+        const io = req.app.get("socketio");
+        if (io) {
+          io.emit("restaurant_menu_update", { restaurantId: restaurant._id, menu: restaurant.menu });
+        }
+
         res.status(201).json({success:true, message:"Menu item added", menu: restaurant.menu})
     }catch(error){
         res.status(500).json({message:"Failed to add menu item", error: error.message})
@@ -24,25 +36,31 @@ export const addMenuItem = async (req,res)=>{
 
 export const updateMenuItem = async (req,res) =>{
     try{
-        const {name, price, description, isAvailable, image} = req.body;
+        const {name, price, category, description, isAvailable, image} = req.body;
         const restaurant = await Restaurant.findOne({owner:req.user._id})
         if(!restaurant) return res.status(404).json({message: "Restaurant profile not found"})
         
         const item = restaurant.menu.id(req.params.itemId)
         if(!item) return res.status(404).json({message:"Menu item not found"})
         
-        if(name) item.name = name
-        if(price) item.price = price
-        if(description) item.description = description
-        if (isAvailable !== undefined) item.isAvailable = isAvailable; 
+        if(name !== undefined) item.name = name.trim();
+        if(price !== undefined) item.price = Number(price);
+        if(category !== undefined) item.category = category.trim();
+        if(description !== undefined) item.description = description;
+        if (isAvailable !== undefined) item.isAvailable = Boolean(isAvailable); 
         if (req.file && req.file.path) {
             item.image = req.file.path;
         } else if (image !== undefined) {
             item.image = image;
         }
-        restaurant.isActive = false; // Closed for now since menu is updating
         await restaurant.save();
-        res.status(200).json({ success: true, message: "Menu item updated", item });
+
+        const io = req.app.get("socketio");
+        if (io) {
+          io.emit("restaurant_menu_update", { restaurantId: restaurant._id, menu: restaurant.menu });
+        }
+
+        res.status(200).json({ success: true, message: "Menu item updated", item, menu: restaurant.menu });
     }catch(error){
         res.status(500).json({ message: "Failed to update item", error: error.message });
     }
@@ -53,10 +71,14 @@ export const deleteMenuItem = async (req,res) =>{
         const restaurant = await Restaurant.findOne({owner:req.user._id})
         if(!restaurant) return res.status(404).json({message:"Restaurant profile not found."})
         restaurant.menu.pull(req.params.itemId)
-        restaurant.isActive = false; // Closed for now since menu is updating
         await restaurant.save()
         
-        res.status(200).json({success:true, message:"Menu item deleted"})
+        const io = req.app.get("socketio");
+        if (io) {
+          io.emit("restaurant_menu_update", { restaurantId: restaurant._id, menu: restaurant.menu });
+        }
+
+        res.status(200).json({success:true, message:"Menu item deleted", menu: restaurant.menu})
     }catch(error){
         res.status(500).json({ message: "Failed to delete item", error: error.message });
     }
@@ -309,8 +331,144 @@ export const toggleRestaurantStatus = async (req, res) => {
     restaurant.isActive = !restaurant.isActive;
     await restaurant.save();
     
-    res.status(200).json({ success: true, message: `Restaurant is now ${restaurant.isActive ? "Open" : "Closed"}`, isActive: restaurant.isActive });
+    const io = req.app.get("socketio");
+    if (io) {
+      io.emit("restaurant_status_update", { restaurantId: restaurant._id, isActive: restaurant.isActive });
+    }
+
+    res.status(200).json({ success: true, message: `Restaurant is now ${restaurant.isActive ? "Open" : "Closed"}`, isActive: restaurant.isActive, restaurant });
   } catch (error) {
     res.status(500).json({ message: "Error toggling restaurant status", error: error.message });
   }
 };
+
+export const updateVendorRestaurant = async (req, res) => {
+  try {
+    const { address, coverImage, name, phone, email } = req.body;
+    const restaurant = await Restaurant.findOne({ owner: req.user._id });
+    if (!restaurant) return res.status(404).json({ message: "Restaurant profile not found" });
+
+    if (address !== undefined) restaurant.address = address;
+    if (coverImage !== undefined) restaurant.coverImage = coverImage;
+    if (name !== undefined) restaurant.name = name;
+    if (phone !== undefined) restaurant.phone = phone;
+
+    await restaurant.save();
+
+    // Sync Vendor owner details
+    const vendorUpdate = {};
+    if (email !== undefined && email.trim()) vendorUpdate.email = email.trim();
+    if (coverImage !== undefined) vendorUpdate.avatar = coverImage;
+    if (name !== undefined && name.trim()) {
+      vendorUpdate.name = name.trim();
+      vendorUpdate.restaurantName = name.trim();
+    }
+    if (phone !== undefined) vendorUpdate.phone = phone;
+
+    if (Object.keys(vendorUpdate).length > 0) {
+      await Vendor.findByIdAndUpdate(req.user._id, vendorUpdate);
+    }
+
+    const io = req.app.get("socketio");
+    if (io) {
+      io.emit("restaurant_updated", { restaurantId: restaurant._id, restaurant });
+    }
+
+    res.status(200).json({ success: true, message: "Restaurant profile updated successfully", restaurant });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating restaurant profile", error: error.message });
+  }
+};
+
+export const getVendorRiders = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findOne({ owner: req.user._id });
+    if (!restaurant) return res.status(404).json({ message: "Restaurant profile not found" });
+
+    const riders = await User.find({
+      role: "rider",
+      $or: [{ restaurant: restaurant._id }, { department: "Campus Delivery" }]
+    }).select("-password");
+
+    res.status(200).json({ success: true, count: riders.length, riders });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching riders", error: error.message });
+  }
+};
+
+export const createVendorRider = async (req, res) => {
+  try {
+    const { name, email, password, phone, vehicle, registeration_number } = req.body;
+    const restaurant = await Restaurant.findOne({ owner: req.user._id });
+    if (!restaurant) return res.status(404).json({ message: "Restaurant profile not found" });
+
+    if (!name || !email || !password || !registeration_number) {
+      return res.status(400).json({ message: "Please provide all required fields (name, email, password, registeration_number)" });
+    }
+
+    const existingUser = await User.findOne({ $or: [{ email }, { registeration_number }] });
+    if (existingUser) {
+      return res.status(400).json({ message: "Rider with this email or registration number already exists." });
+    }
+
+    const rider = await User.create({
+      name,
+      email,
+      password,
+      registeration_number,
+      role: "rider",
+      restaurant: restaurant._id,
+      department: "Campus Delivery",
+      vehicle: vehicle || "Motorcycle",
+      riderPhone: phone || "",
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0A2342&color=fff`
+    });
+
+    const riderObj = rider.toObject();
+    delete riderObj.password;
+
+    res.status(201).json({ success: true, message: "Delivery rider created successfully", rider: riderObj });
+  } catch (error) {
+    res.status(500).json({ message: "Error creating rider", error: error.message });
+  }
+};
+
+export const updateVendorRider = async (req, res) => {
+  try {
+    const { name, email, phone, vehicle, riderStatus, password } = req.body;
+    const rider = await User.findById(req.params.riderId);
+    if (!rider || rider.role !== "rider") {
+      return res.status(404).json({ message: "Rider account not found" });
+    }
+
+    if (name) rider.name = name;
+    if (email) rider.email = email;
+    if (phone !== undefined) rider.riderPhone = phone;
+    if (vehicle) rider.vehicle = vehicle;
+    if (riderStatus) rider.riderStatus = riderStatus;
+    if (password && password.trim()) rider.password = password;
+
+    await rider.save();
+
+    const riderObj = rider.toObject();
+    delete riderObj.password;
+
+    res.status(200).json({ success: true, message: "Rider details updated", rider: riderObj });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating rider", error: error.message });
+  }
+};
+
+export const deleteVendorRider = async (req, res) => {
+  try {
+    const rider = await User.findById(req.params.riderId);
+    if (!rider || rider.role !== "rider") {
+      return res.status(404).json({ message: "Rider account not found" });
+    }
+
+    await User.findByIdAndDelete(req.params.riderId);
+    res.status(200).json({ success: true, message: "Rider deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting rider", error: error.message });
+  }
+};

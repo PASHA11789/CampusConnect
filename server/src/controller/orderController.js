@@ -563,15 +563,53 @@ export const getRiderActiveOrder = async (req, res) => {
 };
 
 /**
+ * GET /api/orders/rider/history
+ * Fetch completed delivery history for the logged-in rider.
+ */
+export const getRiderHistory = async (req, res) => {
+  try {
+    const history = await Order.find({
+      rider: req.user._id,
+      status: "completed"
+    })
+      .populate("restaurant", "name phone")
+      .sort({ updatedAt: -1 });
+
+    const formattedHistory = history.map(o => ({
+      _id: o._id,
+      orderId: o.orderId,
+      totalAmount: o.totalAmount,
+      deliveryLocation: o.deliveryLocation,
+      restaurantName: o.restaurant?.name || "Campus Canteen",
+      completedAt: new Date(o.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      createdAt: o.createdAt
+    }));
+
+    return res.status(200).json({ success: true, count: formattedHistory.length, history: formattedHistory });
+  } catch (error) {
+    console.error("Error fetching rider history:", error);
+    return res.status(500).json({ success: false, message: "Error fetching rider history", error: error.message });
+  }
+};
+
+/**
  * GET /api/orders/marketplace/tickets
  * Riders browse available tickets: orders in 'accepted' or 'ready' status with no rider assigned.
+ * Enforces RBAC & Restaurant Data Segregation.
  */
 export const getMarketplaceTickets = async (req, res) => {
   try {
-    const tickets = await Order.find({
+    const query = {
       status: { $in: ["accepted", "preparing", "ready"] },
       rider: null
-    })
+    };
+
+    // Data Segregation: If rider is affiliated with a specific restaurant, show tickets from that restaurant
+    if (req.user && req.user.restaurant) {
+      query.restaurant = req.user.restaurant;
+    }
+
+    const tickets = await Order.find(query)
       .select("orderId deliveryLocation totalAmount createdAt status")
       .populate("restaurant", "name")
       .sort({ createdAt: -1 });

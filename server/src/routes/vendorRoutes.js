@@ -8,13 +8,19 @@ import {
   getVendorQueue, 
   updateOrderStatus,
   getVendorRestaurant,
-  toggleRestaurantStatus
+  updateVendorRestaurant,
+  toggleRestaurantStatus,
+  getVendorRiders,
+  createVendorRider,
+  updateVendorRider,
+  deleteVendorRider
 } from '../controller/vendorCanteenController.js';
 
 const router = express.Router();
 
 router.route('/restaurant')
-  .get(protectVendor, getVendorRestaurant);
+  .get(protectVendor, getVendorRestaurant)
+  .put(protectVendor, updateVendorRestaurant);
 
 router.route('/restaurant/status')
   .put(protectVendor, toggleRestaurantStatus);
@@ -31,5 +37,13 @@ router.route('/orders')
 
 router.route('/orders/:orderId/status')
   .put(protectVendor, updateOrderStatus);
+
+router.route('/riders')
+  .get(protectVendor, getVendorRiders)
+  .post(protectVendor, createVendorRider);
+
+router.route('/riders/:riderId')
+  .put(protectVendor, updateVendorRider)
+  .delete(protectVendor, deleteVendorRider);
 
 export default router;

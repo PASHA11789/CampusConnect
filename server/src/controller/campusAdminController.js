@@ -70,13 +70,13 @@ export const createRestaurantAdmin = async (req, res) => {
       return res.status(400).json({ message: "A vendor with this registration number already exists." });
     }
 
-    const vendorName = req.body.name || restaurantName || "Vendor Owner";
-    const vendorEmail = req.body.email || `vendor_${registeration_number}@campusconnect.com`;
+    const vendorName = (restaurantName || req.body.name || "Restaurant Vendor").trim();
+    const vendorEmail = (req.body.email || `vendor_${registeration_number}@campusconnect.com`).trim();
 
     const newVendor = await Vendor.create({
       name: vendorName,
       email: vendorEmail,
-      restaurantName,
+      restaurantName: vendorName,
       phone,
       registeration_number,
       password,

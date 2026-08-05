@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const menuItemSchema = new mongoose.Schema({
     name: {type: String, required: true},
     price:{type: Number, required: true},
+    category:{type: String, default: "Fast Food"},
     description:{type: String, default:""},
     image:{type:String, default:""},
     isAvailable:{type:Boolean, default: true}

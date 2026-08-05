@@ -22,6 +22,9 @@ const vendorSchema = new mongoose.Schema(
 );
 
 vendorSchema.pre("save", async function () {
+  if (this.name && !this.restaurantName) {
+    this.restaurantName = this.name;
+  }
   if (!this.isModified("password")) {
     return;
   }

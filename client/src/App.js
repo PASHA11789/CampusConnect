@@ -45,12 +45,8 @@ function App() {
 
           <Route path="/forum" element={<Forum />} />
           <Route path="/canteen" element={<Canteen />} />
-          {/* Rider Routes & Spelling Aliases */}
+          {/* Rider Routes */}
           <Route path="/rider/login" element={<PartnerLogin />} />
-          <Route path="/rider/register" element={<PartnerRegister />} />
-          <Route path="/rider/rigerster" element={<PartnerRegister />} />
-          <Route path="/rider/registar" element={<PartnerRegister />} />
-          <Route path="/rider/regestir" element={<PartnerRegister />} />
           <Route path="/rider/dashboard" element={<RiderMarketplace />} />
           <Route path="/rider" element={<RiderMarketplace />} />
           <Route path="/petitions" element={<Petitions />} />

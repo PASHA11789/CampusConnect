@@ -52,6 +52,26 @@ export default function VendorDashboard() {
     }
   };
 
+  const [restaurantAddress, setRestaurantAddress] = useState("");
+
+  const [registeredRiders, setRegisteredRiders] = useState(() => {
+    try {
+      const savedRiders = localStorage.getItem("registered_campus_riders");
+      return savedRiders ? JSON.parse(savedRiders) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  const handleRemoveRider = (targetIdOrIdx) => {
+    const updated = registeredRiders.filter((r, idx) => (r.id ? r.id !== targetIdOrIdx : idx !== targetIdOrIdx));
+    setRegisteredRiders(updated);
+    try {
+      localStorage.setItem("registered_campus_riders", JSON.stringify(updated));
+    } catch (e) {}
+    showToast("Delivery Rider removed from your restaurant fleet.", "info");
+  };
+
   const fetchDashboardData = async (token) => {
     try {
       // 1. Fetch vendor's restaurant profile
@@ -62,6 +82,13 @@ export default function VendorDashboard() {
         const rest = res.data.restaurant;
         setSelectedRestaurant(rest.name);
         setRestaurantOpen(rest.isActive);
+        setRestaurantAddress(rest.address || "");
+        setVendorUser({
+          name: rest.name,
+          email: rest.owner?.email || rest.email || "",
+          phone: rest.phone || "",
+          avatar: rest.coverImage || rest.owner?.avatar || rest.avatar || ""
+        });
 
         const mappedMenu = (rest.menu || []).map(item => ({
           id: item._id,
@@ -101,6 +128,27 @@ export default function VendorDashboard() {
         }));
         mappedOrders.sort((a, b) => b.createdAt - a.createdAt);
         setOrders(mappedOrders);
+      }
+
+      // 3. Fetch vendor's riders from backend API
+      try {
+        const ridersRes = await axios.get("/api/vendor/riders", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (ridersRes.data.success && ridersRes.data.riders) {
+          const mappedRiders = ridersRes.data.riders.map(r => ({
+            id: r._id,
+            name: r.name,
+            email: r.email,
+            phone: r.riderPhone || r.phone || "",
+            vehicle: r.vehicle || "Motorcycle",
+            status: r.riderStatus || "Online",
+            regNo: r.registeration_number
+          }));
+          setRegisteredRiders(mappedRiders);
+        }
+      } catch (rErr) {
+        console.error("Error loading riders from API", rErr);
       }
     } catch (err) {
       console.error("Error loading dashboard data", err);
@@ -332,6 +380,104 @@ export default function VendorDashboard() {
     }
   };
 
+  // Rider Management Modal State
+  const [isRiderModalOpen, setIsRiderModalOpen] = useState(false);
+  const [editingRider, setEditingRider] = useState(null);
+  const [riderFormName, setRiderFormName] = useState("");
+  const [riderFormEmail, setRiderFormEmail] = useState("");
+  const [riderFormPhone, setRiderFormPhone] = useState("");
+  const [riderFormRegNo, setRiderFormRegNo] = useState("");
+  const [riderFormVehicle, setRiderFormVehicle] = useState("Motorcycle");
+  const [riderFormStatus, setRiderFormStatus] = useState("Online");
+  const [riderFormPassword, setRiderFormPassword] = useState("");
+
+  const handleOpenAddRiderModal = () => {
+    setEditingRider(null);
+    setRiderFormName("");
+    setRiderFormEmail("");
+    setRiderFormPhone("");
+    setRiderFormRegNo(`RIDER-${Date.now().toString().slice(-4)}`);
+    setRiderFormVehicle("Motorcycle");
+    setRiderFormStatus("Online");
+    setRiderFormPassword("password123");
+    setIsRiderModalOpen(true);
+  };
+
+  const handleOpenEditRiderModal = (rider) => {
+    setEditingRider(rider);
+    setRiderFormName(rider.name || "");
+    setRiderFormEmail(rider.email || "");
+    setRiderFormPhone(rider.phone || "");
+    setRiderFormRegNo(rider.regNo || rider.registeration_number || "");
+    setRiderFormVehicle(rider.vehicle || "Motorcycle");
+    setRiderFormStatus(rider.status || "Online");
+    setRiderFormPassword("");
+    setIsRiderModalOpen(true);
+  };
+
+  const handleSaveRiderSubmit = async (e) => {
+    e.preventDefault();
+    const token = sessionStorage.getItem("vendorToken") || localStorage.getItem("token");
+
+    try {
+      if (editingRider) {
+        const res = await axios.put(`/api/vendor/riders/${editingRider.id}`, {
+          name: riderFormName,
+          email: riderFormEmail,
+          phone: riderFormPhone,
+          vehicle: riderFormVehicle,
+          riderStatus: riderFormStatus,
+          password: riderFormPassword
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (res.data.success) {
+          showToast("Delivery Rider updated successfully! ✅", "success");
+          fetchDashboardData(token);
+        }
+      } else {
+        const res = await axios.post("/api/vendor/riders", {
+          name: riderFormName,
+          email: riderFormEmail,
+          phone: riderFormPhone,
+          registeration_number: riderFormRegNo,
+          vehicle: riderFormVehicle,
+          password: riderFormPassword
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (res.data.success) {
+          showToast("New Delivery Rider created successfully! 🎉", "success");
+          fetchDashboardData(token);
+        }
+      }
+      setIsRiderModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      showToast(err.response?.data?.message || "Failed to save rider.", "error");
+    }
+  };
+
+  const handleDeleteRider = async (riderId) => {
+    if (!window.confirm("Are you sure you want to delete this rider account from database?")) return;
+    const token = sessionStorage.getItem("vendorToken") || localStorage.getItem("token");
+
+    try {
+      const res = await axios.delete(`/api/vendor/riders/${riderId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data.success) {
+        showToast("Rider account deleted from database. 🗑️", "info");
+        fetchDashboardData(token);
+      }
+    } catch (err) {
+      console.error(err);
+      handleRemoveRider(riderId);
+    }
+  };
+
   // Handle Save (Create or Update) Menu Item
   const handleSaveMenuItem = async (e) => {
     e.preventDefault();
@@ -395,7 +541,29 @@ export default function VendorDashboard() {
     }
   };
 
-  // (handleUpdateOrderStatus is defined above in the socket useEffect block)
+  const handleSaveVendorProfile = async (e) => {
+    if (e) e.preventDefault();
+    const token = sessionStorage.getItem("vendorToken");
+    try {
+      const payload = {
+        name: selectedRestaurant,
+        coverImage: vendorUser.avatar,
+        phone: vendorUser.phone,
+        email: vendorUser.email,
+        address: restaurantAddress
+      };
+      const { data } = await axios.put("/api/vendor/restaurant", payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (data.success) {
+        showToast("Vendor profile & restaurant details updated in database! 🎨", "success");
+        fetchDashboardData(token);
+      }
+    } catch (err) {
+      console.error(err);
+      showToast(err.response?.data?.message || "Failed to update profile", "error");
+    }
+  };
 
   // Toggle restaurant open/close status
   const handleToggleRestaurantOpen = async () => {
@@ -443,12 +611,11 @@ export default function VendorDashboard() {
           {/* Logo Branding */}
           <div className="px-6 pb-6 border-b border-slate-50 mb-6 flex flex-col">
             <div className="flex items-center gap-2">
-              <span className="text-xl">🍳</span>
               <span className="text-[15px] font-black text-[#0a2342] tracking-tight">
-                Campus<span className="text-[#e2725b]">Connect</span>
+                Campus<span className="text-[#e2725b]">Connect</span> <span className="text-[#e2725b]">x</span> {selectedRestaurant || "Restaurant"}
               </span>
             </div>
-            <span className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest pl-7">
+            <span className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">
               Vendor Portal
             </span>
           </div>
@@ -548,9 +715,8 @@ export default function VendorDashboard() {
             <div>
               <div className="px-3 pb-6 border-b border-slate-50 mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl">🍳</span>
                   <span className="text-[15px] font-black text-[#0a2342] tracking-tight">
-                    Campus<span className="text-[#e2725b]">Connect</span>
+                    Campus<span className="text-[#e2725b]">Connect</span> <span className="text-[#e2725b]">x</span> {selectedRestaurant || "Restaurant"}
                   </span>
                 </div>
                 <button
@@ -636,11 +802,14 @@ export default function VendorDashboard() {
                 setNewNotifications(0);
                 setActiveSection("orders");
               }}
-              className="relative cursor-pointer p-2 bg-white rounded-full border border-slate-200/60 shadow-sm"
+              className="relative cursor-pointer p-2 bg-white rounded-full border border-slate-200/60 shadow-sm hover:bg-slate-50 transition-colors"
             >
-              <span className="text-base sm:text-lg">🔔</span>
+              <svg className="w-5 h-5 text-[#0a2342] hover:scale-105 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
               {newNotifications > 0 && (
-                <span className="absolute top-0.5 right-0.5 bg-rose-500 w-2.5 h-2.5 rounded-full border-2 border-white"></span>
+                <span className="absolute top-0.5 right-0.5 bg-rose-500 w-2.5 h-2.5 rounded-full border-2 border-white animate-pulse"></span>
               )}
             </div>
 
@@ -690,15 +859,15 @@ export default function VendorDashboard() {
                   </div>
                 </div>
 
-                {/* Total Orders Monthly */}
+                {/* Total Orders */}
                 <div className="bg-white border border-slate-100 p-5 rounded-3xl flex items-center gap-4.5 shadow-sm">
                   <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 text-xl shadow-sm shrink-0">
                     📝
                   </div>
                   <div>
                     <span className="text-[10px] font-extrabold text-slate-400 block uppercase">Total Orders</span>
-                    <span className="text-2xl font-black text-[#0a2342] block mt-0.5">156</span>
-                    <span className="text-[9px] font-bold text-purple-600 block mt-0.5">This Month</span>
+                    <span className="text-2xl font-black text-[#0a2342] block mt-0.5">{orders.length}</span>
+                    <span className="text-[9px] font-bold text-purple-600 block mt-0.5">All-time Orders</span>
                   </div>
                 </div>
 
@@ -709,8 +878,8 @@ export default function VendorDashboard() {
                   </div>
                   <div>
                     <span className="text-[10px] font-extrabold text-slate-400 block uppercase">Avg. Rating</span>
-                    <span className="text-2xl font-black text-[#0a2342] block mt-0.5">4.6</span>
-                    <span className="text-[9px] font-bold text-yellow-600 block mt-0.5">★ From 98 reviews</span>
+                    <span className="text-2xl font-black text-[#0a2342] block mt-0.5">5.0</span>
+                    <span className="text-[9px] font-bold text-yellow-600 block mt-0.5">★ Top Rated Eatery</span>
                   </div>
                 </div>
               </div>
@@ -1020,15 +1189,19 @@ export default function VendorDashboard() {
                           <span className="p-2 bg-yellow-50 text-yellow-600 rounded-xl text-sm shrink-0">🏷️</span>
                           <span className="text-xs font-bold text-slate-500">Items Sold</span>
                         </div>
-                        <span className="text-sm font-black text-[#0a2342]">45</span>
+                        <span className="text-sm font-black text-[#0a2342]">
+                          {orders.filter(o => o && o.status !== "cancelled").reduce((sum, o) => sum + (Array.isArray(o.items) ? o.items.reduce((s, i) => s + (Number(i?.quantity) || 1), 0) : 0), 0)}
+                        </span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <span className="p-2 bg-teal-50 text-teal-600 rounded-xl text-sm shrink-0">👥</span>
-                          <span className="text-xs font-bold text-slate-500">New Customers</span>
+                          <span className="text-xs font-bold text-slate-500">Customers</span>
                         </div>
-                        <span className="text-sm font-black text-[#0a2342]">8</span>
+                        <span className="text-sm font-black text-[#0a2342]">
+                          {Array.from(new Set(orders.map(o => (o.student?._id || o.student || "").toString()).filter(Boolean))).length}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -1382,75 +1555,83 @@ export default function VendorDashboard() {
                     <span>🛵 Delivery Riders Portal & Access</span>
                   </h3>
                   <p className="text-[10px] font-bold text-slate-400 mt-1">
-                    Manage delivery riders affiliated with {selectedRestaurant}. Share registration links to onboard riders.
+                    Manage delivery riders affiliated with {selectedRestaurant}. Create, edit, or remove riders for your fleet.
                   </p>
                 </div>
 
-                <button
-                  onClick={() => {
-                    const link = `${window.location.origin}/rider/register?vendorId=${vendorUser._id || "v1"}`;
-                    navigator.clipboard.writeText(link);
-                    showToast("Rider Registration Link copied to clipboard! 📋", "success");
-                  }}
-                  className="bg-[#0a2342] hover:bg-[#123e75] text-white text-xs font-black px-4.5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 shrink-0 cursor-pointer"
-                >
-                  <span>🔗 Share Registration Link</span>
-                </button>
+                <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={handleOpenAddRiderModal}
+                    className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-black px-4.5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer border-none"
+                  >
+                    <span>➕ Add New Rider</span>
+                  </button>
+                </div>
               </div>
 
               {/* Rider Cards Grid */}
-              {(() => {
-                let dynamicRiders = [];
-                try {
-                  const savedRiders = localStorage.getItem("registered_campus_riders");
-                  if (savedRiders) {
-                    dynamicRiders = JSON.parse(savedRiders);
-                  }
-                } catch (e) {
-                  console.error(e);
-                }
-
-                if (dynamicRiders.length === 0) {
-                  return (
-                    <div className="py-12 border-2 border-dashed border-slate-200 rounded-3xl text-center">
-                      <div className="text-4xl mb-2">🛵</div>
-                      <h4 className="text-xs font-black text-[#0a2342]">No Registered Riders Yet</h4>
-                      <p className="text-[11px] font-bold text-slate-400 mt-1 max-w-sm mx-auto">
-                        Share your registration link above to onboard delivery riders for {selectedRestaurant}.
-                      </p>
-                    </div>
-                  );
-                }
-
-                return (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {dynamicRiders.map((rider, idx) => (
-                      <div key={rider.id || idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 font-black text-sm flex items-center justify-center">
-                              {rider.name ? rider.name.charAt(0).toUpperCase() : "R"}
-                            </div>
-                            <div>
-                              <h4 className="text-xs font-extrabold text-[#0a2342]">{rider.name}</h4>
-                              <p className="text-[10px] text-slate-400 font-semibold">{rider.phone || "+92 300 0000000"}</p>
-                            </div>
+              {registeredRiders.length === 0 ? (
+                <div className="py-12 border-2 border-dashed border-slate-200 rounded-3xl text-center">
+                  <div className="text-4xl mb-2">🛵</div>
+                  <h4 className="text-xs font-black text-[#0a2342]">No Registered Riders Yet</h4>
+                  <p className="text-[11px] font-bold text-slate-400 mt-1 max-w-sm mx-auto mb-4">
+                    Click "Add New Rider" above to onboard delivery riders for {selectedRestaurant}.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleOpenAddRiderModal}
+                    className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-black px-5 py-2.5 rounded-xl transition-all shadow-md border-none cursor-pointer"
+                  >
+                    ➕ Add Rider Now
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {registeredRiders.map((rider, idx) => (
+                    <div key={rider.id || idx} className="p-4.5 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between space-y-3 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-800 font-black text-sm flex items-center justify-center border border-teal-200/60">
+                            {rider.name ? rider.name.charAt(0).toUpperCase() : "R"}
                           </div>
-                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${rider.status === "Online" ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
-                            }`}>
-                            {rider.status || "Online"}
-                          </span>
+                          <div>
+                            <h4 className="text-xs font-extrabold text-[#0a2342]">{rider.name}</h4>
+                            <p className="text-[10px] text-slate-400 font-semibold">{rider.phone || "+92 300 0000000"}</p>
+                            <p className="text-[9px] text-slate-400 font-medium">{rider.email}</p>
+                          </div>
                         </div>
-
-                        <div className="text-[10px] font-bold text-slate-500 bg-white p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
-                          <span>Vehicle: {rider.vehicle || "Motorcycle"}</span>
-                          <span className="text-amber-500 font-black">⭐ {rider.rating || "5.0"}</span>
-                        </div>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase ${rider.status === "Online" ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
+                          }`}>
+                          {rider.status || "Online"}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                );
-              })()}
+
+                      <div className="text-[10px] font-bold text-slate-500 bg-white p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
+                        <span>Vehicle: {rider.vehicle || "Motorcycle"}</span>
+                        <span className="text-amber-500 font-black">⭐ 5.0</span>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-1 border-t border-slate-200/60">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditRiderModal(rider)}
+                          className="flex-1 py-2 bg-white hover:bg-slate-100 text-[#0a2342] rounded-xl text-[10.5px] font-black transition-colors flex items-center justify-center gap-1 cursor-pointer border border-slate-200"
+                        >
+                          <span>✏️</span> Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteRider(rider.id || idx)}
+                          className="py-2 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10.5px] font-black transition-colors flex items-center justify-center gap-1 cursor-pointer border border-rose-100"
+                        >
+                          <span>🗑️</span> Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -1461,36 +1642,48 @@ export default function VendorDashboard() {
                 Vendor Profile Settings
               </h3>
               <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  showToast("Profile updated successfully!", "success");
-                }}
+                onSubmit={handleSaveVendorProfile}
                 className="space-y-5"
               >
                 <div className="flex items-center gap-5 pb-5 border-b border-slate-50">
                   <img
-                    src={vendorUser.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200"}
+                    src={vendorUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(vendorUser.name || "Vendor")}&background=0A2342&color=fff`}
                     alt="Vendor Avatar"
                     className="w-16 h-16 rounded-full object-cover border"
                   />
-                  <div>
-                    <h4 className="text-sm font-black text-[#0a2342]">{vendorUser.name}</h4>
-                    <p className="text-[11px] font-semibold text-slate-400">Owner of {selectedRestaurant}</p>
-                    <input
-                      type="file"
-                      id="vendor-avatar-upload"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleAvatarChange}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById("vendor-avatar-upload").click()}
-                      className="mt-2 text-xs font-bold text-teal-600 hover:underline"
-                    >
-                      Change Photo
-                    </button>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-black text-[#0a2342]">{vendorUser.name || "Vendor Partner"}</h4>
+                    <p className="text-[11px] font-semibold text-slate-400">Owner of {selectedRestaurant || "Restaurant"}</p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <input
+                        type="file"
+                        id="vendor-avatar-upload"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById("vendor-avatar-upload").click()}
+                        className="text-xs font-bold text-teal-600 hover:underline border-none bg-none cursor-pointer"
+                      >
+                        📁 Upload Photo
+                      </button>
+                    </div>
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black text-[#0a2342] uppercase tracking-wider mb-2">
+                    Restaurant Logo / Cover Image URL
+                  </label>
+                  <input
+                    type="text"
+                    value={vendorUser.avatar || ""}
+                    onChange={(e) => setVendorUser({ ...vendorUser, avatar: e.target.value })}
+                    placeholder="https://... or upload photo above"
+                    className="w-full px-4.5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-5 max-sm:grid-cols-1">
@@ -1500,8 +1693,9 @@ export default function VendorDashboard() {
                     </label>
                     <input
                       type="text"
-                      value={vendorUser.name}
+                      value={vendorUser.name || ""}
                       onChange={(e) => setVendorUser({ ...vendorUser, name: e.target.value })}
+                      placeholder="Full Name"
                       className="w-full px-4.5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
                     />
                   </div>
@@ -1512,8 +1706,9 @@ export default function VendorDashboard() {
                     </label>
                     <input
                       type="email"
-                      value={vendorUser.email}
+                      value={vendorUser.email || ""}
                       onChange={(e) => setVendorUser({ ...vendorUser, email: e.target.value })}
+                      placeholder="vendor@campusconnect.com"
                       className="w-full px-4.5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
                     />
                   </div>
@@ -1524,8 +1719,9 @@ export default function VendorDashboard() {
                     </label>
                     <input
                       type="text"
-                      value={selectedRestaurant}
+                      value={selectedRestaurant || ""}
                       onChange={(e) => setSelectedRestaurant(e.target.value)}
+                      placeholder="Restaurant Name"
                       className="w-full px-4.5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
                     />
                   </div>
@@ -1538,6 +1734,7 @@ export default function VendorDashboard() {
                       type="text"
                       value={vendorUser.phone || ""}
                       onChange={(e) => setVendorUser({ ...vendorUser, phone: e.target.value })}
+                      placeholder="WhatsApp Contact Number"
                       className="w-full px-4.5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
                     />
                   </div>
@@ -1545,11 +1742,13 @@ export default function VendorDashboard() {
 
                 <div>
                   <label className="block text-[10px] font-black text-[#0a2342] uppercase tracking-wider mb-2">
-                    Canteen Address
+                    Restaurant Address
                   </label>
                   <textarea
                     rows="3"
-                    defaultValue="Central Canteen, Block B, Minhaj University Campus Lahore"
+                    value={restaurantAddress || ""}
+                    onChange={(e) => setRestaurantAddress(e.target.value)}
+                    placeholder="Restaurant Address"
                     className="w-full px-4.5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
                   ></textarea>
                 </div>
@@ -1669,17 +1868,27 @@ export default function VendorDashboard() {
                   <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1.5">
                     Category
                   </label>
-                  <select
+                  <input
+                    type="text"
+                    required
+                    list="database-categories-list"
                     value={itemCategory}
                     onChange={(e) => setItemCategory(e.target.value)}
+                    placeholder="Type or select category..."
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
-                  >
-                    <option value="Burgers">Burgers</option>
-                    <option value="Pasta">Pasta</option>
-                    <option value="Pizza">Pizza</option>
-                    <option value="Beverages">Beverages</option>
-                    <option value="Desserts">Desserts</option>
-                  </select>
+                  />
+                  <datalist id="database-categories-list">
+                    {Array.from(
+                      new Set(
+                        (menu || [])
+                          .map((i) => i.category)
+                          .filter(Boolean)
+                          .concat(["Burgers", "Pasta", "Pizza", "Beverages", "Desserts", "Traditional", "Sides", "Deals"])
+                      )
+                    ).map((cat, idx) => (
+                      <option key={idx} value={cat} />
+                    ))}
+                  </datalist>
                 </div>
 
                 <div>
@@ -1763,6 +1972,149 @@ export default function VendorDashboard() {
                   className="flex-1 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm"
                 >
                   Save Item
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── ADD/EDIT RIDER MODAL ── */}
+      {isRiderModalOpen && (
+        <div className="fixed inset-0 bg-black/45 flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-[32px] w-full max-w-lg p-7 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto scrollbar-none">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-black text-[#0a2342]">
+                {editingRider ? "Edit Delivery Rider" : "Add New Delivery Rider"}
+              </h3>
+              <button
+                onClick={() => setIsRiderModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-lg font-black cursor-pointer border-none"
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveRiderSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1.5">
+                  Rider Full Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={riderFormName}
+                  onChange={(e) => setRiderFormName(e.target.value)}
+                  placeholder="e.g. Tariq Mehmood"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1.5">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={riderFormEmail}
+                    onChange={(e) => setRiderFormEmail(e.target.value)}
+                    placeholder="rider@campusconnect.com"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1.5">
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    value={riderFormPhone}
+                    onChange={(e) => setRiderFormPhone(e.target.value)}
+                    placeholder="+92 300 1234567"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1.5">
+                    Vehicle Type
+                  </label>
+                  <select
+                    value={riderFormVehicle}
+                    onChange={(e) => setRiderFormVehicle(e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
+                  >
+                    <option value="Motorcycle">Motorcycle 🏍️</option>
+                    <option value="Electric Scooter">Electric Scooter 🛴</option>
+                    <option value="Bicycle">Bicycle 🚲</option>
+                    <option value="Scooter">Scooter 🛵</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1.5">
+                    Rider Status
+                  </label>
+                  <select
+                    value={riderFormStatus}
+                    onChange={(e) => setRiderFormStatus(e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
+                  >
+                    <option value="Online">Online / Active</option>
+                    <option value="Offline">Offline</option>
+                    <option value="Busy">Busy (Delivering)</option>
+                  </select>
+                </div>
+              </div>
+
+              {!editingRider && (
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1.5">
+                    Registration Number *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={riderFormRegNo}
+                    onChange={(e) => setRiderFormRegNo(e.target.value)}
+                    placeholder="2026F-mulrider-101"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1.5">
+                  {editingRider ? "Password (leave blank to keep current)" : "Password *"}
+                </label>
+                <input
+                  type="password"
+                  required={!editingRider}
+                  value={riderFormPassword}
+                  onChange={(e) => setRiderFormPassword(e.target.value)}
+                  placeholder={editingRider ? "••••••••" : "Password for rider login"}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setIsRiderModalOpen(false)}
+                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-black uppercase tracking-wider text-[#0a2342] cursor-pointer border-none"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm cursor-pointer border-none"
+                >
+                  {editingRider ? "Update Rider" : "Create Rider"}
                 </button>
               </div>
             </form>

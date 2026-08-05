@@ -1,106 +1,12 @@
 import React from "react";
 
-const METADATA_MAP = {
-  "savour foods": {
-    rating: "4.8",
-    prepTime: "15-20 min",
-    tags: "Traditional • Pulao • Kebab",
-    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80",
-  },
-  "gourmet restaurant": {
-    rating: "4.6",
-    prepTime: "20-25 min",
-    tags: "Fast Food • Traditional • Cakes",
-    image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=500&q=80",
-  },
-  "johnny & jugnu": {
-    rating: "4.7",
-    prepTime: "25-30 min",
-    tags: "Fast Food • Wehshi Burgers • Fries",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&q=80",
-  },
-  "dogar restaurant": {
-    rating: "4.5",
-    prepTime: "10-15 min",
-    tags: "Traditional • Biryani • Chai",
-    image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&q=80",
-  },
-  "cafe aroma (library)": {
-    rating: "4.9",
-    prepTime: "5-10 min",
-    tags: "Coffee • Sandwiches • Muffins",
-    image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500&q=80",
-  },
-  "spice junction (cs block)": {
-    rating: "4.7",
-    prepTime: "15-20 min",
-    tags: "Fast Food • Zingers • Rolls",
-    image: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=500&q=80",
-  },
-  "student food hub": {
-    rating: "4.6",
-    prepTime: "15-25 min",
-    tags: "Desi • Karahi • Naan • Paratha",
-    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&q=80",
-  },
-  "sweet & scoop cafe": {
-    rating: "4.8",
-    prepTime: "5-12 min",
-    tags: "Ice Cream • Shakes • Desserts",
-    image: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500&q=80",
-  },
-  "howdy burgers": {
-    rating: "4.8",
-    prepTime: "20-25 min",
-    tags: "Charcoal Burgers • Steaks • Fries",
-    image: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&q=80",
-  },
-  "kfc express (campus)": {
-    rating: "4.7",
-    prepTime: "15-20 min",
-    tags: "Zinger • Hot Wings • Buckets",
-    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80",
-  },
-  "cheezious pizza": {
-    rating: "4.9",
-    prepTime: "25-30 min",
-    tags: "Crown Crust • Pizza • Pasta",
-    image: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500&q=80",
-  },
-  "tezgaah chai & snacks": {
-    rating: "4.6",
-    prepTime: "10-12 min",
-    tags: "Matka Chai • Paratha • Samosa",
-    image: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&q=80",
-  },
-  "subway campus corner": {
-    rating: "4.7",
-    prepTime: "10-15 min",
-    tags: "6-inch Sub • Footlong • Cookies",
-    image: "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=500&q=80",
-  },
-  "bar b q tonight grill": {
-    rating: "4.8",
-    prepTime: "20-30 min",
-    tags: "Seekh Kabab • Chicken Tikka • Naan",
-    image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&q=80",
-  }
-};
-
 const getCanteenDisplayInfo = (res) => {
-  const nameLower = (res.name || "").toLowerCase();
-  const meta = METADATA_MAP[nameLower] || {
-    rating: "4.5",
-    prepTime: "15-25 min",
-    tags: "Campus Favorite",
-    image: res.coverImage || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80",
-  };
   return {
     name: res.name,
-    rating: meta.rating,
-    prepTime: meta.prepTime,
-    tags: meta.tags,
-    image: res.coverImage || meta.image,
+    rating: res.rating || "4.8",
+    prepTime: "10-20 min",
+    tags: "Campus Eatery",
+    image: res.coverImage || res.owner?.avatar || res.avatar || "",
     status: res.isActive ? "Open" : "Closed"
   };
 };

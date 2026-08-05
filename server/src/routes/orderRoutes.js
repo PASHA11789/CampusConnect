@@ -11,6 +11,7 @@ import {
   nudgeRiderOnArrival,
   getMarketplaceTickets,
   getRiderActiveOrder,
+  getRiderHistory,
   getOrderById
 } from "../controller/orderController.js";
 
@@ -19,9 +20,10 @@ const router = express.Router();
 // Order creation
 router.route("/").post(protect, createOrder);
 
-// Marketplace — riders browse available tickets
+// Marketplace — riders browse available tickets & history
 router.route("/marketplace/tickets").get(protect, getMarketplaceTickets);
 router.route("/marketplace/my-active").get(protect, getRiderActiveOrder);
+router.route("/rider/history").get(protect, getRiderHistory);
 
 // Single order lookup
 router.route("/:id").get(protect, getOrderById);

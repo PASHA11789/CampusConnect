@@ -1,30 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import foodFeastImg from "../../assets/vendor_food_feast.jpg";
 
 export default function PartnerLogin() {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Determine initial mode based on current URL path
-  const isInitialRider = location.pathname.includes("/rider");
-  const [partnerType, setPartnerType] = useState(isInitialRider ? "rider" : "vendor");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // Sync partnerType if user navigates via browser address bar
-  useEffect(() => {
-    if (location.pathname.includes("/rider")) {
-      setPartnerType("rider");
-    } else if (location.pathname.includes("/vendor") || location.pathname.includes("/vender")) {
-      setPartnerType("vendor");
-    }
-  }, [location.pathname]);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -32,283 +18,198 @@ export default function PartnerLogin() {
     setLoading(true);
 
     try {
-      // Attempt login request against vendor/partner endpoint, with fallback to main auth endpoint
       let res;
       try {
         res = await axios.post("/api/vendor/auth/login", {
           email: email.trim(),
-          password: password.trim()
+          password: password.trim(),
         });
       } catch (firstErr) {
         res = await axios.post("/api/auth/login", {
           email: email.trim(),
-          password: password.trim()
+          password: password.trim(),
         });
       }
 
       const data = res.data;
       const token = data.token || "partner_token";
+      const userRole = data.role || data.user?.role;
 
-      // Detect role from response or fallback to active partner type
-      const isRider = data.role === "rider" || partnerType === "rider";
-
-      if (isRider) {
+      if (userRole === "rider") {
         sessionStorage.setItem("riderToken", token);
-        sessionStorage.setItem("riderUser", JSON.stringify(data));
+        sessionStorage.setItem("riderInfo", JSON.stringify(data));
         sessionStorage.setItem("token", token);
         sessionStorage.setItem("user", JSON.stringify(data));
-        if (rememberMe) {
-          localStorage.setItem("riderToken", token);
-          localStorage.setItem("token", token);
-        }
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(data));
         navigate("/rider/dashboard");
       } else {
         sessionStorage.setItem("vendorToken", token);
         sessionStorage.setItem("vendorInfo", JSON.stringify(data));
         sessionStorage.setItem("token", token);
         sessionStorage.setItem("user", JSON.stringify(data));
-        if (rememberMe) {
-          localStorage.setItem("vendorToken", token);
-          localStorage.setItem("token", token);
-        }
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(data));
         navigate("/vendor/dashboard");
       }
     } catch (err) {
-      console.error("Partner Login Error:", err);
-      setError(err.response?.data?.message || "Invalid credentials. Please check your email and password.");
+      console.error("Partner/Rider Login Error:", err);
+      setError(
+        err.response?.data?.message ||
+          "Invalid credentials. Please check your email and password."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const isVendor = partnerType === "vendor";
-
   return (
-    <div className="min-h-screen w-full font-sans bg-slate-900 overflow-y-auto overflow-x-hidden flex flex-col justify-start sm:justify-center items-center p-3 sm:p-6 lg:p-8 py-5 sm:py-10">
-      <div className="flex w-full max-w-5xl my-auto bg-[#071A35] rounded-2xl sm:rounded-[32px] shadow-2xl overflow-hidden border border-slate-700/50 flex-col md:flex-row">
+    <div className="h-screen w-full font-sans bg-[#12100E] flex items-center justify-center p-0 m-0 overflow-hidden">
+      {/* Main Full-Screen End-to-End Container Card */}
+      <div className="w-full h-screen min-h-screen p-0 m-0 rounded-none shadow-none border-none flex flex-col md:flex-row overflow-hidden">
+        
+        {/* LEFT PANEL: Rich Food Feast Background & Vignette (Hidden on Mobile) */}
+        <div className="hidden md:flex w-full md:w-1/2 min-h-screen relative p-10 lg:p-14 flex-col justify-between overflow-hidden">
+          {/* Background Food Image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-105"
+            style={{ backgroundImage: `url(${foodFeastImg})` }}
+          />
+          {/* Warm Dark Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#12100E] via-[#12100E]/60 to-black/30" />
 
-        {/* Left Side: Branding & Features */}
-        <div className="w-full md:w-[45%] bg-[#0a2342]/80 p-5 sm:p-7 md:p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-700/50 overflow-hidden relative">
-          
-          {/* Subtle background gradient glow */}
-          <div className={`absolute -top-24 -left-24 w-72 h-72 rounded-full blur-3xl opacity-20 pointer-events-none transition-colors duration-500 ${
-            isVendor ? 'bg-[#e2725b]' : 'bg-[#00c2cb]'
-          }`} />
-
-          <div className="flex-1 flex flex-col relative z-10">
-            {/* Logo */}
-            <div className="flex items-center gap-2 mb-4 sm:mb-5">
-              <span className="text-xl sm:text-2xl">{isVendor ? "🍳" : "🛵"}</span>
-              <span className="text-base sm:text-lg font-black tracking-tight text-white">
-                Campus<span className={isVendor ? "text-[#e2725b]" : "text-[#00c2cb]"}>Connect</span>
-              </span>
-              <span className="bg-white/10 text-white/80 text-[9px] sm:text-[10px] font-black uppercase px-2 sm:px-2.5 py-0.5 rounded-full ml-auto border border-white/10 shrink-0">
-                Partner Portal
-              </span>
-            </div>
-
-            {/* Heading */}
-            <div className="relative mb-3">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">
-                {isVendor ? "Vendor" : "Delivery Rider"} <br />
-                <span className={isVendor ? "text-[#e2725b]" : "text-[#00c2cb]"}>
-                  {isVendor ? "Restaurant Portal" : "Campus Fleet"}
-                </span>
-              </h1>
-              <div className={`w-8 sm:w-10 h-1 rounded-full mt-2 transition-colors duration-300 ${
-                isVendor ? "bg-[#e2725b]" : "bg-[#00c2cb]"
-              }`}></div>
-            </div>
-
-            {/* Description */}
-            <p className="text-slate-300 text-[11px] sm:text-xs font-semibold leading-relaxed mb-4 sm:mb-5 max-w-sm">
-              {isVendor 
-                ? "Manage your campus restaurant, organize menus, process live orders and grow sales effortlessly."
-                : "Deliver food across campus, track earnings in real-time, and get flexible delivery tasks."}
-            </p>
-
-            {/* Partner Mode Switcher Tabs */}
-            <div className="bg-slate-900/90 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl border border-slate-700/80 mb-4 sm:mb-5 grid grid-cols-2 gap-1.5 sm:gap-2">
-              <button
-                type="button"
-                onClick={() => { setPartnerType("vendor"); setError(""); }}
-                className={`py-2 rounded-lg sm:rounded-xl text-[11px] sm:text-[12px] font-black transition-all border-none cursor-pointer flex items-center justify-center gap-1.5 ${
-                  isVendor 
-                    ? "bg-[#e2725b] text-white shadow-md" 
-                    : "bg-transparent text-slate-400 hover:text-white"
-                }`}
-              >
-                🍳 Vendor
-              </button>
-              <button
-                type="button"
-                onClick={() => { setPartnerType("rider"); setError(""); }}
-                className={`py-2 rounded-lg sm:rounded-xl text-[11px] sm:text-[12px] font-black transition-all border-none cursor-pointer flex items-center justify-center gap-1.5 ${
-                  !isVendor 
-                    ? "bg-[#00c2cb] text-[#071A35] shadow-md" 
-                    : "bg-transparent text-slate-400 hover:text-white"
-                }`}
-              >
-                🛵 Rider
-              </button>
-            </div>
-
-            {/* Feature Bullet Cards */}
-            <div className="space-y-2.5 sm:space-y-3 mb-4 sm:mb-5">
-              {isVendor ? (
-                <>
-                  <div className="flex items-start gap-2.5 sm:gap-3 bg-white/5 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border border-white/5">
-                    <div className="p-1.5 sm:p-2 bg-orange-500/20 text-orange-400 rounded-lg sm:rounded-xl text-sm sm:text-base shrink-0">🍴</div>
-                    <div>
-                      <h3 className="text-[11px] sm:text-xs font-black text-white">Menu &amp; Inventory Management</h3>
-                      <p className="text-[9.5px] sm:text-[10px] font-semibold text-slate-400 mt-0.5">Update menu items, pricing, and availability in real-time.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2.5 sm:gap-3 bg-white/5 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border border-white/5">
-                    <div className="p-1.5 sm:p-2 bg-teal-500/20 text-teal-300 rounded-lg sm:rounded-xl text-sm sm:text-base shrink-0">📈</div>
-                    <div>
-                      <h3 className="text-[11px] sm:text-xs font-black text-white">Live Kitchen Order Stream</h3>
-                      <p className="text-[9.5px] sm:text-[10px] font-semibold text-slate-400 mt-0.5">Receive incoming campus food orders instantly with sound notifications.</p>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-start gap-2.5 sm:gap-3 bg-white/5 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border border-white/5">
-                    <div className="p-1.5 sm:p-2 bg-cyan-500/20 text-cyan-300 rounded-lg sm:rounded-xl text-sm sm:text-base shrink-0">🗺️</div>
-                    <div>
-                      <h3 className="text-[11px] sm:text-xs font-black text-white">Campus GPS Route Dispatch</h3>
-                      <p className="text-[9.5px] sm:text-[10px] font-semibold text-slate-400 mt-0.5">Pick up food orders from canteens and deliver directly to student hostels/departments.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2.5 sm:gap-3 bg-white/5 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border border-white/5">
-                    <div className="p-1.5 sm:p-2 bg-emerald-500/20 text-emerald-300 rounded-lg sm:rounded-xl text-sm sm:text-base shrink-0">💰</div>
-                    <div>
-                      <h3 className="text-[11px] sm:text-xs font-black text-white">Instant Delivery Earnings</h3>
-                      <p className="text-[9.5px] sm:text-[10px] font-semibold text-slate-400 mt-0.5">Track daily completed deliveries and cash earnings on your dashboard.</p>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+          {/* Left Content over Image */}
+          <div className="relative z-10 flex items-center justify-between">
+            <span className="bg-black/40 backdrop-blur-md border border-white/20 text-[#FBBF24] text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full">
+              Partner &amp; Rider Portal
+            </span>
           </div>
 
-          <div className="pt-3 border-t border-slate-700/50 text-[10px] sm:text-[10.5px] font-semibold text-slate-400 flex items-center justify-between">
-            <span>© 2026 CampusConnect Partner Hub</span>
-            <span className="text-slate-500">v2.4</span>
+          <div className="relative z-10 max-w-lg mb-4 text-left">
+            <h2 className="text-3xl lg:text-4xl xl:text-5xl font-black text-white leading-tight tracking-tight drop-shadow-lg mb-4">
+              CampusConnect <br />
+              <span className="text-[#FBBF24]">X Restaurants</span>
+            </h2>
+            <p className="text-slate-200 text-sm lg:text-base font-medium leading-relaxed drop-shadow">
+              Empowering campus vendors with real-time kitchen order streams and instant student delivery dispatch.
+            </p>
+          </div>
+
+          <div className="relative z-10 pt-4 border-t border-white/20 flex items-center justify-between text-slate-300 text-xs font-semibold">
+            <span>© 2026 CampusConnect Restaurant Network</span>
+            <span>v2.5</span>
           </div>
         </div>
 
-        {/* Right Side: Login Form */}
-        <div className="w-full md:w-[55%] p-5 sm:p-7 md:p-9 flex flex-col justify-between bg-[#071A35] text-left">
+        {/* RIGHT PANEL: Form & Login */}
+        <div className="w-full md:w-1/2 bg-[#171410] min-h-screen p-6 sm:p-10 lg:p-16 flex flex-col justify-between text-left h-full overflow-y-auto">
           <div>
-            <div className="mb-4 sm:mb-5">
-              <h2 className="text-xl sm:text-2xl font-black text-white m-0">
-                Partner Account Login
-              </h2>
-              <p className="text-[11px] sm:text-xs font-semibold text-slate-400 mt-1">
-                Enter your credentials to access your {isVendor ? "Restaurant Vendor" : "Delivery Rider"} portal.
+            {/* Header: CampusConnect x Restaurants */}
+            <div className="flex items-center justify-between mb-8 sm:mb-10">
+              <span className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                CAMPUS<span className="text-[#FBBF24]">CONNECT</span>{" "}
+                <span className="text-[#D97706]">X</span>{" "}
+                <span className="text-amber-100">RESTAURANTS</span>
+              </span>
+              <span className="bg-amber-500/10 text-[#FBBF24] border border-[#D97706]/30 text-[10px] font-black uppercase px-3 py-1 rounded-full shrink-0">
+                Partner &amp; Rider Portal
+              </span>
+            </div>
+
+            {/* Title & Subtitle */}
+            <div className="mb-8 sm:mb-10">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight mb-3">
+                Vendor &amp; Rider Account Login
+              </h1>
+              <p className="text-xs sm:text-sm font-medium text-slate-400 leading-relaxed max-w-md">
+                Manage your campus restaurant, organize menus, or claim &amp; deliver live campus orders.
               </p>
             </div>
 
+            {/* Error Message */}
             {error && (
-              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl sm:rounded-2xl text-red-400 text-[11px] sm:text-xs font-bold flex items-center gap-2">
+              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-400 text-xs sm:text-sm font-bold flex items-center gap-2.5">
                 <span>⚠️</span>
                 <span>{error}</span>
               </div>
             )}
 
-            <form onSubmit={handleLoginSubmit} className="space-y-3.5 sm:space-y-4">
-              
+            {/* Form */}
+            <form onSubmit={handleLoginSubmit} className="space-y-6">
               {/* Email */}
-              <div className="space-y-1">
-                <label className="text-[10px] sm:text-[11px] font-black text-slate-300 uppercase tracking-wider">
-                  Partner Email Address <span className="text-red-400">*</span>
+              <div className="space-y-2">
+                <label className="text-xs font-extrabold text-slate-300 uppercase tracking-wider">
+                  Partner / Rider Email Address <span className="text-[#FBBF24]">*</span>
                 </label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={isVendor ? "vendor@restaurant.com" : "rider@campusconnect.com"}
-                  className="w-full bg-slate-900/90 border border-slate-700 text-white text-xs sm:text-sm font-semibold rounded-xl sm:rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 focus:outline-none focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/20 transition-all placeholder:text-slate-500"
-                />
+                <div className="relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="vendor@restaurant.com or rider@campusconnect.com"
+                    className="w-full bg-[#221E18] border border-[#363027] text-white text-xs sm:text-sm font-semibold rounded-2xl pl-11 pr-4 py-3.5 focus:outline-none focus:border-[#D97706] focus:ring-2 focus:ring-[#D97706]/20 transition-all placeholder:text-slate-500"
+                  />
+                </div>
               </div>
 
               {/* Password */}
-              <div className="space-y-1">
-                <div className="flex justify-between items-center">
-                  <label className="text-[10px] sm:text-[11px] font-black text-slate-300 uppercase tracking-wider">
-                    Password <span className="text-red-400">*</span>
-                  </label>
-                </div>
+              <div className="space-y-2">
+                <label className="text-xs font-extrabold text-slate-300 uppercase tracking-wider">
+                  Password <span className="text-[#FBBF24]">*</span>
+                </label>
                 <div className="relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <rect x="5" y="11" width="14" height="10" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 11V7a4 4 0 118 0v4" />
+                    </svg>
+                  </div>
                   <input
                     type={showPassword ? "text" : "password"}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-slate-900/90 border border-slate-700 text-white text-xs sm:text-sm font-semibold rounded-xl sm:rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 pr-11 focus:outline-none focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/20 transition-all placeholder:text-slate-500"
+                    className="w-full bg-[#221E18] border border-[#363027] text-white text-xs sm:text-sm font-semibold rounded-2xl pl-11 pr-16 py-3.5 focus:outline-none focus:border-[#D97706] focus:ring-2 focus:ring-[#D97706]/20 transition-all placeholder:text-slate-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-[11px] sm:text-xs font-bold border-none bg-transparent cursor-pointer"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-white border-none bg-transparent cursor-pointer transition-colors"
                   >
                     {showPassword ? "Hide" : "Show"}
                   </button>
                 </div>
               </div>
 
-              {/* Options */}
-              <div className="flex items-center justify-between pt-0.5">
-                <label className="flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-slate-300 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="rounded border-slate-700 bg-slate-900 text-[#00c2cb] focus:ring-0 w-3.5 h-3.5 sm:w-4 sm:h-4 cursor-pointer"
-                  />
-                  Remember login session
-                </label>
-              </div>
-
-              {/* Submit Button */}
+              {/* Primary Action Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-3 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-lg border-none cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-2.5 sm:mt-3 ${
-                  isVendor 
-                    ? "bg-[#e2725b] hover:bg-[#d05c44] text-white" 
-                    : "bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35]"
-                }`}
+                className="w-full py-4 rounded-full bg-gradient-to-r from-[#D97706] to-[#B45309] hover:from-[#F59E0B] hover:to-[#D97706] active:scale-[0.99] text-white text-xs sm:text-sm font-black uppercase tracking-wider transition-all shadow-lg shadow-[#D97706]/20 border-none cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-6"
               >
                 {loading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Authenticating...
+                    <span>Authenticating...</span>
                   </>
                 ) : (
-                  `Login as ${isVendor ? "Restaurant Vendor" : "Delivery Rider"} →`
+                  <span>SIGN IN TO PORTAL →</span>
                 )}
               </button>
             </form>
           </div>
 
-          {/* Bottom Registration Navigation */}
-          <div className="mt-4 sm:mt-5 pt-3.5 sm:pt-4 border-t border-slate-800 text-center">
-            <p className="text-[11px] sm:text-xs font-semibold text-slate-400 m-0">
-              New partner wanting to join CampusConnect?{" "}
-              <Link
-                to={isVendor ? "/vendor/register" : "/rider/register"}
-                className={`font-black hover:underline transition-colors ml-1 ${
-                  isVendor ? "text-[#e2725b]" : "text-[#00c2cb]"
-                }`}
-              >
-                Register as {isVendor ? "Vendor" : "Rider"}
-              </Link>
-            </p>
+          <div className="mt-8 pt-4 border-t border-[#29241D] text-center">
+            <span className="text-[11px] font-semibold text-slate-500">
+              CampusConnect x Restaurants &bull; Secure Partner Access
+            </span>
           </div>
         </div>
 

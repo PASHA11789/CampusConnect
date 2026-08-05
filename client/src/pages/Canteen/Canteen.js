@@ -24,19 +24,14 @@ import AddonModal from "./components/AddonModal";
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
 const POPULAR_DISHES = [
-  { id: "sav1", name: "Chicken Pulao Kabab", price: 380, rating: 4.8, reviews: 145, image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&q=80", category: "Traditional", desc: "Savour's legendary fragrant basmati rice served with two shami kababs and tender chicken piece.", restaurantId: "sav" },
-  { id: "gour3", name: "Club Sandwich", price: 280, rating: 4.6, reviews: 110, image: "https://images.unsplash.com/photo-1567234669003-dce7a7a88821?w=500&q=80", category: "Fast Food", desc: "Gourmet's signature double-decker sandwich with chicken, egg, mayo, and lettuce.", restaurantId: "gour" },
-  { id: "jj1", name: "Wehshi Burger", price: 390, rating: 4.7, reviews: 230, image: "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500&q=80", category: "Fast Food", desc: "Johnny & Jugnu's famous crispy chicken fillet burger with Wehshi hot sauce.", restaurantId: "jj" },
-  { id: "dog1", name: "Special Chicken Biryani", price: 320, rating: 4.5, reviews: 95, image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&q=80", category: "Traditional", desc: "Lahori-style spicy chicken biryani with boiled egg and raita.", restaurantId: "dog" },
+  { id: "mc1", name: "Big Mac Burger", price: 950, rating: 4.9, reviews: 320, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80", category: "Fast Food", desc: "Classic double beef patty burger with special sauce, lettuce & cheese.", restaurantId: "mcdonalds" },
+  { id: "mc2", name: "McChicken Burger", price: 650, rating: 4.8, reviews: 210, image: "https://images.unsplash.com/photo-1615297928064-24977384d0da?w=500&q=80", category: "Fast Food", desc: "Crispy chicken patty with mayonnaise and lettuce.", restaurantId: "mcdonalds" },
+  { id: "mc3", name: "Crispy French Fries", price: 350, rating: 4.9, reviews: 450, image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&q=80", category: "Fast Food", desc: "Golden salted crispy French fries.", restaurantId: "mcdonalds" }
 ];
 
 const DEALS = [
-  { id: "d1", tag: "20% OFF", title: "Biryani Bonanza", desc: "Get 20% off on all biryani orders", price: 224, image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=400&q=80", category: "Traditional", name: "Biryani Bonanza Deal", restaurantId: "sav" },
-  { id: "d2", tag: "COMBO DEAL", title: "Burger + Fries + Drink", desc: "Awesome combo at just Rs. 299 only", price: 299, image: "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=400&q=80", category: "Fast Food", name: "Burger Combo Deal", restaurantId: "gour" },
-  { id: "d3", tag: "15% OFF", title: "Weekend Special", desc: "Flat 15% off on all orders above Rs. 700", price: 799, image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&q=80", category: "Fast Food", name: "Weekend Pizza Deal Platter", restaurantId: "dog" },
+  { id: "d1", tag: "SPECIAL DEAL", title: "Big Mac + Fries Combo", desc: "Get Big Mac with Crispy Fries & Drink", price: 1150, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80", category: "Fast Food", name: "Big Mac Meal Deal", restaurantId: "mcdonalds" }
 ];
-
-
 
 const CAMPUS_LOCATIONS = [
   "CS Department (Ground Floor)",
@@ -50,121 +45,19 @@ const CAMPUS_LOCATIONS = [
 const CATEGORIES = [
   { name: "All", icon: "🍽️", bgColor: "bg-[#00c2cb]/10", textColor: "text-[#0079c2]" },
   { name: "Fast Food", icon: "🍔", bgColor: "bg-orange-50", textColor: "text-orange-500" },
-  { name: "Traditional", icon: "🍛", bgColor: "bg-red-50", textColor: "text-red-500" },
   { name: "Beverages", icon: "🥤", bgColor: "bg-blue-50", textColor: "text-blue-500" },
   { name: "Desserts", icon: "🍰", bgColor: "bg-pink-50", textColor: "text-pink-500" },
 ];
 
-const DEFAULT_CANTEENS = [
-  { _id: "sav", id: "sav", name: "Savour Foods", coverImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80", isActive: true },
-  { _id: "gour", id: "gour", name: "Gourmet Restaurant", coverImage: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=500&q=80", isActive: true },
-  { _id: "jj", id: "jj", name: "Johnny & Jugnu", coverImage: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&q=80", isActive: true },
-  { _id: "dog", id: "dog", name: "Dogar Restaurant", coverImage: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&q=80", isActive: true },
-  { _id: "aroma", id: "aroma", name: "Cafe Aroma (Library)", coverImage: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500&q=80", isActive: true },
-  { _id: "spice", id: "spice", name: "Spice Junction (CS Block)", coverImage: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=500&q=80", isActive: true },
-  { _id: "hub", id: "hub", name: "Student Food Hub", coverImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&q=80", isActive: true },
-  { _id: "scoop", id: "scoop", name: "Sweet & Scoop Cafe", coverImage: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500&q=80", isActive: true },
-  { _id: "howdy", id: "howdy", name: "Howdy Burgers", coverImage: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&q=80", isActive: true },
-  { _id: "kfc", id: "kfc", name: "KFC Express (Campus)", coverImage: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80", isActive: true },
-  { _id: "cheez", id: "cheez", name: "Cheezious Pizza", coverImage: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500&q=80", isActive: true },
-  { _id: "tez", id: "tez", name: "Tezgaah Chai & Snacks", coverImage: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&q=80", isActive: true },
-  { _id: "sub", id: "sub", name: "Subway Campus Corner", coverImage: "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=500&q=80", isActive: true },
-  { _id: "bbq", id: "bbq", name: "Bar B Q Tonight Grill", coverImage: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&q=80", isActive: true },
-];
+const DEFAULT_CANTEENS = [];
 
 const getFallbackMenuForRestaurant = (resId) => {
-  const sId = String(resId).toLowerCase();
-  if (sId.includes("howdy")) {
-    return [
-      { _id: "hw1", name: "Double Charcoal Burger", price: 420, category: "Fast Food", description: "Juicy double beef patty with smoked BBQ sauce & cheese.", image: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&q=80" },
-      { _id: "hw2", name: "Curly Fries Platter", price: 210, category: "Fast Food", description: "Seasoned crispy spiral curly fries with garlic mayo dip.", image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&q=80" },
-      { _id: "hw3", name: "Smokey Chicken Fillet", price: 380, category: "Fast Food", description: "Flame grilled chicken breast with cheddar slice.", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80" },
-    ];
-  } else if (sId.includes("kfc")) {
-    return [
-      { _id: "kf1", name: "Mighty Zinger Burger", price: 490, category: "Fast Food", description: "Double crispy zinger chicken fillet with cheese & mayo.", image: "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500&q=80" },
-      { _id: "kf2", name: "Hot Wings 6pcs", price: 340, category: "Fast Food", description: "Signature spicy fried chicken wings.", image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=500&q=80" },
-      { _id: "kf3", name: "Krunch Burger Deal", price: 270, category: "Fast Food", description: "Krunch burger with fries & 345ml cold drink.", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80" },
-    ];
-  } else if (sId.includes("cheez")) {
-    return [
-      { _id: "cz1", name: "Crown Crust Chicken Tikka Pizza", price: 650, category: "Fast Food", description: "Loaded cheese crown crust with spicy tikka chunks.", image: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500&q=80" },
-      { _id: "cz2", name: "Fettuccine Alfredo Pasta", price: 480, category: "Fast Food", description: "Rich creamy parmesan pasta with grilled chicken.", image: "https://images.unsplash.com/photo-1621996346565-e3d5d6281270?w=500&q=80" },
-      { _id: "cz3", name: "Oven Baked Calzone", price: 390, category: "Fast Food", description: "Folded pizza pocket stuffed with mozzarella & chicken.", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80" },
-    ];
-  } else if (sId.includes("tez")) {
-    return [
-      { _id: "tz1", name: "Special Matka Chai", price: 110, category: "Beverages", description: "Clay pot brewed aromatic cardamom tea.", image: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&q=80" },
-      { _id: "tz2", name: "Chicken Cheese Paratha", price: 210, category: "Traditional", description: "Crispy tawa paratha stuffed with spicy chicken & cheese.", image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500&q=80" },
-      { _id: "tz3", name: "Samosa Chaat Bowl", price: 140, category: "Traditional", description: "Crushed samosas topped with chana curry & sweet chutney.", image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=500&q=80" },
-    ];
-  } else if (sId.includes("sub")) {
-    return [
-      { _id: "sb1", name: "Chicken Teriyaki 6-inch Sub", price: 410, category: "Fast Food", description: "Fresh parmesan oregano bread with teriyaki chicken & veggies.", image: "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=500&q=80" },
-      { _id: "sb2", name: "Italian B.M.T. Footlong", price: 680, category: "Fast Food", description: "12-inch sub packed with pepperoni, salami & ham.", image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=500&q=80" },
-      { _id: "sb3", name: "Double Chocolate Cookie", price: 120, category: "Desserts", description: "Freshly baked soft & chewy chocolate chip cookie.", image: "https://images.unsplash.com/photo-1607958996333-41aef7caefaa?w=500&q=80" },
-    ];
-  } else if (sId.includes("bbq")) {
-    return [
-      { _id: "bq1", name: "Chicken Seekh Kabab (4pcs)", price: 380, category: "Traditional", description: "Flame charcoal grilled minced chicken kababs with mint chutney.", image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&q=80" },
-      { _id: "bq2", name: "Chicken Boti Platter", price: 440, category: "Traditional", description: "Smokey charcoal tikka boti served with fresh naan.", image: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&q=80" },
-      { _id: "bq3", name: "Garlic Butter Naan", price: 50, category: "Traditional", description: "Tandoori naan brushed with crushed garlic & melted butter.", image: "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=500&q=80" },
-    ];
-  } else if (sId.includes("aroma")) {
-    return [
-      { _id: "ar1", name: "Cappuccino Coffee", price: 240, category: "Beverages", description: "Rich brewed espresso with frothed steamed milk.", image: "https://images.unsplash.com/photo-1534778101976-62847782c213?w=500&q=80" },
-      { _id: "ar2", name: "Grilled Chicken Sandwich", price: 260, category: "Fast Food", description: "Toasted brown bread filled with chicken slice and cheese.", image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=500&q=80" },
-      { _id: "ar3", name: "Blueberry Muffin", price: 120, category: "Desserts", description: "Freshly baked warm blueberry muffin.", image: "https://images.unsplash.com/photo-1607958996333-41aef7caefaa?w=500&q=80" },
-      { _id: "ar4", name: "Chilled Iced Tea", price: 130, category: "Beverages", description: "Refreshing lemon iced tea with mint leaves.", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&q=80" },
-    ];
-  } else if (sId.includes("spice")) {
-    return [
-      { _id: "sp1", name: "Zinger Chicken Paratha Roll", price: 220, category: "Fast Food", description: "Crispy zinger wrapped in golden paratha with garlic mayo.", image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500&q=80" },
-      { _id: "sp2", name: "Crispy Nuggets 6pcs", price: 240, category: "Fast Food", description: "Golden fried tender chicken nuggets with dip sauce.", image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=500&q=80" },
-      { _id: "sp3", name: "Special Masala Fries", price: 130, category: "Fast Food", description: "Spicy seasoned potato fries served piping hot.", image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&q=80" },
-      { _id: "sp4", name: "Chilled Sprite 345ml", price: 90, category: "Beverages", description: "Cold fizzy drink.", image: "https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=500&q=80" },
-    ];
-  } else if (sId.includes("hub")) {
-    return [
-      { _id: "hb1", name: "Chicken Karahi (Single)", price: 350, category: "Traditional", description: "Desi wok cooked spicy chicken karahi served with naan.", image: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&q=80" },
-      { _id: "hb2", name: "Special Daal Fry", price: 160, category: "Traditional", description: "Yellow lentils cooked in ghee tarka.", image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&q=80" },
-      { _id: "hb3", name: "Roghni Naan", price: 40, category: "Traditional", description: "Fresh tandoori naan brushed with sesame & butter.", image: "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=500&q=80" },
-      { _id: "hb4", name: "Anda Shami Burger", price: 150, category: "Fast Food", description: "Classic Lahori bun kabab with egg and chutney.", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80" },
-    ];
-  } else if (sId.includes("scoop")) {
-    return [
-      { _id: "sc1", name: "Belgian Chocolate Ice Cream (2 Scoop)", price: 220, category: "Desserts", description: "Rich Belgian dark chocolate ice cream.", image: "https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=500&q=80" },
-      { _id: "sc2", name: "Oreo Milkshake", price: 220, category: "Beverages", description: "Creamy milkshake blended with Oreo cookies.", image: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500&q=80" },
-      { _id: "sc3", name: "Sizzling Brownie with Ice Cream", price: 280, category: "Desserts", description: "Hot chocolate brownie topped with vanilla scoop.", image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&q=80" },
-      { _id: "sc4", name: "Mango Thick Shake", price: 190, category: "Beverages", description: "Fresh Alphonso mango pulp smoothie.", image: "https://images.unsplash.com/photo-1546173159-315724a31696?w=500&q=80" },
-    ];
-  } else if (sId.includes("gour")) {
-    return [
-      { _id: "g1", name: "Gourmet Club Sandwich", price: 280, category: "Fast Food", description: "Double decker sandwich with chicken, egg, mayo, and lettuce.", image: "https://images.unsplash.com/photo-1567234669003-dce7a7a88821?w=500&q=80" },
-      { _id: "g2", name: "Chicken Patties", price: 110, category: "Fast Food", description: "Puff pastry stuffed with seasoned chicken.", image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=500&q=80" },
-      { _id: "g3", name: "Chocolate Fudge Pastry", price: 140, category: "Desserts", description: "Rich chocolate layer cake slice.", image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500&q=80" },
-      { _id: "g4", name: "Zinger Burger", price: 340, category: "Fast Food", description: "Crispy chicken breast with cheese & sauce.", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80" },
-    ];
-  } else if (sId.includes("jj")) {
-    return [
-      { _id: "jj1", name: "Wehshi Burger", price: 390, category: "Fast Food", description: "Famous crispy chicken fillet burger with Wehshi hot sauce.", image: "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500&q=80" },
-      { _id: "jj2", name: "Crispy Chicken Wrap", price: 350, category: "Fast Food", description: "Tortilla wrap filled with crispy strips and sauces.", image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500&q=80" },
-      { _id: "jj3", name: "Loaded Cheese Fries", price: 250, category: "Fast Food", description: "Fries topped with melted cheese & jalapenos.", image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&q=80" },
-    ];
-  } else if (sId.includes("dog")) {
-    return [
-      { _id: "d1", name: "Special Chicken Biryani", price: 320, category: "Traditional", description: "Lahori-style spicy chicken biryani with boiled egg and raita.", image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&q=80" },
-      { _id: "d2", name: "Special Doodh Patti Chai", price: 90, category: "Beverages", description: "Strong cardamom cooked milk tea.", image: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&q=80" },
-      { _id: "d3", name: "Chicken Karahi Portion", price: 450, category: "Traditional", description: "Spicy Lahori karahi with naan.", image: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&q=80" },
-    ];
-  } else {
-    return [
-      { _id: "sav1", name: "Chicken Pulao Kabab", price: 380, category: "Traditional", description: "Savour's legendary fragrant basmati rice served with two shami kababs.", image: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&q=80" },
-      { _id: "sav2", name: "Zarda Sweet Rice", price: 150, category: "Desserts", description: "Traditional sweet saffron rice with nuts.", image: "https://images.unsplash.com/photo-1517244683847-7456b63c5969?w=500&q=80" },
-      { _id: "sav3", name: "Extra Shami Kabab", price: 90, category: "Traditional", description: "Tender beef shami kabab.", image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=500&q=80" },
-      { _id: "sav4", name: "Zeera Raita", price: 40, category: "Traditional", description: "Chilled cumin yogurt raita.", image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&q=80" },
-    ];
-  }
+  return [
+    { _id: "mc1", name: "Big Mac Burger", price: 950, category: "Fast Food", description: "Classic double beef patty burger with special sauce, lettuce & cheese.", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80" },
+    { _id: "mc2", name: "McChicken Burger", price: 650, category: "Fast Food", description: "Crispy chicken patty with mayonnaise and lettuce.", image: "https://images.unsplash.com/photo-1615297928064-24977384d0da?w=500&q=80" },
+    { _id: "mc3", name: "Crispy French Fries", price: 350, category: "Fast Food", description: "Golden salted crispy French fries.", image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&q=80" },
+    { _id: "mc4", name: "6 Pc Chicken McNuggets", price: 750, category: "Fast Food", description: "Golden tender chicken McNuggets with dipping sauce.", image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=500&q=80" }
+  ];
 };
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
@@ -332,95 +225,79 @@ export default function Canteen() {
   }, [navigate]);
 
   // ── Fetch Restaurants List ───────────────────────────────────────
-  useEffect(() => {
-    const fetchRestaurants = async () => {
-      const token = sessionStorage.getItem("token");
-      if (!token) return;
-      try {
-        setIsLoadingRestaurants(true);
-        const { data } = await axios.get("/api/canteen/restaurants", {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => ({ data: { success: true, restaurants: [] } }));
+  const fetchRestaurants = React.useCallback(async () => {
+    const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+    if (!token) return;
+    try {
+      setIsLoadingRestaurants(true);
+      const { data } = await axios.get("/api/canteen/restaurants", {
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(err => ({ data: { success: true, restaurants: [] } }));
 
-        let mergedList = DEFAULT_CANTEENS;
-        if (data && data.success && data.restaurants && data.restaurants.length > 0) {
-          const nameSet = new Set();
-          const uniqueList = [];
-
-          // Add API restaurants first
-          data.restaurants.forEach(r => {
-            const normName = (r.name || "").toLowerCase().trim();
-            if (normName && !nameSet.has(normName)) {
-              nameSet.add(normName);
-              uniqueList.push(r);
-            }
-          });
-
-          // Add default canteens if not already present by name
-          DEFAULT_CANTEENS.forEach(r => {
-            const normName = (r.name || "").toLowerCase().trim();
-            if (normName && !nameSet.has(normName)) {
-              nameSet.add(normName);
-              uniqueList.push(r);
-            }
-          });
-          mergedList = uniqueList;
-        }
-
-        setRestaurantsList(mergedList);
-
-        const targetId = location.state?.restaurantId;
-        const targetName = location.state?.restaurantName;
-
-        let foundIndex = -1;
-        if (targetId || targetName) {
-          foundIndex = mergedList.findIndex(r =>
-            (targetId && (r._id === targetId || r.id === targetId)) ||
-            (targetName && r.name && r.name.toLowerCase().includes(String(targetName).toLowerCase())) ||
-            (targetId && r.name && r.name.toLowerCase().includes(String(targetId).toLowerCase()))
-          );
-        }
-
-        if (foundIndex !== -1) {
-          setActiveRestaurant(mergedList[foundIndex]._id || mergedList[foundIndex].id);
-          setSelectedVisualIndex(foundIndex);
-        }
-      } catch (err) {
-        setRestaurantsList(DEFAULT_CANTEENS);
-      } finally {
-        setIsLoadingRestaurants(false);
+      let mergedList = [];
+      if (data && data.success && Array.isArray(data.restaurants)) {
+        mergedList = data.restaurants;
       }
-    };
+
+      setRestaurantsList(mergedList);
+
+      const targetId = location.state?.restaurantId;
+      const targetName = location.state?.restaurantName;
+
+      let foundIndex = -1;
+      if (targetId || targetName) {
+        foundIndex = mergedList.findIndex(r =>
+          (targetId && (r._id === targetId || r.id === targetId)) ||
+          (targetName && r.name && r.name.toLowerCase().includes(String(targetName).toLowerCase())) ||
+          (targetId && r.name && r.name.toLowerCase().includes(String(targetId).toLowerCase()))
+        );
+      }
+
+      if (foundIndex !== -1) {
+        setActiveRestaurant(mergedList[foundIndex]._id || mergedList[foundIndex].id);
+        setSelectedVisualIndex(foundIndex);
+      } else if (mergedList.length > 0 && !activeRestaurant) {
+        setActiveRestaurant(mergedList[0]._id || mergedList[0].id);
+        setSelectedVisualIndex(0);
+      }
+    } catch (err) {
+      setRestaurantsList([]);
+    } finally {
+      setIsLoadingRestaurants(false);
+    }
+  }, [location.state, activeRestaurant]);
+
+  useEffect(() => {
     fetchRestaurants();
-  }, [location.state]);
+  }, [fetchRestaurants]);
 
   // ── Fetch Restaurant Menu ────────────────────────────────────────
-  useEffect(() => {
-    const fetchMenu = async () => {
-      const token = sessionStorage.getItem("token");
-      if (!token || !activeRestaurant) return;
-      try {
-        setIsLoadingMenu(true);
-        const { data } = await axios.get(`/api/canteen/restaurants/${activeRestaurant}/menu`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(() => ({ data: { success: false } }));
+  const fetchMenu = React.useCallback(async () => {
+    const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+    if (!token || !activeRestaurant) return;
+    try {
+      setIsLoadingMenu(true);
+      const { data } = await axios.get(`/api/canteen/restaurants/${activeRestaurant}/menu`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => ({ data: { success: false } }));
 
-        if (data && data.success && data.menu && data.menu.length > 0) {
-          setMenuList(data.menu);
-        } else {
-          setMenuList(getFallbackMenuForRestaurant(activeRestaurant));
-        }
-      } catch (err) {
-        setMenuList(getFallbackMenuForRestaurant(activeRestaurant));
-      } finally {
-        setIsLoadingMenu(false);
+      if (data && data.success && Array.isArray(data.menu)) {
+        setMenuList(data.menu);
+      } else {
+        setMenuList([]);
       }
-    };
+    } catch (err) {
+      setMenuList([]);
+    } finally {
+      setIsLoadingMenu(false);
+    }
+  }, [activeRestaurant]);
 
+  useEffect(() => {
     if (activeRestaurant) {
       fetchMenu();
     }
-  }, [activeRestaurant]);
+  }, [activeRestaurant, fetchMenu]);
 
   // ── Fetch Active/Past Orders ─────────────────────────────────────
   useEffect(() => {
@@ -524,6 +401,19 @@ export default function Canteen() {
       showOrderStatusNotification("completed", data.message);
     });
 
+    socket.on("restaurant_status_update", () => {
+      fetchRestaurants();
+      if (activeRestaurant) fetchMenu();
+    });
+
+    socket.on("restaurant_menu_update", () => {
+      if (activeRestaurant) fetchMenu();
+    });
+
+    socket.on("restaurant_updated", () => {
+      fetchRestaurants();
+    });
+
 
     // 2. BroadcastChannel for Instant Cross-Tab Communication
     let channel;
@@ -555,7 +445,7 @@ export default function Canteen() {
       if (channel) channel.close();
       window.removeEventListener("storage", handleStorageChange);
     };
-  }, [user, showToast]);
+  }, [user, showToast, fetchRestaurants, fetchMenu, activeRestaurant]);
 
   // ── Avatar Upload ─────────────────────────────────────────────────
   const handleAvatarChange = async (e) => {
@@ -909,7 +799,7 @@ export default function Canteen() {
                     <div className="flex items-start sm:items-center gap-3.5 sm:gap-5 flex-1 z-10 min-w-0 w-full">
                       <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden border border-white/20 shadow-md shrink-0 bg-slate-100 relative">
                         <img
-                          src={activeResObj?.coverImage || activeResObj?.image || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80"}
+                          src={activeResObj?.coverImage || activeResObj?.owner?.avatar || activeResObj?.avatar || activeResObj?.image || ""}
                           alt={activeResObj?.name || "Selected Restaurant"}
                           className="w-full h-full object-cover"
                         />
@@ -964,7 +854,26 @@ export default function Canteen() {
                       filteredMenu={filteredMenu}
                       selectedCategory={selectedCategory}
                       setSelectedCategory={setSelectedCategory}
-                      categories={CATEGORIES}
+                      categories={(() => {
+                        const cats = Array.from(new Set((menuList || []).map((i) => i.category).filter(Boolean)));
+                        const list = [{ name: "All", icon: "🍽️", bgColor: "bg-[#00c2cb]/10", textColor: "text-[#0079c2]" }];
+                        cats.forEach((catName) => {
+                          let icon = "🍛";
+                          const lower = catName.toLowerCase();
+                          if (lower.includes("burger")) icon = "🍔";
+                          else if (lower.includes("pizza")) icon = "🍕";
+                          else if (lower.includes("pasta")) icon = "🍝";
+                          else if (lower.includes("beverage") || lower.includes("drink")) icon = "🥤";
+                          else if (lower.includes("dessert") || lower.includes("cake")) icon = "🍰";
+                          list.push({
+                            name: catName,
+                            icon,
+                            bgColor: "bg-slate-50",
+                            textColor: "text-slate-700"
+                          });
+                        });
+                        return list.length > 1 ? list : CATEGORIES;
+                      })()}
                       favorites={favorites}
                       toggleFavorite={toggleFavorite}
                       handleAddToCartClick={handleAddToCartClick}

@@ -158,7 +158,7 @@ export default function PartnerRegister() {
           <div className="flex-1 flex flex-col relative z-10">
             {/* Logo */}
             <div className="flex items-center gap-2 mb-3.5 sm:mb-5">
-              <span className="text-xl sm:text-2xl">{isVendor ? "🍳" : "🛵"}</span>
+              {!isVendor && <span className="text-xl sm:text-2xl">🛵</span>}
               <span className="text-base sm:text-lg font-black tracking-tight text-white">
                 Campus<span className={isVendor ? "text-[#e2725b]" : "text-[#00c2cb]"}>Connect</span>
               </span>

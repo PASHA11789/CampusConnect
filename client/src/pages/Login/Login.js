@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { setupPushNotifications } from '../../utils/pushNotificationSetup';
+import bgImage from '../../assets/ibn_e_khaldun.jpg';
 
 
 const Login = () => {
@@ -42,7 +43,7 @@ const Login = () => {
                     <div
                         className="absolute inset-0 transition-transform duration-1000 group-hover:scale-105"
                         style={{
-                            backgroundImage: `url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1920&auto=format&fit=crop')`,
+                            backgroundImage: `url(${bgImage})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
                         }}

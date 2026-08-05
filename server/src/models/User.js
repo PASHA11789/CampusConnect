@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema(
     program:{type: String, default: ""},
     semester: { type: Number, default: 0 },
     section:{ type: String, default:""},
+    restaurant: { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant", default: null },
+    vehicle: { type: String, default: "" },
+    riderStatus: { type: String, default: "" },
+    riderPhone: { type: String, default: "" },
     avatar: {
       type: String,
       default: "https://ui-avatars.com/api/?name=User&background=random", // Nice fallback!

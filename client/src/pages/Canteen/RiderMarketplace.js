@@ -188,22 +188,7 @@ export default function RiderMarketplace() {
     }
   }, [activeClaimedOrder]);
 
-    const [completedDeliveries, setCompletedDeliveries] = useState(() => {
-      try {
-        const saved = localStorage.getItem("rider_completed_deliveries");
-        return saved ? JSON.parse(saved) : [];
-      } catch (e) {
-        return [];
-      }
-    });
-
-    useEffect(() => {
-      try {
-        localStorage.setItem("rider_completed_deliveries", JSON.stringify(completedDeliveries));
-      } catch (e) {
-        console.error("Failed saving rider completed deliveries", e);
-      }
-    }, [completedDeliveries]);
+    const [completedDeliveries, setCompletedDeliveries] = useState([]);
 
     // Load Rider Session
     useEffect(() => {
@@ -225,6 +210,22 @@ export default function RiderMarketplace() {
       }
     }, [navigate]);
 
+    // Fetch Rider Completed Delivery History from Backend API
+    const fetchRiderHistory = async () => {
+      const token = sessionStorage.getItem("riderToken") || sessionStorage.getItem("token") || localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const { data } = await axios.get("http://localhost:5000/api/orders/rider/history", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (data && data.success && Array.isArray(data.history)) {
+          setCompletedDeliveries(data.history);
+        }
+      } catch (err) {
+        console.error("Error loading rider history:", err);
+      }
+    };
+
     // Fetch Available Marketplace Tickets
     const fetchTickets = async () => {
       try {
@@ -236,23 +237,8 @@ export default function RiderMarketplace() {
           return { data: { success: true, tickets: [] } };
         });
 
-        let localTickets = [];
-        try {
-          const savedTicketsStr = localStorage.getItem("campus_dispatched_tickets");
-          if (savedTicketsStr) {
-            localTickets = JSON.parse(savedTicketsStr);
-          }
-        } catch (e) {
-          console.error("Error reading local tickets:", e);
-        }
-
         const apiTickets = res.data.success ? (res.data.tickets || []) : [];
-        const combined = [...localTickets, ...apiTickets];
-
-        // Deduplicate by orderId
-        const uniqueTickets = Array.from(new Map(combined.map(item => [item.orderId, item])).values());
-
-        setTickets(uniqueTickets);
+        setTickets(apiTickets);
       } catch (err) {
         console.error("Error fetching marketplace tickets:", err);
       } finally {
@@ -260,7 +246,7 @@ export default function RiderMarketplace() {
       }
     };
 
-    // Fetch rider active order from backend DB on mount / refresh
+    // Fetch rider active order & history from backend DB on mount / refresh
     useEffect(() => {
       const fetchActiveRiderOrder = async () => {
         const token = sessionStorage.getItem("riderToken") || sessionStorage.getItem("token") || localStorage.getItem("token");
@@ -277,6 +263,7 @@ export default function RiderMarketplace() {
         }
       };
       fetchActiveRiderOrder();
+      fetchRiderHistory();
     }, [rider]);
 
     useEffect(() => {
@@ -493,17 +480,9 @@ export default function RiderMarketplace() {
 
         if (res.data?.success) {
           showToast(`🎉 Order ${orderId} delivered! Great job!`, "info");
-          if (activeClaimedOrder) {
-            setCompletedDeliveries((prev) => [
-              {
-                ...activeClaimedOrder,
-                completedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-              },
-              ...prev
-            ]);
-          }
           setActiveClaimedOrder(null);
           fetchTickets();
+          fetchRiderHistory();
         }
       } catch (err) {
         const errMsg = err.response?.data?.message || "Failed to complete delivery";
@@ -535,7 +514,7 @@ export default function RiderMarketplace() {
               <div>
                 <h1 className={`text-xs xs:text-sm sm:text-lg font-black tracking-tight leading-none whitespace-nowrap ${isDark ? "text-white" : "text-[#0a2342]"
                   }`}>
-                  CampusConnect
+                  CampusConnect <span className="text-[#00c2cb]">x</span> {activeClaimedOrder?.restaurantName || "Fleet"}
                 </h1>
                 <p className="text-[9.5px] sm:text-[11px] font-bold text-slate-400 mt-0.5 whitespace-nowrap">
                   {t.welcome}, <span className={`font-black ${isDark ? "text-cyan-300" : "text-[#0a2342]"}`}>{rider?.name || "Rider Partner"}</span>

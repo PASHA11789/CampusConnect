@@ -59,7 +59,13 @@ const RestaurantsManager = () => {
   const handleCreateRestaurant = async (e) => {
     e.preventDefault();
     try {
-      await createRestaurantAdmin(newRestaurantData);
+      const resName = (newRestaurantData.restaurantName || newRestaurantData.name || "").trim();
+      const payload = {
+        ...newRestaurantData,
+        name: resName,
+        restaurantName: resName
+      };
+      await createRestaurantAdmin(payload);
       setIsCreateModalOpen(false);
       setNewRestaurantData({ name: '', email: '', password: '', registeration_number: '', restaurantName: '', phone: '', address: '' });
       fetchRestaurantsData();
@@ -214,8 +220,8 @@ const RestaurantsManager = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-black text-[#00c2cb] uppercase">Vendor Name</label>
-                  <input required type="text" value={newRestaurantData.name} onChange={e => setNewRestaurantData({ ...newRestaurantData, name: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] font-semibold focus:outline-none focus:border-[#00c2cb]" placeholder="Ali Khan" />
+                  <label className="text-[11px] font-black text-[#00c2cb] uppercase">Restaurant Name</label>
+                  <input required type="text" value={newRestaurantData.restaurantName} onChange={e => setNewRestaurantData({ ...newRestaurantData, restaurantName: e.target.value, name: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] font-semibold focus:outline-none focus:border-[#00c2cb]" placeholder="Mc Donalds" />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[11px] font-black text-[#00c2cb] uppercase">Vendor Email</label>
@@ -234,22 +240,15 @@ const RestaurantsManager = () => {
                 </div>
               </div>
 
-              <div className="border-t border-slate-100 my-1"></div>
-
               <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-black text-slate-500 uppercase">Restaurant Name</label>
-                  <input required type="text" value={newRestaurantData.restaurantName} onChange={e => setNewRestaurantData({ ...newRestaurantData, restaurantName: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] font-semibold focus:outline-none focus:border-[#00c2cb]" placeholder="Campus Cafe" />
-                </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[11px] font-black text-slate-500 uppercase">Phone Number</label>
                   <input required type="text" value={newRestaurantData.phone} onChange={e => setNewRestaurantData({ ...newRestaurantData, phone: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] font-semibold focus:outline-none focus:border-[#00c2cb]" placeholder="0300-1234567" />
                 </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-black text-slate-500 uppercase">Address / Location</label>
-                <input required type="text" value={newRestaurantData.address} onChange={e => setNewRestaurantData({ ...newRestaurantData, address: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] font-semibold focus:outline-none focus:border-[#00c2cb]" placeholder="Food Court, Block A" />
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[11px] font-black text-slate-500 uppercase">Address / Location</label>
+                  <input required type="text" value={newRestaurantData.address} onChange={e => setNewRestaurantData({ ...newRestaurantData, address: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[13px] font-semibold focus:outline-none focus:border-[#00c2cb]" placeholder="Food Court, Block A" />
+                </div>
               </div>
 
               <button type="submit" className="mt-4 w-full py-3 rounded-xl bg-[#0a2342] text-white text-[13px] font-bold hover:bg-[#00c2cb] transition-colors">Onboard Vendor</button>
