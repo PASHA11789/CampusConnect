@@ -36,7 +36,6 @@ export default function DiscussionReplyBubble({
   const avatarColor = getAvatarColor(authorName);
   const isDropdownActive = activeDropdown.type === 'reply' && activeDropdown.id === replyKey;
 
-  const isDark = false;
   const nameColor = 'text-[#071A35] font-black';
   const metaColor = isReplyOwner ? 'text-[#0079c2]' : 'text-slate-400';
   const dotColor = isReplyOwner ? 'text-[#00c2cb]' : 'text-slate-300';

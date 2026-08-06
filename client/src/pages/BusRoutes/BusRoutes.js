@@ -219,7 +219,6 @@ export default function BusRoutes() {
                 <div className="flex flex-col gap-2.5">
                   {ROUTES_DATA.map((route) => {
                     const isSelected = route.id === selectedRouteId;
-                    const isDelayed = route.status === "Delayed";
                     return (
                       <div
                         key={route.id}

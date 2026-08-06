@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://campusconnect-uw3w.onrender.com"
+      "destination": "https://campusconnect-uw3w.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
