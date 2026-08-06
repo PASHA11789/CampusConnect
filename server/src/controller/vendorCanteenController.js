@@ -3,6 +3,9 @@ import Order from "../models/Order.js"
 import Notification from "../models/Notification.js"
 import User from "../models/User.js"
 
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 
 export const addMenuItem = async (req,res)=>{
     try{
@@ -30,7 +33,7 @@ export const addMenuItem = async (req,res)=>{
 
         res.status(201).json({success:true, message:"Menu item added", menu: restaurant.menu})
     }catch(error){
-        res.status(500).json({message:"Failed to add menu item", error: error.message})
+        res.status(500).json({message:"Failed to add menu item", error: safeError(error)})
     }
 }
 
@@ -62,7 +65,7 @@ export const updateMenuItem = async (req,res) =>{
 
         res.status(200).json({ success: true, message: "Menu item updated", item, menu: restaurant.menu });
     }catch(error){
-        res.status(500).json({ message: "Failed to update item", error: error.message });
+        res.status(500).json({ message: "Failed to update item", error: safeError(error) });
     }
 }
 
@@ -80,7 +83,7 @@ export const deleteMenuItem = async (req,res) =>{
 
         res.status(200).json({success:true, message:"Menu item deleted", menu: restaurant.menu})
     }catch(error){
-        res.status(500).json({ message: "Failed to delete item", error: error.message });
+        res.status(500).json({ message: "Failed to delete item", error: safeError(error) });
     }
 }
 
@@ -97,7 +100,7 @@ export const getVendorQueue = async (req,res)=>{
         .sort({createdAt: 1})
         res.status(200).json({success:true, count:orders.length, orders})
     }catch(error){
-        res.status(500).json({message:"Error fetching queue",error: error.message})
+        res.status(500).json({message:"Error fetching queue",error: safeError(error)})
     }
 }
 export const updateOrderStatus = async (req, res) => {
@@ -308,7 +311,7 @@ export const updateOrderStatus = async (req, res) => {
     return res.status(400).json({ message: `Unknown status: '${status}'. Valid vendor actions: accepted, preparing, ready, cancelled.` });
 
   } catch (error) {
-    return res.status(500).json({ message: "Error updating order", error: error.message });
+    return res.status(500).json({ message: "Error updating order", error: safeError(error) });
   }
 };
 
@@ -319,7 +322,7 @@ export const getVendorRestaurant = async (req, res) => {
     if (!restaurant) return res.status(404).json({ message: "Restaurant profile not found" });
     res.status(200).json({ success: true, restaurant });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching restaurant details", error: error.message });
+    res.status(500).json({ message: "Error fetching restaurant details", error: safeError(error) });
   }
 };
 
@@ -338,7 +341,7 @@ export const toggleRestaurantStatus = async (req, res) => {
 
     res.status(200).json({ success: true, message: `Restaurant is now ${restaurant.isActive ? "Open" : "Closed"}`, isActive: restaurant.isActive, restaurant });
   } catch (error) {
-    res.status(500).json({ message: "Error toggling restaurant status", error: error.message });
+    res.status(500).json({ message: "Error toggling restaurant status", error: safeError(error) });
   }
 };
 
@@ -376,7 +379,7 @@ export const updateVendorRestaurant = async (req, res) => {
 
     res.status(200).json({ success: true, message: "Restaurant profile updated successfully", restaurant });
   } catch (error) {
-    res.status(500).json({ message: "Error updating restaurant profile", error: error.message });
+    res.status(500).json({ message: "Error updating restaurant profile", error: safeError(error) });
   }
 };
 
@@ -392,7 +395,7 @@ export const getVendorRiders = async (req, res) => {
 
     res.status(200).json({ success: true, count: riders.length, riders });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching riders", error: error.message });
+    res.status(500).json({ message: "Error fetching riders", error: safeError(error) });
   }
 };
 
@@ -429,7 +432,7 @@ export const createVendorRider = async (req, res) => {
 
     res.status(201).json({ success: true, message: "Delivery rider created successfully", rider: riderObj });
   } catch (error) {
-    res.status(500).json({ message: "Error creating rider", error: error.message });
+    res.status(500).json({ message: "Error creating rider", error: safeError(error) });
   }
 };
 
@@ -455,7 +458,7 @@ export const updateVendorRider = async (req, res) => {
 
     res.status(200).json({ success: true, message: "Rider details updated", rider: riderObj });
   } catch (error) {
-    res.status(500).json({ message: "Error updating rider", error: error.message });
+    res.status(500).json({ message: "Error updating rider", error: safeError(error) });
   }
 };
 
@@ -469,6 +472,6 @@ export const deleteVendorRider = async (req, res) => {
     await User.findByIdAndDelete(req.params.riderId);
     res.status(200).json({ success: true, message: "Rider deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting rider", error: error.message });
+    res.status(500).json({ message: "Error deleting rider", error: safeError(error) });
   }
 };

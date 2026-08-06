@@ -2,6 +2,9 @@ import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
 
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -30,7 +33,7 @@ export const loginUser = async (req, res) => {
       res.status(401).json({ message: "Invalid email or password" });
     }
   } catch (error) {
-    res.status(500).json({ message: "server error", error: error.message });
+    res.status(500).json({ message: "server error", error: safeError(error) });
   }
 };
 
@@ -73,7 +76,7 @@ export const registerUser = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    res.status(500).json({ message: "Server Error", error: safeError(error) });
   }
 };
 
@@ -92,7 +95,7 @@ export const updateProfilePicture = async (req, res) => {
 
     res.json({ message: "Profile Uploaded", avatar: user.avatar });
   } catch (error) {
-    res.status(500).json({ message: "Upload failed", error: error.message });
+    res.status(500).json({ message: "Upload failed", error: safeError(error) });
   }
 };
 
@@ -140,6 +143,6 @@ export const updateUserAvatar = async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Server error during upload", error: error.message });
+      .json({ message: "Server error during upload", error: safeError(error) });
   }
 };

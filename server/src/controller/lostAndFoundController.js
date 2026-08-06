@@ -1,6 +1,9 @@
 import LostFound from "../models/lostFound.js";
 import Notification from "../models/Notification.js"
 
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 export const getLostFoundItems = async (req, res)=>{
     try{
 
@@ -19,7 +22,7 @@ export const getLostFoundItems = async (req, res)=>{
 
         res.status(200).json({success: true, count: items.length, items})
     }catch(error){
-        res.status(500).json({message: "Failed to fetch items", error: error.message})
+        res.status(500).json({message: "Failed to fetch items", error: safeError(error)})
     }
 }
 
@@ -81,7 +84,7 @@ export const reportItem = async (req, res) =>{
     }catch(error){
         res.status(500).json({
             message:"Failed to report item",
-            error: error.message
+            error: safeError(error)
         })
     }
 }
@@ -111,7 +114,7 @@ export const resolveItem = async (req, res)=>{
        io.emit("item_resolved", {itemId: item._id, status: "Returned"} )
        res.status(200).json({success: true, message: "Glad you got your item back! Ticket closed."})
     }catch(error){
-        res.status(500).json({message:"Server error resolving item", error: error.message})
+        res.status(500).json({message:"Server error resolving item", error: safeError(error)})
     }
 
 }
@@ -133,7 +136,7 @@ export const deleteItem = async (req, res) =>{
         })  
         res.status(200).json({success:true, message:"Item permanently removed from the system."})
         }catch(error){
-     res.status(500).json({ message: "Server error deleting item", error: error.message });
+     res.status(500).json({ message: "Server error deleting item", error: safeError(error) });
          }
 }
 
@@ -188,6 +191,6 @@ export const claimFoundItem = async (req, res) => {
             item: populatedItem
         });
     } catch (error) {
-        res.status(500).json({ message: "Server error reporting found item", error: error.message });
+        res.status(500).json({ message: "Server error reporting found item", error: safeError(error) });
     }
 };

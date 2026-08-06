@@ -3,6 +3,9 @@ import Restaurant from "../models/Restaurants.js"
 import Vendor from '../models/Vendor.js'
 import bcrypt from "bcryptjs"
 
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 export const getAllUsers = async (req, res) => {
   try {
 
@@ -12,7 +15,7 @@ export const getAllUsers = async (req, res) => {
     res.status(200).json({ success: true, count: users.length, users });
   } catch (error) {
 
-    res.status(500).json({ message: "Error fetching users", error: error.message });
+    res.status(500).json({ message: "Error fetching users", error: safeError(error) });
   }
 }
 
@@ -30,7 +33,7 @@ export const updateUserRole = async (req, res) => {
     ).select("-password")
     if (!user) return res.status(404).json({ message: "User not Found" })
     res.status(200).json({ success: true, message: `User role updated to ${role}`, user });
-  } catch (error) { res.status(500).json({ message: "Error updating user role", error: error.message }); }
+  } catch (error) { res.status(500).json({ message: "Error updating user role", error: safeError(error) }); }
 }
 
 
@@ -40,7 +43,7 @@ export const deleteUser = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     res.status(200).json({ success: true, message: "User permanently deleted." })
-  } catch (error) { res.status(500).json({ message: "Error deleting user", error: error.message }); }
+  } catch (error) { res.status(500).json({ message: "Error deleting user", error: safeError(error) }); }
 }
 
 
@@ -52,7 +55,7 @@ export const getAllRestaurants = async (req, res) => {
 
     res.status(200).json({ success: true, count: restaurants.length, restaurants });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching restaurants", error: error.message });
+    res.status(500).json({ message: "Error fetching restaurants", error: safeError(error) });
   }
 };
 
@@ -91,7 +94,7 @@ export const createRestaurantAdmin = async (req, res) => {
 
     res.status(201).json({ success: true, message: "Restaurant onboarded!", restaurantId: newRestaurant._id });
   } catch (error) {
-    res.status(500).json({ message: "Failed to provision restaurant admin", error: error.message });
+    res.status(500).json({ message: "Failed to provision restaurant admin", error: safeError(error) });
   }
 };
 export const deleteRestaurant = async (req, res) => {
@@ -107,7 +110,7 @@ export const deleteRestaurant = async (req, res) => {
 
     res.status(200).json({ success: true, message: "Restaurant and Vendor account permanently deleted." });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting restaurant", error: error.message });
+    res.status(500).json({ message: "Error deleting restaurant", error: safeError(error) });
   }
 };
 
@@ -137,7 +140,7 @@ export const createUser = async (req, res) => {
 
     res.status(201).json({ success: true, message: `${role} created successfully.`, userId: newUser._id });
   } catch (error) {
-    res.status(500).json({ message: "Error creating user", error: error.message });
+    res.status(500).json({ message: "Error creating user", error: safeError(error) });
   }
 };
 
@@ -162,7 +165,7 @@ export const updateUser = async (req, res) => {
 
     res.status(200).json({ success: true, message: "User updated successfully.", user });
   } catch (error) {
-    res.status(500).json({ message: "Error updating user", error: error.message });
+    res.status(500).json({ message: "Error updating user", error: safeError(error) });
   }
 };
 
@@ -188,6 +191,6 @@ export const resetUserPassword = async (req, res) => {
 
     res.status(200).json({ success: true, message: "User password successfully reset." });
   } catch (error) {
-    res.status(500).json({ message: "Error resetting password", error: error.message });
+    res.status(500).json({ message: "Error resetting password", error: safeError(error) });
   }
 };

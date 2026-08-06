@@ -4,6 +4,9 @@ import LostFound from "../models/lostFound.js";
 import Notification from "../models/Notification.js";
 import CareerThread from "../models/CareerThread.js";
 
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 export const getDashboardSummary = async (req, res) => {
   try {
     const classString = req.user ? `${req.user.program}-${req.user.department}-${req.user.semester}-${req.user.section}` : "";
@@ -73,7 +76,7 @@ export const getDashboardSummary = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "failed to assemble dashboard data payload",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };

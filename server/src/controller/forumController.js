@@ -1,6 +1,9 @@
 import Forum from "../models/Forum.js"
 import Notification from "../models/Notification.js"
 
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 export const getForumSummary = async (_req, res) => {
   try {
     const threads = await Forum.find({ isHidden: false })
@@ -17,7 +20,7 @@ export const getForumSummary = async (_req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to load forum feed summary",
-      error: error.message,
+      error: safeError(error),
     })
   }
 }
@@ -86,7 +89,7 @@ export const createForumThread = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to create discussion thread",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };
@@ -143,7 +146,7 @@ export const updateForumThread = async (req, res) => {
     res.status(200).json({ success: true, message: 'Thread updated!', thread })
 
   } catch (error) {
-    res.status(500).json({ message: "Server error during updation", error: error.message })
+    res.status(500).json({ message: "Server error during updation", error: safeError(error) })
   }
 }
 
@@ -161,7 +164,7 @@ export const deleteForumThread = async (req, res) => {
     res.status(200).json({ success: true, message: "Thread permanently removed" })
 
   } catch (error) {
-    res.status(500).json({ message: "Server error during deletion", error: error.message })
+    res.status(500).json({ message: "Server error during deletion", error: safeError(error) })
   }
 }
 
@@ -195,7 +198,7 @@ export const toggleHideThread = async (req, res) => {
       idHidden: thread.isHidden
     })
   } catch (error) {
-    res.status(500).json({ message: "Server error during moderation", error: error.message })
+    res.status(500).json({ message: "Server error during moderation", error: safeError(error) })
   }
 }
 
@@ -261,7 +264,7 @@ export const addThreadReply = async (req, res) => {
     res.status(201).json({ success: true, reply: savedReply, underReview: false })
 
   } catch (error) {
-    res.status(500).json({ message: "Server error adding reply", error: error.message })
+    res.status(500).json({ message: "Server error adding reply", error: safeError(error) })
   }
 }
 
@@ -312,7 +315,7 @@ export const updateThreadReply = async (req, res) => {
 
     res.status(200).json({ success: true, reply })
   } catch (error) {
-    res.status(500).json({ message: "Server error updating reply", error: error.message })
+    res.status(500).json({ message: "Server error updating reply", error: safeError(error) })
   }
 }
 
@@ -349,7 +352,7 @@ export const deleteThreadReply = async (req, res) => {
     res.status(200).json({ success: true, message: "Reply removed" })
 
   } catch (error) {
-    res.status(500).json({ message: "Server error deleting reply", error: error.message })
+    res.status(500).json({ message: "Server error deleting reply", error: safeError(error) })
   }
 };
 
@@ -371,7 +374,7 @@ export const getForumThreadById = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch thread details",
-      error: error.message
+      error: safeError(error)
     });
   }
 };
@@ -410,7 +413,7 @@ export const reportForumThread = async (req, res) => {
     });
     res.status(200).json({ success: true, message: "Thread reported and sent to the moderators." });
   } catch (error) {
-    res.status(500).json({ message: "Server error reporting thread", error: error.message });
+    res.status(500).json({ message: "Server error reporting thread", error: safeError(error) });
   }
 };
 
@@ -452,7 +455,7 @@ export const reportThreadReply = async (req, res) => {
     });
     res.status(200).json({ success: true, message: "Reply reported and sent to moderators." });
   } catch (error) {
-    res.status(500).json({ message: "Server error reporting reply", error: error.message });
+    res.status(500).json({ message: "Server error reporting reply", error: safeError(error) });
   }
 };
 

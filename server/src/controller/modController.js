@@ -7,6 +7,9 @@ import Report from "../models/Report.js";
 import User from "../models/User.js";
 import Complaint from "../models/Complaint.js";
 
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 export const getModerationQueue = async (req, res) => {
   try {
     if (req.user.role !== "admin" && req.user.role !== "student_mod" && req.user.role !== "campus_admin") {
@@ -125,7 +128,7 @@ export const getModerationQueue = async (req, res) => {
     console.error("Failed to load moderation queue:", error);
     res.status(500).json({
       message: "Failed to load the moderation queue",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };
@@ -379,7 +382,7 @@ export const moderateItem = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Server error during moderation action",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };

@@ -1,6 +1,13 @@
 import CareerThread from "../models/CareerThread.js";
 import User from "../models/User.js";
 
+// Escape regex special characters to prevent ReDoS attacks
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// Safe error response — hides internal details in production
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 // Helper to format safe thread object with author anonymity
 const formatSafeThread = (thread, currentUserId, userSavedPosts = []) => {
   const threadObj = thread.toObject ? thread.toObject() : thread;
@@ -37,8 +44,8 @@ export const getCareerThreads = async (req, res) => {
       query.category = category;
     }
 
-    if (search && search.trim()) {
-      const searchRegex = new RegExp(search.trim(), "i");
+    if (search && typeof search === "string" && search.trim()) {
+      const searchRegex = new RegExp(escapeRegex(search.trim()), "i");
       query.$or = [
         { title: searchRegex },
         { content: searchRegex },
@@ -59,7 +66,7 @@ export const getCareerThreads = async (req, res) => {
 
     res.status(200).json({ success: true, count: safeThreads.length, threads: safeThreads });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching career threads", error: error.message });
+    res.status(500).json({ message: "Error fetching career threads", error: safeError(error) });
   }
 };
 
@@ -85,7 +92,7 @@ export const getCareerThreadById = async (req, res) => {
 
     res.status(200).json({ success: true, thread: safeThread });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching thread details", error: error.message });
+    res.status(500).json({ message: "Error fetching thread details", error: safeError(error) });
   }
 };
 
@@ -138,7 +145,7 @@ export const createCareerThread = async (req, res) => {
       thread: formatSafeThread(populatedThread, req.user._id),
     });
   } catch (error) {
-    res.status(500).json({ message: "Error creating thread", error: error.message });
+    res.status(500).json({ message: "Error creating thread", error: safeError(error) });
   }
 };
 
@@ -176,7 +183,7 @@ export const replyToThread = async (req, res) => {
       thread: formatSafeThread(updatedThread, req.user._id),
     });
   } catch (error) {
-    res.status(500).json({ message: "Error adding reply", error: error.message });
+    res.status(500).json({ message: "Error adding reply", error: safeError(error) });
   }
 };
 
@@ -207,7 +214,7 @@ export const toggleLikeCareerThread = async (req, res) => {
       isLiked,
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error toggling like", error: error.message });
+    res.status(500).json({ message: "Server error toggling like", error: safeError(error) });
   }
 };
 
@@ -237,7 +244,7 @@ export const toggleSaveCareerThread = async (req, res) => {
       isSaved,
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error toggling bookmark", error: error.message });
+    res.status(500).json({ message: "Server error toggling bookmark", error: safeError(error) });
   }
 };
 
@@ -258,7 +265,7 @@ export const getSavedCareerThreads = async (req, res) => {
 
     res.status(200).json({ success: true, count: savedThreads.length, threads: savedThreads });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching saved threads", error: error.message });
+    res.status(500).json({ message: "Error fetching saved threads", error: safeError(error) });
   }
 };
 
@@ -304,7 +311,7 @@ export const getCareerProfile = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching career profile", error: error.message });
+    res.status(500).json({ message: "Error fetching career profile", error: safeError(error) });
   }
 };
 
@@ -332,7 +339,7 @@ export const updateCareerProfile = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Error updating career profile", error: error.message });
+    res.status(500).json({ message: "Error updating career profile", error: safeError(error) });
   }
 };
 
@@ -354,7 +361,7 @@ export const deleteCareerThread = async (req, res) => {
 
     res.status(200).json({ success: true, message: "Career thread deleted successfully." });
   } catch (error) {
-    res.status(500).json({ message: "Server error deleting career thread", error: error.message });
+    res.status(500).json({ message: "Server error deleting career thread", error: safeError(error) });
   }
 };
 
@@ -386,7 +393,7 @@ export const reportCareerThread = async (req, res) => {
 
     res.status(200).json({ success: true, message: "Thread reported to moderators." });
   } catch (error) {
-    res.status(500).json({ message: "Server error reporting thread", error: error.message });
+    res.status(500).json({ message: "Server error reporting thread", error: safeError(error) });
   }
 };
 
@@ -422,7 +429,7 @@ export const reportCareerReply = async (req, res) => {
 
     res.status(200).json({ success: true, message: "Reply reported and sent to moderators." });
   } catch (error) {
-    res.status(500).json({ message: "Server error reporting reply", error: error.message });
+    res.status(500).json({ message: "Server error reporting reply", error: safeError(error) });
   }
 };
 
@@ -448,6 +455,6 @@ export const deleteCareerReply = async (req, res) => {
 
     res.status(200).json({ success: true, message: "Reply deleted successfully." });
   } catch (error) {
-    res.status(500).json({ message: "Server error deleting reply", error: error.message });
+    res.status(500).json({ message: "Server error deleting reply", error: safeError(error) });
   }
 };

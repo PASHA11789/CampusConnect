@@ -3,6 +3,9 @@ import Report from "../models/Report.js"
 import { checkUserHasPublicActivity } from "../utils/activityCheck.js";
 import { sendWebPushNotification } from "../utils/pushNotification.js";
 
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 
 export const updateProfile = async (req, res) =>{
     try{
@@ -28,7 +31,7 @@ export const updateProfile = async (req, res) =>{
         registrationNumber: updatedUser.registeration_number
         }
       })
-    }catch(error){res.status(500).json({ message: "Error updating profile", error: error.message })}
+    }catch(error){res.status(500).json({ message: "Error updating profile", error: safeError(error) })}
 }
 
 export const getPublicProfile = async (req, res) => {
@@ -68,7 +71,7 @@ export const getPublicProfile = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching profile", error: error.message });
+    res.status(500).json({ message: "Error fetching profile", error: safeError(error) });
   }
 };
 
@@ -117,7 +120,7 @@ export const reportUserProfile = async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).json({ message: "Error reporting user profile", error: error.message });
+    res.status(500).json({ message: "Error reporting user profile", error: safeError(error) });
   }
 };
 
@@ -141,7 +144,7 @@ export const subscribePushNotification = async (req, res) => {
       message: "Push subscription saved successfully.",
     });
   } catch (error) {
-    res.status(500).json({ message: "Failed to save push subscription", error: error.message });
+    res.status(500).json({ message: "Failed to save push subscription", error: safeError(error) });
   }
 };
 
@@ -181,7 +184,7 @@ export const warnUser = async (req, res) => {
 
     res.json({ success: true, message: `Warning issued to ${targetUser.name}.`, user: targetUser });
   } catch (error) {
-    res.status(500).json({ message: "Failed to issue warning", error: error.message });
+    res.status(500).json({ message: "Failed to issue warning", error: safeError(error) });
   }
 };
 
@@ -198,7 +201,7 @@ export const acknowledgeWarning = async (req, res) => {
     }
     res.json({ success: true, message: "Warning acknowledged." });
   } catch (error) {
-    res.status(500).json({ message: "Failed to acknowledge warning", error: error.message });
+    res.status(500).json({ message: "Failed to acknowledge warning", error: safeError(error) });
   }
 };
 
@@ -238,7 +241,7 @@ export const testPushNotification = async (req, res) => {
       res.status(500).json({ success: false, message: "Failed to send push notification. Check server logs." });
     }
   } catch (error) {
-    res.status(500).json({ message: "Error sending test push", error: error.message });
+    res.status(500).json({ message: "Error sending test push", error: safeError(error) });
   }
 };
 

@@ -1,6 +1,9 @@
 import Petition from "../models/Petition.js";
 import Notification from "../models/Notification.js";
 
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 export const hasPetitionAccess = (petition, user) => {
   if (!user) return false;
   if (user.role === "admin" || user.role === "campus_admin") return true;
@@ -45,7 +48,7 @@ export const getPetitions = async (req, res) => {
 
     return res.status(200).json({ success: true, count: petitions.length, petitions });
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Failed to fetch petitions", error: error.message });
+    return res.status(500).json({ success: false, message: "Failed to fetch petitions", error: safeError(error) });
   }
 };
 
@@ -68,7 +71,7 @@ export const getPetitionById = async (req, res) => {
 
     return res.status(200).json({ success: true, petition });
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Error fetching petition", error: error.message });
+    return res.status(500).json({ success: false, message: "Error fetching petition", error: safeError(error) });
   }
 };
 
@@ -167,7 +170,7 @@ export const createPetition = async (req, res) => {
       petition: populatedPetition,
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Failed to create petition", error: error.message });
+    return res.status(500).json({ success: false, message: "Failed to create petition", error: safeError(error) });
   }
 };
 
@@ -235,7 +238,7 @@ export const signPetition = async (req, res) => {
       status: petition.status,
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Server error signing petition", error: error.message });
+    return res.status(500).json({ success: false, message: "Server error signing petition", error: safeError(error) });
   }
 };
 
@@ -291,7 +294,7 @@ export const moderatePetition = async (req, res) => {
       res.status(400).json({ message: "Invalid action. Use 'Approve' or 'Reject'." });
     }
   } catch (error) {
-    res.status(500).json({ message: "Server error during moderation", error: error.message });
+    res.status(500).json({ message: "Server error during moderation", error: safeError(error) });
   }
 };
 
@@ -324,6 +327,6 @@ export const reportPetition = async (req, res) => {
 
     return res.status(200).json({ success: true, message: "Petition reported and sent to moderators." });
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Server error reporting petition", error: error.message });
+    return res.status(500).json({ success: false, message: "Server error reporting petition", error: safeError(error) });
   }
 };

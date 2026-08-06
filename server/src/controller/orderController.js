@@ -5,6 +5,9 @@ import User from "../models/User.js";
 import { generateOrderId } from "../utils/orderUtils.js";
 import { sendWebPushNotification } from "../utils/pushNotification.js";
 
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 
 /**
  * Helper to strip personal contact information before sending order data to riders
@@ -94,7 +97,7 @@ export const createOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in createOrder:", error);
-    return res.status(500).json({ success: false, message: "Error creating order", error: error.message });
+    return res.status(500).json({ success: false, message: "Error creating order", error: safeError(error) });
   }
 };
 
@@ -205,7 +208,7 @@ export const acceptRiderTicket = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in acceptRiderTicket:", error);
-    return res.status(500).json({ success: false, message: "Error accepting ticket", error: error.message });
+    return res.status(500).json({ success: false, message: "Error accepting ticket", error: safeError(error) });
 
   }
 };
@@ -278,7 +281,7 @@ export const pickupOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in pickupOrder:", error);
-    return res.status(500).json({ success: false, message: "Error marking pickup", error: error.message });
+    return res.status(500).json({ success: false, message: "Error marking pickup", error: safeError(error) });
   }
 };
 
@@ -350,7 +353,7 @@ export const arriveOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in arriveOrder:", error);
-    return res.status(500).json({ success: false, message: "Error updating arrival status", error: error.message });
+    return res.status(500).json({ success: false, message: "Error updating arrival status", error: safeError(error) });
   }
 };
 
@@ -432,7 +435,7 @@ export const completeOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in completeOrder:", error);
-    return res.status(500).json({ success: false, message: "Error completing order", error: error.message });
+    return res.status(500).json({ success: false, message: "Error completing order", error: safeError(error) });
   }
 };
 
@@ -477,7 +480,7 @@ export const nudgeOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in nudgeOrder:", error);
-    return res.status(500).json({ success: false, message: "Error sending nudge", error: error.message });
+    return res.status(500).json({ success: false, message: "Error sending nudge", error: safeError(error) });
   }
 };
 
@@ -522,7 +525,7 @@ export const nudgeRiderOnArrival = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in nudgeRiderOnArrival:", error);
-    return res.status(500).json({ success: false, message: "Error sending arrival nudge", error: error.message });
+    return res.status(500).json({ success: false, message: "Error sending arrival nudge", error: safeError(error) });
   }
 };
 
@@ -558,7 +561,7 @@ export const getRiderActiveOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching rider active order:", error);
-    return res.status(500).json({ success: false, message: "Error fetching active order", error: error.message });
+    return res.status(500).json({ success: false, message: "Error fetching active order", error: safeError(error) });
   }
 };
 
@@ -588,7 +591,7 @@ export const getRiderHistory = async (req, res) => {
     return res.status(200).json({ success: true, count: formattedHistory.length, history: formattedHistory });
   } catch (error) {
     console.error("Error fetching rider history:", error);
-    return res.status(500).json({ success: false, message: "Error fetching rider history", error: error.message });
+    return res.status(500).json({ success: false, message: "Error fetching rider history", error: safeError(error) });
   }
 };
 
@@ -626,7 +629,7 @@ export const getMarketplaceTickets = async (req, res) => {
 
     return res.status(200).json({ success: true, count: formattedTickets.length, tickets: formattedTickets });
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Error fetching marketplace tickets", error: error.message });
+    return res.status(500).json({ success: false, message: "Error fetching marketplace tickets", error: safeError(error) });
   }
 };
 
@@ -647,6 +650,6 @@ export const getOrderById = async (req, res) => {
 
     return res.status(200).json({ success: true, order });
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Error fetching order", error: error.message });
+    return res.status(500).json({ success: false, message: "Error fetching order", error: safeError(error) });
   }
 };
