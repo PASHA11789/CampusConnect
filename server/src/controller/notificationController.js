@@ -1,5 +1,8 @@
 import Notification from "../models/Notification.js";
 
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 export const getUserNotifications = async (req, res) => {
   try {
     const notifications = await Notification.find({
@@ -12,7 +15,7 @@ export const getUserNotifications = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch notifications",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };
@@ -34,7 +37,7 @@ export const markedAsRead = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to update notifications",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };

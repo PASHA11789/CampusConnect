@@ -13,11 +13,13 @@ import {
   getComplaintStats,
 } from "../controller/complaintController.js";
 
+import { searchLimiter } from "../middleware/rateLimiter.js";
+
 const router = express.Router();
 
 router
   .route("/")
-  .get(protect, getAllComplaints)
+  .get(protect, searchLimiter, getAllComplaints)
   .post(protect, aiModeration, createComplaint);
 
 router.route("/my").get(protect, getMyComplaints);

@@ -1,6 +1,9 @@
 import Order from '../models/Order.js';
 import Restaurant from '../models/Restaurants.js';
 
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 export const getActiveRestaurants = async (req, res) => {
   try {
     const restaurants = await Restaurant.find({ isActive: true })
@@ -8,7 +11,7 @@ export const getActiveRestaurants = async (req, res) => {
       .populate('owner', 'avatar name');
     res.status(200).json({ success: true, count: restaurants.length, restaurants });
   } catch (error) {
-    res.status(500).json({ message: "Failed to load restaurants", error: error.message });
+    res.status(500).json({ message: "Failed to load restaurants", error: safeError(error) });
   }
 };
 
@@ -20,7 +23,7 @@ export const getRestaurantMenu = async (req, res) => {
     const availableMenu = restaurant.menu.filter(item => item.isAvailable);
     res.status(200).json({ success: true, restaurantName: restaurant.name, menu: availableMenu });
   } catch (error) {
-    res.status(500).json({ message: "Failed to load menu", error: error.message });
+    res.status(500).json({ message: "Failed to load menu", error: safeError(error) });
   }
 };
 
@@ -33,6 +36,6 @@ export const getMyOrders = async (req, res) => {
       .sort({ createdAt: -1 });
     res.status(200).json({ success: true, count: orders.length, orders });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching your orders", error: error.message });
+    res.status(500).json({ message: "Error fetching your orders", error: safeError(error) });
   }
 };

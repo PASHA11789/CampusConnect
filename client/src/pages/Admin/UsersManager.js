@@ -26,6 +26,8 @@ const DEFAULT_SEMESTERS = [
   "6th Semester",
   "7th Semester",
   "8th Semester",
+  "9th Semester",
+  "10th Semester",
   "Alumni / Graduated"
 ];
 
@@ -883,9 +885,7 @@ const UsersManager = () => {
 
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[12px] font-extrabold text-[#071A35]">Section</label>
-                  <select value={newUserData.section} onChange={e => setNewUserData({ ...newUserData, section: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-2.5 py-2.5 text-[11.5px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]">
-                    {DEFAULT_SECTIONS.slice(1).map(sec => <option key={sec} value={sec}>{sec}</option>)}
-                  </select>
+                  <input type="text" value={newUserData.section || ''} onChange={e => setNewUserData({ ...newUserData, section: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-3 py-2.5 text-[12.5px] font-semibold text-[#071A35] focus:outline-none focus:border-[#071A35]" placeholder="e.g. Section A" />
                 </div>
               </div>
 

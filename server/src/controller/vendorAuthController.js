@@ -3,6 +3,9 @@ import Vendor from "../models/Vendor.js";
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
 
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 export const loginVendor = async (req, res) => {
   const { email, password } = req.body;
 
@@ -51,7 +54,7 @@ export const loginVendor = async (req, res) => {
 
     return res.status(401).json({ message: "Invalid email or password" });
   } catch (error) {
-    res.status(500).json({ message: "server error", error: error.message });
+    res.status(500).json({ message: "server error", error: safeError(error) });
   }
 };
 
@@ -90,7 +93,7 @@ export const registerVendor = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    res.status(500).json({ message: "Server Error", error: safeError(error) });
   }
 };
 
@@ -134,6 +137,6 @@ export const updateVendorAvatar = async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Server error during upload", error: error.message });
+      .json({ message: "Server error during upload", error: safeError(error) });
   }
 };

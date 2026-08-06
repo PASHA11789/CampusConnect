@@ -2,6 +2,16 @@ import Complaint from "../models/Complaint.js";
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 
+// Escape regex special characters to prevent ReDoS attacks
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// Whitelist of allowed sortBy fields to prevent arbitrary field injection
+const ALLOWED_SORT_FIELDS = new Set(["createdAt", "upvoteCount", "priority", "status", "type"]);
+
+// Safe error response — hides internal details in production
+const safeError = (error) =>
+  process.env.NODE_ENV === "development" ? error.message : "Internal server error";
+
 // @desc    Create a new Suggestion or Complaint
 // @route   POST /api/complaints
 // @access  Private (Students, Alumni, Campus Members)
@@ -60,7 +70,7 @@ export const createComplaint = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Failed to submit complaint/suggestion",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };
@@ -79,7 +89,7 @@ export const getAllComplaints = async (req, res) => {
       search,
       page = 1,
       limit = 10,
-      sortBy = "createdAt",
+      sortBy: rawSortBy = "createdAt",
       order = "desc",
     } = req.query;
 
@@ -91,15 +101,20 @@ export const getAllComplaints = async (req, res) => {
     if (priority) query.priority = priority;
     if (isEscalated !== undefined) query.isEscalated = isEscalated === "true";
 
-    if (search) {
+    if (search && typeof search === "string" && search.trim()) {
+      const escapedSearch = escapeRegex(search.trim());
       query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { targetDepartment: { $regex: search, $options: "i" } },
+        { title: { $regex: escapedSearch, $options: "i" } },
+        { description: { $regex: escapedSearch, $options: "i" } },
+        { targetDepartment: { $regex: escapedSearch, $options: "i" } },
       ];
     }
 
-    const skip = (Number(page) - 1) * Number(limit);
+    // Whitelist sortBy and cap pagination to prevent abuse
+    const sortBy = ALLOWED_SORT_FIELDS.has(rawSortBy) ? rawSortBy : "createdAt";
+    const safePage = Math.max(1, Math.floor(Number(page) || 1));
+    const safeLimit = Math.min(50, Math.max(1, Math.floor(Number(limit) || 10)));
+    const skip = (safePage - 1) * safeLimit;
     const sortOrder = order === "asc" ? 1 : -1;
 
     const complaints = await Complaint.find(query)
@@ -108,7 +123,7 @@ export const getAllComplaints = async (req, res) => {
       .populate("escalatedBy", "name registeration_number avatar role")
       .sort({ [sortBy]: sortOrder })
       .skip(skip)
-      .limit(Number(limit));
+      .limit(safeLimit);
 
     const total = await Complaint.countDocuments(query);
 
@@ -132,14 +147,14 @@ export const getAllComplaints = async (req, res) => {
       success: true,
       count: formattedComplaints.length,
       total,
-      page: Number(page),
-      pages: Math.ceil(total / Number(limit)),
+      page: safePage,
+      pages: Math.ceil(total / safeLimit),
       complaints: formattedComplaints,
     });
   } catch (error) {
     res.status(500).json({
       message: "Failed to fetch complaints/suggestions",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };
@@ -161,7 +176,7 @@ export const getMyComplaints = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Failed to fetch your complaints/suggestions",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };
@@ -199,7 +214,7 @@ export const getComplaintById = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Failed to fetch complaint detail",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };
@@ -270,7 +285,7 @@ export const updateComplaintStatus = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Failed to update complaint status",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };
@@ -346,7 +361,7 @@ export const pingAdminsForComplaint = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Failed to ping admins",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };
@@ -381,7 +396,7 @@ export const upvoteComplaint = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Failed to toggle upvote",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };
@@ -412,7 +427,7 @@ export const deleteComplaint = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Failed to delete item",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };
@@ -467,7 +482,7 @@ export const getComplaintStats = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Failed to get complaint stats",
-      error: error.message,
+      error: safeError(error),
     });
   }
 };
