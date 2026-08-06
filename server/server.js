@@ -73,7 +73,7 @@ app.use(
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      callback(new Error("Not allowed by CORS"));
+      return callback(null, false); // Reject gracefully without crashing
     },
     credentials: true,
   })
