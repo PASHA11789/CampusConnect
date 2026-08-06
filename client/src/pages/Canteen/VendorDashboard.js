@@ -1488,56 +1488,62 @@ export default function VendorDashboard() {
                 </div>
                 <button
                   onClick={handleAddNewItemClick}
-                  className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-black px-4.5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                  className="group bg-[#00c2cb] hover:bg-[#00a8b5] text-white text-xs font-extrabold px-4 sm:px-5 py-2.5 rounded-[14px] transition-all duration-300 shadow-[0_8px_20px_-8px_rgba(0,194,203,0.5)] hover:shadow-[0_12px_25px_-8px_rgba(0,194,203,0.6)] flex items-center gap-2 hover:-translate-y-0.5"
                 >
-                  <span>+</span> Add New Item
+                  <div className="bg-white/20 rounded-md p-1 group-hover:bg-white/30 transition-colors">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"></path></svg>
+                  </div>
+                  Add New Item
                 </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-6 max-lg:grid-cols-2 max-sm:grid-cols-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                 {menu.map((item) => (
                   <div
                     key={item.id}
-                    className="border border-slate-100 rounded-[24px] p-4.5 hover:border-slate-200 transition-all bg-white relative flex flex-col justify-between"
+                    className="group bg-white border border-slate-100/60 rounded-[24px] p-3 sm:p-4 hover:border-[#00c2cb]/30 hover:shadow-[0_12px_40px_-15px_rgba(0,194,203,0.15)] transition-all duration-300 relative flex flex-col justify-between"
                   >
                     <div>
-                      <div className="relative rounded-2xl overflow-hidden h-40 bg-slate-100 mb-4 border">
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                        <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#0a2342] text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">
+                      <div className="relative rounded-2xl overflow-hidden h-44 bg-slate-50 mb-4 group-hover:shadow-inner transition-all">
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#071A35]/80 via-transparent to-[#071A35]/20 opacity-60 mix-blend-multiply"></div>
+                        <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-md text-[#071A35] text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
                           {item.category}
                         </span>
                         <span
-                          className={`absolute top-3 right-3 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow ${item.status === "Active"
-                              ? "bg-emerald-500 text-white"
-                              : "bg-slate-400 text-white"
+                          className={`absolute top-3 right-3 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1.5 ${item.status === "Active"
+                              ? "bg-emerald-500/90 text-white backdrop-blur-md"
+                              : "bg-slate-700/80 text-white backdrop-blur-md"
                             }`}
                         >
+                          <span className={`w-1.5 h-1.5 rounded-full ${item.status === "Active" ? "bg-white" : "bg-slate-300"}`}></span>
                           {item.status}
                         </span>
                       </div>
 
-                      <div className="flex justify-between items-start mb-1.5">
-                        <h4 className="text-[14px] font-black text-[#0a2342]">{item.name}</h4>
-                        <span className="text-sm font-black text-orange-600 shrink-0">Rs. {item.price}</span>
+                      <div className="flex justify-between items-start mb-2 px-1">
+                        <h4 className="text-[15px] font-black text-[#071A35] leading-snug tracking-tight group-hover:text-[#00c2cb] transition-colors line-clamp-1">{item.name}</h4>
+                        <span className="text-[14px] font-black text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-lg border border-orange-100/50 shrink-0">Rs. {item.price}</span>
                       </div>
-                      <p className="text-[10.5px] text-slate-400 font-bold leading-relaxed mb-4">
+                      <p className="text-[11px] text-slate-500 font-medium leading-relaxed mb-4 px-1 line-clamp-2">
                         {item.description}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2.5 border-t border-slate-50 pt-3">
+                    <div className="flex items-center gap-2 pt-3 px-1 border-t border-slate-100/80 mt-auto">
                       <button
                         onClick={() => handleEditItemClick(item)}
-                        className="flex-1 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 rounded-xl text-[10.5px] font-black text-[#0a2342] flex items-center justify-center gap-1.5 transition-colors"
+                        className="flex-1 py-2.5 bg-slate-50 hover:bg-[#00c2cb] border border-slate-100 hover:border-[#00c2cb] rounded-xl text-[11px] font-extrabold text-slate-600 hover:text-white flex items-center justify-center gap-1.5 transition-all shadow-sm"
                       >
-                        ✏️ Edit Item
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        Edit Item
                       </button>
                       <button
                         onClick={() => handleDeleteItem(item.id)}
-                        className="py-2.5 px-3.5 border border-rose-100 text-rose-500 hover:bg-rose-50 rounded-xl text-xs transition-colors"
+                        className="p-2.5 bg-white border border-rose-100 hover:bg-rose-50 hover:border-rose-200 text-rose-500 rounded-xl transition-all shadow-sm group/btn"
                         title="Delete"
                       >
-                        🗑️
+                        <svg className="w-4 h-4 group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                       </button>
                     </div>
                   </div>

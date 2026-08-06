@@ -64,7 +64,8 @@ const seedUsers = async () => {
 
     // --- VENDORS ---
     const mcdonaldsVendor = await Vendor.create({
-      name: "Ali Khan",
+      name:
+        "Ali Khan",
       email: "mcdonalds@campusconnect.com",
       registeration_number: "2026F-mcdonalds-001",
       password: hashedPassword,
