@@ -28,6 +28,12 @@ export const deleteUser = async (userId) => {
   return data;
 };
 
+export const updateUser = async (userId, userData) => {
+  const { data } = await axios.put(`${API_URL}/users/${userId}`, userData, getConfig());
+  return data;
+};
+
+
 export const updateUserRole = async (userId, role) => {
   const { data } = await axios.put(`${API_URL}/users/${userId}/role`, { role }, getConfig());
   return data;

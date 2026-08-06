@@ -8,7 +8,8 @@ import {
   createRestaurantAdmin,
   deleteRestaurant,
   createUser,
-  resetUserPassword
+  resetUserPassword,
+  updateUser
 } from '../controller/campusAdminController.js';
 
 const router = express.Router();
@@ -21,6 +22,7 @@ router.route('/users')
   .post(createUser);
 
 router.route('/users/:id')
+  .put(updateUser)
   .delete(deleteUser);
 
 router.route('/users/:id/role')

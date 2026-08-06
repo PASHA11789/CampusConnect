@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar';
 import Topbar from '../../components/layout/Topbar';
-import { getUsers, createUser, deleteUser, updateUserRole, resetUserPassword } from '../../services/adminService';
+import { getUsers, createUser, deleteUser, updateUserRole, resetUserPassword, updateUser } from '../../services/adminService';
 import { useNavigate } from 'react-router-dom';
 
 const DEFAULT_DEPARTMENTS = [
@@ -205,7 +205,15 @@ const UsersManager = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await createUser(newUserData);
+      const payload = { ...newUserData };
+      // Convert "4th Semester" to 4
+      if (payload.semester) {
+        let semNum = parseInt(String(payload.semester).replace(/\D/g, ''), 10);
+        if (isNaN(semNum)) semNum = 0;
+        payload.semester = semNum;
+      }
+
+      await createUser(payload);
       setIsCreateModalOpen(false);
       setNewUserData({ name: '', email: '', password: '', role: 'student', registrationNumber: '', department: 'Computer Science & IT', semester: '4th Semester', section: 'Section A' });
       fetchUsersData(); // Refresh list
@@ -249,10 +257,29 @@ const UsersManager = () => {
     setIsEditUserModalOpen(true);
   };
 
-  const handleEditUser = (e) => {
+  const handleEditUser = async (e) => {
     e.preventDefault();
-    setUsers(users.map(u => u._id === editUserData._id ? { ...u, ...editUserData } : u));
-    setIsEditUserModalOpen(false);
+    setIsSubmitting(true);
+    try {
+      const payload = { ...editUserData };
+      
+      // Convert "4th Semester" to 4
+      if (payload.semester) {
+        let semNum = parseInt(String(payload.semester).replace(/\D/g, ''), 10);
+        if (isNaN(semNum)) semNum = 0;
+        payload.semester = semNum;
+      }
+
+      await updateUser(payload._id, payload);
+      
+      // Update local state and map the correct semester for the view
+      setUsers(users.map(u => u._id === editUserData._id ? { ...u, ...editUserData, semester: payload.semester } : u));
+      setIsEditUserModalOpen(false);
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to update user");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Filtered Users List
@@ -597,17 +624,17 @@ const UsersManager = () => {
                 </div>
               ) : viewMode === 'table' ? (
                 /* Table View */
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[750px]">
+                <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                  <table className="w-full text-left border-collapse min-w-[1050px]">
                     <thead>
                       <tr className="border-b border-[#E8E1D5] text-[11px] font-black text-slate-400 uppercase tracking-wider">
-                        <th className="pb-3 px-3">Student &amp; User Details</th>
-                        <th className="pb-3 px-3">Roll / Reg #</th>
-                        <th className="pb-3 px-3">Department</th>
-                        <th className="pb-3 px-3">Semester</th>
-                        <th className="pb-3 px-3">Section</th>
-                        <th className="pb-3 px-3">Role</th>
-                        <th className="pb-3 px-3 text-right">Actions</th>
+                        <th className="pb-3 px-3 whitespace-nowrap">Student &amp; User Details</th>
+                        <th className="pb-3 px-3 whitespace-nowrap">Roll / Reg #</th>
+                        <th className="pb-3 px-3 whitespace-nowrap">Department</th>
+                        <th className="pb-3 px-3 whitespace-nowrap">Semester</th>
+                        <th className="pb-3 px-3 whitespace-nowrap">Section</th>
+                        <th className="pb-3 px-3 whitespace-nowrap">Role</th>
+                        <th className="pb-3 px-3 text-right whitespace-nowrap">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -627,7 +654,7 @@ const UsersManager = () => {
                                     u.name.charAt(0).toUpperCase()
                                   )}
                                 </div>
-                                <div className="flex flex-col text-left">
+                                <div className="flex flex-col text-left whitespace-nowrap">
                                   <span className="text-[13.5px] font-black text-[#071A35] leading-snug group-hover:text-[#00c2cb] transition-colors">{u.name}</span>
                                   <span className="text-[11px] font-semibold text-slate-500">{u.email}</span>
                                 </div>
@@ -636,7 +663,7 @@ const UsersManager = () => {
 
                             {/* Registration # */}
                             <td className="py-3.5 px-3">
-                              <span className="font-mono text-[11.5px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/60 inline-block">
+                              <span className="font-mono text-[11.5px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/60 inline-block whitespace-nowrap">
                                 {u.registeration_number || u.registration_no || 'N/A'}
                               </span>
                             </td>
