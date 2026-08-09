@@ -607,9 +607,12 @@ export const getMarketplaceTickets = async (req, res) => {
       rider: null
     };
 
-    // Data Segregation: If rider is affiliated with a specific restaurant, show tickets from that restaurant
+    // Data Segregation: If rider is affiliated with a specific restaurant, verify restaurant exists and filter
     if (req.user && req.user.restaurant) {
-      query.restaurant = req.user.restaurant;
+      const restaurantExists = await Restaurant.exists({ _id: req.user.restaurant });
+      if (restaurantExists) {
+        query.restaurant = req.user.restaurant;
+      }
     }
 
     const tickets = await Order.find(query)
