@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
 import { SOCKET_URL } from "../../utils/helpers";
+import { setupPushNotifications } from "../../utils/pushNotificationSetup";
 
 const translations = {
   en: {
@@ -268,9 +269,16 @@ export default function RiderMarketplace() {
 
   useEffect(() => {
     fetchTickets();
+    // Attempt push notification registration for rider if not already subscribed
+    setupPushNotifications();
 
-    // Setup Socket connection to 'riders' room
-    const socket = io(SOCKET_URL);
+    // Setup Socket connection to 'riders' room with resilient transports
+    const socket = io(SOCKET_URL, {
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+    });
 
     const joinRiderRooms = () => {
       socket.emit("join_room", "riders");

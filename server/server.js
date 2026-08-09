@@ -30,17 +30,40 @@ import complaintRoutes from "./src/routes/complaintRoutes.js";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust reverse proxy (Render, Vercel, Heroku) so Express gets the real client IP for rate limiting
+app.set("trust proxy", 1);
+
 const httpServer = createServer(app);
 
 // ── CORS Configuration ─────────────────────────────────────────────────────
-// Only allow requests from known frontend origins instead of open cors().
-const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:3000")
-  .split(",")
-  .map((u) => u.trim());
+const defaultOrigins = [
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "https://campusconnect-uw3w.onrender.com",
+];
+
+const envOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(",").map((u) => u.trim()).filter(Boolean)
+  : [];
+
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
+
+const isOriginAllowed = (origin) => {
+  if (!origin) return true;
+  if (allowedOrigins.includes(origin)) return true;
+  // Allow any vercel deployment preview / production domain
+  if (origin.endsWith(".vercel.app") || origin.includes("campusconnect")) return true;
+  return false;
+};
 
 const io = new Server(httpServer, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (isOriginAllowed(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
   },
@@ -58,22 +81,29 @@ app.use(
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://ui-avatars.com"],
-        connectSrc: ["'self'", "ws://localhost:5000", "http://localhost:5000"],
+        connectSrc: [
+          "'self'",
+          "ws://localhost:5000",
+          "http://localhost:5000",
+          "https://campusconnect-uw3w.onrender.com",
+          "wss://campusconnect-uw3w.onrender.com",
+          "https:",
+          "wss:",
+          "ws:",
+        ],
       },
     },
     crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
-// Locked-down CORS — only allowed origins may make requests
+// Locked-down CORS — allowed origins and vercel subdomains
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g., curl, server-to-server, Postman in dev)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
+      if (isOriginAllowed(origin)) {
         return callback(null, true);
       }
-      return callback(null, false); // Reject gracefully without crashing
+      return callback(null, false);
     },
     credentials: true,
   })

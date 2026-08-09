@@ -41,10 +41,17 @@ const getSocketUrl = () => {
   if (process.env.REACT_APP_SOCKET_URL) {
     return process.env.REACT_APP_SOCKET_URL;
   }
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  const hostname = window.location.hostname;
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return 'http://localhost:5000';
   }
-  return window.location.origin;
+  // If testing on local network from mobile (e.g., 192.168.x.x:3000)
+  if (/^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(hostname)) {
+    return `http://${hostname}:5000`;
+  }
+  // Production fallback: Render backend service
+  return 'https://campusconnect-uw3w.onrender.com';
 };
 
 export const SOCKET_URL = getSocketUrl();
+

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import foodFeastImg from "../../assets/vendor_food_feast.jpg";
+import { setupPushNotifications } from "../../utils/pushNotificationSetup";
 
 export default function PartnerLogin() {
   const navigate = useNavigate();
@@ -25,6 +26,10 @@ export default function PartnerLogin() {
           password: password.trim(),
         });
       } catch (firstErr) {
+        // If it's a rate limit error (429), rethrow immediately rather than double-hitting authLimiter
+        if (firstErr.response?.status === 429) {
+          throw firstErr;
+        }
         res = await axios.post("/api/auth/login", {
           email: email.trim(),
           password: password.trim(),
@@ -42,6 +47,8 @@ export default function PartnerLogin() {
         sessionStorage.setItem("user", JSON.stringify(data));
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(data));
+        // Initialize push notifications on mobile gesture
+        setupPushNotifications();
         navigate("/rider/dashboard");
       } else {
         sessionStorage.setItem("vendorToken", token);
@@ -50,6 +57,7 @@ export default function PartnerLogin() {
         sessionStorage.setItem("user", JSON.stringify(data));
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(data));
+        setupPushNotifications();
         navigate("/vendor/dashboard");
       }
     } catch (err) {

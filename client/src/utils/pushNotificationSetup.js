@@ -99,7 +99,11 @@ export const setupPushNotifications = async () => {
 
   // -- 7. Save Subscription to Backend (relative URL via proxy) ---------------
   try {
-    const token = sessionStorage.getItem("token");
+    const token =
+      sessionStorage.getItem("token") ||
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("riderToken") ||
+      localStorage.getItem("riderToken");
     const res = await fetch("/api/users/subscribe", {
       method: "POST",
       headers: {

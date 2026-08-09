@@ -16,12 +16,13 @@ export const globalLimiter = rateLimit({
 });
 
 /**
- * Auth rate limiter — 15 requests per 15 minutes per IP.
- * Prevents brute-force login and registration spam.
+ * Auth rate limiter — 40 requests per 15 minutes per IP.
+ * Prevents brute-force login and registration spam while avoiding locking out legitimate users.
  */
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 15,
+  max: 40,
+  skipSuccessfulRequests: true, // Do not count successful logins toward the limit
   standardHeaders: true,
   legacyHeaders: false,
   message: {
