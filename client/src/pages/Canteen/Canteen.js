@@ -349,6 +349,8 @@ export default function Canteen() {
           showToast(msg || "📍 Rider Arrived! Rider has reached your location. Please receive your food.", "info");
         } else if (sKey === "completed" || sKey === "delivered") {
           showToast(msg || "✅ Order Delivered! Enjoy your meal.", "success");
+        } else if (sKey === "cancelled") {
+          showToast(msg || "❌ Order Cancelled. We apologize for the inconvenience.", "error");
         }
       }
 
@@ -646,6 +648,7 @@ export default function Canteen() {
     if (!rawStatus) return "preparing";
     const s = String(rawStatus).toLowerCase().trim();
     if (s === "student_coming" || s === "student_nudge_arrival") return null;
+    if (s === "cancelled" || s === "rejected") return "cancelled";
     if (s === "pending" || s === "accepted" || s === "preparing" || s === "placed" || s === "new") return "preparing";
     if (s === "ready" || s === "dispatched" || s === "food_ready" || s === "order_ready") return "ready";
     if (s === "on_the_way" || s === "on-the-way" || s === "in_transit" || s === "on the way" || s === "picked_up" || s === "pickedup") return "on_the_way";

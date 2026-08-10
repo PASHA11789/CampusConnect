@@ -12,7 +12,8 @@ import {
   getMarketplaceTickets,
   getRiderActiveOrder,
   getRiderHistory,
-  getOrderById
+  getOrderById,
+  cancelOrder
 } from "../controller/orderController.js";
 
 const router = express.Router();
@@ -40,6 +41,10 @@ router.route("/:id/arrive").put(protect, arriveOrder);
 
 // Stage 7: Rider marks order as fully delivered
 router.route("/:id/complete").put(protect, completeOrder);
+
+// ── Cancellation Pipeline ──────────────────────────────────────────────
+// Cancel order at any active step (pending, accepted, preparing, ready, picked_up, arrived)
+router.route("/:id/cancel").put(protect, cancelOrder).post(protect, cancelOrder);
 
 // ── Nudge Features ──────────────────────────────────────────────────────
 // Student nudges vendor (rate-limited: 1 per 3 min)

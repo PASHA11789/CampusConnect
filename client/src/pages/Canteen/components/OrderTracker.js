@@ -38,8 +38,10 @@ export default function OrderTracker({
   const [cooldown, setCooldown] = useState(0);
   const [liveStatus, setLiveStatus] = useState("preparing");
   const [arrivalMessage, setArrivalMessage] = useState(null);
+  const [cancelMessage, setCancelMessage] = useState(null);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [riderNudgeSent, setRiderNudgeSent] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   // Trigger continuous un-muteable 5s bell ring / 8s pause loop when liveStatus is arrived
   useEffect(() => {
@@ -77,8 +79,11 @@ export default function OrderTracker({
       setLiveStatus(newStatus);
       if (newStatus === "arrived") {
         setArrivalMessage(msg || "Rider has arrived at your location!");
-      }
-      if (newStatus === "completed" || newStatus === "delivered") {
+      } else if (newStatus === "cancelled") {
+        stopArrivalAlertLoop();
+        setCancelMessage(msg || "Your order was cancelled by the restaurant.");
+      } else if (newStatus === "completed" || newStatus === "delivered") {
+        stopArrivalAlertLoop();
         setShowRatingModal(true);
       }
     };
@@ -300,7 +305,9 @@ export default function OrderTracker({
             <div className="mb-4 p-3 sm:p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-center animate-fade-in">
               <div className="text-lg sm:text-xl mb-0.5">❌</div>
               <p className="text-xs font-black text-rose-700">Order Cancelled</p>
-              <p className="text-[10px] text-rose-500 mt-0.5">Your order from {restaurantName} was cancelled.</p>
+              <p className="text-[10px] text-rose-600 mt-0.5 leading-relaxed font-semibold">
+                {cancelMessage || `Your order from ${restaurantName} was cancelled.`}
+              </p>
             </div>
           ) : (
             <div className="mb-4 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-[#071A35] via-[#0a2342] to-[#0079c2] text-white text-center shadow-md border border-white/10">
@@ -370,6 +377,35 @@ export default function OrderTracker({
                   }`}
               >
                 🔔 {cooldown > 0 ? `Vendor Nudge Cooldown (${cooldown}s)` : "Nudge Vendor for Update"}
+              </button>
+            )}
+
+            {/* Student Cancel Option when Pending */}
+            {liveStatus === "pending" && (
+              <button
+                onClick={async () => {
+                  if (window.confirm("Are you sure you want to cancel this order?")) {
+                    try {
+                      setIsCancelling(true);
+                      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+                      await axios.put(`/api/orders/${orderId}/cancel`, {
+                        cancellationReason: "Cancelled by student"
+                      }, {
+                        headers: { Authorization: `Bearer ${token}` }
+                      });
+                      setLiveStatus("cancelled");
+                      setCancelMessage("You have cancelled this order.");
+                    } catch (e) {
+                      console.error(e);
+                    } finally {
+                      setIsCancelling(false);
+                    }
+                  }
+                }}
+                disabled={isCancelling}
+                className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl sm:rounded-2xl text-xs font-black transition-all cursor-pointer border border-rose-200"
+              >
+                {isCancelling ? "Cancelling Order..." : "❌ Cancel Order"}
               </button>
             )}
 

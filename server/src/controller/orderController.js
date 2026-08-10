@@ -656,3 +656,113 @@ export const getOrderById = async (req, res) => {
     return res.status(500).json({ success: false, message: "Error fetching order", error: safeError(error) });
   }
 };
+
+/**
+ * PUT /api/orders/:id/cancel
+ * POST /api/orders/:id/cancel
+ * Cancel an order at any active step (pending, accepted, preparing, ready, picked_up, arrived)
+ */
+export const cancelOrder = async (req, res) => {
+  try {
+    const order = await findOrderByIdOrCustomId(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    if (["completed", "cancelled"].includes(order.status)) {
+      return res.status(400).json({ success: false, message: `Order is already '${order.status}' and cannot be cancelled.` });
+    }
+
+    const { reason, cancellationReason } = req.body;
+    const finalReason = cancellationReason || reason || "Order cancelled";
+
+    const restaurant = await Restaurant.findById(order.restaurant);
+    const restaurantName = restaurant?.name || "Campus Canteen";
+
+    order.status = "cancelled";
+    await order.save();
+
+    const io = req.app.get("socketio");
+    if (io) {
+      // Notify Student
+      io.to(order.student.toString()).emit("order_status_update", {
+        orderId: order.orderId,
+        status: "cancelled",
+        reason: finalReason,
+        message: `We're sorry — your order from ${restaurantName} has been cancelled.${finalReason ? ` Reason: ${finalReason}` : ""}`
+      });
+
+      // Notify Rider if assigned
+      if (order.rider) {
+        const riderIdStr = order.rider._id ? order.rider._id.toString() : order.rider.toString();
+        io.to(riderIdStr).emit("order_status_update", {
+          orderId: order.orderId,
+          status: "cancelled",
+          reason: finalReason,
+          message: `Order ${order.orderId} from ${restaurantName} was cancelled.${finalReason ? ` Reason: ${finalReason}` : ""}`
+        });
+        io.to(riderIdStr).emit("ticket_cancelled", { orderId: order.orderId });
+      }
+
+      // Broadcast to all riders to remove ticket from open marketplace pool
+      io.to("riders").emit("ticket_cancelled", { orderId: order.orderId });
+
+      // Notify vendor
+      if (restaurant?.owner) {
+        io.to(restaurant.owner.toString()).emit("order_status_update", {
+          orderId: order.orderId,
+          status: "cancelled"
+        });
+      }
+    }
+
+    // In-app DB Notification for Student
+    await Notification.create({
+      recipient: order.student,
+      type: "CANTEEN",
+      message: `Your order ${order.orderId} from ${restaurantName} has been cancelled.${finalReason ? ` Reason: ${finalReason}` : " We apologize for the inconvenience."}`
+    });
+
+    // In-app DB Notification for Rider if assigned
+    if (order.rider) {
+      await Notification.create({
+        recipient: order.rider,
+        type: "CANTEEN",
+        message: `Order ${order.orderId} from ${restaurantName} was cancelled.${finalReason ? ` Reason: ${finalReason}` : ""}`
+      });
+    }
+
+    // Web Push fallback for Student
+    User.findById(order.student).select("pushSubscription").then((studentDoc) => {
+      if (studentDoc?.pushSubscription) {
+        sendWebPushNotification(studentDoc.pushSubscription, {
+          title: "❌ Order Cancelled — CampusConnect",
+          body: `Your order ${order.orderId} from ${restaurantName} was cancelled.${finalReason ? ` Reason: ${finalReason}` : ""}`,
+          url: "/canteen"
+        });
+      }
+    }).catch(() => {});
+
+    // Web Push fallback for Rider
+    if (order.rider) {
+      User.findById(order.rider).select("pushSubscription").then((riderDoc) => {
+        if (riderDoc?.pushSubscription) {
+          sendWebPushNotification(riderDoc.pushSubscription, {
+            title: "❌ Delivery Cancelled — CampusConnect",
+            body: `Order ${order.orderId} from ${restaurantName} was cancelled.`,
+            url: "/rider/dashboard"
+          });
+        }
+      }).catch(() => {});
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Order cancelled successfully.",
+      order
+    });
+  } catch (error) {
+    console.error("Error in cancelOrder:", error);
+    return res.status(500).json({ success: false, message: "Error cancelling order", error: safeError(error) });
+  }
+};

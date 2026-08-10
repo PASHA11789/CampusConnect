@@ -307,17 +307,19 @@ export default function RiderMarketplace() {
       setTickets((prev) => prev.filter((t) => t.orderId !== orderId));
     });
 
-    // Handle vendor cancellation (clears active order if it matches)
-    socket.on("ticket_cancelled", ({ orderId }) => {
+    // Handle vendor cancellation (clears active order if it matches & removes from tickets pool)
+    socket.on("ticket_cancelled", ({ orderId, reason, message }) => {
       setTickets((prev) => prev.filter((t) => t.orderId !== orderId));
       setActiveClaimedOrder((prev) => {
         if (prev?.orderId === orderId) {
-          showToast(`⚠️ Order ${orderId} was cancelled by the vendor.`, "error");
+          playNotificationSound();
+          showToast(`⚠️ Order ${orderId} was cancelled by the vendor.${reason ? ` Reason: ${reason}` : ""}`, "error");
           localStorage.removeItem("active_claimed_order");
           return null;
         }
         return prev;
       });
+      fetchTickets();
     });
 
     // Vendor marked order as Ready for Pickup — broadcast to riders
@@ -340,14 +342,17 @@ export default function RiderMarketplace() {
     // Handle status updates from backend (cancelled / completed)
     socket.on("order_status_update", (data) => {
       if (data.status === "cancelled") {
+        setTickets((prev) => prev.filter((t) => t.orderId !== data.orderId));
         setActiveClaimedOrder((prev) => {
           if (prev?.orderId === data.orderId) {
-            showToast(`⚠️ Order ${data.orderId} was cancelled.`, "error");
+            playNotificationSound();
+            showToast(`⚠️ Order ${data.orderId} was cancelled.${data.reason ? ` Reason: ${data.reason}` : ""}`, "error");
             localStorage.removeItem("active_claimed_order");
             return null;
           }
           return prev;
         });
+        fetchTickets();
       } else if (data.status === "completed") {
         // Handles stale-state recovery: if backend confirms completion, clear the active panel
         setActiveClaimedOrder((prev) => {

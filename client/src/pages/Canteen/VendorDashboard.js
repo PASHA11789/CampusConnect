@@ -295,6 +295,55 @@ export default function VendorDashboard() {
     }
   };
 
+  // --- Order Cancellation Modal State & Handlers ---
+  const [cancelModalOrder, setCancelModalOrder] = useState(null);
+  const [cancelReasonPreset, setCancelReasonPreset] = useState("Out of Stock / Ingredients");
+  const [cancelReasonCustom, setCancelReasonCustom] = useState("");
+  const [isCancellingOrder, setIsCancellingOrder] = useState(false);
+
+  const handleOpenCancelModal = (order) => {
+    setCancelModalOrder(order);
+    setCancelReasonPreset("Out of Stock / Ingredients");
+    setCancelReasonCustom("");
+  };
+
+  const handleCloseCancelModal = () => {
+    if (isCancellingOrder) return;
+    setCancelModalOrder(null);
+    setCancelReasonCustom("");
+  };
+
+  const handleConfirmCancelOrder = async () => {
+    if (!cancelModalOrder) return;
+    const targetOrderId = cancelModalOrder.orderId || cancelModalOrder.id || cancelModalOrder.rawId;
+    const reason = cancelReasonCustom.trim() || cancelReasonPreset;
+    const token = sessionStorage.getItem("vendorToken") || localStorage.getItem("token");
+
+    try {
+      setIsCancellingOrder(true);
+      const res = await axios.put(`/api/vendor/orders/${targetOrderId}/status`, {
+        status: "cancelled",
+        cancellationReason: reason
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.data?.success) {
+        setOrders(prev =>
+          prev.map(o => (o.orderId === targetOrderId || o.id === targetOrderId ? { ...o, status: "cancelled" } : o))
+        );
+        playNotificationSound();
+        showToast(`❌ Order ${targetOrderId} cancelled immediately. Student and rider notified.`, "error");
+        setCancelModalOrder(null);
+      }
+    } catch (err) {
+      const errMsg = err.response?.data?.message || "Failed to cancel order";
+      showToast(`❌ ${errMsg}`, "error");
+      console.error(err);
+    } finally {
+      setIsCancellingOrder(false);
+    }
+  };
 
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -989,72 +1038,117 @@ export default function VendorDashboard() {
                                 {order.status === "pending" && (
                                   <>
                                     <button
-                                      onClick={() => handleUpdateOrderStatus(order.orderId, "accepted")}
-                                      className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition-all"
+                                      onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "accepted")}
+                                      className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer"
                                     >
                                       ✅ Accept
                                     </button>
                                     <button
-                                      onClick={() => handleUpdateOrderStatus(order.orderId, "cancelled")}
-                                      className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all"
+                                      onClick={() => handleOpenCancelModal(order)}
+                                      className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100"
                                       title="Reject order"
                                     >
-                                      ❌
+                                      ❌ Reject
                                     </button>
                                   </>
                                 )}
 
-                                {/* STAGE 2: Accepted → Mark Preparing */}
+                                {/* STAGE 2: Accepted → Mark Preparing + Cancel */}
                                 {order.status === "accepted" && (
-                                  <button
-                                    onClick={() => handleUpdateOrderStatus(order.orderId, "preparing")}
-                                    className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-1"
-                                  >
-                                    🍳 Mark Preparing
-                                  </button>
+                                  <>
+                                    <button
+                                      onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "preparing")}
+                                      className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-1 cursor-pointer"
+                                    >
+                                      🍳 Mark Preparing
+                                    </button>
+                                    <button
+                                      onClick={() => handleOpenCancelModal(order)}
+                                      className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100"
+                                      title="Cancel order"
+                                    >
+                                      ❌ Cancel
+                                    </button>
+                                  </>
                                 )}
 
-                                {/* STAGE 3: Preparing → Mark Ready */}
+                                {/* STAGE 3: Preparing → Mark Ready + Cancel */}
                                 {order.status === "preparing" && (
-                                  <button
-                                    onClick={() => handleUpdateOrderStatus(order.orderId, "ready")}
-                                    className="px-3 py-2 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-1"
-                                  >
-                                    🍔 Ready for Pickup!
-                                  </button>
+                                  <>
+                                    <button
+                                      onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "ready")}
+                                      className="px-3 py-2 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-1 cursor-pointer"
+                                    >
+                                      🍔 Ready for Pickup!
+                                    </button>
+                                    <button
+                                      onClick={() => handleOpenCancelModal(order)}
+                                      className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100"
+                                      title="Cancel order"
+                                    >
+                                      ❌ Cancel
+                                    </button>
+                                  </>
                                 )}
 
-                                {/* STAGE 4: Ready — waiting for rider pickup */}
+                                {/* STAGE 4: Ready — waiting for rider pickup + Cancel */}
                                 {order.status === "ready" && (
-                                  <span className="px-2.5 py-1.5 bg-cyan-50 text-cyan-700 rounded-xl text-[10px] font-black uppercase tracking-wider animate-pulse">
-                                    🛵 Awaiting Rider
-                                  </span>
+                                  <>
+                                    <span className="px-2.5 py-1.5 bg-cyan-50 text-cyan-700 rounded-xl text-[10px] font-black uppercase tracking-wider animate-pulse border border-cyan-200">
+                                      🛵 Awaiting Rider
+                                    </span>
+                                    <button
+                                      onClick={() => handleOpenCancelModal(order)}
+                                      className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100"
+                                      title="Cancel order"
+                                    >
+                                      ❌ Cancel
+                                    </button>
+                                  </>
                                 )}
 
-                                {/* STAGE 5: Rider picked up */}
+                                {/* STAGE 5: Rider picked up + Cancel */}
                                 {order.status === "picked_up" && (
-                                  <span className="px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded-xl text-[10px] font-black uppercase tracking-wider">
-                                    🛵 En Route
-                                  </span>
+                                  <>
+                                    <span className="px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded-xl text-[10px] font-black uppercase tracking-wider border border-blue-200">
+                                      🛵 En Route
+                                    </span>
+                                    <button
+                                      onClick={() => handleOpenCancelModal(order)}
+                                      className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100"
+                                      title="Cancel order"
+                                    >
+                                      ❌ Cancel
+                                    </button>
+                                  </>
                                 )}
 
-                                {/* STAGE 6: Arrived */}
+                                {/* STAGE 6: Arrived + Cancel */}
                                 {order.status === "arrived" && (
-                                  <span className="px-2.5 py-1.5 bg-purple-50 text-purple-700 rounded-xl text-[10px] font-black uppercase tracking-wider animate-pulse">
-                                    📍 Rider Arrived
-                                  </span>
+                                  <>
+                                    <span className="px-2.5 py-1.5 bg-purple-50 text-purple-700 rounded-xl text-[10px] font-black uppercase tracking-wider animate-pulse border border-purple-200">
+                                      📍 Rider Arrived
+                                    </span>
+                                    <button
+                                      onClick={() => handleOpenCancelModal(order)}
+                                      className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100"
+                                      title="Cancel order"
+                                    >
+                                      ❌ Cancel
+                                    </button>
+                                  </>
                                 )}
 
                                 {/* STAGE 7: Completed */}
                                 {order.status === "completed" && (
-                                  <span className="px-2.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl text-[10px] font-black uppercase tracking-wider">
+                                  <span className="px-2.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl text-[10px] font-black uppercase tracking-wider border border-emerald-200">
                                     ✅ Delivered
                                   </span>
                                 )}
 
                                 {/* Terminal: Cancelled */}
                                 {order.status === "cancelled" && (
-                                  <span className="px-2.5 py-1.5 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider">
+                                  <span className="px-2.5 py-1.5 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider border border-rose-200">
                                     ❌ Cancelled
                                   </span>
                                 )}
@@ -1397,58 +1491,98 @@ export default function VendorDashboard() {
                               <div className="flex gap-2">
                                 <button
                                   onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "accepted")}
-                                  className="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm"
+                                  className="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
                                 >
                                   ✅ Accept Order
                                 </button>
                                 <button
-                                  onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "cancelled")}
-                                  className="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors"
+                                  onClick={() => handleOpenCancelModal(order)}
+                                  className="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100"
                                 >
                                   ❌ Reject
                                 </button>
                               </div>
                             )}
 
-                            {/* STAGE 2: Accepted → Mark Preparing */}
+                            {/* STAGE 2: Accepted → Mark Preparing + Cancel */}
                             {order.status === "accepted" && (
-                              <button
-                                onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "preparing")}
-                                className="w-full py-2.5 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm"
-                              >
-                                🍳 Mark Preparing
-                              </button>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "preparing")}
+                                  className="flex-1 py-2.5 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                                >
+                                  🍳 Mark Preparing
+                                </button>
+                                <button
+                                  onClick={() => handleOpenCancelModal(order)}
+                                  className="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100"
+                                >
+                                  ❌ Cancel
+                                </button>
+                              </div>
                             )}
 
-                            {/* STAGE 3: Preparing → Mark Ready */}
+                            {/* STAGE 3: Preparing → Mark Ready + Cancel */}
                             {order.status === "preparing" && (
-                              <button
-                                onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "ready")}
-                                className="w-full py-2.5 px-4 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm"
-                              >
-                                🍔 Ready for Pickup!
-                              </button>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "ready")}
+                                  className="flex-1 py-2.5 px-4 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                                >
+                                  🍔 Ready for Pickup!
+                                </button>
+                                <button
+                                  onClick={() => handleOpenCancelModal(order)}
+                                  className="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100"
+                                >
+                                  ❌ Cancel
+                                </button>
+                              </div>
                             )}
 
-                            {/* STAGE 4: Ready — awaiting rider pickup */}
+                            {/* STAGE 4: Ready — awaiting rider pickup + Cancel */}
                             {order.status === "ready" && (
-                              <span className="text-[10px] font-black text-cyan-700 bg-cyan-50 px-3 py-2 rounded-xl text-center border border-cyan-200 animate-pulse">
-                                🛵 Awaiting Rider Pickup
-                              </span>
+                              <div className="flex flex-col gap-1.5">
+                                <span className="text-[10px] font-black text-cyan-700 bg-cyan-50 px-3 py-2 rounded-xl text-center border border-cyan-200 animate-pulse">
+                                  🛵 Awaiting Rider Pickup
+                                </span>
+                                <button
+                                  onClick={() => handleOpenCancelModal(order)}
+                                  className="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100 flex items-center justify-center gap-1"
+                                >
+                                  ❌ Cancel Order
+                                </button>
+                              </div>
                             )}
 
-                            {/* STAGE 5: Rider picked up */}
+                            {/* STAGE 5: Rider picked up + Cancel */}
                             {order.status === "picked_up" && (
-                              <span className="text-[10px] font-black text-blue-700 bg-blue-50 px-3 py-2 rounded-xl text-center border border-blue-200">
-                                🛵 En Route to Student
-                              </span>
+                              <div className="flex flex-col gap-1.5">
+                                <span className="text-[10px] font-black text-blue-700 bg-blue-50 px-3 py-2 rounded-xl text-center border border-blue-200">
+                                  🛵 En Route to Student
+                                </span>
+                                <button
+                                  onClick={() => handleOpenCancelModal(order)}
+                                  className="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100 flex items-center justify-center gap-1"
+                                >
+                                  ❌ Cancel Order
+                                </button>
+                              </div>
                             )}
 
-                            {/* STAGE 6: Rider arrived */}
+                            {/* STAGE 6: Rider arrived + Cancel */}
                             {order.status === "arrived" && (
-                              <span className="text-[10px] font-black text-purple-700 bg-purple-50 px-3 py-2 rounded-xl text-center border border-purple-200 animate-pulse">
-                                📍 Rider Arrived at Location
-                              </span>
+                              <div className="flex flex-col gap-1.5">
+                                <span className="text-[10px] font-black text-purple-700 bg-purple-50 px-3 py-2 rounded-xl text-center border border-purple-200 animate-pulse">
+                                  📍 Rider Arrived at Location
+                                </span>
+                                <button
+                                  onClick={() => handleOpenCancelModal(order)}
+                                  className="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100 flex items-center justify-center gap-1"
+                                >
+                                  ❌ Cancel Order
+                                </button>
+                              </div>
                             )}
 
                             {/* STAGE 7: Completed */}
@@ -2124,6 +2258,136 @@ export default function VendorDashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── ORDER CANCELLATION CONFIRMATION MODAL ── */}
+      {cancelModalOrder && (
+        <div className="fixed inset-0 bg-[#071A35]/70 backdrop-blur-sm z-[2500] flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white border border-rose-100 rounded-[28px] max-w-md w-full p-6 sm:p-7 shadow-2xl relative overflow-hidden animate-modal-slide-in">
+            {/* Header Badge */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center text-xl shadow-xs">
+                  🛑
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-[#0a2342] tracking-tight">Cancel Food Order</h3>
+                  <p className="text-[11px] font-bold text-slate-400">Order ID: {cancelModalOrder.orderId || cancelModalOrder.id}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleCloseCancelModal}
+                disabled={isCancellingOrder}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 text-xs font-black transition-all flex items-center justify-center cursor-pointer border-none"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Order Info Card */}
+            <div className="bg-slate-50 rounded-2xl p-4 mb-4 border border-slate-100 text-xs space-y-2">
+              <div className="flex justify-between items-center text-slate-500 font-semibold">
+                <span>Customer:</span>
+                <span className="font-extrabold text-[#0a2342]">{cancelModalOrder.studentName || "Student"}</span>
+              </div>
+              <div className="flex justify-between items-center text-slate-500 font-semibold">
+                <span>Current Pipeline Stage:</span>
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black uppercase tracking-wider">
+                  {(cancelModalOrder.status || "active").replace("_", " ")}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-slate-500 font-semibold">
+                <span>Total Amount:</span>
+                <span className="font-black text-rose-600 text-sm">Rs. {cancelModalOrder.total}</span>
+              </div>
+            </div>
+
+            {/* Warning Callout */}
+            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 mb-5 flex items-start gap-3 text-rose-700">
+              <span className="text-lg shrink-0">⚠️</span>
+              <p className="text-[11px] font-bold leading-relaxed m-0">
+                Cancelling will <strong>immediately close this delivery pipeline</strong>. Automated cancel notifications will be sent to the student and any assigned rider.
+              </p>
+            </div>
+
+            {/* Reason Selection */}
+            <div className="mb-5 space-y-3">
+              <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                Select Cancellation Reason:
+              </label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  "Out of Stock / Ingredients",
+                  "Kitchen Overloaded / High Delay",
+                  "Restaurant Closing Early",
+                  "Customer Requested Cancellation",
+                  "Other / Custom Reason"
+                ].map((reason) => (
+                  <label
+                    key={reason}
+                    className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
+                      cancelReasonPreset === reason
+                        ? "bg-rose-50/70 border-rose-300 text-rose-800 shadow-xs"
+                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="cancelPreset"
+                      value={reason}
+                      checked={cancelReasonPreset === reason}
+                      onChange={(e) => setCancelReasonPreset(e.target.value)}
+                      className="accent-rose-600"
+                    />
+                    <span>{reason}</span>
+                  </label>
+                ))}
+              </div>
+
+              {cancelReasonPreset === "Other / Custom Reason" && (
+                <div className="mt-2 animate-fade-in">
+                  <textarea
+                    rows={2}
+                    value={cancelReasonCustom}
+                    onChange={(e) => setCancelReasonCustom(e.target.value)}
+                    placeholder="Type custom cancellation reason here..."
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-rose-400 focus:bg-white resize-none"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleCloseCancelModal}
+                disabled={isCancellingOrder}
+                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer border-none disabled:opacity-50"
+              >
+                Keep Order
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmCancelOrder}
+                disabled={isCancellingOrder}
+                className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md transition-all cursor-pointer border-none flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isCancellingOrder ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <span>Cancelling...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>🛑</span>
+                    <span>Cancel Order</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
