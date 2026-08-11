@@ -400,7 +400,7 @@ export const updateOrderStatus = async (req, res) => {
 
 export const getVendorRestaurant = async (req, res) => {
   try {
-    const restaurant = await Restaurant.findOne({ owner: req.user._id });
+    const restaurant = await Restaurant.findOne({ owner: req.user._id }).populate("owner", "name email avatar phone");
     if (!restaurant) return res.status(404).json({ message: "Restaurant profile not found" });
     res.status(200).json({ success: true, restaurant });
   } catch (error) {
