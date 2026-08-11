@@ -1039,46 +1039,7 @@ export default function Canteen() {
                           </div>
                         </div>
 
-                        {/* Interactive Status Switcher (Test Toolbar) */}
-                        <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-wrap items-center justify-between gap-2">
-                          <div className="text-[10px] font-black text-slate-400 uppercase">
-                            ⚡ Test Status Updates (Simulator):
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {[
-                              { id: "preparing", label: "🍳 Preparing" },
-                              { id: "ready", label: "🍱 Order Ready" },
-                              { id: "on_the_way", label: "🛵 Rider On Way" },
-                              { id: "arrived", label: "📍 Rider at Location" },
-                              { id: "completed", label: "✅ Delivered" },
-                            ].map(st => (
-                              <button
-                                key={st.id}
-                                onClick={() => {
-                                  if (st.id === "completed" || st.id === "delivered") {
-                                    stopArrivalAlertLoop();
-                                    setActiveOrder(prev => (prev ? { ...prev, status: st.id } : prev));
-                                    showToast("✅ Order Delivered! Active order info reset.", "success");
-                                    setTimeout(() => {
-                                      setActiveOrder(null);
-                                      setOrderId("");
-                                      setCart([]);
-                                      localStorage.removeItem("active_canteen_order");
-                                    }, 2000);
-                                  } else {
-                                    setActiveOrder(prev => (prev ? { ...prev, status: st.id } : prev));
-                                  }
-                                }}
-                                className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold cursor-pointer border transition-all ${getNormalizedStatus(activeOrder.status) === st.id
-                                  ? "bg-[#00c2cb] text-[#0a2342] border-[#00c2cb]"
-                                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
-                                  }`}
-                              >
-                                {st.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
+
 
                         {/* Actions */}
                         <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
