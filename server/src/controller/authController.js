@@ -5,14 +5,54 @@ import generateToken from "../utils/generateToken.js";
 const safeError = (error) =>
   process.env.NODE_ENV === "development" ? error.message : "Internal server error";
 
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  const rawIdentifier = (
+    req.body.registrationNumber ||
+    req.body.registeration_number ||
+    req.body.registration_no ||
+    req.body.identifier ||
+    req.body.username ||
+    ""
+  ).trim();
+  const { password, isCMS, portal } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    if (!rawIdentifier || !password) {
+      return res.status(400).json({ message: "Registration number and password are required" });
+    }
+
+    // Strictly disallow email login
+    if (rawIdentifier.includes("@")) {
+      return res.status(400).json({ 
+        message: "Email sign-in is disabled. Please enter your Registration Number (e.g. 2022f-mulbscs-093)." 
+      });
+    }
+
+    const escaped = escapeRegex(rawIdentifier);
+    const orConditions = [
+      { registeration_number: { $regex: new RegExp(`^${escaped}$`, "i") } },
+      { registration_number: { $regex: new RegExp(`^${escaped}$`, "i") } },
+      { registration_no: { $regex: new RegExp(`^${escaped}$`, "i") } },
+      { registrationNumber: { $regex: new RegExp(`^${escaped}$`, "i") } },
+    ];
+
+    const user = await User.findOne({ $or: orConditions });
+
     if (user) {
       const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
+        // Enforce CMS portal restrictions: Only students can log in to the Minhaj CMS
+        if (isCMS || portal === "cms") {
+          const allowedRoles = ["student", "student_mod"];
+          if (!allowedRoles.includes(user.role)) {
+            return res.status(403).json({
+              message: "Access restricted: Only Minhaj University students can sign in to the CMS Portal."
+            });
+          }
+        }
+
         res.json({
           _id: user._id,
           name: user.name,
@@ -27,10 +67,10 @@ export const loginUser = async (req, res) => {
           token: generateToken(user._id),
         });
       } else {
-        res.status(401).json({ message: "Invalid email or password" });
+        res.status(401).json({ message: "Invalid registration number or password" });
       }
     } else {
-      res.status(401).json({ message: "Invalid email or password" });
+      res.status(401).json({ message: "Invalid registration number or password" });
     }
   } catch (error) {
     res.status(500).json({ message: "server error", error: safeError(error) });

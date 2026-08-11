@@ -6,7 +6,7 @@ import bgImage from '../../assets/ibn_e_khaldun.jpg';
 
 
 const Login = () => {
-    const [email, setEmail] = useState('');
+    const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -18,7 +18,13 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post('/api/auth/login', { email, password });
+            const trimmedIdentifier = identifier.trim();
+            const response = await axios.post('/api/auth/login', {
+                registrationNumber: trimmedIdentifier,
+                registeration_number: trimmedIdentifier,
+                identifier: trimmedIdentifier,
+                password,
+            });
             sessionStorage.setItem('token', response.data.token);
             sessionStorage.setItem('user', JSON.stringify(response.data));
             // Trigger push notification setup immediately after login
@@ -82,39 +88,48 @@ const Login = () => {
                                 </div>
                             )}
 
-                            {/* Email Input */}
-                            <div className="relative group">
+                            {/* Registration Number Input */}
+                            <div className="relative">
                                 <input
-                                    type="email"
-                                    id="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    type="text"
+                                    id="identifier"
+                                    value={identifier}
+                                    onChange={(e) => setIdentifier(e.target.value)}
                                     required
-                                    className="w-full px-5 sm:px-6 py-3 sm:py-4 bg-white border-2 border-slate-100 rounded-2xl text-[#0D2A42] font-bold text-sm shadow-sm focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/5 transition-all duration-300 peer placeholder-transparent"
-                                    placeholder="Email"
+                                    className="w-full px-5 sm:px-6 py-3.5 sm:py-4 bg-white border-2 border-slate-100 rounded-2xl text-[#0D2A42] font-bold text-sm shadow-sm focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/5 transition-all duration-300 peer placeholder-transparent"
+                                    placeholder="Registration Number"
+                                    autoComplete="username"
                                 />
                                 <label
-                                    htmlFor="email"
-                                    className="absolute left-5 sm:left-6 top-3 sm:top-4 text-slate-400 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase transition-all duration-300 peer-focus:-top-2.5 peer-focus:left-4 peer-focus:text-[10px] peer-focus:text-teal-600 peer-focus:bg-white peer-focus:px-2 peer-valid:-top-2.5 peer-valid:left-4 peer-valid:text-[10px] peer-valid:bg-white peer-valid:px-2 pointer-events-none rounded-full"
+                                    htmlFor="identifier"
+                                    className={`absolute left-4 bg-white px-2 font-bold tracking-wider uppercase transition-all duration-200 pointer-events-none rounded-full ${
+                                        identifier
+                                            ? '-top-2.5 text-[10px] text-teal-600'
+                                            : 'top-3.5 sm:top-4 text-[11px] text-slate-400'
+                                    } peer-focus:-top-2.5 peer-focus:text-[10px] peer-focus:text-teal-600`}
                                 >
-                                    University Email
+                                    Registration No. (e.g. 2022f-mulbscs-093)
                                 </label>
                             </div>
 
                             {/* Password Input */}
-                            <div className="relative group">
+                            <div className="relative">
                                 <input
                                     type="password"
                                     id="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="w-full px-5 sm:px-6 py-3 sm:py-4 bg-white border-2 border-slate-100 rounded-2xl text-[#0D2A42] font-bold text-sm shadow-sm focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/5 transition-all duration-300 peer placeholder-transparent"
+                                    className="w-full px-5 sm:px-6 py-3.5 sm:py-4 bg-white border-2 border-slate-100 rounded-2xl text-[#0D2A42] font-bold text-sm shadow-sm focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/5 transition-all duration-300 peer placeholder-transparent"
                                     placeholder="Password"
                                 />
                                 <label
                                     htmlFor="password"
-                                    className="absolute left-5 sm:left-6 top-3 sm:top-4 text-slate-400 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase transition-all duration-300 peer-focus:-top-2.5 peer-focus:left-4 peer-focus:text-[10px] peer-focus:text-teal-600 peer-focus:bg-white peer-focus:px-2 peer-valid:-top-2.5 peer-valid:left-4 peer-valid:text-[10px] peer-valid:bg-white peer-valid:px-2 pointer-events-none rounded-full"
+                                    className={`absolute left-4 bg-white px-2 font-bold tracking-wider uppercase transition-all duration-200 pointer-events-none rounded-full ${
+                                        password
+                                            ? '-top-2.5 text-[10px] text-teal-600'
+                                            : 'top-3.5 sm:top-4 text-[11px] text-slate-400'
+                                    } peer-focus:-top-2.5 peer-focus:text-[10px] peer-focus:text-teal-600`}
                                 >
                                     Password
                                 </label>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import mulFullLogo from './assets/image.png';
 
@@ -198,7 +198,29 @@ const NOTICES = [
 const MULDashboard = () => {
   const [activeTab, setActiveTab] = useState('news');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = sessionStorage.getItem('token');
+    const userStr = sessionStorage.getItem('user');
+    if (!token || !userStr) {
+      navigate('/mul-login');
+      return;
+    }
+    try {
+      const parsed = JSON.parse(userStr);
+      if (parsed.role && !["student", "student_mod"].includes(parsed.role)) {
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
+        navigate('/mul-login');
+        return;
+      }
+      setCurrentUser(parsed);
+    } catch {
+      navigate('/mul-login');
+    }
+  }, [navigate]);
 
   return (
     <div className="flex h-screen w-full bg-[#f2f4f8] font-sans overflow-hidden relative">
@@ -321,10 +343,13 @@ const MULDashboard = () => {
               <svg className="w-5 h-5 sm:w-6 sm:h-6 hidden sm:block cursor-default stroke-current" fill="none" strokeWidth={1.8} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-white shadow-xs cursor-default flex-shrink-0">
+              <div 
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-white shadow-xs cursor-default flex-shrink-0"
+                title={`${currentUser?.name || "Student"} (${currentUser?.registeration_number || ""})`}
+              >
                 <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256"
-                  alt="User Profile"
+                  src={currentUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || "Student")}&background=random`}
+                  alt={currentUser?.name || "User Profile"}
                   className="w-full h-full object-cover"
                 />
               </div>

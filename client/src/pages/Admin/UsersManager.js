@@ -288,7 +288,7 @@ const UsersManager = () => {
   const filteredUsers = users.filter(u => {
     const nameMatch = (u.name || '').toLowerCase().includes(searchQuery.toLowerCase());
     const emailMatch = (u.email || '').toLowerCase().includes(searchQuery.toLowerCase());
-    const regNum = (u.registeration_number || u.registration_no || '').toLowerCase();
+    const regNum = (u.registeration_number || u.registration_no || u.registrationNumber || u.registration_number || '').toLowerCase();
     const regMatch = regNum.includes(searchQuery.toLowerCase());
     const matchesSearch = nameMatch || emailMatch || regMatch;
 
@@ -301,7 +301,7 @@ const UsersManager = () => {
     const sec = getUserSection(u);
     const matchesSection = selectedSection === 'All Sections' || sec === selectedSection;
 
-    const matchesRole = selectedRole === 'All Roles' || u.role === selectedRole;
+    const matchesRole = selectedRole === 'All Roles' || String(u.role || '').toLowerCase() === selectedRole.toLowerCase();
 
     return matchesSearch && matchesDepartment && matchesSemester && matchesSection && matchesRole;
   });
@@ -312,8 +312,8 @@ const UsersManager = () => {
 
   // Stats calculation
   const totalStudents = users.filter(u => u.role === 'student').length;
+  const totalAlumni = users.filter(u => u.role === 'alumni').length;
   const totalAdminsMods = users.filter(u => u.role === 'campus_admin' || u.role === 'student_mod').length;
-  const uniqueDepartmentsCount = existingDepartments.length;
 
   return (
     <>
@@ -338,36 +338,38 @@ const UsersManager = () => {
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#00c2cb]/20 rounded-full blur-2xl pointer-events-none" />
               <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
 
-              <div className="flex flex-col text-left z-10">
-                <div className="bg-white/10 text-[#00c2cb] text-[10px] sm:text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-2.5 border border-white/10">
-                  <span>🛡️</span>
-                  <span>ADMINISTRATION CONSOLE</span>
+              <div className="flex flex-col gap-1.5 z-10 text-left">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl sm:text-2xl">🏛️</span>
+                  <span className="text-[10.5px] sm:text-xs font-black tracking-widest uppercase text-[#00c2cb] bg-[#00c2cb]/15 px-3 py-1 rounded-full border border-[#00c2cb]/30">
+                    Campus Directory
+                  </span>
                 </div>
-                <h1 className="text-[22px] sm:text-[26px] font-black text-white leading-tight tracking-tight mb-1">
-                  User Management &amp; Directory
+                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  Students, Alumni, Mods &amp; Admins
                 </h1>
-                <p className="text-[11.5px] sm:text-[12px] font-semibold text-white/70 max-w-[600px] leading-relaxed m-0">
-                  Manage student profiles, assign administrative roles, filter by department &amp; semester, and configure security access.
+                <p className="text-xs sm:text-sm font-semibold text-slate-300 max-w-xl">
+                  Manage student profiles, alumni records, campus administrators, and moderator access permissions.
                 </p>
               </div>
 
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-black px-5 py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center gap-2 shrink-0 z-10 hover:scale-105 active:scale-95 border-none"
+                className="w-full sm:w-auto bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] px-5 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 shadow-[0_4px_15px_rgba(0,194,203,0.3)] hover:shadow-[0_6px_20px_rgba(0,194,203,0.45)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 border-none cursor-pointer shrink-0 z-10"
               >
-                <span>+</span> Create New User
+                <span>➕</span> Add New User
               </button>
             </div>
 
-            {/* ── METRIC STATS CARDS ── */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
+            {/* ── METRICS OVERVIEW CARDS ── */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
               <div className="bg-white rounded-2xl border border-[#E8E1D5] p-4 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3.5">
                 <div className="w-11 h-11 rounded-xl bg-[#071A35]/10 text-[#071A35] flex items-center justify-center text-xl shrink-0">
                   👥
                 </div>
                 <div className="flex flex-col text-left min-w-0">
                   <span className="text-[20px] font-black text-[#071A35] leading-none">{users.length}</span>
-                  <span className="text-[11px] font-bold text-slate-500 mt-1 truncate">Total Registered Users</span>
+                  <span className="text-[11px] font-bold text-slate-500 mt-1 truncate">Total Records</span>
                 </div>
               </div>
 
@@ -383,11 +385,11 @@ const UsersManager = () => {
 
               <div className="bg-white rounded-2xl border border-[#E8E1D5] p-4 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3.5">
                 <div className="w-11 h-11 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center text-xl shrink-0">
-                  🏢
+                  📜
                 </div>
                 <div className="flex flex-col text-left min-w-0">
-                  <span className="text-[20px] font-black text-[#071A35] leading-none">{uniqueDepartmentsCount}</span>
-                  <span className="text-[11px] font-bold text-slate-500 mt-1 truncate">Active Departments</span>
+                  <span className="text-[20px] font-black text-[#071A35] leading-none">{totalAlumni}</span>
+                  <span className="text-[11px] font-bold text-slate-500 mt-1 truncate">Alumni Members</span>
                 </div>
               </div>
 
@@ -666,7 +668,7 @@ const UsersManager = () => {
                             {/* Registration # */}
                             <td className="py-3.5 px-3">
                               <span className="font-mono text-[11.5px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/60 inline-block whitespace-nowrap">
-                                {u.registeration_number || u.registration_no || 'N/A'}
+                                {u.registeration_number || u.registration_number || u.registration_no || u.registrationNumber || 'N/A'}
                               </span>
                             </td>
 
@@ -775,7 +777,7 @@ const UsersManager = () => {
                         <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100 text-[11px]">
                           <div className="flex justify-between items-center">
                             <span className="text-slate-400 font-bold">Reg #:</span>
-                            <span className="font-mono font-bold text-slate-700">{u.registeration_number || u.registration_no || 'N/A'}</span>
+                            <span className="font-mono font-bold text-slate-700">{u.registeration_number || u.registration_number || u.registration_no || u.registrationNumber || 'N/A'}</span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-slate-400 font-bold">Department:</span>

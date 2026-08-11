@@ -8,33 +8,33 @@ const safeError = (error) =>
 
 export const getAllUsers = async (req, res) => {
   try {
-
-    const users = await User.find({ role: { $in: ["student", "student_mod"] } })
+    const users = await User.find({ role: { $in: ["student", "student_mod", "alumni", "campus_admin"] } })
       .select('-password')
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1 });
     res.status(200).json({ success: true, count: users.length, users });
   } catch (error) {
-
     res.status(500).json({ message: "Error fetching users", error: safeError(error) });
   }
-}
+};
 
 export const updateUserRole = async (req, res) => {
   try {
-    const { role } = req.body
+    const { role } = req.body;
 
-    if (!['student', 'student_mod', 'alumni', 'admin', 'campus_admin'].includes(role)) {
-      return res.status(400).json({ message: "Invalid role specified." })
+    if (!['student', 'student_mod', 'alumni', 'campus_admin'].includes(role)) {
+      return res.status(400).json({ message: "Invalid role specified. Must be student, student_mod, alumni, or campus_admin." });
     }
-    const user = await User.findByIdAndUpdate(req.params.id,
-
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
       { role },
       { new: true, runValidators: true }
-    ).select("-password")
-    if (!user) return res.status(404).json({ message: "User not Found" })
+    ).select("-password");
+    if (!user) return res.status(404).json({ message: "User not Found" });
     res.status(200).json({ success: true, message: `User role updated to ${role}`, user });
-  } catch (error) { res.status(500).json({ message: "Error updating user role", error: safeError(error) }); }
-}
+  } catch (error) {
+    res.status(500).json({ message: "Error updating user role", error: safeError(error) });
+  }
+};
 
 
 export const deleteUser = async (req, res) => {
@@ -118,8 +118,8 @@ export const createUser = async (req, res) => {
   try {
     const { name, email, password, phone, role, registrationNumber, department, semester, section } = req.body;
 
-    if (!['student', 'student_mod', 'alumni'].includes(role)) {
-      return res.status(400).json({ message: "Invalid role. Must be student, student_mod, or alumni." });
+    if (!['student', 'student_mod', 'alumni', 'campus_admin'].includes(role)) {
+      return res.status(400).json({ message: "Invalid role. Must be student, student_mod, alumni, or campus_admin." });
     }
 
     const userExists = await User.findOne({ email });

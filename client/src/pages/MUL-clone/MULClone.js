@@ -14,7 +14,7 @@ const MULClone = () => {
   const handleSignIn = async (e) => {
     e.preventDefault();
     if (!username || !password) {
-      setMessage({ type: 'error', text: 'Please enter both username/email and password.' });
+      setMessage({ type: 'error', text: 'Please enter both your Registration Number and password.' });
       return;
     }
     
@@ -22,7 +22,25 @@ const MULClone = () => {
     setMessage(null);
 
     try {
-      const response = await axios.post('/api/auth/login', { email: username, password });
+      const trimmedUser = username.trim();
+      const response = await axios.post('/api/auth/login', {
+        registrationNumber: trimmedUser,
+        registeration_number: trimmedUser,
+        identifier: trimmedUser,
+        password,
+        isCMS: true,
+      });
+
+      // Extra client-side guard for CMS access
+      if (response.data?.role && !["student", "student_mod"].includes(response.data.role)) {
+        setMessage({
+          type: 'error',
+          text: 'Access restricted: Only Minhaj University students can sign in to the CMS Portal.'
+        });
+        setLoading(false);
+        return;
+      }
+
       sessionStorage.setItem('token', response.data.token);
       sessionStorage.setItem('user', JSON.stringify(response.data));
       
@@ -71,16 +89,16 @@ const MULClone = () => {
           {/* White Form Body */}
           <div className="bg-white p-4">
             <form onSubmit={handleSignIn} className="flex flex-col gap-3">
-              {/* Username / Email Field */}
+              {/* Registration Number Field */}
               <div className="flex flex-col gap-1">
                 <label htmlFor="username" className="text-xs font-semibold text-[#555555]">
-                  Email or Username
+                  Registration Number
                 </label>
                 <input
                   id="username"
                   type="text"
                   className="w-full px-2.5 py-1.5 text-xs text-[#333333] bg-white border border-[#d9d9d9] rounded-[3px] outline-none focus:border-[#66afff] focus:ring-1 focus:ring-[#66afff]/50 transition-all placeholder:text-[#aaaaaa] placeholder:text-xs"
-                  placeholder="your login ID"
+                  placeholder="e.g. 2022f-mulbscs-093"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   autoComplete="username"

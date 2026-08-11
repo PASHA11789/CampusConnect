@@ -6,12 +6,40 @@ import generateToken from "../utils/generateToken.js";
 const safeError = (error) =>
   process.env.NODE_ENV === "development" ? error.message : "Internal server error";
 
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 export const loginVendor = async (req, res) => {
-  const { email, password } = req.body;
+  const rawIdentifier = (
+    req.body.registrationNumber ||
+    req.body.registeration_number ||
+    req.body.registration_no ||
+    req.body.identifier ||
+    req.body.username ||
+    req.body.email ||
+    ""
+  ).trim();
+  const { password } = req.body;
 
   try {
+    if (!rawIdentifier || !password) {
+      return res.status(400).json({ message: "Registration number/Email and password are required" });
+    }
+
+    const escaped = escapeRegex(rawIdentifier);
+    const orConditions = [
+      { registeration_number: { $regex: new RegExp(`^${escaped}$`, "i") } },
+      { registration_number: { $regex: new RegExp(`^${escaped}$`, "i") } },
+      { registration_no: { $regex: new RegExp(`^${escaped}$`, "i") } },
+      { registrationNumber: { $regex: new RegExp(`^${escaped}$`, "i") } },
+      { email: { $regex: new RegExp(`^${escaped}$`, "i") } },
+    ];
+
+    if (!rawIdentifier.includes("@")) {
+      orConditions.push({ email: { $regex: new RegExp(`^${escaped}@`, "i") } });
+    }
+
     // 1. Check Vendor collection
-    const vendor = await Vendor.findOne({ email });
+    const vendor = await Vendor.findOne({ $or: orConditions });
     if (vendor) {
       const isMatch = await bcrypt.compare(password, vendor.password);
       if (isMatch) {
@@ -27,12 +55,12 @@ export const loginVendor = async (req, res) => {
           token: generateToken(vendor._id),
         });
       } else {
-        return res.status(401).json({ message: "Invalid email or password" });
+        return res.status(401).json({ message: "Invalid credentials" });
       }
     }
 
     // 2. Fallback check in User collection (for riders and other users)
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ $or: orConditions });
     if (user) {
       const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
@@ -48,11 +76,11 @@ export const loginVendor = async (req, res) => {
           token: generateToken(user._id),
         });
       } else {
-        return res.status(401).json({ message: "Invalid email or password" });
+        return res.status(401).json({ message: "Invalid credentials" });
       }
     }
 
-    return res.status(401).json({ message: "Invalid email or password" });
+    return res.status(401).json({ message: "Invalid credentials" });
   } catch (error) {
     res.status(500).json({ message: "server error", error: safeError(error) });
   }
