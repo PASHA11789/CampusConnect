@@ -274,9 +274,9 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
 
           {/* Sliding Sub-Bells (Four Balls: Orders, Petitions, Forums, Others) */}
           <div
-            className={`absolute flex items-center gap-2 transition-all duration-300 ease-out z-[99] max-md:top-full max-md:right-0 max-md:mt-2.5 max-md:bg-white/95 max-md:backdrop-blur-md max-md:p-2 max-md:rounded-full max-md:shadow-xl max-md:border max-md:border-[#E8E1D5] md:right-full md:top-1/2 md:-translate-y-1/2 md:mr-2.5 ${isOpen
-                ? "opacity-100 translate-x-0 scale-100"
-                : "opacity-0 translate-x-4 md:translate-x-10 scale-90 pointer-events-none"
+            className={`absolute flex items-center gap-2 transition-all duration-300 ease-out z-[99] max-md:top-full max-md:left-1/2 max-md:mt-2.5 max-md:bg-white/95 max-md:backdrop-blur-md max-md:p-2 max-md:rounded-full max-md:shadow-xl max-md:border max-md:border-[#E8E1D5] md:right-full md:top-1/2 md:mr-2.5 ${isOpen
+                ? "opacity-100 scale-100 max-md:-translate-x-1/2 max-md:translate-y-0 md:translate-x-0 md:-translate-y-1/2"
+                : "opacity-0 scale-90 pointer-events-none max-md:-translate-x-1/2 max-md:-translate-y-2 md:translate-x-10 md:-translate-y-1/2"
               }`}
           >
             {/* Canteen / Food Orders Ball */}
@@ -413,7 +413,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
           {isOpen && subView !== null && (
             <div
               onClick={(e) => e.stopPropagation()}
-              className="absolute right-0 top-full mt-3 max-md:mt-[54px] max-sm:-right-2 w-80 max-sm:w-[280px] bg-white/95 backdrop-blur-lg border border-slate-200/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] z-[999] overflow-hidden animate-modal-slide-in flex flex-col"
+              className="md:absolute md:right-0 md:top-full md:mt-3 md:w-80 max-md:fixed max-md:top-[128px] max-md:left-3 max-md:right-3 max-md:w-auto max-md:max-w-sm max-md:mx-auto bg-white/95 backdrop-blur-lg border border-slate-200/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] z-[999] overflow-hidden animate-modal-slide-in flex flex-col"
             >
               <div className="flex flex-col flex-1">
                 {/* Category Details View Header */}
