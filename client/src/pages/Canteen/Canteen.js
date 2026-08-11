@@ -1121,15 +1121,15 @@ export default function Canteen() {
 
       {/* ── TOAST NOTIFICATION (Ultra Compact) ── */}
       {toast && (
-        <div className={`fixed top-24 sm:top-28 right-3 sm:right-6 max-w-[270px] sm:max-w-[300px] bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl px-3 py-2 shadow-xl z-[3000] flex items-center gap-2 animate-modal-slide-in ${toast.type === 'warning' ? 'border-l-3 border-l-amber-500' : toast.type === 'error' ? 'border-l-3 border-l-red-500' : toast.type === 'success' ? 'border-l-3 border-l-emerald-500' : 'border-l-3 border-l-[#00c2cb]'}`}>
-          <div className="text-xs shrink-0">
+        <div className={`fixed top-24 sm:top-28 right-3 sm:right-6 w-max max-w-[320px] sm:max-w-[400px] bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl px-4 py-3 shadow-xl z-[3000] flex items-start gap-2.5 animate-modal-slide-in ${toast.type === 'warning' ? 'border-l-4 border-l-amber-500' : toast.type === 'error' ? 'border-l-4 border-l-red-500' : toast.type === 'success' ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-[#00c2cb]'}`}>
+          <div className="text-sm shrink-0 mt-0.5">
             {toast.type === 'warning' && <span>⚠️</span>}
             {toast.type === 'error' && <span>❌</span>}
             {toast.type === 'success' && <span>✅</span>}
             {toast.type === 'info' && <span>ℹ️</span>}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10.5px] font-bold text-[#0a2342] leading-tight truncate">{toast.message}</p>
+            <p className="text-xs font-bold text-[#0a2342] leading-snug">{toast.message}</p>
           </div>
           <button className="text-xs font-black text-slate-400 hover:text-slate-700 cursor-pointer border-none bg-none p-0.5 shrink-0 leading-none" onClick={() => setToast(null)}>×</button>
         </div>

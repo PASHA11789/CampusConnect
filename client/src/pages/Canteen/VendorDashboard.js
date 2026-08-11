@@ -1447,7 +1447,7 @@ export default function VendorDashboard() {
                         className="border border-slate-100 rounded-3xl p-5 hover:border-slate-200 transition-all bg-white"
                       >
                         <div className="flex items-start justify-between flex-wrap gap-4">
-                          <div className="flex items-start gap-4">
+                          <div className="flex items-start gap-4 min-w-[240px] flex-1">
                             <img
                               src={order.avatar}
                               alt={order.studentName}
