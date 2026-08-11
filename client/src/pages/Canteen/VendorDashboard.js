@@ -68,7 +68,7 @@ export default function VendorDashboard() {
     setRegisteredRiders(updated);
     try {
       localStorage.setItem("registered_campus_riders", JSON.stringify(updated));
-    } catch (e) {}
+    } catch (e) { }
     showToast("Delivery Rider removed from your restaurant fleet.", "info");
   };
 
@@ -686,8 +686,8 @@ export default function VendorDashboard() {
             <button
               onClick={() => setActiveSection("dashboard")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "dashboard"
-                  ? "bg-[#fff1f2] text-[#e2725b]"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                ? "bg-[#fff1f2] text-[#e2725b]"
+                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
                 }`}
             >
               <span>🏠</span> Dashboard
@@ -696,8 +696,8 @@ export default function VendorDashboard() {
             <button
               onClick={() => setActiveSection("orders")}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "orders"
-                  ? "bg-[#fff1f2] text-[#e2725b]"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                ? "bg-[#fff1f2] text-[#e2725b]"
+                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
                 }`}
             >
               <span className="flex items-center gap-3">
@@ -713,8 +713,8 @@ export default function VendorDashboard() {
             <button
               onClick={() => setActiveSection("menu")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "menu"
-                  ? "bg-[#fff1f2] text-[#e2725b]"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                ? "bg-[#fff1f2] text-[#e2725b]"
+                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
                 }`}
             >
               <span>🍴</span> Menu Management
@@ -723,8 +723,8 @@ export default function VendorDashboard() {
             <button
               onClick={() => setActiveSection("riders")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "riders"
-                  ? "bg-[#fff1f2] text-[#e2725b]"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                ? "bg-[#fff1f2] text-[#e2725b]"
+                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
                 }`}
             >
               <span>🛵</span> Delivery Riders
@@ -733,8 +733,8 @@ export default function VendorDashboard() {
             <button
               onClick={() => setActiveSection("profile")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "profile"
-                  ? "bg-[#fff1f2] text-[#e2725b]"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                ? "bg-[#fff1f2] text-[#e2725b]"
+                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
                 }`}
             >
               <span>👤</span> Profile
@@ -743,8 +743,8 @@ export default function VendorDashboard() {
             <button
               onClick={() => setActiveSection("settings")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "settings"
-                  ? "bg-[#fff1f2] text-[#e2725b]"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                ? "bg-[#fff1f2] text-[#e2725b]"
+                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
                 }`}
             >
               <span>⚙️</span> Settings
@@ -803,9 +803,8 @@ export default function VendorDashboard() {
                       setActiveSection(item.id);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-extrabold transition-all cursor-pointer ${
-                      activeSection === item.id ? "bg-[#fff1f2] text-[#e2725b]" : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
-                    }`}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-extrabold transition-all cursor-pointer ${activeSection === item.id ? "bg-[#fff1f2] text-[#e2725b]" : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                      }`}
                   >
                     <span className="flex items-center gap-3">
                       <span>{item.icon}</span> {item.label}
@@ -986,10 +985,10 @@ export default function VendorDashboard() {
                         {orders.slice(0, 5).map((order) => (
                           <div
                             key={order.id}
-                            className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md hover:border-slate-200 transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                            className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md hover:border-slate-200 transition-all duration-200 flex flex-wrap items-center justify-between gap-4"
                           >
                             {/* Order Customer & Info */}
-                            <div className="flex items-center gap-3.5 min-w-0">
+                            <div className="flex items-center gap-3.5 min-w-0 flex-1 min-w-[220px]">
                               <img
                                 src={order.avatar}
                                 alt={order.studentName}
@@ -1003,16 +1002,16 @@ export default function VendorDashboard() {
                                   </span>
                                   <span
                                     className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${order.status === "New" || order.status === "pending" || order.status === "Pending"
-                                        ? "bg-amber-100 text-amber-800"
-                                        : order.status === "Preparing" || order.status === "accepted"
-                                          ? "bg-orange-100 text-orange-800"
-                                          : order.status === "dispatched" || order.status === "Dispatched"
-                                            ? "bg-blue-100 text-blue-800"
-                                            : order.status === "arrived"
-                                              ? "bg-purple-100 text-purple-800"
-                                              : order.status === "completed" || order.status === "Completed"
-                                                ? "bg-emerald-100 text-emerald-800"
-                                                : "bg-rose-100 text-rose-800"
+                                      ? "bg-amber-100 text-amber-800"
+                                      : order.status === "Preparing" || order.status === "accepted"
+                                        ? "bg-orange-100 text-orange-800"
+                                        : order.status === "dispatched" || order.status === "Dispatched"
+                                          ? "bg-blue-100 text-blue-800"
+                                          : order.status === "arrived"
+                                            ? "bg-purple-100 text-purple-800"
+                                            : order.status === "completed" || order.status === "Completed"
+                                              ? "bg-emerald-100 text-emerald-800"
+                                              : "bg-rose-100 text-rose-800"
                                       }`}
                                   >
                                     {order.status}
@@ -1029,7 +1028,7 @@ export default function VendorDashboard() {
                             </div>
 
                             {/* Price & Actions */}
-                            <div className="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
+                            <div className="flex items-center justify-between md:justify-end gap-3 flex-wrap pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
                               <div className="text-right">
                                 <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Total</div>
                                 <div className="text-sm font-black text-emerald-600">Rs. {order.total}</div>
@@ -1221,8 +1220,8 @@ export default function VendorDashboard() {
                                 <div className="flex justify-center">
                                   <span
                                     className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${item.status === "Active"
-                                        ? "bg-emerald-50 text-emerald-600"
-                                        : "bg-slate-100 text-slate-400"
+                                      ? "bg-emerald-50 text-emerald-600"
+                                      : "bg-slate-100 text-slate-400"
                                       }`}
                                   >
                                     {item.status}
@@ -1379,8 +1378,8 @@ export default function VendorDashboard() {
                   <button
                     onClick={() => setOrderSubTab("active")}
                     className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${orderSubTab === "active"
-                        ? "bg-white text-[#0a2342] shadow-sm"
-                        : "text-slate-500 hover:text-slate-800"
+                      ? "bg-white text-[#0a2342] shadow-sm"
+                      : "text-slate-500 hover:text-slate-800"
                       }`}
                   >
                     <span>⚡ Active Queue</span>
@@ -1392,8 +1391,8 @@ export default function VendorDashboard() {
                   <button
                     onClick={() => setOrderSubTab("completed")}
                     className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${orderSubTab === "completed"
-                        ? "bg-white text-[#0a2342] shadow-sm"
-                        : "text-slate-500 hover:text-slate-800"
+                      ? "bg-white text-[#0a2342] shadow-sm"
+                      : "text-slate-500 hover:text-slate-800"
                       }`}
                   >
                     <span>🎉 Today Completed Orders</span>
@@ -1446,12 +1445,12 @@ export default function VendorDashboard() {
                                 </span>
                                 <span
                                   className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${order.status === "New"
-                                      ? "bg-emerald-50 text-emerald-600"
-                                      : order.status === "Preparing"
-                                        ? "bg-orange-50 text-orange-500"
-                                        : order.status === "Completed" || order.status === "completed"
-                                          ? "bg-emerald-100 text-emerald-800"
-                                          : "bg-rose-50 text-rose-500"
+                                    ? "bg-emerald-50 text-emerald-600"
+                                    : order.status === "Preparing"
+                                      ? "bg-orange-50 text-orange-500"
+                                      : order.status === "Completed" || order.status === "completed"
+                                        ? "bg-emerald-100 text-emerald-800"
+                                        : "bg-rose-50 text-rose-500"
                                     }`}
                                 >
                                   {order.status}
@@ -1658,8 +1657,8 @@ export default function VendorDashboard() {
                         </span>
                         <span
                           className={`absolute top-3 right-3 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1.5 ${item.status === "Active"
-                              ? "bg-emerald-500/90 text-white backdrop-blur-md"
-                              : "bg-slate-700/80 text-white backdrop-blur-md"
+                            ? "bg-emerald-500/90 text-white backdrop-blur-md"
+                            : "bg-slate-700/80 text-white backdrop-blur-md"
                             }`}
                         >
                           <span className={`w-1.5 h-1.5 rounded-full ${item.status === "Active" ? "bg-white" : "bg-slate-300"}`}></span>
@@ -1969,9 +1968,8 @@ export default function VendorDashboard() {
           <button
             key={tab.id}
             onClick={() => setActiveSection(tab.id)}
-            className={`relative flex flex-col items-center py-1 px-3 rounded-xl transition-all border-none bg-none cursor-pointer ${
-              activeSection === tab.id ? "text-[#e2725b] font-black" : "text-slate-400 font-bold"
-            }`}
+            className={`relative flex flex-col items-center py-1 px-3 rounded-xl transition-all border-none bg-none cursor-pointer ${activeSection === tab.id ? "text-[#e2725b] font-black" : "text-slate-400 font-bold"
+              }`}
           >
             <span className="text-base">{tab.icon}</span>
             <span className="text-[9.5px] mt-0.5">{tab.label}</span>
@@ -2277,7 +2275,7 @@ export default function VendorDashboard() {
       {/* ── ORDER CANCELLATION CONFIRMATION MODAL ── */}
       {cancelModalOrder && (
         <div className="fixed inset-0 bg-[#071A35]/70 backdrop-blur-sm z-[2500] flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white border border-rose-100 rounded-[28px] max-w-md w-full p-6 sm:p-7 shadow-2xl relative overflow-hidden animate-modal-slide-in">
+          <div className="bg-white border border-rose-100 rounded-[28px] max-w-md w-full p-6 sm:p-7 shadow-2xl relative overflow-y-auto max-h-[85vh] scrollbar-none animate-modal-slide-in">
             {/* Header Badge */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
               <div className="flex items-center gap-3">
@@ -2339,11 +2337,10 @@ export default function VendorDashboard() {
                 ].map((reason) => (
                   <label
                     key={reason}
-                    className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
-                      cancelReasonPreset === reason
-                        ? "bg-rose-50/70 border-rose-300 text-rose-800 shadow-xs"
-                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                    }`}
+                    className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold cursor-pointer transition-all ${cancelReasonPreset === reason
+                      ? "bg-rose-50/70 border-rose-300 text-rose-800 shadow-xs"
+                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                      }`}
                   >
                     <input
                       type="radio"

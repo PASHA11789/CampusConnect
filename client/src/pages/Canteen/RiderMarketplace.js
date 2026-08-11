@@ -216,7 +216,7 @@ export default function RiderMarketplace() {
     const token = sessionStorage.getItem("riderToken") || sessionStorage.getItem("token") || localStorage.getItem("token");
     if (!token) return;
     try {
-      const { data } = await axios.get("http://localhost:5000/api/orders/rider/history", {
+      const { data } = await axios.get(`${SOCKET_URL}/api/orders/rider/history`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (data && data.success && Array.isArray(data.history)) {
@@ -232,7 +232,7 @@ export default function RiderMarketplace() {
     try {
       setLoading(true);
       const token = sessionStorage.getItem("riderToken") || sessionStorage.getItem("token") || localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/orders/marketplace/tickets", {
+      const res = await axios.get(`${SOCKET_URL}/api/orders/marketplace/tickets`, {
         headers: { Authorization: `Bearer ${token}` }
       }).catch(err => {
         return { data: { success: true, tickets: [] } };
@@ -253,7 +253,7 @@ export default function RiderMarketplace() {
       const token = sessionStorage.getItem("riderToken") || sessionStorage.getItem("token") || localStorage.getItem("token");
       if (!token) return;
       try {
-        const { data } = await axios.get("http://localhost:5000/api/orders/marketplace/my-active", {
+        const { data } = await axios.get(`${SOCKET_URL}/api/orders/marketplace/my-active`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (data && data.success && data.activeOrder) {
@@ -408,7 +408,7 @@ export default function RiderMarketplace() {
       setIsProcessing(true);
       const token = sessionStorage.getItem("riderToken") || sessionStorage.getItem("token") || localStorage.getItem("token");
       const res = await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/accept-rider`,
+        `${SOCKET_URL}/api/orders/${orderId}/accept-rider`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -438,7 +438,7 @@ export default function RiderMarketplace() {
       setIsProcessing(true);
       const token = sessionStorage.getItem("riderToken") || sessionStorage.getItem("token") || localStorage.getItem("token");
       const res = await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/pickup`,
+        `${SOCKET_URL}/api/orders/${orderId}/pickup`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -462,7 +462,7 @@ export default function RiderMarketplace() {
       setIsProcessing(true);
       const token = sessionStorage.getItem("riderToken") || sessionStorage.getItem("token") || localStorage.getItem("token");
       const res = await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/arrive`,
+        `${SOCKET_URL}/api/orders/${orderId}/arrive`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -486,7 +486,7 @@ export default function RiderMarketplace() {
       setIsProcessing(true);
       const token = sessionStorage.getItem("riderToken") || sessionStorage.getItem("token") || localStorage.getItem("token");
       const res = await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/complete`,
+        `${SOCKET_URL}/api/orders/${orderId}/complete`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -52,6 +52,8 @@ const isOriginAllowed = (origin) => {
   if (allowedOrigins.includes(origin)) return true;
   // Allow any vercel deployment preview / production domain
   if (origin.endsWith(".vercel.app") || origin.includes("campusconnect")) return true;
+  // Allow local network IP addresses for live testing (e.g., 192.168.x.x:3000)
+  if (/^http:\/\/(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)\d{1,3}:\d{1,5}$/.test(origin)) return true;
   return false;
 };
 

@@ -15,7 +15,7 @@ export default function OrderRatingModal({ orderId, onClose, onSubmitSuccess }) 
     try {
       const token = sessionStorage.getItem("token") || localStorage.getItem("token");
       await axios.post(
-        `http://localhost:5000/api/orders/${orderId}/review`,
+        `/api/orders/${orderId}/review`,
         {
           restaurantRating,
           riderRating,
