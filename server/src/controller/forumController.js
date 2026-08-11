@@ -404,13 +404,16 @@ export const reportForumThread = async (req, res) => {
       });
     }
 
-    await Notification.create({
+    const notif = await Notification.create({
       recipient: thread.author,
       type: "GENERAL",
       message: "Your forum post was flagged by the community and is temporarily hidden and pending for moderator review",
       relatedItem: thread._id,
       onModel: "Forum"
     });
+    if (io) {
+      io.to(thread.author.toString()).emit("new_notification", notif);
+    }
     res.status(200).json({ success: true, message: "Thread reported and sent to the moderators." });
   } catch (error) {
     res.status(500).json({ message: "Server error reporting thread", error: safeError(error) });
@@ -446,13 +449,16 @@ export const reportThreadReply = async (req, res) => {
       });
     }
 
-    await Notification.create({
+    const notif = await Notification.create({
       recipient: reply.author,
       type: "GENERAL",
       message: "Your reply was flagged by the community and is temporarily hidden pending moderator review",
       relatedItem: thread._id,
       onModel: "Forum",
     });
+    if (io) {
+      io.to(reply.author.toString()).emit("new_notification", notif);
+    }
     res.status(200).json({ success: true, message: "Reply reported and sent to moderators." });
   } catch (error) {
     res.status(500).json({ message: "Server error reporting reply", error: safeError(error) });

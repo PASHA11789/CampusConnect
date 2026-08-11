@@ -158,11 +158,14 @@ export const moderateItem = async (req, res) => {
         petition.moderatedBy = req.user._id;
         await petition.save();
 
-        await Notification.create({
+        const notif = await Notification.create({
           recipient: petition.creator._id,
           type: "PETITION",
           message: `Your petition "${petition.title}" has been approved and is now live!`,
         });
+        if (io) {
+          io.to(petition.creator._id.toString()).emit("new_notification", notif);
+        }
 
         const targetRoom = petition.level === "Campus" ? "Campus" : petition.targetGroup;
         io.to(targetRoom).emit("new_petition_published", petition);
@@ -170,11 +173,14 @@ export const moderateItem = async (req, res) => {
         return res.status(200).json({ success: true, message: "Petition approved." });
       } else if (action === "Reject") {
         await petition.deleteOne();
-        await Notification.create({
+        const notif = await Notification.create({
           recipient: petition.creator._id,
           type: "GENERAL",
           message: `Your petition "${petition.title}" was rejected by moderation.`,
         });
+        if (io) {
+          io.to(petition.creator._id.toString()).emit("new_notification", notif);
+        }
         return res.status(200).json({ success: true, message: "Petition rejected." });
       }
     }
@@ -197,11 +203,14 @@ export const moderateItem = async (req, res) => {
         return res.status(200).json({ success: true, message: "Thread restored to public." });
       } else if (action === "Reject") {
         await thread.deleteOne();
-        await Notification.create({
+        const notif = await Notification.create({
           recipient: thread.author,
           type: "GENERAL",
           message: `Your forum thread "${thread.title}" was removed by moderation.`,
         });
+        if (io) {
+          io.to(thread.author.toString()).emit("new_notification", notif);
+        }
         return res.status(200).json({ success: true, message: "Thread deleted." });
       }
     }
@@ -219,11 +228,14 @@ export const moderateItem = async (req, res) => {
         return res.status(200).json({ success: true, message: "Career thread restored." });
       } else if (action === "Reject") {
         await thread.deleteOne();
-        await Notification.create({
+        const notif = await Notification.create({
           recipient: thread.author,
           type: "GENERAL",
           message: `Your career thread "${thread.title}" was removed by moderation.`,
         });
+        if (io) {
+          io.to(thread.author.toString()).emit("new_notification", notif);
+        }
         return res.status(200).json({ success: true, message: "Career thread deleted." });
       }
     }
@@ -248,11 +260,14 @@ export const moderateItem = async (req, res) => {
         const replyAuthor = reply.author;
         reply.deleteOne();
         await thread.save();
-        await Notification.create({
+        const notif = await Notification.create({
           recipient: replyAuthor,
           type: "GENERAL",
           message: "One of your forum replies was removed by moderation.",
         });
+        if (io) {
+          io.to(replyAuthor.toString()).emit("new_notification", notif);
+        }
         return res.status(200).json({ success: true, message: "Reply deleted." });
       }
     }
@@ -277,11 +292,14 @@ export const moderateItem = async (req, res) => {
         const replyAuthor = reply.author;
         reply.deleteOne();
         await thread.save();
-        await Notification.create({
+        const notif = await Notification.create({
           recipient: replyAuthor,
           type: "GENERAL",
           message: "One of your career path replies was removed by moderation.",
         });
+        if (io) {
+          io.to(replyAuthor.toString()).emit("new_notification", notif);
+        }
         return res.status(200).json({ success: true, message: "Reply deleted." });
       }
     }
@@ -300,11 +318,14 @@ export const moderateItem = async (req, res) => {
         return res.status(200).json({ success: true, message: "Lost & Found item approved." });
       } else if (action === "Reject") {
         await item.deleteOne();
-        await Notification.create({
+        const notif = await Notification.create({
           recipient: item.reporter._id,
           type: "GENERAL",
           message: `Your Lost & Found report for "${item.itemName}" was rejected by moderation.`,
         });
+        if (io) {
+          io.to(item.reporter._id.toString()).emit("new_notification", notif);
+        }
         return res.status(200).json({ success: true, message: "Item rejected and deleted." });
       }
     }
@@ -322,11 +343,14 @@ export const moderateItem = async (req, res) => {
           report.targetUser.avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(report.targetUser.name)}&background=random`;
           await report.targetUser.save();
 
-          await Notification.create({
+          const notif = await Notification.create({
             recipient: report.targetUser._id,
             type: "GENERAL",
             message: "Your profile image/content was flagged and removed due to a community policy violation.",
           });
+          if (io) {
+            io.to(report.targetUser._id.toString()).emit("new_notification", notif);
+          }
         }
 
         return res.status(200).json({ success: true, message: "Profile report resolved and offending content removed." });
@@ -348,13 +372,16 @@ export const moderateItem = async (req, res) => {
         };
         await complaint.save();
 
-        await Notification.create({
+        const notif = await Notification.create({
           recipient: complaint.submittedBy,
           type: "COMPLAINT",
           message: `Your ${complaint.type} "${complaint.title}" has been marked as Resolved by moderation.`,
           relatedItem: complaint._id,
           onModel: "Complaint",
         });
+        if (io) {
+          io.to(complaint.submittedBy.toString()).emit("new_notification", notif);
+        }
 
         return res.status(200).json({ success: true, message: "Complaint resolved.", complaint });
       } else if (action === "Reject") {
@@ -366,13 +393,16 @@ export const moderateItem = async (req, res) => {
         };
         await complaint.save();
 
-        await Notification.create({
+        const notif = await Notification.create({
           recipient: complaint.submittedBy,
           type: "COMPLAINT",
           message: `Your ${complaint.type} "${complaint.title}" was reviewed and marked as Rejected.`,
           relatedItem: complaint._id,
           onModel: "Complaint",
         });
+        if (io) {
+          io.to(complaint.submittedBy.toString()).emit("new_notification", notif);
+        }
 
         return res.status(200).json({ success: true, message: "Complaint rejected.", complaint });
       }

@@ -253,7 +253,7 @@ export const updateComplaintStatus = async (req, res) => {
       .populate("adminResponse.respondedBy", "name registeration_number avatar role");
 
     // Notify author if not anonymous
-    await Notification.create({
+    const notif = await Notification.create({
       recipient: complaint.submittedBy,
       type: "COMPLAINT",
       message: `Your ${complaint.type} "${complaint.title}" has been updated to status "${complaint.status}".${
@@ -265,6 +265,7 @@ export const updateComplaintStatus = async (req, res) => {
 
     const io = req.app.get("socketio");
     if (io) {
+      io.to(complaint.submittedBy.toString()).emit("new_notification", notif);
       io.to(complaint.submittedBy.toString()).emit("complaint_status_updated", {
         complaintId: complaint._id,
         status: complaint.status,

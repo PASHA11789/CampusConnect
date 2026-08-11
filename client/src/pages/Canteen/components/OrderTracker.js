@@ -75,10 +75,20 @@ export default function OrderTracker({
   useEffect(() => {
     if (!isTrackingOpen) return;
 
+    const storedUser = (() => {
+      try {
+        return JSON.parse(sessionStorage.getItem("user") || "{}");
+      } catch {
+        return {};
+      }
+    })();
+    const effectiveStudentId = studentId || storedUser._id || storedUser.id;
+
     const updateStatusLocally = (newStatus, msg) => {
       setLiveStatus(newStatus);
       if (newStatus === "arrived") {
         setArrivalMessage(msg || "Rider has arrived at your location!");
+        startArrivalAlertLoop();
       } else if (newStatus === "cancelled") {
         stopArrivalAlertLoop();
         setCancelMessage(msg || "Your order was cancelled by the restaurant.");
@@ -88,14 +98,22 @@ export default function OrderTracker({
       }
     };
 
-    const socket = io(SOCKET_URL);
-
-    socket.on("connect", () => {
-      if (studentId) {
-        socket.emit("join_room", studentId);
-      }
-      socket.emit("join_user_room", studentId);
+    const socket = io(SOCKET_URL, {
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
     });
+
+    const joinStudentRoom = () => {
+      if (effectiveStudentId) {
+        socket.emit("join_room", effectiveStudentId.toString());
+        socket.emit("join_user_room", effectiveStudentId.toString());
+      }
+    };
+
+    socket.on("connect", joinStudentRoom);
+    joinStudentRoom();
 
     socket.on("order_status_update", (data) => {
       if (!orderId || data.orderId === orderId) {
@@ -119,7 +137,6 @@ export default function OrderTracker({
       }
     });
 
-
     let channel;
     try {
       channel = new BroadcastChannel("campus_connect_orders");
@@ -131,6 +148,7 @@ export default function OrderTracker({
     } catch (e) {}
 
     return () => {
+      stopArrivalAlertLoop();
       socket.disconnect();
       if (channel) channel.close();
     };

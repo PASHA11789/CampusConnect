@@ -26,7 +26,7 @@ const notificationSchema = new mongoose.Schema(
     },
     onModel: {
       type: String,
-      enum: ["Forum", "Petition", "Complaint"],
+      enum: ["Forum", "Petition", "Complaint", "Order", "Restaurant"],
     },
   },
   { timestamps: true },

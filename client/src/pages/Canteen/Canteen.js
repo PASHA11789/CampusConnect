@@ -373,10 +373,23 @@ export default function Canteen() {
     };
 
     // 1. Socket.io
-    const socket = io(SOCKET_URL);
-    socket.on("connect", () => {
-      socket.emit("join_user_room", user._id);
+    const socket = io(SOCKET_URL, {
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
     });
+
+    const joinUser = () => {
+      const uId = user?._id || user?.id;
+      if (uId) {
+        socket.emit("join_user_room", uId.toString());
+        socket.emit("join_room", uId.toString());
+      }
+    };
+
+    socket.on("connect", joinUser);
+    joinUser();
 
     socket.on("order_status_update", (data) => {
       handleIncomingStatus(data.status, data.message);
@@ -1142,6 +1155,7 @@ export default function Canteen() {
         orderId={orderId}
         restaurantPhone={currentResPhone}
         restaurantName={currentResName}
+        studentId={user?._id || user?.id}
       />
 
       {/* ── TOAST NOTIFICATION (Ultra Compact) ── */}

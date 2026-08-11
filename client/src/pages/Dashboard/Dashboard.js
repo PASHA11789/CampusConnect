@@ -114,12 +114,15 @@ export default function Dashboard() {
       fetchDashboardData(user);
 
       // Establish Socket.io connection for real-time updates
-      const socket = io(SOCKET_URL);
+      const socket = io(SOCKET_URL, {
+        transports: ["websocket", "polling"],
+        reconnection: true,
+        reconnectionAttempts: 10,
+        reconnectionDelay: 1000,
+      });
 
-      socket.on("connect", () => {
-        console.log("⚡ Connected to live updates socket");
-
-        // Join scope rooms for live updates
+      const joinRooms = () => {
+        const uId = user._id || user.id;
         socket.emit("join_room", "Campus");
         if (user.department) {
           socket.emit("join_room", user.department);
@@ -128,8 +131,17 @@ export default function Dashboard() {
           const classString = `${user.program}-${user.department}-${user.semester}-${user.section}`;
           socket.emit("join_room", classString);
         }
-        socket.emit("join_user_room", user._id);
+        if (uId) {
+          socket.emit("join_user_room", uId.toString());
+          socket.emit("join_room", uId.toString());
+        }
+      };
+
+      socket.on("connect", () => {
+        console.log("⚡ Connected to live updates socket");
+        joinRooms();
       });
+      joinRooms();
 
       socket.on("new_petition_published", (newPetition) => {
         console.log("⚡ New petition received via socket:", newPetition);

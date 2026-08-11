@@ -154,11 +154,16 @@ export const updateOrderStatus = async (req, res) => {
         });
       }
 
-      await Notification.create({
+      const notif = await Notification.create({
         recipient: order.student,
         type: "CANTEEN",
+        onModel: "Order",
+        relatedItem: order._id,
         message: `Your order ${order.orderId} from ${restaurant.name} has been accepted! We're finding a rider for you.`
       });
+      if (io) {
+        io.to(order.student.toString()).emit("new_notification", notif);
+      }
 
       return res.status(200).json({
         success: true,
@@ -203,11 +208,16 @@ export const updateOrderStatus = async (req, res) => {
         });
       }
 
-      await Notification.create({
+      const notif = await Notification.create({
         recipient: order.student,
         type: "CANTEEN",
+        onModel: "Order",
+        relatedItem: order._id,
         message: `Your order ${order.orderId} from ${restaurant.name} is now being prepared! 🍳`
       });
+      if (io) {
+        io.to(order.student.toString()).emit("new_notification", notif);
+      }
 
       return res.status(200).json({
         success: true,
@@ -262,11 +272,16 @@ export const updateOrderStatus = async (req, res) => {
         });
       }
 
-      await Notification.create({
+      const notif = await Notification.create({
         recipient: order.student,
         type: "CANTEEN",
+        onModel: "Order",
+        relatedItem: order._id,
         message: `Your order ${order.orderId} is ready and waiting for the rider! 🍔`
       });
+      if (io) {
+        io.to(order.student.toString()).emit("new_notification", notif);
+      }
 
       return res.status(200).json({
         success: true,
@@ -319,19 +334,29 @@ export const updateOrderStatus = async (req, res) => {
       }
 
       // In-app DB Notification for Student
-      await Notification.create({
+      const studentNotif = await Notification.create({
         recipient: order.student,
         type: "CANTEEN",
+        onModel: "Order",
+        relatedItem: order._id,
         message: `Your order ${order.orderId} from ${restaurant.name} has been cancelled.${finalReason ? ` Reason: ${finalReason}` : " We apologize for the inconvenience."}`
       });
+      if (io) {
+        io.to(order.student.toString()).emit("new_notification", studentNotif);
+      }
 
       // In-app DB Notification for Rider (if assigned)
       if (order.rider) {
-        await Notification.create({
+        const riderNotif = await Notification.create({
           recipient: order.rider,
           type: "CANTEEN",
+          onModel: "Order",
+          relatedItem: order._id,
           message: `Order ${order.orderId} from ${restaurant.name} was cancelled by the vendor.${finalReason ? ` Reason: ${finalReason}` : ""}`
         });
+        if (io) {
+          io.to(order.rider.toString()).emit("new_notification", riderNotif);
+        }
       }
 
       // Web Push fallback for student

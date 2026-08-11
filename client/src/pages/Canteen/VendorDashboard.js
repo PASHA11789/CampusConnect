@@ -179,15 +179,27 @@ export default function VendorDashboard() {
 
     fetchDashboardData(token);
 
-    // Initialize Socket.io connection
-    const socket = io(SOCKET_URL);
+    const effectiveVendorId = info._id || info.id || info.user?._id;
 
-    socket.on("connect", () => {
-      if (info._id) {
-        socket.emit("join_user_room", info._id);
-        console.log(`Vendor joined private room: ${info._id}`);
-      }
+    // Initialize Socket.io connection with resilient transports
+    const socket = io(SOCKET_URL, {
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
     });
+
+    const joinVendorRoom = () => {
+      const vId = effectiveVendorId || info._id || info.id;
+      if (vId) {
+        socket.emit("join_user_room", vId.toString());
+        socket.emit("join_room", vId.toString());
+        console.log(`Vendor joined private room: ${vId}`);
+      }
+    };
+
+    socket.on("connect", joinVendorRoom);
+    joinVendorRoom();
 
     socket.on("new_vendor_order", (newOrder) => {
       const mapped = {
