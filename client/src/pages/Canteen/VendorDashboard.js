@@ -646,6 +646,7 @@ export default function VendorDashboard() {
   // --- Statistics Calculation ---
   const activeOrdersList = orders.filter((o) => !['completed', 'cancelled'].includes(o.status));
   const completedOrdersList = orders.filter((o) => o.status === 'completed');
+  const cancelledOrdersList = orders.filter((o) => o.status === 'cancelled');
   const activeOrdersCount = activeOrdersList.length;
   const todayOrders = orders.filter((o) => o.status !== 'cancelled').length;
   const todayRevenue = completedOrdersList.reduce((sum, o) => sum + o.total, 0);
@@ -974,15 +975,15 @@ export default function VendorDashboard() {
                       </button>
                     </div>
 
-                    {orders.length === 0 ? (
+                    {activeOrdersList.length === 0 ? (
                       <div className="text-center py-10 bg-slate-50/60 rounded-2xl border border-dashed border-slate-200">
-                        <div className="text-3xl mb-2">🍽️</div>
-                        <p className="text-xs font-bold text-slate-500">No recent orders yet</p>
+                        <div className="text-3xl mb-2">🤷‍♂️</div>
+                        <p className="text-xs font-bold text-slate-500">No active recent orders</p>
                         <p className="text-[10px] text-slate-400 mt-0.5">Orders placed by students will appear here in real-time</p>
                       </div>
                     ) : (
                       <div className="space-y-3.5">
-                        {orders.slice(0, 5).map((order) => (
+                        {activeOrdersList.slice(0, 5).map((order) => (
                           <div
                             key={order.id}
                             className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md hover:border-slate-200 transition-all duration-200 flex flex-col xl:flex-row xl:items-center justify-between gap-4"
@@ -1400,24 +1401,39 @@ export default function VendorDashboard() {
                       {completedOrdersList.length}
                     </span>
                   </button>
+
+                  <button
+                    onClick={() => setOrderSubTab("cancelled")}
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${orderSubTab === "cancelled"
+                      ? "bg-white text-[#0a2342] shadow-sm"
+                      : "text-slate-500 hover:text-slate-800"
+                      }`}
+                  >
+                    <span>❌ Cancelled Orders</span>
+                    <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-[9px]">
+                      {cancelledOrdersList.length}
+                    </span>
+                  </button>
                 </div>
               </div>
 
               {/* Displayed Orders List */}
               {(() => {
-                const displayedOrders = orderSubTab === "active" ? activeOrdersList : completedOrdersList;
+                const displayedOrders = orderSubTab === "active" ? activeOrdersList : orderSubTab === "completed" ? completedOrdersList : cancelledOrdersList;
 
                 if (displayedOrders.length === 0) {
                   return (
                     <div className="py-12 border-2 border-dashed border-slate-200 rounded-3xl text-center">
-                      <div className="text-4xl mb-2">{orderSubTab === "active" ? "⚡" : "🎉"}</div>
+                      <div className="text-4xl mb-2">{orderSubTab === "active" ? "⚡" : orderSubTab === "completed" ? "🎉" : "❌"}</div>
                       <h4 className="text-xs font-black text-[#0a2342]">
-                        {orderSubTab === "active" ? "No Active Orders In Queue" : "No Completed Orders Yet Today"}
+                        {orderSubTab === "active" ? "No Active Orders In Queue" : orderSubTab === "completed" ? "No Completed Orders Yet Today" : "No Cancelled Orders"}
                       </h4>
                       <p className="text-[11px] font-bold text-slate-400 mt-1 max-w-sm mx-auto">
                         {orderSubTab === "active"
                           ? "New student orders will show up here for preparation and rider dispatch."
-                          : "Orders marked delivered by riders will automatically move into this section."}
+                          : orderSubTab === "completed"
+                            ? "Orders marked delivered by riders will automatically move into this section."
+                            : "Orders that were cancelled will appear here."}
                       </p>
                     </div>
                   );
