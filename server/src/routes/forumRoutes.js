@@ -15,11 +15,10 @@ import { getForumSummary,
 
      } from "../controller/forumController.js"
 import {protect} from "../middleware/authMiddleware.js"
-import { searchLimiter } from "../middleware/rateLimiter.js"
 
 const router = express.Router()
 
-router.get('/search', protect, searchLimiter, searchForumSuggestions);
+router.get('/search', protect, searchForumSuggestions);
 
 router.route('/')
   .get(protect, getForumSummary)

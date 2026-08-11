@@ -16,13 +16,12 @@ import {
   reportCareerReply,
   deleteCareerReply,
 } from "../controller/careerController.js";
-import { searchLimiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
 router.use(protect);
 
 router.route("/")
-  .get(searchLimiter, getCareerThreads)
+  .get(getCareerThreads)
   .post(aiModeration, createCareerThread);
 
 router.route("/profile")

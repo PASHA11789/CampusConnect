@@ -1,39 +1,4 @@
-// In-memory store for rate limiting nudge requests (keyed by User ID or IP)
-const nudgeCache = new Map();
-
-/**
- * Rate limiting middleware for POST /api/orders/:id/nudge
- * Restricts requests to 1 per 3 minutes (180,000 ms) per user/IP.
- */
-export const nudgeRateLimiter = (req, res, next) => {
-  const orderId = req.params.id || req.params.orderId || "global";
-  const userId = req.user ? req.user._id.toString() : req.ip;
-  const key = `${orderId}:${userId}`;
-  const now = Date.now();
-  const COOLDOWN_MS = 3 * 60 * 1000; // 3 minutes
-
-  if (nudgeCache.has(key)) {
-    const lastNudgeTime = nudgeCache.get(key);
-    const timeElapsed = now - lastNudgeTime;
-
-    if (timeElapsed < COOLDOWN_MS) {
-      const remainingSeconds = Math.ceil((COOLDOWN_MS - timeElapsed) / 1000);
-      return res.status(429).json({
-        success: false,
-        message: "Please wait 3 minutes before nudging again.",
-        retryAfterSeconds: remainingSeconds
-      });
-    }
-  }
-
-  // Update timestamp and proceed
-  nudgeCache.set(key, now);
-  next();
-};
-
-/**
- * Helper to clear the rate limit cache (useful for testing)
- */
-export const _clearNudgeCache = () => {
-  nudgeCache.clear();
-};
+// Rate limiting disabled
+export const nudgeRateLimiter = (_req, _res, next) => next();
+export const _clearNudgeCache = () => {};
+export default nudgeRateLimiter;

@@ -1,6 +1,5 @@
 import express from "express";
 import { protect } from "../middleware/authMiddleware.js";
-import { nudgeRateLimiter } from "../middleware/nudgeRateLimiter.js";
 import {
   createOrder,
   acceptRiderTicket,
@@ -47,10 +46,10 @@ router.route("/:id/complete").put(protect, completeOrder);
 router.route("/:id/cancel").put(protect, cancelOrder).post(protect, cancelOrder);
 
 // ── Nudge Features ──────────────────────────────────────────────────────
-// Student nudges vendor (rate-limited: 1 per 3 min)
-router.route("/:id/nudge").post(protect, nudgeRateLimiter, nudgeOrder);
+// Student nudges vendor
+router.route("/:id/nudge").post(protect, nudgeOrder);
 
-// Student nudges rider when rider has arrived (no rate limit — one-shot action)
+// Student nudges rider when rider has arrived (one-shot action)
 router.route("/:id/nudge-rider").post(protect, nudgeRiderOnArrival);
 
 export default router;

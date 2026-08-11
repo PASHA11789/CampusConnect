@@ -9,7 +9,6 @@ import morgan from "morgan";
 import helmet from "helmet";
 
 import connectDB from "./utils/db.js";
-import { globalLimiter, authLimiter } from "./src/middleware/rateLimiter.js";
 
 import authRoutes from "./src/routes/authRoutes.js";
 import dashboardRoutes from "./src/routes/dashboardRoutes.js";
@@ -139,11 +138,6 @@ app.use((req, _res, next) => {
   }
   next();
 });
-
-// ── Rate Limiting — DDoS Protection ────────────────────────────────────────
-app.use("/api/", globalLimiter);
-app.use("/api/auth", authLimiter);
-app.use("/api/vendor/auth", authLimiter);
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
