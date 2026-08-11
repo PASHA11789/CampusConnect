@@ -1714,7 +1714,7 @@ export default function VendorDashboard() {
                   <button
                     type="button"
                     onClick={handleOpenAddRiderModal}
-                    className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-black px-4.5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer border-none"
+                    className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-black px-5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer border-none"
                   >
                     <span>➕ Add New Rider</span>
                   </button>
@@ -1740,7 +1740,7 @@ export default function VendorDashboard() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {registeredRiders.map((rider, idx) => (
-                    <div key={rider.id || idx} className="p-4.5 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between space-y-3 shadow-sm hover:shadow-md transition-shadow">
+                    <div key={rider.id || idx} className="p-5 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between space-y-3 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-800 font-black text-sm flex items-center justify-center border border-teal-200/60">
@@ -1833,7 +1833,7 @@ export default function VendorDashboard() {
                     value={vendorUser.avatar || ""}
                     onChange={(e) => setVendorUser({ ...vendorUser, avatar: e.target.value })}
                     placeholder="https://... or upload photo above"
-                    className="w-full px-4.5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
+                    className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
                   />
                 </div>
 
@@ -1847,7 +1847,7 @@ export default function VendorDashboard() {
                       value={vendorUser.name || ""}
                       onChange={(e) => setVendorUser({ ...vendorUser, name: e.target.value })}
                       placeholder="Full Name"
-                      className="w-full px-4.5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
+                      className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
                     />
                   </div>
 
@@ -1860,7 +1860,7 @@ export default function VendorDashboard() {
                       value={vendorUser.email || ""}
                       onChange={(e) => setVendorUser({ ...vendorUser, email: e.target.value })}
                       placeholder="vendor@campusconnect.com"
-                      className="w-full px-4.5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
+                      className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
                     />
                   </div>
 
@@ -1873,7 +1873,7 @@ export default function VendorDashboard() {
                       value={selectedRestaurant || ""}
                       onChange={(e) => setSelectedRestaurant(e.target.value)}
                       placeholder="Restaurant Name"
-                      className="w-full px-4.5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
+                      className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
                     />
                   </div>
 
@@ -1886,7 +1886,7 @@ export default function VendorDashboard() {
                       value={vendorUser.phone || ""}
                       onChange={(e) => setVendorUser({ ...vendorUser, phone: e.target.value })}
                       placeholder="WhatsApp Contact Number"
-                      className="w-full px-4.5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
+                      className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
                     />
                   </div>
                 </div>
@@ -1900,7 +1900,7 @@ export default function VendorDashboard() {
                     value={restaurantAddress || ""}
                     onChange={(e) => setRestaurantAddress(e.target.value)}
                     placeholder="Restaurant Address"
-                    className="w-full px-4.5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
+                    className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#e2725b]"
                   ></textarea>
                 </div>
 
