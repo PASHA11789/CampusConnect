@@ -985,10 +985,10 @@ export default function VendorDashboard() {
                         {orders.slice(0, 5).map((order) => (
                           <div
                             key={order.id}
-                            className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md hover:border-slate-200 transition-all duration-200 flex flex-wrap items-center justify-between gap-4"
+                            className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md hover:border-slate-200 transition-all duration-200 flex flex-col xl:flex-row xl:items-center justify-between gap-4"
                           >
                             {/* Order Customer & Info */}
-                            <div className="flex items-center gap-3.5 min-w-0 flex-1 min-w-[220px]">
+                            <div className="flex items-start xl:items-center gap-3.5 min-w-0 flex-1">
                               <img
                                 src={order.avatar}
                                 alt={order.studentName}
@@ -1028,7 +1028,7 @@ export default function VendorDashboard() {
                             </div>
 
                             {/* Price & Actions */}
-                            <div className="flex items-center justify-between md:justify-end gap-3 flex-wrap pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
+                            <div className="flex items-center justify-between xl:justify-end gap-3 shrink-0 pt-3 xl:pt-0 border-t xl:border-t-0 border-slate-100/80 w-full xl:w-auto mt-1 xl:mt-0">
                               <div className="text-right">
                                 <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Total</div>
                                 <div className="text-sm font-black text-emerald-600">Rs. {order.total}</div>
