@@ -267,7 +267,7 @@ export default function Home() {
                 className="w-full h-[460px] sm:h-[520px] object-cover block transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/60 via-transparent to-black/30 pointer-events-none" />
-              
+
               {/* Floating Glass Badge Top Left */}
               <div className="absolute top-4 left-4 bg-slate-900/70 backdrop-blur-md border border-white/20 rounded-full py-1.5 px-3.5 text-white text-[11px] sm:text-[12px] font-extrabold flex items-center gap-2 shadow-lg z-10">
                 <span className="w-2 h-2 rounded-full bg-[#06B6D4] animate-ping" />
@@ -447,7 +447,7 @@ export default function Home() {
           <div className="bg-gradient-to-r from-[#0F172A] via-[#1E293B] to-[#0F172A] border border-white/10 rounded-[24px] sm:rounded-[32px] p-7 sm:p-10 md:p-14 text-center relative overflow-hidden shadow-[0_25px_60px_rgba(15,23,42,0.25)] cc-reveal opacity-0 translate-y-8 transition-all duration-700">
             <div className="absolute -right-20 -bottom-20 w-60 sm:w-80 h-60 sm:h-80 bg-[#4F46E5]/30 rounded-full filter blur-[80px] pointer-events-none" />
             <div className="absolute -left-20 -top-20 w-60 sm:w-80 h-60 sm:h-80 bg-[#06B6D4]/30 rounded-full filter blur-[80px] pointer-events-none" />
-            
+
             <div className="relative z-10 max-w-[700px] mx-auto">
               <h2 className="text-[clamp(24px,3.8vw,44px)] font-black text-white mb-3 sm:mb-4 leading-tight">
                 Ready to Upgrade Your <span className="bg-gradient-to-r from-[#06B6D4] to-[#4F46E5] bg-clip-text text-transparent">Campus Experience?</span>
