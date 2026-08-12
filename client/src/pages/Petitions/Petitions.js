@@ -509,11 +509,13 @@ export default function Petitions() {
         showToast("Class petition published instantly!", "success");
       }
 
-      setPetitions((prev) => {
-        const exists = prev.some(p => p._id === created._id || (p.title === created.title && p.creator?._id === user?._id));
-        if (exists) return prev;
-        return [created, ...prev];
-      });
+      if (created.status !== "Pending Mod Approval" && created.status !== "Under Review") {
+        setPetitions((prev) => {
+          const exists = prev.some(p => p._id === created._id || (p.title === created.title && p.creator?._id === user?._id));
+          if (exists) return prev;
+          return [created, ...prev];
+        });
+      }
 
       // Reset form & close modal
       setNewTitle("");

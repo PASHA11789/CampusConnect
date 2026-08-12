@@ -22,17 +22,12 @@ export const getPetitions = async (req, res) => {
 
     if (req.user.role !== "admin" && req.user.role !== "campus_admin") {
       queryObj = {
+        status: { $in: ["Active", "Under Review", "Resolved", "Closed"] },
+        isHidden: false,
         $or: [
-          {
-            status: { $in: ["Active", "Under Review", "Resolved", "Closed"] },
-            isHidden: false,
-            $or: [
-              { level: "Campus" },
-              { level: "Department", targetGroup: req.user.department },
-              { level: "Class", targetGroup: classString },
-            ],
-          },
-          { creator: req.user._id },
+          { level: "Campus" },
+          { level: "Department", targetGroup: req.user.department },
+          { level: "Class", targetGroup: classString },
         ],
       };
     } else {
@@ -155,10 +150,7 @@ export const createPetition = async (req, res) => {
         } else if (level === "Class") {
           room = `mod_room_${req.user.department}`;
         }
-        io.to(room).emit("new_petition_pending", {
-          message: `New ${level} petition requires approval`,
-          petitionId: newPetition._id,
-        });
+        io.to(room).emit("new_petition_for_moderation", populatedPetition);
       }
       return res.status(201).json({
         success: true,
