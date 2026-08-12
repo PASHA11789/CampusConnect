@@ -152,7 +152,7 @@ export default function Home() {
               Go to Dashboard
             </button>
           ) : (
-            <button className="max-[768px]:hidden flex items-center gap-2 bg-[#4F46E5] text-white border-none rounded-xl py-2.5 px-6 text-[14px] font-bold cursor-pointer transition-all duration-[250ms] hover:bg-[#4338CA] hover:-translate-y-[2px] shadow-[0_6px_20px_rgba(79,70,229,0.3)] whitespace-nowrap cc-page-cursor-none" onClick={() => navigate('/login')}>
+            <button className="max-[768px]:hidden flex items-center gap-2 bg-[#4F46E5] text-white border-none rounded-xl py-2.5 px-6 text-[14px] font-bold cursor-pointer transition-all duration-[250ms] hover:bg-[#4338CA] hover:-translate-y-[2px] shadow-[0_6px_20px_rgba(79,70,229,0.3)] whitespace-nowrap cc-page-cursor-none" onClick={() => navigate('/mul-login')}>
               Sign In
             </button>
           )}
@@ -188,7 +188,7 @@ export default function Home() {
                 Go to Dashboard <span><IconArrow /></span>
               </button>
             ) : (
-              <button className="inline-flex items-center gap-2.5 bg-[#4F46E5] text-white border-none rounded-xl py-4 px-8 text-[16px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_10px_30px_rgba(79,70,229,0.4)] hover:bg-[#4338CA] hover:-translate-y-[2px] hover:shadow-[0_15px_40px_rgba(79,70,229,0.5)] cc-page-cursor-none" onClick={() => navigate('/login')}>
+              <button className="inline-flex items-center gap-2.5 bg-[#4F46E5] text-white border-none rounded-xl py-4 px-8 text-[16px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_10px_30px_rgba(79,70,229,0.4)] hover:bg-[#4338CA] hover:-translate-y-[2px] hover:shadow-[0_15px_40px_rgba(79,70,229,0.5)] cc-page-cursor-none" onClick={() => navigate('/mul-login')}>
                 Get Started Now <span><IconArrow /></span>
               </button>
             )}
@@ -226,6 +226,53 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-8">
                 <span className="text-white font-bold text-[18px]">Peer Networking</span>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════ PORTAL ACCESS FOR ADMINS, MODS & ALUMNI ══════════════ */}
+      <section className="py-20 bg-gradient-to-b from-white via-slate-50 to-[#F8FAFC] relative border-t border-slate-100">
+        <div className="max-w-[1200px] mx-auto px-6">
+          <div className="text-center mb-12 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
+            <div className="inline-block text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#4F46E5]">PORTAL ACCESS</div>
+            <h2 className="text-[clamp(30px,3.8vw,44px)] font-black text-[#0F172A] mb-3">Administrators, Moderators &amp; Alumni</h2>
+            <p className="text-[16px] md:text-[18px] text-slate-500 max-w-[620px] mx-auto font-medium">Are you a Campus Administrator, Student Moderator, or Alumni? Access your dedicated portal below.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[850px] mx-auto cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
+            {/* Card 1: Admin & Moderator Login */}
+            <div className="bg-white border border-slate-200 rounded-[28px] p-8 shadow-[0_10px_30px_rgba(15,23,42,0.04)] hover:shadow-[0_20px_45px_rgba(79,70,229,0.12)] hover:border-[#4F46E5]/40 transition-all duration-300 flex flex-col items-center text-center group">
+              <div className="w-16 h-16 rounded-2xl bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform duration-300">
+                🛡️
+              </div>
+              <h3 className="text-[20px] font-black text-[#0F172A] mb-2">Admin &amp; Moderator Portal</h3>
+              <p className="text-[14px] text-slate-500 mb-6 font-medium leading-relaxed">
+                Log in to manage campus users, review flagged content, resolve petitions, and handle moderation queues.
+              </p>
+              <button
+                onClick={() => navigate('/login')}
+                className="w-full bg-[#0F172A] hover:bg-[#4F46E5] text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md cursor-pointer border-none text-[14px]"
+              >
+                Login as Admin / Moderator <IconArrow />
+              </button>
+            </div>
+
+            {/* Card 2: Alumni Portal */}
+            <div className="bg-white border border-slate-200 rounded-[28px] p-8 shadow-[0_10px_30px_rgba(15,23,42,0.04)] hover:shadow-[0_20px_45px_rgba(6,182,212,0.12)] hover:border-[#06B6D4]/40 transition-all duration-300 flex flex-col items-center text-center group">
+              <div className="w-16 h-16 rounded-2xl bg-cyan-50 text-[#06B6D4] flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform duration-300">
+                🎓
+              </div>
+              <h3 className="text-[20px] font-black text-[#0F172A] mb-2">Alumni Network Portal</h3>
+              <p className="text-[14px] text-slate-500 mb-6 font-medium leading-relaxed">
+                Connect with career paths, post job opportunities, mentor students, and participate in forum discussions.
+              </p>
+              <button
+                onClick={() => navigate('/login')}
+                className="w-full bg-[#0F172A] hover:bg-[#06B6D4] text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md cursor-pointer border-none text-[14px]"
+              >
+                Login as Alumni <IconArrow />
+              </button>
             </div>
           </div>
         </div>
