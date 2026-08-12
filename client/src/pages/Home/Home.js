@@ -57,11 +57,7 @@ const MODULES = [
   { icon: <IconUsers />, title: 'Career Paths', desc: 'Worried about your career? Hop on to career paths to get advice from your peers and alumni.' },
 ];
 
-const FOOTER_LINKS = {
-  'Quick Links': ['Home', 'About Us', 'Features', 'Contact'],
-  'Resources': ['Help Center', 'Guidelines', 'Terms of Service', 'Privacy Policy'],
-  'Support': ['FAQs', 'Report Issue', 'Feedback'],
-};
+
 
 /* ─── Scroll animation hook ─── */
 function useScrollReveal() {
@@ -480,8 +476,8 @@ export default function Home() {
       </section>
 
       {/* ══════════════ FOOTER ══════════════ */}
-      <footer className="bg-[#0F172A] pt-10 md:pt-12 pb-6 border-t border-white/5">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr_1.2fr] gap-8 mb-8">
+      <footer className="bg-[#0F172A] py-6 border-t border-white/5">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-8 mb-8">
           <div className="text-left">
             <div className="flex flex-row items-center gap-3 no-underline cursor-pointer" onClick={() => navigate('/')}>
               <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center p-1 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
@@ -489,7 +485,7 @@ export default function Home() {
               </div>
               <div className="flex flex-col items-start">
                 <h1 className="text-[15px] font-black leading-none tracking-tight text-white">CAMPUS<span className="text-[#06B6D4]">CONNECT</span></h1>
-                <span className="text-[8px] font-bold tracking-[0.35em] text-[#06B6D4] mt-0.5 uppercase">UNIVERSITY PORTAL</span>
+                
               </div>
             </div>
             <p className="text-[13.5px] sm:text-[14px] text-slate-400 leading-relaxed my-3 max-w-[280px]">Empowering students with connection, convenience, and a smarter campus life.</p>
@@ -501,12 +497,7 @@ export default function Home() {
             </div>
           </div>
 
-          {Object.entries(FOOTER_LINKS).map(([group, links]) => (
-            <div key={group} className="text-left">
-              <h4 className="text-[15px] font-extrabold text-white mb-3">{group}</h4>
-              <ul className="list-none m-0 p-0">{links.map(l => <li key={l} className="mb-2"><a href="#!" className="text-[13.5px] text-slate-400 no-underline transition-all duration-200 hover:text-[#06B6D4] hover:pl-1 cc-page-cursor-none">{l}</a></li>)}</ul>
-            </div>
-          ))}
+          
 
           <div className="text-left">
             <h4 className="text-[15px] font-extrabold text-white mb-3">Contact Us</h4>
