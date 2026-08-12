@@ -212,7 +212,7 @@ export default function Home() {
           <div className="absolute rounded-full filter blur-[100px] opacity-30 w-[600px] h-[600px] bg-[#4F46E5] -top-[150px] -left-[150px] animate-float" />
           <div className="absolute rounded-full filter blur-[100px] opacity-20 w-[450px] h-[450px] bg-[#06B6D4] bottom-[-100px] right-[5%] animate-[float_10s_ease-in-out_infinite_reverse]" />
         </div>
-        
+
         <div className="relative z-10 max-w-[1000px] mx-auto px-6 text-center w-full cc-reveal">
           <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white backdrop-blur-md py-2.5 px-5 rounded-full text-[14px] font-bold mb-8">
             <span className="text-[#06B6D4]">✧</span> We customize to your needs
@@ -240,23 +240,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══════════════ STATS BAR ══════════════ */}
-      <section className="bg-[#0F172A] py-12 border-y border-white/10 relative z-20">
-        <div className="max-w-[1200px] mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            {STATS.map((s, idx) => (
-              <div key={idx} className="flex flex-col items-center">
-                <span className="text-[clamp(32px,3.5vw,48px)] font-black text-transparent bg-clip-text bg-gradient-to-r from-[#06B6D4] to-[#4F46E5] mb-1">
-                  {s.value}
-                </span>
-                <span className="text-[13px] md:text-[14px] font-semibold text-slate-400 uppercase tracking-wider">
-                  {s.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ══════════════ PORTAL ACCESS FOR ADMINS, MODS & ALUMNI ══════════════ */}
       <section className="py-20 bg-gradient-to-b from-[#0F172A] via-[#1E293B] to-white relative border-t border-white/10">
@@ -419,7 +402,7 @@ export default function Home() {
           <div className="bg-gradient-to-r from-[#0F172A] via-[#1E293B] to-[#0F172A] border border-white/10 rounded-[32px] p-10 md:p-14 text-center relative overflow-hidden shadow-[0_25px_60px_rgba(15,23,42,0.25)] cc-reveal opacity-0 translate-y-8 transition-all duration-700">
             <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-[#4F46E5]/30 rounded-full filter blur-[80px] pointer-events-none" />
             <div className="absolute -left-20 -top-20 w-80 h-80 bg-[#06B6D4]/30 rounded-full filter blur-[80px] pointer-events-none" />
-            
+
             <div className="relative z-10 max-w-[700px] mx-auto">
               <h2 className="text-[clamp(30px,3.8vw,44px)] font-black text-white mb-4 leading-tight">
                 Ready to Upgrade Your <span className="bg-gradient-to-r from-[#06B6D4] to-[#4F46E5] bg-clip-text text-transparent">Campus Experience?</span>
@@ -480,7 +463,7 @@ export default function Home() {
             <ul className="list-none m-0 p-0 text-[13.5px] text-slate-400">
               <li className="mb-2">✉ info@mul.edu.pk</li>
               <li className="mb-2">📞 +92 42 35145621</li>
-              <li className="mb-2 leading-snug">📍 Minhaj University Lahore, <br/> Near Hamdard Chowk, Lahore</li>
+              <li className="mb-2 leading-snug">📍 Minhaj University Lahore, <br /> Near Hamdard Chowk, Lahore</li>
             </ul>
           </div>
         </div>
