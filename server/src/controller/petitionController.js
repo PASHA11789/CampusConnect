@@ -277,6 +277,7 @@ export const moderatePetition = async (req, res) => {
 
       res.status(200).json({ success: true, message: "Petition approved and published." });
     } else if (action === 'Reject') {
+      const deletedId = petition._id;
       await petition.deleteOne();
       
       const rejectedNotif = await Notification.create({
@@ -286,6 +287,7 @@ export const moderatePetition = async (req, res) => {
       });
       if (io) {
         io.to(petition.creator._id.toString()).emit('new_notification', rejectedNotif);
+        io.emit('petition_deleted', { petitionId: deletedId });
       }
 
       res.status(200).json({ success: true, message: "Petition rejected and deleted." });

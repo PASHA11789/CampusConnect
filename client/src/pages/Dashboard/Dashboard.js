@@ -100,7 +100,9 @@ export default function Dashboard() {
         const serverPetitions = (data.petitions || []).filter(sp => checkHasAccess(sp, currentUser));
         const userStorageKey = currentUser?._id ? `my_created_petitions_${currentUser._id}` : "my_created_petitions";
         const localPetitions = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
-        const filteredLocal = localPetitions.filter(lp => checkHasAccess(lp, currentUser) && !serverPetitions.some(sp => sp._id === lp._id));
+        const filteredLocal = localPetitions.filter(lp => lp._id?.startsWith("temp-") && checkHasAccess(lp, currentUser) && !serverPetitions.some(sp => sp._id === lp._id));
+        const validLocalToKeep = localPetitions.filter(lp => lp._id?.startsWith("temp-") || serverPetitions.some(sp => sp._id === lp._id));
+        localStorage.setItem(userStorageKey, JSON.stringify(validLocalToKeep));
         const mergedPetitions = [...filteredLocal, ...serverPetitions].slice(0, 5);
         setDashboardData({
           ...data,
@@ -156,6 +158,21 @@ export default function Dashboard() {
               petitions: [newPetition, ...prevData.petitions].slice(0, 5)
             };
           });
+        }
+      });
+
+      socket.on("petition_deleted", (data) => {
+        if (data && data.petitionId) {
+          const targetId = data.petitionId.toString();
+          setDashboardData((prevData) => ({
+            ...prevData,
+            petitions: (prevData.petitions || []).filter((p) => p._id?.toString() !== targetId)
+          }));
+
+          const userStorageKey = user?._id ? `my_created_petitions_${user._id}` : "my_created_petitions";
+          const localPetitions = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
+          const updatedLocal = localPetitions.filter((p) => p._id?.toString() !== targetId);
+          localStorage.setItem(userStorageKey, JSON.stringify(updatedLocal));
         }
       });
 

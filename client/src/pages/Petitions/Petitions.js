@@ -241,7 +241,9 @@ export default function Petitions() {
         const serverPetitions = data.petitions || [];
         const userStorageKey = user?._id ? `my_created_petitions_${user._id}` : "my_created_petitions";
         const localPetitions = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
-        const filteredLocal = localPetitions.filter(lp => checkHasAccess(lp, user) && !serverPetitions.some(sp => sp._id === lp._id));
+        const filteredLocal = localPetitions.filter(lp => lp._id?.startsWith("temp-") && checkHasAccess(lp, user) && !serverPetitions.some(sp => sp._id === lp._id));
+        const validLocalToKeep = localPetitions.filter(lp => lp._id?.startsWith("temp-") || serverPetitions.some(sp => sp._id === lp._id));
+        localStorage.setItem(userStorageKey, JSON.stringify(validLocalToKeep));
         setPetitions([...filteredLocal, ...serverPetitions]);
       } catch (error) {
         console.error("Error fetching petitions:", error);
@@ -283,6 +285,19 @@ export default function Petitions() {
             return [newPetition, ...prev];
           });
           showToast(`New petition published: "${newPetition.title}"`, "info");
+        }
+      });
+
+      socket.on("petition_deleted", (data) => {
+        if (data && data.petitionId) {
+          const targetId = data.petitionId.toString();
+          setPetitions((prev) => prev.filter((p) => p._id?.toString() !== targetId));
+          setSelectedPetition((prev) => (prev?._id?.toString() === targetId ? null : prev));
+
+          const userStorageKey = user?._id ? `my_created_petitions_${user._id}` : "my_created_petitions";
+          const localPetitions = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
+          const updatedLocal = localPetitions.filter((p) => p._id?.toString() !== targetId);
+          localStorage.setItem(userStorageKey, JSON.stringify(updatedLocal));
         }
       });
 
