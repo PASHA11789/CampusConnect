@@ -22,17 +22,24 @@ export const getPetitions = async (req, res) => {
 
     if (req.user.role !== "admin" && req.user.role !== "campus_admin") {
       queryObj = {
-        status: { $in: ["Active", "Under Review", "Resolved", "Closed"] },
-        isHidden: false,
         $or: [
-          { level: "Campus" },
-          { level: "Department", targetGroup: req.user.department },
-          { level: "Class", targetGroup: classString },
+          {
+            status: { $in: ["Active", "Under Review", "Resolved", "Closed"] },
+            isHidden: false,
+            $or: [
+              { level: "Campus" },
+              { level: "Department", targetGroup: req.user.department },
+              { level: "Class", targetGroup: classString },
+            ],
+          },
           { creator: req.user._id },
         ],
       };
     } else {
-      queryObj = {};
+      queryObj = {
+        status: { $in: ["Active", "Under Review", "Resolved", "Closed"] },
+        isHidden: false,
+      };
     }
 
     const petitionsRaw = await Petition.find(queryObj)

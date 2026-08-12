@@ -212,7 +212,7 @@ export default function ModerationRoom() {
     try {
       const token = getAuthToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.put(`/api/forums/${threadId}/restore`, {}, config);
+      await axios.put(`/api/moderation/forum/${threadId}/moderate`, { action: "Approve" }, config);
       showToast("Thread restored successfully.", "success");
       fetchQueue();
     } catch (error) {
@@ -246,11 +246,10 @@ export default function ModerationRoom() {
     try {
       const token = getAuthToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const endpoint = replyType === 'forum_reply'
-        ? `/api/forums/${threadId}/replies/${replyId}/restore`
-        : `/api/careers/${threadId}/replies/${replyId}/restore`;
+      const contentType = replyType === 'forum_reply' ? 'reply' : 'career_reply';
+      const endpoint = `/api/moderation/${contentType}/${replyId}/moderate`;
 
-      await axios.put(endpoint, {}, config);
+      await axios.put(endpoint, { action: "Approve", threadId }, config);
       showToast("Comment restored successfully.", "success");
       fetchQueue();
     } catch (error) {
@@ -286,16 +285,16 @@ export default function ModerationRoom() {
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
       if (type === "thread") {
-        await axios.delete(`/api/forums/${targetId}`, config);
+        await axios.put(`/api/moderation/forum/${targetId}/moderate`, { action: "Reject" }, config);
         showToast("Thread permanently deleted.", "success");
       } else if (type === "career") {
         await axios.put(`/api/moderation/career/${targetId}/moderate`, { action: "Reject" }, config);
         showToast("Career post permanently deleted.", "success");
       } else if (type === "comment") {
-        await axios.delete(`/api/forums/${extraId}/replies/${targetId}`, config);
+        await axios.put(`/api/moderation/reply/${targetId}/moderate`, { action: "Reject", threadId: extraId }, config);
         showToast("Comment permanently deleted.", "success");
       } else if (type === "career_reply") {
-        await axios.delete(`/api/careers/${extraId}/replies/${targetId}`, config);
+        await axios.put(`/api/moderation/career_reply/${targetId}/moderate`, { action: "Reject", threadId: extraId }, config);
         showToast("Career reply permanently deleted.", "success");
       }
       fetchQueue();
