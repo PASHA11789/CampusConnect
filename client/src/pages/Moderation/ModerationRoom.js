@@ -880,7 +880,7 @@ export default function ModerationRoom() {
                                   </button>
                                 )}
                                 <button
-                                  onClick={() => setInspectItem({ type: type === 'forum_reply' ? 'Forum Comment' : 'Career Comment', title: threadTitle, content: reply.content, author: reply.author, createdAt: reply.createdAt, reportedBy: reply.reportedBy, id: reply._id })}
+                                  onClick={() => setInspectItem({ type: type === 'forum_reply' ? 'Forum Comment' : 'Career Comment', title: threadTitle, content: reply.content, author: reply.author, createdAt: reply.createdAt, reportedBy: reply.reportedBy, id: reply._id, threadId: threadId })}
                                   className="bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1"
                                 >
                                   👁️ Inspect Comment
