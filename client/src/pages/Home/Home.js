@@ -260,22 +260,22 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right Column: Minhaj University Showcase Video */}
-          <div className="lg:col-span-5 relative cc-reveal">
-            <div className="relative rounded-[24px] sm:rounded-[32px] overflow-hidden border border-white/20 bg-white/5 backdrop-blur-xl shadow-[0_25px_60px_rgba(0,0,0,0.4)] group">
+          {/* Right Column: Minhaj University Vertical Reel Showcase Video */}
+          <div className="lg:col-span-5 relative flex justify-center cc-reveal">
+            <div className="relative w-full max-w-[320px] sm:max-w-[360px] rounded-[32px] overflow-hidden border-[2px] border-white/20 bg-slate-950 shadow-[0_25px_60px_rgba(0,0,0,0.6)] group">
               <video
                 src={mulVideo}
                 autoPlay
                 loop
                 muted
                 playsInline
-                className="w-full h-auto max-h-[480px] object-contain bg-slate-950/50 block transition-transform duration-700 group-hover:scale-102"
+                className="w-full h-[460px] sm:h-[520px] object-cover block transition-transform duration-700 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/40 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/60 via-transparent to-black/30 pointer-events-none" />
               
               {/* Floating Glass Badge Top Left */}
-              <div className="absolute top-3 left-3 sm:top-5 sm:left-5 bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl py-1.5 px-3 sm:py-2.5 sm:px-4 text-white text-[11px] sm:text-[13px] font-extrabold flex items-center gap-2 shadow-lg z-10">
-                <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#06B6D4] animate-ping" />
+              <div className="absolute top-4 left-4 bg-slate-900/70 backdrop-blur-md border border-white/20 rounded-full py-1.5 px-3.5 text-white text-[11px] sm:text-[12px] font-extrabold flex items-center gap-2 shadow-lg z-10">
+                <span className="w-2 h-2 rounded-full bg-[#06B6D4] animate-ping" />
                 Minhaj University Lahore
               </div>
             </div>
