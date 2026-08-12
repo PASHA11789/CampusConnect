@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/MUL-Logo.png';
+import mulCampusImg from '../../assets/ibn_e_khaldun.jpg';
 
 /* ─────────────────────────────────────────────
    Inline SVG icons (no external icon lib needed)
@@ -18,8 +19,6 @@ const IconSparkles = ({ className = "w-6 h-6" }) => <svg className={className} v
 const IconShieldCheck = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>;
 const IconZap = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>;
 const IconRocket = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z" /><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-3.05 10a22.35 22.35 0 01-3.95 2z" /><path d="M9 18l-4.5 4.5" /><path d="M14.5 9.5L18 6" /></svg>;
-
-
 
 const FEATURES = [
   {
@@ -202,81 +201,156 @@ export default function Home() {
       </nav>
 
       {/* ══════════════ HERO ══════════════ */}
-      <section id="home" className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] min-h-[90vh] flex items-center pt-[100px]">
+      <section id="home" className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] min-h-[92vh] flex items-center pt-[100px] pb-16">
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute rounded-full filter blur-[100px] opacity-30 w-[600px] h-[600px] bg-[#4F46E5] -top-[150px] -left-[150px] animate-float" />
           <div className="absolute rounded-full filter blur-[100px] opacity-20 w-[450px] h-[450px] bg-[#06B6D4] bottom-[-100px] right-[5%] animate-[float_10s_ease-in-out_infinite_reverse]" />
         </div>
 
-        <div className="relative z-10 max-w-[1000px] mx-auto px-6 text-center w-full cc-reveal">
-          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white backdrop-blur-md py-2.5 px-5 rounded-full text-[14px] font-bold mb-8">
-            <span className="text-[#06B6D4]">✧</span> We customize to your needs
+        <div className="relative z-10 max-w-[1200px] mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          {/* Left Column: Headline & Action */}
+          <div className="lg:col-span-7 text-left cc-reveal">
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white backdrop-blur-md py-2.5 px-5 rounded-full text-[13px] md:text-[14px] font-bold mb-6">
+              <span className="text-[#06B6D4]">✧</span> Official Minhaj University Digital Ecosystem
+            </div>
+            <h1 className="text-[clamp(38px,5vw,72px)] font-black text-white leading-[1.1] mb-6 tracking-tight">
+              What is <span className="bg-gradient-to-r from-[#06B6D4] via-[#38BDF8] to-[#4F46E5] bg-clip-text text-transparent">CampusConnect?</span>
+            </h1>
+            <p className="text-[17px] md:text-[20px] text-white/80 leading-[1.65] mb-8 max-w-[620px] font-medium">
+              Bringing your entire Minhaj University experience into one intelligent, unified platform. From academic discussions and student petitions to smart canteen orders and alumni networking.
+            </p>
+
+            <div className="flex gap-4 items-center flex-wrap mb-8">
+              {isLoggedIn ? (
+                <button className="inline-flex items-center gap-2.5 bg-[#4F46E5] text-white border-none rounded-xl py-4 px-8 text-[16px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_10px_30px_rgba(79,70,229,0.4)] hover:bg-[#4338CA] hover:-translate-y-[2px] hover:shadow-[0_15px_40px_rgba(79,70,229,0.5)] cc-page-cursor-none" onClick={() => navigate('/dashboard')}>
+                  Go to Dashboard <span><IconArrow /></span>
+                </button>
+              ) : (
+                <button className="inline-flex items-center gap-2.5 bg-[#4F46E5] text-white border-none rounded-xl py-4 px-8 text-[16px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_10px_30px_rgba(79,70,229,0.4)] hover:bg-[#4338CA] hover:-translate-y-[2px] hover:shadow-[0_15px_40px_rgba(79,70,229,0.5)] cc-page-cursor-none" onClick={() => navigate('/mul-login')}>
+                  Get Started Now <span><IconArrow /></span>
+                </button>
+              )}
+              <button className="inline-flex items-center gap-2.5 bg-white/10 text-white border-[1.5px] border-white/20 rounded-xl py-4 px-8 text-[16px] font-bold cursor-pointer transition-all duration-[250ms] backdrop-blur-[8px] hover:bg-white/20 hover:-translate-y-[2px] cc-page-cursor-none" onClick={() => document.getElementById('modules').scrollIntoView({ behavior: 'smooth' })}>
+                Explore Modules <span>✦</span>
+              </button>
+            </div>
+
+            {/* Quick feature tags */}
+            <div className="flex items-center gap-6 pt-4 border-t border-white/10 text-white/70 text-[13px] font-semibold flex-wrap">
+              <span className="flex items-center gap-1.5"><span className="text-[#06B6D4]">✓</span> Verified Student Portal</span>
+              <span className="flex items-center gap-1.5"><span className="text-[#4F46E5]">✓</span> Real-Time Moderation</span>
+              <span className="flex items-center gap-1.5"><span className="text-[#06B6D4]">✓</span> Alumni Mentorship</span>
+            </div>
           </div>
-          <h1 className="text-[clamp(44px,6vw,84px)] font-black text-white leading-[1.1] mb-6 tracking-tight">
-            What is <span className="bg-gradient-to-r from-[#06B6D4] to-[#4F46E5] bg-clip-text text-transparent">CampusConnect?</span>
-          </h1>
-          <p className="text-[18px] md:text-[22px] text-white/80 leading-[1.6] mb-10 max-w-[680px] mx-auto font-medium">
-            A variety of services catered specifically to your needs. Bring your entire university experience into one beautiful, unified platform.
-          </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            {isLoggedIn ? (
-              <button className="inline-flex items-center gap-2.5 bg-[#4F46E5] text-white border-none rounded-xl py-4 px-8 text-[16px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_10px_30px_rgba(79,70,229,0.4)] hover:bg-[#4338CA] hover:-translate-y-[2px] hover:shadow-[0_15px_40px_rgba(79,70,229,0.5)] cc-page-cursor-none" onClick={() => navigate('/dashboard')}>
-                Go to Dashboard <span><IconArrow /></span>
-              </button>
-            ) : (
-              <button className="inline-flex items-center gap-2.5 bg-[#4F46E5] text-white border-none rounded-xl py-4 px-8 text-[16px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_10px_30px_rgba(79,70,229,0.4)] hover:bg-[#4338CA] hover:-translate-y-[2px] hover:shadow-[0_15px_40px_rgba(79,70,229,0.5)] cc-page-cursor-none" onClick={() => navigate('/mul-login')}>
-                Get Started Now <span><IconArrow /></span>
-              </button>
-            )}
-            <button className="inline-flex items-center gap-2.5 bg-white/10 text-white border-[1.5px] border-white/20 rounded-xl py-4 px-8 text-[16px] font-bold cursor-pointer transition-all duration-[250ms] backdrop-blur-[8px] hover:bg-white/20 hover:-translate-y-[2px] cc-page-cursor-none" onClick={() => document.getElementById('modules').scrollIntoView({ behavior: 'smooth' })}>
-              Explore Modules <span>✦</span>
-            </button>
+
+          {/* Right Column: Minhaj University Building Showcase */}
+          <div className="lg:col-span-5 relative cc-reveal">
+            <div className="relative rounded-[32px] overflow-hidden border border-white/20 bg-white/5 backdrop-blur-xl shadow-[0_25px_60px_rgba(0,0,0,0.4)] group">
+              <img
+                src={mulCampusImg}
+                alt="Minhaj University Lahore Campus"
+                className="w-full h-[400px] md:h-[460px] object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-[#0F172A]/30 to-transparent" />
+              
+              {/* Floating Glass Badge Top Left */}
+              <div className="absolute top-5 left-5 bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl py-2.5 px-4 text-white text-[13px] font-extrabold flex items-center gap-2 shadow-lg">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#06B6D4] animate-ping" />
+                Minhaj University Lahore
+              </div>
+
+              {/* Bottom Card Detail Overlay */}
+              <div className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 text-left text-white shadow-2xl">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center p-1 shrink-0">
+                    <img src={logo} alt="MUL Logo" className="w-full h-full object-contain" />
+                  </div>
+                  <div>
+                    <h4 className="text-[16px] font-black text-white leading-tight">Ibn-e-Khaldun Block</h4>
+                    <span className="text-[11px] font-bold text-[#06B6D4] uppercase tracking-wider">CAMPUS CONNECT DIGITAL DESK</span>
+                  </div>
+                </div>
+                <p className="text-[12.5px] text-white/80 leading-relaxed font-medium">
+                  Connecting students, faculty, and alumni across all academic departments with high-speed digital tools.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
 
       {/* ══════════════ PORTAL ACCESS FOR ADMINS, MODS & ALUMNI ══════════════ */}
-      <section className="py-20 bg-gradient-to-b from-[#0F172A] via-[#1E293B] to-white relative border-t border-white/10">
+      <section className="py-24 bg-gradient-to-b from-[#0F172A] via-[#1E293B] to-white relative border-t border-white/10">
         <div className="max-w-[1200px] mx-auto px-6">
-          <div className="text-center mb-12 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#06B6D4]">PORTAL ACCESS</div>
-            <h2 className="text-[clamp(30px,3.8vw,44px)] font-black text-white mb-3">Administrators, Moderators &amp; Alumni</h2>
-            <p className="text-[16px] md:text-[18px] text-white/80 max-w-[620px] mx-auto font-medium">Are you a Campus Administrator, Student Moderator, or Alumni? Access your dedicated portal below.</p>
+          <div className="text-center mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-[#06B6D4] backdrop-blur-md py-1.5 px-4 rounded-full text-[12px] font-extrabold tracking-[0.18em] uppercase mb-4">
+              ✦ AUTHORIZED ROLE ACCESS ✦
+            </div>
+            <h2 className="text-[clamp(32px,4vw,48px)] font-black text-white mb-4 leading-tight">
+              Dedicated Governance &amp; Alumni Portals
+            </h2>
+            <p className="text-[16px] md:text-[18px] text-white/80 max-w-[720px] mx-auto font-medium leading-relaxed">
+              CampusConnect provides specialized, role-tailored workspaces built for university administration, safety, and alumni engagement. Select your official workspace below to access your command desk.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[850px] mx-auto cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[950px] mx-auto cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
             {/* Card 1: Admin & Moderator Login */}
-            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[28px] p-8 shadow-[0_15px_35px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_45px_rgba(79,70,229,0.3)] hover:border-[#4F46E5]/60 transition-all duration-300 flex flex-col items-center text-center group">
-              <div className="w-16 h-16 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform duration-300">
-                🛡️
+            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[32px] p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_60px_rgba(79,70,229,0.35)] hover:border-[#4F46E5]/60 transition-all duration-300 flex flex-col justify-between text-left group">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#4F46E5]/30 to-[#4F46E5]/10 border border-[#4F46E5]/40 text-[#818CF8] flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
+                    🛡️
+                  </div>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-[#818CF8] bg-[#4F46E5]/20 border border-[#4F46E5]/40 py-1.5 px-3 rounded-full">
+                    ADMIN &amp; MOD DESK
+                  </span>
+                </div>
+                <h3 className="text-[22px] font-black text-white mb-3">Institutional Command &amp; Moderation Desk</h3>
+                <p className="text-[14.5px] text-white/75 mb-6 font-medium leading-relaxed">
+                  Designed for campus administrators and student moderators to oversee campus operations, review reported petitions, enforce safety policies, and maintain smooth academic governance.
+                </p>
+                <ul className="list-none p-0 m-0 mb-8 space-y-2.5 text-[13.5px] text-white/80 font-medium">
+                  <li className="flex items-center gap-2.5"><span className="text-[#818CF8]">✓</span> Review &amp; resolve department petitions</li>
+                  <li className="flex items-center gap-2.5"><span className="text-[#818CF8]">✓</span> Content moderation &amp; flagged user investigations</li>
+                  <li className="flex items-center gap-2.5"><span className="text-[#818CF8]">✓</span> Real-time push security notifications</li>
+                </ul>
               </div>
-              <h3 className="text-[20px] font-black text-white mb-2">Admin &amp; Moderator Portal</h3>
-              <p className="text-[14px] text-white/70 mb-6 font-medium leading-relaxed">
-                Log in to manage campus users, review flagged content, resolve petitions, and handle moderation queues.
-              </p>
               <button
                 onClick={() => navigate('/login')}
-                className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md cursor-pointer border-none text-[14px]"
+                className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(79,70,229,0.4)] cursor-pointer border-none text-[15px]"
               >
-                Login as Admin / Moderator <IconArrow />
+                Access Admin &amp; Moderator Desk <IconArrow />
               </button>
             </div>
 
             {/* Card 2: Alumni Portal */}
-            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[28px] p-8 shadow-[0_15px_35px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_45px_rgba(6,182,212,0.3)] hover:border-[#06B6D4]/60 transition-all duration-300 flex flex-col items-center text-center group">
-              <div className="w-16 h-16 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform duration-300">
-                🎓
+            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[32px] p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_60px_rgba(6,182,212,0.35)] hover:border-[#06B6D4]/60 transition-all duration-300 flex flex-col justify-between text-left group">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#06B6D4]/30 to-[#06B6D4]/10 border border-[#06B6D4]/40 text-[#38BDF8] flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
+                    🎓
+                  </div>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-[#38BDF8] bg-[#06B6D4]/20 border border-[#06B6D4]/40 py-1.5 px-3 rounded-full">
+                    ALUMNI NETWORK
+                  </span>
+                </div>
+                <h3 className="text-[22px] font-black text-white mb-3">Global Alumni &amp; Career Acceleration Hub</h3>
+                <p className="text-[14.5px] text-white/75 mb-6 font-medium leading-relaxed">
+                  Tailored exclusively for Minhaj University graduates to reconnect with the campus, post industry career opportunities, guide current students, and lead subject discussions.
+                </p>
+                <ul className="list-none p-0 m-0 mb-8 space-y-2.5 text-[13.5px] text-white/80 font-medium">
+                  <li className="flex items-center gap-2.5"><span className="text-[#38BDF8]">✓</span> Mentor students via structured Career Paths</li>
+                  <li className="flex items-center gap-2.5"><span className="text-[#38BDF8]">✓</span> Post job vacancies &amp; internship opportunities</li>
+                  <li className="flex items-center gap-2.5"><span className="text-[#38BDF8]">✓</span> Engage in peer study forums &amp; discussions</li>
+                </ul>
               </div>
-              <h3 className="text-[20px] font-black text-white mb-2">Alumni Network Portal</h3>
-              <p className="text-[14px] text-white/70 mb-6 font-medium leading-relaxed">
-                Connect with career paths, post job opportunities, mentor students, and participate in forum discussions.
-              </p>
               <button
                 onClick={() => navigate('/login')}
-                className="w-full bg-[#06B6D4] hover:bg-[#0891b2] text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md cursor-pointer border-none text-[14px]"
+                className="w-full bg-[#06B6D4] hover:bg-[#0891b2] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(6,182,212,0.4)] cursor-pointer border-none text-[15px]"
               >
-                Login as Alumni <IconArrow />
+                Access Alumni Network <IconArrow />
               </button>
             </div>
           </div>
