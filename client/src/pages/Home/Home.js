@@ -19,12 +19,7 @@ const IconShieldCheck = ({ className = "w-6 h-6" }) => <svg className={className
 const IconZap = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>;
 const IconRocket = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z" /><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-3.05 10a22.35 22.35 0 01-3.95 2z" /><path d="M9 18l-4.5 4.5" /><path d="M14.5 9.5L18 6" /></svg>;
 
-const STATS = [
-  { value: '5,000+', label: 'Active Campus Students' },
-  { value: '50+', label: 'Study Forums & Groups' },
-  { value: '98%', label: 'Petitions Addressed' },
-  { value: '10k+', label: 'Canteen Orders Served' },
-];
+
 
 const FEATURES = [
   {
