@@ -285,7 +285,7 @@ export default function Home() {
 
 
       {/* ══════════════ PORTAL ACCESS FOR ADMINS, MODS & ALUMNI ══════════════ */}
-      <section className="py-14 sm:py-20 md:py-24 bg-gradient-to-b from-[#0F172A] via-[#1E293B] to-white relative border-t border-white/10">
+      <section className="py-14 sm:py-20 md:py-24 bg-[#0F172A] relative">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-[#06B6D4] backdrop-blur-md py-1.5 px-4 rounded-full text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-4">
