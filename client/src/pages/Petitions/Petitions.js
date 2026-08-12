@@ -150,13 +150,12 @@ export default function Petitions() {
             setIsDetailOpen(true);
           }
         } catch (err) {
+          navigate("/petitions", { replace: true, state: {} });
           if (err.response?.status === 403 || err.response?.data?.forbidden) {
             setAccessDeniedMsg(err.response?.data?.message || "Sorry, you are not authorized to view this petition");
             setIsAccessDeniedOpen(true);
-          } else if (err.response?.status === 404) {
-            showToast("This petition was rejected or removed by moderation.", "info");
           } else {
-            showToast(err.response?.data?.message || "Petition not found or inaccessible", "error");
+            showToast("Your petition was rejected and deleted by admin or moderator.", "info");
           }
         }
       }
@@ -294,7 +293,10 @@ export default function Petitions() {
         if (data && data.petitionId) {
           const targetId = data.petitionId.toString();
           setPetitions((prev) => prev.filter((p) => p._id?.toString() !== targetId));
-          setSelectedPetition((prev) => (prev?._id?.toString() === targetId ? null : prev));
+          setSelectedPetition(null);
+          setIsDetailOpen(false);
+
+          navigate("/petitions", { replace: true, state: {} });
 
           const userStorageKey = user?._id ? `my_created_petitions_${user._id}` : "my_created_petitions";
           const localPetitions = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
