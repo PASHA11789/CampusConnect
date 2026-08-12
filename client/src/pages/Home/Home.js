@@ -269,30 +269,14 @@ export default function Home() {
                 loop
                 muted
                 playsInline
-                className="w-full h-[320px] sm:h-[410px] md:h-[470px] object-cover transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-auto max-h-[480px] object-contain bg-slate-950/50 block transition-transform duration-700 group-hover:scale-102"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-[#0F172A]/30 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/40 via-transparent to-transparent pointer-events-none" />
               
               {/* Floating Glass Badge Top Left */}
               <div className="absolute top-3 left-3 sm:top-5 sm:left-5 bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl py-1.5 px-3 sm:py-2.5 sm:px-4 text-white text-[11px] sm:text-[13px] font-extrabold flex items-center gap-2 shadow-lg z-10">
                 <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#06B6D4] animate-ping" />
                 Minhaj University Lahore
-              </div>
-
-              {/* Bottom Card Detail Overlay */}
-              <div className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 text-left text-white shadow-2xl transition-all duration-500 z-10">
-                <div className="flex items-center gap-2.5 sm:gap-3 mb-1.5 sm:mb-2">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center p-1 shrink-0 shadow-md">
-                    <img src={logo} alt="MUL Logo" className="w-full h-full object-contain" />
-                  </div>
-                  <div>
-                    <h4 className="text-[14px] sm:text-[17px] font-black text-white leading-tight">Admissions Open – MUL</h4>
-                    <span className="text-[10px] sm:text-[11px] font-bold text-[#06B6D4] uppercase tracking-wider">A PLACE WHERE CHARACTER RISES</span>
-                  </div>
-                </div>
-                <p className="text-[11.5px] sm:text-[12.5px] text-white/85 leading-relaxed font-medium">
-                  Discover academic excellence and a modern digital campus experience at Minhaj University Lahore.
-                </p>
               </div>
             </div>
           </div>
