@@ -170,7 +170,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
         }
       } else if (model === 'Petition' || type === 'PETITION' || message.includes('petition') || message.includes('signature') || message.includes('milestone') || message.includes('vote')) {
         targetPath = '/petitions';
-        if (notif.relatedItem) {
+        if (notif.relatedItem && !message.includes('reject') && !message.includes('deleted') && !message.includes('violated')) {
           navState = { petitionId: notif.relatedItem };
         }
       } else if (message.includes('report') || message.includes('flagged') || message.includes('moderator') || message.includes('violated')) {

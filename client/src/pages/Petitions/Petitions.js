@@ -153,6 +153,8 @@ export default function Petitions() {
           if (err.response?.status === 403 || err.response?.data?.forbidden) {
             setAccessDeniedMsg(err.response?.data?.message || "Sorry, you are not authorized to view this petition");
             setIsAccessDeniedOpen(true);
+          } else if (err.response?.status === 404) {
+            showToast("This petition was rejected or removed by moderation.", "info");
           } else {
             showToast(err.response?.data?.message || "Petition not found or inaccessible", "error");
           }

@@ -283,7 +283,7 @@ export const moderatePetition = async (req, res) => {
       const rejectedNotif = await Notification.create({
         recipient: petition.creator._id,
         type: 'GENERAL',
-        message: `Your petition "${petition.title}" was rejected by moderation as it violated community guidelines.`
+        message: `Your petition "${petition.title}" was rejected and deleted by admin or moderator.`
       });
       if (io) {
         io.to(petition.creator._id.toString()).emit('new_notification', rejectedNotif);
