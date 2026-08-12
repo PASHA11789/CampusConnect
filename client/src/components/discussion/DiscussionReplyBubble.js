@@ -201,13 +201,6 @@ export default function DiscussionReplyBubble({
                   <p className="whitespace-pre-wrap leading-relaxed select-none filter blur-[5px]">
                     {reply.content}
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => onReveal(replyKey)}
-                    className="text-[10px] font-extrabold text-[#00c2cb] hover:underline cursor-pointer bg-transparent border-none mt-1"
-                  >
-                    {t('Show content anyway')}
-                  </button>
                 </div>
               ) : (
                 <>
