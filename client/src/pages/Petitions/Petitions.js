@@ -338,7 +338,7 @@ export default function Petitions() {
         socket.disconnect();
       };
     }
-  }, [user, showToast, checkHasAccess]);
+  }, [user, showToast, checkHasAccess, navigate]);
 
   // Auto-open petition detail modal from redirect state
   useEffect(() => {
