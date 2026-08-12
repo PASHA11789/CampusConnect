@@ -46,13 +46,21 @@ export const getModerationQueue = async (req, res) => {
       Petition.find(
         req.user.role === "student_mod"
           ? {
-              status: "Pending Mod Approval",
+              $or: [
+                { status: "Pending Mod Approval" },
+                { isHidden: true, "reportedBy.0": { $exists: true } }
+              ],
               $or: [
                 { level: "Campus" },
                 { level: "Department", targetGroup: req.user.department },
               ],
             }
-          : { status: "Pending Mod Approval" }
+          : { 
+              $or: [
+                { status: "Pending Mod Approval" },
+                { isHidden: true, "reportedBy.0": { $exists: true } }
+              ] 
+            }
       )
         .populate("creator", "name registeration_number avatar")
         .sort({ createdAt: 1 }),
@@ -156,6 +164,8 @@ export const moderateItem = async (req, res) => {
         petition.status = "Active";
         petition.isHidden = false;
         petition.moderatedBy = req.user._id;
+        petition.reportedBy = [];
+        petition.reports = [];
         await petition.save();
 
         const notif = await Notification.create({

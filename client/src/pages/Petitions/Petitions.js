@@ -439,6 +439,19 @@ export default function Petitions() {
     }
   };
 
+  const handleReportPetition = async (id) => {
+    try {
+      const token = sessionStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      await axios.post(`/api/petitions/${id}/report`, { reason: "Inappropriate Content" }, config);
+      showToast(t("Petition reported successfully"), "success");
+      setIsDetailOpen(false);
+      setPetitions((prev) => prev.filter((p) => p._id !== id));
+    } catch (err) {
+      showToast(err.response?.data?.message || t("Failed to report petition"), "error");
+    }
+  };
+
   // Copy Link Action Handler
   const handleCopyLink = (link) => {
     navigator.clipboard.writeText(link)
@@ -1345,6 +1358,12 @@ export default function Petitions() {
                   className="flex-1 bg-white hover:bg-[#F3EEE4] text-[#071A35] border border-[#E8E1D5] py-2.5 sm:py-3 rounded-xl text-xs sm:text-[13px] font-bold transition-all duration-200 cursor-pointer"
                 >
                   {t("Close")}
+                </button>
+                <button
+                  onClick={() => handleReportPetition(selectedPetition._id)}
+                  className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 py-2.5 sm:py-3 rounded-xl text-xs sm:text-[13px] font-bold transition-all duration-200 cursor-pointer"
+                >
+                  {t("Report")}
                 </button>
 
                 {selectedPetition.status === "Active" && (
