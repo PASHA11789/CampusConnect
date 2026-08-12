@@ -199,77 +199,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══════════════ CONNECT WITH STUDENTS (GALLERY) ══════════════ */}
-      <section id="about" className="py-24 bg-white relative overflow-hidden">
-        <div className="max-w-[1200px] mx-auto px-6">
-          <div className="text-center mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[12px] font-extrabold tracking-[0.15em] uppercase mb-4 text-[#4F46E5]">COMMUNITY</div>
-            <h2 className="text-[clamp(32px,4vw,48px)] font-black text-[#0F172A] mb-4">Connect With Your Fellows</h2>
-            <p className="text-[17px] text-slate-500 max-w-[600px] mx-auto">Engage, collaborate, and build lasting relationships with students across all departments.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
-            <div className="group rounded-[24px] overflow-hidden relative h-[320px] shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
-              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80" alt="Students studying" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-8">
-                <span className="text-white font-bold text-[18px]">Group Discussions</span>
-              </div>
-            </div>
-            <div className="group rounded-[24px] overflow-hidden relative h-[320px] md:-translate-y-8 shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
-              <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80" alt="Students laughing" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-8">
-                <span className="text-white font-bold text-[18px]">Campus Life</span>
-              </div>
-            </div>
-            <div className="group rounded-[24px] overflow-hidden relative h-[320px] shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
-              <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80" alt="Students collaborating" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-8">
-                <span className="text-white font-bold text-[18px]">Peer Networking</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ══════════════ PORTAL ACCESS FOR ADMINS, MODS & ALUMNI ══════════════ */}
-      <section className="py-20 bg-gradient-to-b from-white via-slate-50 to-[#F8FAFC] relative border-t border-slate-100">
+      <section className="py-20 bg-gradient-to-b from-[#0F172A] via-[#1E293B] to-white relative border-t border-white/10">
         <div className="max-w-[1200px] mx-auto px-6">
           <div className="text-center mb-12 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#4F46E5]">PORTAL ACCESS</div>
-            <h2 className="text-[clamp(30px,3.8vw,44px)] font-black text-[#0F172A] mb-3">Administrators, Moderators &amp; Alumni</h2>
-            <p className="text-[16px] md:text-[18px] text-slate-500 max-w-[620px] mx-auto font-medium">Are you a Campus Administrator, Student Moderator, or Alumni? Access your dedicated portal below.</p>
+            <div className="inline-block text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#06B6D4]">PORTAL ACCESS</div>
+            <h2 className="text-[clamp(30px,3.8vw,44px)] font-black text-white mb-3">Administrators, Moderators &amp; Alumni</h2>
+            <p className="text-[16px] md:text-[18px] text-white/80 max-w-[620px] mx-auto font-medium">Are you a Campus Administrator, Student Moderator, or Alumni? Access your dedicated portal below.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[850px] mx-auto cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
             {/* Card 1: Admin & Moderator Login */}
-            <div className="bg-white border border-slate-200 rounded-[28px] p-8 shadow-[0_10px_30px_rgba(15,23,42,0.04)] hover:shadow-[0_20px_45px_rgba(79,70,229,0.12)] hover:border-[#4F46E5]/40 transition-all duration-300 flex flex-col items-center text-center group">
-              <div className="w-16 h-16 rounded-2xl bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform duration-300">
+            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[28px] p-8 shadow-[0_15px_35px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_45px_rgba(79,70,229,0.3)] hover:border-[#4F46E5]/60 transition-all duration-300 flex flex-col items-center text-center group">
+              <div className="w-16 h-16 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform duration-300">
                 🛡️
               </div>
-              <h3 className="text-[20px] font-black text-[#0F172A] mb-2">Admin &amp; Moderator Portal</h3>
-              <p className="text-[14px] text-slate-500 mb-6 font-medium leading-relaxed">
+              <h3 className="text-[20px] font-black text-white mb-2">Admin &amp; Moderator Portal</h3>
+              <p className="text-[14px] text-white/70 mb-6 font-medium leading-relaxed">
                 Log in to manage campus users, review flagged content, resolve petitions, and handle moderation queues.
               </p>
               <button
                 onClick={() => navigate('/login')}
-                className="w-full bg-[#0F172A] hover:bg-[#4F46E5] text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md cursor-pointer border-none text-[14px]"
+                className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md cursor-pointer border-none text-[14px]"
               >
                 Login as Admin / Moderator <IconArrow />
               </button>
             </div>
 
             {/* Card 2: Alumni Portal */}
-            <div className="bg-white border border-slate-200 rounded-[28px] p-8 shadow-[0_10px_30px_rgba(15,23,42,0.04)] hover:shadow-[0_20px_45px_rgba(6,182,212,0.12)] hover:border-[#06B6D4]/40 transition-all duration-300 flex flex-col items-center text-center group">
-              <div className="w-16 h-16 rounded-2xl bg-cyan-50 text-[#06B6D4] flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform duration-300">
+            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[28px] p-8 shadow-[0_15px_35px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_45px_rgba(6,182,212,0.3)] hover:border-[#06B6D4]/60 transition-all duration-300 flex flex-col items-center text-center group">
+              <div className="w-16 h-16 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform duration-300">
                 🎓
               </div>
-              <h3 className="text-[20px] font-black text-[#0F172A] mb-2">Alumni Network Portal</h3>
-              <p className="text-[14px] text-slate-500 mb-6 font-medium leading-relaxed">
+              <h3 className="text-[20px] font-black text-white mb-2">Alumni Network Portal</h3>
+              <p className="text-[14px] text-white/70 mb-6 font-medium leading-relaxed">
                 Connect with career paths, post job opportunities, mentor students, and participate in forum discussions.
               </p>
               <button
                 onClick={() => navigate('/login')}
-                className="w-full bg-[#0F172A] hover:bg-[#06B6D4] text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md cursor-pointer border-none text-[14px]"
+                className="w-full bg-[#06B6D4] hover:bg-[#0891b2] text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md cursor-pointer border-none text-[14px]"
               >
                 Login as Alumni <IconArrow />
               </button>
@@ -277,6 +245,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ══════════════ CONNECT WITH STUDENTS (GALLERY) ══════════════ */}
+      <section id="about" className="py-24 bg-white relative overflow-hidden">
 
       {/* ══════════════ MODULES ══════════════ */}
       <section id="modules" className="py-24 bg-[#F8FAFC]">
