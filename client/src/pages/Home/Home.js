@@ -248,8 +248,36 @@ export default function Home() {
 
       {/* ══════════════ CONNECT WITH STUDENTS (GALLERY) ══════════════ */}
       <section id="about" className="py-24 bg-white relative overflow-hidden">
+        <div className="max-w-[1200px] mx-auto px-6">
+          <div className="text-center mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
+            <div className="inline-block text-[12px] font-extrabold tracking-[0.15em] uppercase mb-4 text-[#4F46E5]">COMMUNITY</div>
+            <h2 className="text-[clamp(32px,4vw,48px)] font-black text-[#0F172A] mb-4">Connect With Your Fellows</h2>
+            <p className="text-[17px] text-slate-500 max-w-[600px] mx-auto">Engage, collaborate, and build lasting relationships with students across all departments.</p>
+          </div>
 
-      {/* ══════════════ MODULES ══════════════ */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
+            <div className="group rounded-[24px] overflow-hidden relative h-[320px] shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
+              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80" alt="Students studying" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-8">
+                <span className="text-white font-bold text-[18px]">Group Discussions</span>
+              </div>
+            </div>
+            <div className="group rounded-[24px] overflow-hidden relative h-[320px] md:-translate-y-8 shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
+              <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80" alt="Students laughing" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-8">
+                <span className="text-white font-bold text-[18px]">Campus Life</span>
+              </div>
+            </div>
+            <div className="group rounded-[24px] overflow-hidden relative h-[320px] shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
+              <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80" alt="Students collaborating" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-8">
+                <span className="text-white font-bold text-[18px]">Peer Networking</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="modules" className="py-24 bg-[#F8FAFC]">
         <div className="max-w-[1200px] mx-auto px-6">
           <div className="text-center mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
