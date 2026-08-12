@@ -334,12 +334,12 @@ export default function Home() {
       <section className="py-14 sm:py-20 md:py-24 bg-gradient-to-b from-white to-[#F8FAFC] relative overflow-hidden">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
           <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#4F46E5]">WHY CAMPUSCONNECT</div>
-            <h2 className="text-[clamp(26px,4vw,48px)] font-black text-[#0F172A] mb-3 sm:mb-4">Empowering Campus Life</h2>
+            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#4F46E5]">EMPOWERING CAMPUS LIFE</div>
+            <h2 className="text-[clamp(32px,5vw,56px)] font-black text-[#0F172A] mb-3 sm:mb-4">Why CampusConnect?</h2>
             <p className="text-[14px] sm:text-[17px] text-slate-500 max-w-[680px] mx-auto font-medium mb-3">
               Everything you need for a modern, connected, and hassle-free university experience in one sleek portal.
             </p>
-            <p className="text-[13px] sm:text-[15px] text-[#4F46E5] max-w-[680px] mx-auto font-semibold">
+            <p className="text-[13px] sm:text-[15px] text-[#0F172A] max-w-[680px] mx-auto font-semibold">
               For Minhaj University Lahore, we have implemented this platform to facilitate seamless study circles, peer connections, and academic collaborations across all departments.
             </p>
           </div>
@@ -475,37 +475,54 @@ export default function Home() {
       </section>
 
       {/* ══════════════ FOOTER ══════════════ */}
-      <footer className="bg-[#0F172A] py-8 border-t border-white/10">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Left: Brand */}
-          <div className="flex flex-col items-center md:items-start text-center md:text-left">
+      <footer className="bg-[#0F172A] pt-10 pb-6 border-t border-white/10">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8 items-start">
+          {/* Left: Brand & Social Links */}
+          <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
             <div className="flex flex-row items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
               <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center p-1 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
                 <img src={logo} alt="CampusConnect Logo" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col items-start">
                 <h1 className="text-[15px] font-black leading-none tracking-tight text-white">CAMPUS<span className="text-[#06B6D4]">CONNECT</span></h1>
-                <span className="text-[8px] font-bold tracking-[0.35em] text-[#06B6D4] mt-0.5 uppercase">SMART UNIVERSITY PLATFORM</span>
+                <span className="text-[8px] font-bold tracking-[0.35em] text-[#06B6D4] mt-0.5 uppercase">UNIVERSITY PORTAL</span>
               </div>
             </div>
-            <p className="text-[13px] text-slate-400 mt-2 max-w-[320px]">
+            <p className="text-[13px] text-slate-400 my-3 max-w-[280px]">
               Empowering students with connection, convenience, and a smarter campus life.
             </p>
+            <div className="flex gap-2.5 mt-1">
+              <a href="#!" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white transition-all duration-300 hover:bg-[#4F46E5] hover:-translate-y-[2px] cc-page-cursor-none"><IconFacebook /></a>
+              <a href="#!" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white transition-all duration-300 hover:bg-[#4F46E5] hover:-translate-y-[2px] cc-page-cursor-none"><IconInstagram /></a>
+              <a href="#!" aria-label="Twitter" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white transition-all duration-300 hover:bg-[#4F46E5] hover:-translate-y-[2px] cc-page-cursor-none"><IconTwitter /></a>
+              <a href="#!" aria-label="LinkedIn" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white transition-all duration-300 hover:bg-[#4F46E5] hover:-translate-y-[2px] cc-page-cursor-none"><IconLinkedin /></a>
+            </div>
           </div>
 
-          {/* Right: CampusConnect Contact Desk */}
-          <div className="flex flex-col items-center md:items-end text-center md:text-right text-[13.5px]">
-            <h4 className="text-[13px] font-extrabold text-[#06B6D4] mb-2 uppercase tracking-wider">CampusConnect Support Desk</h4>
-            <div className="flex flex-col gap-1 text-slate-300 font-medium">
-              <span>✉️ support@campusconnect.com</span>
-              <span>📞 +92 300 1234567</span>
-              <span>📍 CampusConnect Digital Operations, Lahore, Pakistan</span>
-            </div>
+          {/* Middle: Quick Links */}
+          <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+            <h4 className="text-[15px] font-extrabold text-white mb-3">Quick Links</h4>
+            <ul className="list-none m-0 p-0 space-y-2 text-[13.5px] text-slate-400">
+              <li><a href="#home" className="no-underline text-slate-400 hover:text-[#06B6D4] transition-colors">Home</a></li>
+              <li><a href="#about" className="no-underline text-slate-400 hover:text-[#06B6D4] transition-colors">About Us</a></li>
+              <li><a href="#modules" className="no-underline text-slate-400 hover:text-[#06B6D4] transition-colors">Features &amp; Modules</a></li>
+              <li><a href="#contact" className="no-underline text-slate-400 hover:text-[#06B6D4] transition-colors">Contact</a></li>
+            </ul>
+          </div>
+
+          {/* Right: Contact Us */}
+          <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+            <h4 className="text-[15px] font-extrabold text-white mb-3">Contact Us</h4>
+            <ul className="list-none m-0 p-0 text-[13.5px] text-slate-400 space-y-2">
+              <li className="flex items-center gap-2"><span>✉</span> info@mul.edu.pk</li>
+              <li className="flex items-center gap-2"><span>📞</span> +92 42 35145621</li>
+              <li className="flex items-start gap-2 leading-snug"><span>📍</span> Minhaj University Lahore,<br />Near Hamdard Chowk, Lahore</li>
+            </ul>
           </div>
         </div>
 
-        <div className="max-w-[1200px] mx-auto mt-6 pt-4 px-4 sm:px-6 border-t border-white/5 text-center text-[12.5px] text-slate-500">
-          <span>© {new Date().getFullYear()} CampusConnect. All rights reserved.</span>
+        <div className="max-w-[1200px] mx-auto mt-6 pt-4 px-4 sm:px-6 border-t border-white/5 text-center text-[12.5px] text-slate-400 font-medium">
+          <span>© {new Date().getFullYear()} CampusConnect. All rights reserved. | <span className="text-[#06B6D4] font-semibold">An idea by Mr. Sagheer Ahmad &amp; Mr. Shujaat Ali Hashim</span></span>
         </div>
       </footer>
     </div>
