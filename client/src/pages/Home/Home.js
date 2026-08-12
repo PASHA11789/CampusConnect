@@ -204,24 +204,41 @@ export default function Home() {
   return (
     <div className="font-sans text-[#0F172A] bg-[#F8FAFC] h-full w-full max-w-full overflow-y-auto overflow-x-hidden cc-page-cursor-none cc-page">
       <CustomCursor />
+
+      {/* Mobile Menu Backdrop */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+
       {/* ══════════════ NAVBAR ══════════════ */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-400 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${isScrolled ? 'bg-white/85 backdrop-blur-[24px] border-slate-200/50 shadow-[0_10px_40px_rgba(0,0,0,0.04)]' : 'bg-transparent border-transparent'}`}>
-        <div className="mx-auto px-4 pl-6 h-20 flex items-center gap-8 max-w-[1200px] w-full justify-between">
-          <div className="flex flex-row items-center gap-3 no-underline cursor-pointer" onClick={() => navigate('/')}>
-            <div className="w-11 h-11 bg-white rounded-full flex items-center justify-center p-1 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+      <nav className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-400 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${isScrolled ? 'bg-white/90 backdrop-blur-[24px] border-slate-200/50 shadow-[0_10px_40px_rgba(0,0,0,0.04)]' : 'bg-transparent border-transparent'}`}>
+        <div className="mx-auto px-4 sm:px-6 h-20 flex items-center gap-4 sm:gap-8 max-w-[1200px] w-full justify-between">
+          <div className="flex flex-row items-center gap-2.5 sm:gap-3 no-underline cursor-pointer" onClick={() => navigate('/')}>
+            <div className="w-10 h-10 sm:w-11 sm:h-11 bg-white rounded-full flex items-center justify-center p-1 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
               <img src={logo} alt="Minhaj Logo" className="w-full h-full object-contain" />
             </div>
-            <div className="text-[24px] font-black bg-gradient-to-b from-[#06B6D4] to-[#4F46E5] bg-clip-text text-transparent leading-none">X</div>
+            <div className="text-[20px] sm:text-[24px] font-black bg-gradient-to-b from-[#06B6D4] to-[#4F46E5] bg-clip-text text-transparent leading-none">X</div>
             <div className="flex flex-col items-start">
-              <h1 className={`text-[16px] font-black leading-none tracking-tight transition-colors duration-400 ${isScrolled ? 'text-[#0F172A]' : 'text-white'}`}>CAMPUS<span className="text-[#06B6D4]">CONNECT</span></h1>
-              <span className="text-[8px] font-bold tracking-[0.35em] text-[#06B6D4] mt-0.5 uppercase">UNIVERSITY PORTAL</span>
+              <h1 className={`text-[14px] sm:text-[16px] font-black leading-none tracking-tight transition-colors duration-400 ${isScrolled ? 'text-[#0F172A]' : 'text-white'}`}>CAMPUS<span className="text-[#06B6D4]">CONNECT</span></h1>
+              <span className="text-[7px] sm:text-[8px] font-bold tracking-[0.3em] sm:tracking-[0.35em] text-[#06B6D4] mt-0.5 uppercase">UNIVERSITY PORTAL</span>
             </div>
           </div>
 
-          <ul className={`list-none flex gap-1 ml-auto max-[768px]:fixed max-[768px]:top-0 max-[768px]:w-[80%] max-[768px]:h-screen max-[768px]:bg-white max-[768px]:flex-col max-[768px]:p-24 max-[768px]:px-10 max-[768px]:transition-all max-[768px]:duration-[400ms] max-[768px]:shadow-[-10px_0_40px_rgba(0,0,0,0.1)] ${menuOpen ? 'max-[768px]:right-0' : 'max-[768px]:-right-full'}`}>
+          <ul className={`list-none flex gap-1 ml-auto max-[768px]:fixed max-[768px]:top-0 max-[768px]:w-[280px] sm:max-[768px]:w-[320px] max-[768px]:h-screen max-[768px]:bg-white max-[768px]:flex-col max-[768px]:p-8 max-[768px]:pt-20 max-[768px]:gap-3 max-[768px]:transition-all max-[768px]:duration-[400ms] max-[768px]:shadow-[-10px_0_40px_rgba(0,0,0,0.15)] z-50 ${menuOpen ? 'max-[768px]:right-0' : 'max-[768px]:-right-full'}`}>
             {['Home', 'About', 'Modules', 'Contact'].map(l => (
-              <li key={l}><a href={`#${l.toLowerCase()}`} className={`text-[15px] font-semibold no-underline py-2 px-5 rounded-[50px] transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] max-[768px]:text-[#0F172A] max-[768px]:text-[20px] max-[768px]:block max-[768px]:py-3 max-[768px]:px-0 max-[768px]:bg-transparent ${l === 'Home' ? (isScrolled ? 'text-[#4F46E5] bg-[#4F46E5]/8' : 'text-white bg-white/10') : (isScrolled ? 'text-slate-600 hover:text-[#4F46E5] hover:bg-[#4F46E5]/8' : 'text-slate-300 hover:text-white hover:bg-white/10')}`} onClick={() => setMenuOpen(false)}>{l}</a></li>
+              <li key={l}><a href={`#${l.toLowerCase()}`} className={`text-[15px] font-semibold no-underline py-2 px-5 rounded-[50px] transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] max-[768px]:text-[#0F172A] max-[768px]:text-[18px] max-[768px]:block max-[768px]:py-2.5 max-[768px]:px-4 max-[768px]:rounded-xl max-[768px]:hover:bg-slate-100 ${l === 'Home' ? (isScrolled ? 'text-[#4F46E5] bg-[#4F46E5]/8' : 'text-white bg-white/10') : (isScrolled ? 'text-slate-600 hover:text-[#4F46E5] hover:bg-[#4F46E5]/8' : 'text-slate-300 hover:text-white hover:bg-white/10')}`} onClick={() => setMenuOpen(false)}>{l}</a></li>
             ))}
+            <li className="hidden max-[768px]:block mt-4 pt-4 border-t border-slate-100">
+              <button
+                onClick={() => { setMenuOpen(false); navigate(isLoggedIn ? '/dashboard' : '/mul-login'); }}
+                className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3 px-6 rounded-xl shadow-md text-[15px] cursor-pointer transition-all"
+              >
+                {isLoggedIn ? 'Go to Dashboard' : 'Sign In to Portal'}
+              </button>
+            </li>
           </ul>
 
           {isLoggedIn ? (
@@ -234,51 +251,51 @@ export default function Home() {
             </button>
           )}
 
-          <button className="hidden max-[768px]:flex flex-col gap-1.5 bg-none border-none cursor-pointer p-1 ml-4 cc-page-cursor-none" onClick={() => setMenuOpen(o => !o)} aria-label="Toggle menu">
-            <span className={`block w-[22px] h-0.5 rounded-sm transition-all duration-300 ${isScrolled ? 'bg-[#0F172A]' : 'bg-white'}`} />
-            <span className={`block w-[22px] h-0.5 rounded-sm transition-all duration-300 ${isScrolled ? 'bg-[#0F172A]' : 'bg-white'}`} />
-            <span className={`block w-[22px] h-0.5 rounded-sm transition-all duration-300 ${isScrolled ? 'bg-[#0F172A]' : 'bg-white'}`} />
+          <button className="hidden max-[768px]:flex flex-col justify-center gap-1.5 bg-none border-none cursor-pointer p-2 rounded-lg ml-auto z-50 cc-page-cursor-none" onClick={() => setMenuOpen(o => !o)} aria-label="Toggle menu">
+            <span className={`block w-[22px] h-0.5 rounded-sm transition-all duration-300 ${menuOpen ? 'bg-[#0F172A] rotate-45 translate-y-2' : (isScrolled ? 'bg-[#0F172A]' : 'bg-white')}`} />
+            <span className={`block w-[22px] h-0.5 rounded-sm transition-all duration-300 ${menuOpen ? 'opacity-0' : (isScrolled ? 'bg-[#0F172A]' : 'bg-white')}`} />
+            <span className={`block w-[22px] h-0.5 rounded-sm transition-all duration-300 ${menuOpen ? 'bg-[#0F172A] -rotate-45 -translate-y-2' : (isScrolled ? 'bg-[#0F172A]' : 'bg-white')}`} />
           </button>
         </div>
       </nav>
 
       {/* ══════════════ HERO ══════════════ */}
-      <section id="home" className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] min-h-[92vh] flex items-center pt-[100px] pb-16">
+      <section id="home" className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] min-h-[92vh] flex items-center pt-[90px] md:pt-[110px] pb-12 md:pb-20">
         <div className="absolute inset-0 pointer-events-none z-0">
-          <div className="absolute rounded-full filter blur-[100px] opacity-30 w-[600px] h-[600px] bg-[#4F46E5] -top-[150px] -left-[150px] animate-float" />
-          <div className="absolute rounded-full filter blur-[100px] opacity-20 w-[450px] h-[450px] bg-[#06B6D4] bottom-[-100px] right-[5%] animate-[float_10s_ease-in-out_infinite_reverse]" />
+          <div className="absolute rounded-full filter blur-[100px] opacity-30 w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] bg-[#4F46E5] -top-[150px] -left-[150px] animate-float" />
+          <div className="absolute rounded-full filter blur-[100px] opacity-20 w-[280px] sm:w-[450px] h-[280px] sm:h-[450px] bg-[#06B6D4] bottom-[-100px] right-[5%] animate-[float_10s_ease-in-out_infinite_reverse]" />
         </div>
 
-        <div className="relative z-10 max-w-[1200px] mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Headline & Action */}
-          <div className="lg:col-span-7 text-left cc-reveal">
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white backdrop-blur-md py-2.5 px-5 rounded-full text-[13px] md:text-[14px] font-bold mb-6">
+          <div className="lg:col-span-7 text-center lg:text-left cc-reveal">
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white backdrop-blur-md py-2 px-4 sm:py-2.5 sm:px-5 rounded-full text-[12px] sm:text-[13px] md:text-[14px] font-bold mb-6">
               <span className="text-[#06B6D4]">✧</span> Official Minhaj University Digital Ecosystem
             </div>
-            <h1 className="text-[clamp(38px,5vw,72px)] font-black text-white leading-[1.1] mb-6 tracking-tight">
+            <h1 className="text-[clamp(32px,4.5vw,72px)] font-black text-white leading-[1.1] mb-5 sm:mb-6 tracking-tight">
               What is <span className="bg-gradient-to-r from-[#06B6D4] via-[#38BDF8] to-[#4F46E5] bg-clip-text text-transparent">CampusConnect?</span>
             </h1>
-            <p className="text-[17px] md:text-[20px] text-white/80 leading-[1.65] mb-8 max-w-[620px] font-medium">
+            <p className="text-[15px] sm:text-[18px] md:text-[20px] text-white/80 leading-[1.65] mb-6 sm:mb-8 max-w-[620px] mx-auto lg:mx-0 font-medium">
               Bringing your entire Minhaj University experience into one intelligent, unified platform. From academic discussions and student petitions to smart canteen orders and alumni networking.
             </p>
 
-            <div className="flex gap-4 items-center flex-wrap mb-8">
+            <div className="flex gap-3 sm:gap-4 items-center justify-center lg:justify-start flex-wrap mb-6 sm:mb-8">
               {isLoggedIn ? (
-                <button className="inline-flex items-center gap-2.5 bg-[#4F46E5] text-white border-none rounded-xl py-4 px-8 text-[16px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_10px_30px_rgba(79,70,229,0.4)] hover:bg-[#4338CA] hover:-translate-y-[2px] hover:shadow-[0_15px_40px_rgba(79,70,229,0.5)] cc-page-cursor-none" onClick={() => navigate('/dashboard')}>
+                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#4F46E5] text-white border-none rounded-xl py-3.5 sm:py-4 px-7 sm:px-8 text-[15px] sm:text-[16px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_10px_30px_rgba(79,70,229,0.4)] hover:bg-[#4338CA] hover:-translate-y-[2px] cc-page-cursor-none" onClick={() => navigate('/dashboard')}>
                   Go to Dashboard <span><IconArrow /></span>
                 </button>
               ) : (
-                <button className="inline-flex items-center gap-2.5 bg-[#4F46E5] text-white border-none rounded-xl py-4 px-8 text-[16px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_10px_30px_rgba(79,70,229,0.4)] hover:bg-[#4338CA] hover:-translate-y-[2px] hover:shadow-[0_15px_40px_rgba(79,70,229,0.5)] cc-page-cursor-none" onClick={() => navigate('/mul-login')}>
+                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#4F46E5] text-white border-none rounded-xl py-3.5 sm:py-4 px-7 sm:px-8 text-[15px] sm:text-[16px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_10px_30px_rgba(79,70,229,0.4)] hover:bg-[#4338CA] hover:-translate-y-[2px] cc-page-cursor-none" onClick={() => navigate('/mul-login')}>
                   Get Started Now <span><IconArrow /></span>
                 </button>
               )}
-              <button className="inline-flex items-center gap-2.5 bg-white/10 text-white border-[1.5px] border-white/20 rounded-xl py-4 px-8 text-[16px] font-bold cursor-pointer transition-all duration-[250ms] backdrop-blur-[8px] hover:bg-white/20 hover:-translate-y-[2px] cc-page-cursor-none" onClick={() => document.getElementById('modules').scrollIntoView({ behavior: 'smooth' })}>
+              <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white/10 text-white border-[1.5px] border-white/20 rounded-xl py-3.5 sm:py-4 px-7 sm:px-8 text-[15px] sm:text-[16px] font-bold cursor-pointer transition-all duration-[250ms] backdrop-blur-[8px] hover:bg-white/20 hover:-translate-y-[2px] cc-page-cursor-none" onClick={() => document.getElementById('modules').scrollIntoView({ behavior: 'smooth' })}>
                 Explore Modules <span>✦</span>
               </button>
             </div>
 
             {/* Quick feature tags */}
-            <div className="flex items-center gap-6 pt-4 border-t border-white/10 text-white/70 text-[13px] font-semibold flex-wrap">
+            <div className="flex items-center justify-center lg:justify-start gap-3 sm:gap-6 pt-4 border-t border-white/10 text-white/70 text-[12px] sm:text-[13px] font-semibold flex-wrap">
               <span className="flex items-center gap-1.5"><span className="text-[#06B6D4]">✓</span> Verified Student Portal</span>
               <span className="flex items-center gap-1.5"><span className="text-[#4F46E5]">✓</span> Real-Time Moderation</span>
               <span className="flex items-center gap-1.5"><span className="text-[#06B6D4]">✓</span> Alumni Mentorship</span>
@@ -287,60 +304,60 @@ export default function Home() {
 
           {/* Right Column: Minhaj University Auto-Sliding Blocks Showcase */}
           <div className="lg:col-span-5 relative cc-reveal">
-            <div className="relative rounded-[32px] overflow-hidden border border-white/20 bg-white/5 backdrop-blur-xl shadow-[0_25px_60px_rgba(0,0,0,0.4)] group">
+            <div className="relative rounded-[24px] sm:rounded-[32px] overflow-hidden border border-white/20 bg-white/5 backdrop-blur-xl shadow-[0_25px_60px_rgba(0,0,0,0.4)] group">
               {/* Dynamic Image with smooth transition key */}
               <img
                 key={activeBlock.id}
                 src={activeBlock.image}
                 alt={activeBlock.name}
-                className="w-full h-[410px] md:h-[470px] object-cover transition-all duration-700 ease-in-out group-hover:scale-105 animate-[fadeIn_0.5s_ease-in-out]"
+                className="w-full h-[320px] sm:h-[410px] md:h-[470px] object-cover transition-all duration-700 ease-in-out group-hover:scale-105 animate-[fadeIn_0.5s_ease-in-out]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-[#0F172A]/40 to-transparent" />
               
               {/* Floating Glass Badge Top Left */}
-              <div className="absolute top-5 left-5 bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl py-2.5 px-4 text-white text-[13px] font-extrabold flex items-center gap-2 shadow-lg">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#06B6D4] animate-ping" />
+              <div className="absolute top-3 left-3 sm:top-5 sm:left-5 bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl py-1.5 px-3 sm:py-2.5 sm:px-4 text-white text-[11px] sm:text-[13px] font-extrabold flex items-center gap-2 shadow-lg">
+                <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#06B6D4] animate-ping" />
                 Minhaj University Lahore
               </div>
 
               {/* Prev / Next Manual Controls */}
               <button
                 onClick={() => setBlockIndex((prev) => (prev - 1 + CAMPUS_BLOCKS.length) % CAMPUS_BLOCKS.length)}
-                className="absolute top-1/2 left-3 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-[#4F46E5] border border-white/20 text-white flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
+                className="absolute top-1/2 left-2 sm:left-3 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-[#4F46E5] border border-white/20 text-white flex items-center justify-center backdrop-blur-md opacity-70 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
                 aria-label="Previous Block"
               >
                 ‹
               </button>
               <button
                 onClick={() => setBlockIndex((prev) => (prev + 1) % CAMPUS_BLOCKS.length)}
-                className="absolute top-1/2 right-3 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-[#4F46E5] border border-white/20 text-white flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
+                className="absolute top-1/2 right-2 sm:right-3 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-[#4F46E5] border border-white/20 text-white flex items-center justify-center backdrop-blur-md opacity-70 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
                 aria-label="Next Block"
               >
                 ›
               </button>
 
               {/* Bottom Card Detail Overlay */}
-              <div className="absolute bottom-5 left-5 right-5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 text-left text-white shadow-2xl transition-all duration-500">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center p-1 shrink-0 shadow-md">
+              <div className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 text-left text-white shadow-2xl transition-all duration-500">
+                <div className="flex items-center gap-2.5 sm:gap-3 mb-1.5 sm:mb-2">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center p-1 shrink-0 shadow-md">
                     <img src={logo} alt="MUL Logo" className="w-full h-full object-contain" />
                   </div>
                   <div>
-                    <h4 className="text-[17px] font-black text-white leading-tight">{activeBlock.name}</h4>
-                    <span className="text-[11px] font-bold text-[#06B6D4] uppercase tracking-wider">{activeBlock.tag}</span>
+                    <h4 className="text-[14px] sm:text-[17px] font-black text-white leading-tight">{activeBlock.name}</h4>
+                    <span className="text-[10px] sm:text-[11px] font-bold text-[#06B6D4] uppercase tracking-wider">{activeBlock.tag}</span>
                   </div>
                 </div>
-                <p className="text-[12.5px] text-white/85 leading-relaxed font-medium mb-3">
+                <p className="text-[11.5px] sm:text-[12.5px] text-white/85 leading-relaxed font-medium mb-2.5 line-clamp-2 sm:line-clamp-none">
                   {activeBlock.desc}
                 </p>
 
                 {/* Slider Pagination Dots */}
-                <div className="flex items-center justify-center gap-2 pt-2 border-t border-white/10">
+                <div className="flex items-center justify-center gap-2 pt-1.5 border-t border-white/10">
                   {CAMPUS_BLOCKS.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => setBlockIndex(idx)}
-                      className={`h-2 rounded-full transition-all duration-300 border-none cursor-pointer ${idx === blockIndex ? 'w-6 bg-[#06B6D4]' : 'w-2 bg-white/40 hover:bg-white/70'}`}
+                      className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 border-none cursor-pointer ${idx === blockIndex ? 'w-5 sm:w-6 bg-[#06B6D4]' : 'w-1.5 sm:w-2 bg-white/40 hover:bg-white/70'}`}
                       aria-label={`Slide to block ${idx + 1}`}
                     />
                   ))}
@@ -353,74 +370,74 @@ export default function Home() {
 
 
       {/* ══════════════ PORTAL ACCESS FOR ADMINS, MODS & ALUMNI ══════════════ */}
-      <section className="py-24 bg-gradient-to-b from-[#0F172A] via-[#1E293B] to-white relative border-t border-white/10">
-        <div className="max-w-[1200px] mx-auto px-6">
-          <div className="text-center mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-[#06B6D4] backdrop-blur-md py-1.5 px-4 rounded-full text-[12px] font-extrabold tracking-[0.18em] uppercase mb-4">
+      <section className="py-14 sm:py-20 md:py-24 bg-gradient-to-b from-[#0F172A] via-[#1E293B] to-white relative border-t border-white/10">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-[#06B6D4] backdrop-blur-md py-1.5 px-4 rounded-full text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-4">
               ✦ AUTHORIZED ROLE ACCESS ✦
             </div>
-            <h2 className="text-[clamp(32px,4vw,48px)] font-black text-white mb-4 leading-tight">
+            <h2 className="text-[clamp(26px,4vw,48px)] font-black text-white mb-3 sm:mb-4 leading-tight">
               Dedicated Governance &amp; Alumni Portals
             </h2>
-            <p className="text-[16px] md:text-[18px] text-white/80 max-w-[720px] mx-auto font-medium leading-relaxed">
+            <p className="text-[14px] sm:text-[17px] md:text-[18px] text-white/80 max-w-[720px] mx-auto font-medium leading-relaxed">
               CampusConnect provides specialized, role-tailored workspaces built for university administration, safety, and alumni engagement. Select your official workspace below to access your command desk.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[950px] mx-auto cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-[950px] mx-auto cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
             {/* Card 1: Admin & Moderator Login */}
-            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[32px] p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_60px_rgba(79,70,229,0.35)] hover:border-[#4F46E5]/60 transition-all duration-300 flex flex-col justify-between text-left group">
+            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_60px_rgba(79,70,229,0.35)] hover:border-[#4F46E5]/60 transition-all duration-300 flex flex-col justify-between text-left group">
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#4F46E5]/30 to-[#4F46E5]/10 border border-[#4F46E5]/40 text-[#818CF8] flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
+                <div className="flex items-center justify-between mb-5 sm:mb-6">
+                  <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-[#4F46E5]/30 to-[#4F46E5]/10 border border-[#4F46E5]/40 text-[#818CF8] flex items-center justify-center text-2xl sm:text-3xl group-hover:scale-110 transition-transform duration-300">
                     🛡️
                   </div>
-                  <span className="text-[11px] font-black uppercase tracking-widest text-[#818CF8] bg-[#4F46E5]/20 border border-[#4F46E5]/40 py-1.5 px-3 rounded-full">
+                  <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-[#818CF8] bg-[#4F46E5]/20 border border-[#4F46E5]/40 py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-full">
                     ADMIN &amp; MOD DESK
                   </span>
                 </div>
-                <h3 className="text-[22px] font-black text-white mb-3">Institutional Command &amp; Moderation Desk</h3>
-                <p className="text-[14.5px] text-white/75 mb-6 font-medium leading-relaxed">
+                <h3 className="text-[18px] sm:text-[22px] font-black text-white mb-2.5 sm:mb-3">Institutional Command &amp; Moderation Desk</h3>
+                <p className="text-[13.5px] sm:text-[14.5px] text-white/75 mb-5 sm:mb-6 font-medium leading-relaxed">
                   Designed for campus administrators and student moderators to oversee campus operations, review reported petitions, enforce safety policies, and maintain smooth academic governance.
                 </p>
-                <ul className="list-none p-0 m-0 mb-8 space-y-2.5 text-[13.5px] text-white/80 font-medium">
-                  <li className="flex items-center gap-2.5"><span className="text-[#818CF8]">✓</span> Review &amp; resolve department petitions</li>
-                  <li className="flex items-center gap-2.5"><span className="text-[#818CF8]">✓</span> Content moderation &amp; flagged user investigations</li>
-                  <li className="flex items-center gap-2.5"><span className="text-[#818CF8]">✓</span> Real-time push security notifications</li>
+                <ul className="list-none p-0 m-0 mb-6 sm:mb-8 space-y-2 sm:space-y-2.5 text-[12.5px] sm:text-[13.5px] text-white/80 font-medium">
+                  <li className="flex items-center gap-2 sm:gap-2.5"><span className="text-[#818CF8]">✓</span> Review &amp; resolve department petitions</li>
+                  <li className="flex items-center gap-2 sm:gap-2.5"><span className="text-[#818CF8]">✓</span> Content moderation &amp; flagged user investigations</li>
+                  <li className="flex items-center gap-2 sm:gap-2.5"><span className="text-[#818CF8]">✓</span> Real-time push security notifications</li>
                 </ul>
               </div>
               <button
                 onClick={() => navigate('/login')}
-                className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(79,70,229,0.4)] cursor-pointer border-none text-[15px]"
+                className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3.5 sm:py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(79,70,229,0.4)] cursor-pointer border-none text-[14px] sm:text-[15px]"
               >
                 Access Admin &amp; Moderator Desk <IconArrow />
               </button>
             </div>
 
             {/* Card 2: Alumni Portal */}
-            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[32px] p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_60px_rgba(6,182,212,0.35)] hover:border-[#06B6D4]/60 transition-all duration-300 flex flex-col justify-between text-left group">
+            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_60px_rgba(6,182,212,0.35)] hover:border-[#06B6D4]/60 transition-all duration-300 flex flex-col justify-between text-left group">
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#06B6D4]/30 to-[#06B6D4]/10 border border-[#06B6D4]/40 text-[#38BDF8] flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
+                <div className="flex items-center justify-between mb-5 sm:mb-6">
+                  <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-[#06B6D4]/30 to-[#06B6D4]/10 border border-[#06B6D4]/40 text-[#38BDF8] flex items-center justify-center text-2xl sm:text-3xl group-hover:scale-110 transition-transform duration-300">
                     🎓
                   </div>
-                  <span className="text-[11px] font-black uppercase tracking-widest text-[#38BDF8] bg-[#06B6D4]/20 border border-[#06B6D4]/40 py-1.5 px-3 rounded-full">
+                  <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-[#38BDF8] bg-[#06B6D4]/20 border border-[#06B6D4]/40 py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-full">
                     ALUMNI NETWORK
                   </span>
                 </div>
-                <h3 className="text-[22px] font-black text-white mb-3">Global Alumni &amp; Career Acceleration Hub</h3>
-                <p className="text-[14.5px] text-white/75 mb-6 font-medium leading-relaxed">
+                <h3 className="text-[18px] sm:text-[22px] font-black text-white mb-2.5 sm:mb-3">Global Alumni &amp; Career Acceleration Hub</h3>
+                <p className="text-[13.5px] sm:text-[14.5px] text-white/75 mb-5 sm:mb-6 font-medium leading-relaxed">
                   Tailored exclusively for Minhaj University graduates to reconnect with the campus, post industry career opportunities, guide current students, and lead subject discussions.
                 </p>
-                <ul className="list-none p-0 m-0 mb-8 space-y-2.5 text-[13.5px] text-white/80 font-medium">
-                  <li className="flex items-center gap-2.5"><span className="text-[#38BDF8]">✓</span> Mentor students via structured Career Paths</li>
-                  <li className="flex items-center gap-2.5"><span className="text-[#38BDF8]">✓</span> Post job vacancies &amp; internship opportunities</li>
-                  <li className="flex items-center gap-2.5"><span className="text-[#38BDF8]">✓</span> Engage in peer study forums &amp; discussions</li>
+                <ul className="list-none p-0 m-0 mb-6 sm:mb-8 space-y-2 sm:space-y-2.5 text-[12.5px] sm:text-[13.5px] text-white/80 font-medium">
+                  <li className="flex items-center gap-2 sm:gap-2.5"><span className="text-[#38BDF8]">✓</span> Mentor students via structured Career Paths</li>
+                  <li className="flex items-center gap-2 sm:gap-2.5"><span className="text-[#38BDF8]">✓</span> Post job vacancies &amp; internship opportunities</li>
+                  <li className="flex items-center gap-2 sm:gap-2.5"><span className="text-[#38BDF8]">✓</span> Engage in peer study forums &amp; discussions</li>
                 </ul>
               </div>
               <button
                 onClick={() => navigate('/login')}
-                className="w-full bg-[#06B6D4] hover:bg-[#0891b2] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(6,182,212,0.4)] cursor-pointer border-none text-[15px]"
+                className="w-full bg-[#06B6D4] hover:bg-[#0891b2] text-white font-bold py-3.5 sm:py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(6,182,212,0.4)] cursor-pointer border-none text-[14px] sm:text-[15px]"
               >
                 Access Alumni Network <IconArrow />
               </button>
@@ -430,25 +447,25 @@ export default function Home() {
       </section>
 
       {/* ══════════════ WHY CAMPUSCONNECT ══════════════ */}
-      <section className="py-24 bg-gradient-to-b from-white to-[#F8FAFC] relative overflow-hidden">
-        <div className="max-w-[1200px] mx-auto px-6 relative z-10">
-          <div className="text-center mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#4F46E5]">WHY CAMPUSCONNECT</div>
-            <h2 className="text-[clamp(32px,4vw,48px)] font-black text-[#0F172A] mb-4">Empowering Campus Life</h2>
-            <p className="text-[17px] text-slate-500 max-w-[640px] mx-auto font-medium">
+      <section className="py-14 sm:py-20 md:py-24 bg-gradient-to-b from-white to-[#F8FAFC] relative overflow-hidden">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
+          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
+            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#4F46E5]">WHY CAMPUSCONNECT</div>
+            <h2 className="text-[clamp(26px,4vw,48px)] font-black text-[#0F172A] mb-3 sm:mb-4">Empowering Campus Life</h2>
+            <p className="text-[14px] sm:text-[17px] text-slate-500 max-w-[640px] mx-auto font-medium">
               Everything you need for a modern, connected, and hassle-free university experience in one sleek portal.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
             {FEATURES.map((f, i) => (
-              <div key={i} className="bg-white border border-slate-200/80 rounded-[28px] p-8 shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_45px_rgba(79,70,229,0.1)] hover:border-[#4F46E5]/40 transition-all duration-300 flex items-start gap-6 group">
-                <div className="w-14 h-14 rounded-2xl bg-[#F1F5F9] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-[#4F46E5]/10 transition-all duration-300">
+              <div key={i} className="bg-white border border-slate-200/80 rounded-[20px] sm:rounded-[28px] p-6 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_45px_rgba(79,70,229,0.1)] hover:border-[#4F46E5]/40 transition-all duration-300 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-6 group">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#F1F5F9] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-[#4F46E5]/10 transition-all duration-300">
                   {f.icon}
                 </div>
                 <div>
-                  <h3 className="text-[20px] font-extrabold text-[#0F172A] mb-2">{f.title}</h3>
-                  <p className="text-[15px] text-slate-500 leading-relaxed font-medium">{f.desc}</p>
+                  <h3 className="text-[18px] sm:text-[20px] font-extrabold text-[#0F172A] mb-2">{f.title}</h3>
+                  <p className="text-[13.5px] sm:text-[15px] text-slate-500 leading-relaxed font-medium">{f.desc}</p>
                 </div>
               </div>
             ))}
@@ -457,31 +474,31 @@ export default function Home() {
       </section>
 
       {/* ══════════════ CONNECT WITH STUDENTS (GALLERY) ══════════════ */}
-      <section id="about" className="py-24 bg-white relative overflow-hidden border-t border-slate-100">
-        <div className="max-w-[1200px] mx-auto px-6">
-          <div className="text-center mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[12px] font-extrabold tracking-[0.15em] uppercase mb-4 text-[#4F46E5]">COMMUNITY</div>
-            <h2 className="text-[clamp(32px,4vw,48px)] font-black text-[#0F172A] mb-4">Connect With Your Fellows</h2>
-            <p className="text-[17px] text-slate-500 max-w-[600px] mx-auto">Engage, collaborate, and build lasting relationships with students across all departments.</p>
+      <section id="about" className="py-14 sm:py-20 md:py-24 bg-white relative overflow-hidden border-t border-slate-100">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
+            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.15em] uppercase mb-3 sm:mb-4 text-[#4F46E5]">COMMUNITY</div>
+            <h2 className="text-[clamp(26px,4vw,48px)] font-black text-[#0F172A] mb-3 sm:mb-4">Connect With Your Fellows</h2>
+            <p className="text-[14px] sm:text-[17px] text-slate-500 max-w-[600px] mx-auto">Engage, collaborate, and build lasting relationships with students across all departments.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
-            <div className="group rounded-[24px] overflow-hidden relative h-[320px] shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
+            <div className="group rounded-[20px] sm:rounded-[24px] overflow-hidden relative h-[260px] sm:h-[320px] shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
               <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80" alt="Students studying" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-8">
-                <span className="text-white font-bold text-[18px]">Group Discussions</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-6 sm:p-8">
+                <span className="text-white font-bold text-[16px] sm:text-[18px]">Group Discussions</span>
               </div>
             </div>
-            <div className="group rounded-[24px] overflow-hidden relative h-[320px] md:-translate-y-8 shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
+            <div className="group rounded-[20px] sm:rounded-[24px] overflow-hidden relative h-[260px] sm:h-[320px] md:-translate-y-6 shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
               <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80" alt="Students laughing" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-8">
-                <span className="text-white font-bold text-[18px]">Campus Life</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-6 sm:p-8">
+                <span className="text-white font-bold text-[16px] sm:text-[18px]">Campus Life</span>
               </div>
             </div>
-            <div className="group rounded-[24px] overflow-hidden relative h-[320px] shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
+            <div className="group rounded-[20px] sm:rounded-[24px] overflow-hidden relative h-[260px] sm:h-[320px] shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
               <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80" alt="Students collaborating" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-8">
-                <span className="text-white font-bold text-[18px]">Peer Networking</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-6 sm:p-8">
+                <span className="text-white font-bold text-[16px] sm:text-[18px]">Peer Networking</span>
               </div>
             </div>
           </div>
@@ -489,22 +506,22 @@ export default function Home() {
       </section>
 
       {/* ══════════════ MODULES ══════════════ */}
-      <section id="modules" className="py-24 bg-[#F8FAFC]">
-        <div className="max-w-[1200px] mx-auto px-6">
-          <div className="text-center mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[12px] font-extrabold tracking-[0.15em] uppercase mb-4 text-[#06B6D4]">OUR PLATFORM</div>
-            <h2 className="text-[clamp(32px,4vw,48px)] font-black text-[#0F172A] mb-4">A Module For Every Need</h2>
-            <p className="text-[17px] text-slate-500 max-w-[600px] mx-auto">Everything you need to thrive at university is right at your fingertips.</p>
+      <section id="modules" className="py-14 sm:py-20 md:py-24 bg-[#F8FAFC]">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
+            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.15em] uppercase mb-3 sm:mb-4 text-[#06B6D4]">OUR PLATFORM</div>
+            <h2 className="text-[clamp(26px,4vw,48px)] font-black text-[#0F172A] mb-3 sm:mb-4">A Module For Every Need</h2>
+            <p className="text-[14px] sm:text-[17px] text-slate-500 max-w-[600px] mx-auto">Everything you need to thrive at university is right at your fingertips.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             {MODULES.map((m, i) => (
-              <div key={i} className="group/module bg-white border border-slate-200 rounded-[24px] p-8 transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] cursor-pointer relative overflow-hidden hover:-translate-y-[8px] hover:shadow-[0_24px_48px_rgba(79,70,229,0.1)] hover:border-[#4F46E5]/30 cc-page-cursor-none cc-reveal opacity-0 translate-y-8" style={{ transitionDelay: `${i * 100}ms` }}>
+              <div key={i} className="group/module bg-white border border-slate-200 rounded-[20px] sm:rounded-[24px] p-6 sm:p-8 transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] cursor-pointer relative overflow-hidden hover:-translate-y-[8px] hover:shadow-[0_24px_48px_rgba(79,70,229,0.1)] hover:border-[#4F46E5]/30 cc-page-cursor-none cc-reveal opacity-0 translate-y-8" style={{ transitionDelay: `${i * 100}ms` }}>
                 <div className="absolute inset-0 bg-gradient-to-br from-[#4F46E5]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover/module:opacity-100 pointer-events-none" />
-                <div className="w-16 h-16 bg-[#F1F5F9] rounded-2xl flex items-center justify-center text-[#4F46E5] mb-6 transition-all duration-300 group-hover/module:scale-110 group-hover/module:rotate-6 group-hover/module:bg-[#4F46E5] group-hover/module:text-white relative z-10 shadow-sm">{m.icon}</div>
-                <h3 className="text-[20px] font-black text-[#0F172A] mb-3 relative z-10">{m.title}</h3>
-                <p className="text-[15px] text-slate-500 leading-[1.6] relative z-10 font-medium">{m.desc}</p>
-                <div className="absolute bottom-8 right-7 w-6 text-[#4F46E5] opacity-0 -translate-x-[10px] transition-all duration-300 group-hover/module:opacity-100 group-hover/module:translate-x-0 z-10"><IconArrow /></div>
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#F1F5F9] rounded-2xl flex items-center justify-center text-[#4F46E5] mb-5 sm:mb-6 transition-all duration-300 group-hover/module:scale-110 group-hover/module:rotate-6 group-hover/module:bg-[#4F46E5] group-hover/module:text-white relative z-10 shadow-sm">{m.icon}</div>
+                <h3 className="text-[18px] sm:text-[20px] font-black text-[#0F172A] mb-2 sm:mb-3 relative z-10">{m.title}</h3>
+                <p className="text-[13.5px] sm:text-[15px] text-slate-500 leading-[1.6] relative z-10 font-medium">{m.desc}</p>
+                <div className="absolute bottom-6 right-6 w-5 text-[#4F46E5] opacity-0 -translate-x-[10px] transition-all duration-300 group-hover/module:opacity-100 group-hover/module:translate-x-0 z-10"><IconArrow /></div>
               </div>
             ))}
           </div>
@@ -512,24 +529,24 @@ export default function Home() {
       </section>
 
       {/* ══════════════ HOW IT WORKS ══════════════ */}
-      <section className="py-24 bg-[#0F172A] text-white relative overflow-hidden">
+      <section className="py-14 sm:py-20 md:py-24 bg-[#0F172A] text-white relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none opacity-20">
-          <div className="absolute w-[500px] h-[500px] bg-[#4F46E5] rounded-full blur-[120px] -top-40 -right-40" />
+          <div className="absolute w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-[#4F46E5] rounded-full blur-[120px] -top-40 -right-40" />
         </div>
-        <div className="max-w-[1200px] mx-auto px-6 relative z-10">
-          <div className="text-center mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#06B6D4]">EASY SETUP</div>
-            <h2 className="text-[clamp(32px,4vw,48px)] font-black text-white mb-4">How CampusConnect Works</h2>
-            <p className="text-[17px] text-slate-300 max-w-[600px] mx-auto font-medium">Get started in just four simple steps and transform how you interact with your campus.</p>
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
+          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
+            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#06B6D4]">EASY SETUP</div>
+            <h2 className="text-[clamp(26px,4vw,48px)] font-black text-white mb-3 sm:mb-4">How CampusConnect Works</h2>
+            <p className="text-[14px] sm:text-[17px] text-slate-300 max-w-[600px] mx-auto font-medium">Get started in just four simple steps and transform how you interact with your campus.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
             {HOW_IT_WORKS.map((hw, i) => (
-              <div key={i} className="bg-white/5 border border-white/10 backdrop-blur-md rounded-[24px] p-7 flex flex-col justify-between hover:bg-white/10 hover:border-white/20 transition-all duration-300 group">
+              <div key={i} className="bg-white/5 border border-white/10 backdrop-blur-md rounded-[20px] sm:rounded-[24px] p-6 sm:p-7 flex flex-col justify-between hover:bg-white/10 hover:border-white/20 transition-all duration-300 group">
                 <div>
-                  <span className="text-[36px] font-black text-transparent bg-clip-text bg-gradient-to-r from-[#06B6D4] to-[#4F46E5] block mb-4 group-hover:scale-105 transition-transform duration-300">{hw.step}</span>
-                  <h3 className="text-[18px] font-extrabold text-white mb-2">{hw.title}</h3>
-                  <p className="text-[14px] text-slate-400 font-medium leading-relaxed">{hw.desc}</p>
+                  <span className="text-[30px] sm:text-[36px] font-black text-transparent bg-clip-text bg-gradient-to-r from-[#06B6D4] to-[#4F46E5] block mb-3 sm:mb-4 group-hover:scale-105 transition-transform duration-300">{hw.step}</span>
+                  <h3 className="text-[16px] sm:text-[18px] font-extrabold text-white mb-2">{hw.title}</h3>
+                  <p className="text-[13px] sm:text-[14px] text-slate-400 font-medium leading-relaxed">{hw.desc}</p>
                 </div>
               </div>
             ))}
@@ -538,29 +555,29 @@ export default function Home() {
       </section>
 
       {/* ══════════════ CTA BANNER ══════════════ */}
-      <section className="py-16 bg-white relative">
-        <div className="max-w-[1200px] mx-auto px-6">
-          <div className="bg-gradient-to-r from-[#0F172A] via-[#1E293B] to-[#0F172A] border border-white/10 rounded-[32px] p-10 md:p-14 text-center relative overflow-hidden shadow-[0_25px_60px_rgba(15,23,42,0.25)] cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-[#4F46E5]/30 rounded-full filter blur-[80px] pointer-events-none" />
-            <div className="absolute -left-20 -top-20 w-80 h-80 bg-[#06B6D4]/30 rounded-full filter blur-[80px] pointer-events-none" />
-
+      <section className="py-12 sm:py-16 bg-white relative">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <div className="bg-gradient-to-r from-[#0F172A] via-[#1E293B] to-[#0F172A] border border-white/10 rounded-[24px] sm:rounded-[32px] p-7 sm:p-10 md:p-14 text-center relative overflow-hidden shadow-[0_25px_60px_rgba(15,23,42,0.25)] cc-reveal opacity-0 translate-y-8 transition-all duration-700">
+            <div className="absolute -right-20 -bottom-20 w-60 sm:w-80 h-60 sm:h-80 bg-[#4F46E5]/30 rounded-full filter blur-[80px] pointer-events-none" />
+            <div className="absolute -left-20 -top-20 w-60 sm:w-80 h-60 sm:h-80 bg-[#06B6D4]/30 rounded-full filter blur-[80px] pointer-events-none" />
+            
             <div className="relative z-10 max-w-[700px] mx-auto">
-              <h2 className="text-[clamp(30px,3.8vw,44px)] font-black text-white mb-4 leading-tight">
+              <h2 className="text-[clamp(24px,3.8vw,44px)] font-black text-white mb-3 sm:mb-4 leading-tight">
                 Ready to Upgrade Your <span className="bg-gradient-to-r from-[#06B6D4] to-[#4F46E5] bg-clip-text text-transparent">Campus Experience?</span>
               </h2>
-              <p className="text-[16px] md:text-[18px] text-white/80 mb-8 font-medium">
+              <p className="text-[14px] sm:text-[16px] md:text-[18px] text-white/80 mb-6 sm:mb-8 font-medium">
                 Join thousands of students and faculty members already enjoying a connected, efficient campus life.
               </p>
-              <div className="flex gap-4 justify-center flex-wrap">
+              <div className="flex gap-3 sm:gap-4 justify-center flex-wrap">
                 <button
                   onClick={() => navigate('/mul-login')}
-                  className="bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3.5 px-8 rounded-xl transition-all duration-300 shadow-[0_10px_25px_rgba(79,70,229,0.4)] hover:-translate-y-0.5 border-none text-[15px] cursor-pointer"
+                  className="w-full sm:w-auto bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3.5 px-7 sm:px-8 rounded-xl transition-all duration-300 shadow-[0_10px_25px_rgba(79,70,229,0.4)] hover:-translate-y-0.5 border-none text-[14px] sm:text-[15px] cursor-pointer"
                 >
                   Join CampusConnect Now
                 </button>
                 <button
                   onClick={() => document.getElementById('modules').scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-white/10 hover:bg-white/20 text-white font-bold py-3.5 px-8 rounded-xl transition-all duration-300 border border-white/20 hover:-translate-y-0.5 text-[15px] cursor-pointer backdrop-blur-sm"
+                  className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-bold py-3.5 px-7 sm:px-8 rounded-xl transition-all duration-300 border border-white/20 hover:-translate-y-0.5 text-[14px] sm:text-[15px] cursor-pointer backdrop-blur-sm"
                 >
                   Learn More
                 </button>
@@ -571,8 +588,8 @@ export default function Home() {
       </section>
 
       {/* ══════════════ FOOTER ══════════════ */}
-      <footer className="bg-[#0F172A] pt-12 pb-6 border-t border-white/5">
-        <div className="max-w-[1200px] mx-auto px-6 grid grid-cols-1 md:grid-cols-[1.5fr_1fr_1fr_1.2fr] gap-8 mb-8">
+      <footer className="bg-[#0F172A] pt-10 md:pt-12 pb-6 border-t border-white/5">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr_1.2fr] gap-8 mb-8">
           <div className="text-left">
             <div className="flex flex-row items-center gap-3 no-underline cursor-pointer" onClick={() => navigate('/')}>
               <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center p-1 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
@@ -583,7 +600,7 @@ export default function Home() {
                 <span className="text-[8px] font-bold tracking-[0.35em] text-[#06B6D4] mt-0.5 uppercase">UNIVERSITY PORTAL</span>
               </div>
             </div>
-            <p className="text-[14px] text-slate-400 leading-relaxed my-3 max-w-[280px]">Empowering students with connection, convenience, and a smarter campus life.</p>
+            <p className="text-[13.5px] sm:text-[14px] text-slate-400 leading-relaxed my-3 max-w-[280px]">Empowering students with connection, convenience, and a smarter campus life.</p>
             <div className="flex gap-2.5">
               <a href="#!" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white transition-all duration-300 hover:bg-[#4F46E5] hover:-translate-y-[2px] cc-page-cursor-none"><IconFacebook /></a>
               <a href="#!" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white transition-all duration-300 hover:bg-[#4F46E5] hover:-translate-y-[2px] cc-page-cursor-none"><IconInstagram /></a>
