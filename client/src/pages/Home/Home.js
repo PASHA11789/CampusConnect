@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/MUL-Logo.png';
-import mulCampusImg from '../../assets/ibn_e_khaldun.jpg';
+import mulVideo from './A place where character rises in every direction.Admissions Open – Minhaj University Lahore – Fa.mp4';
 
 /* ─────────────────────────────────────────────
    Inline SVG icons (no external icon lib needed)
@@ -19,37 +19,6 @@ const IconSparkles = ({ className = "w-6 h-6" }) => <svg className={className} v
 const IconShieldCheck = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>;
 const IconZap = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>;
 const IconRocket = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z" /><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-3.05 10a22.35 22.35 0 01-3.95 2z" /><path d="M9 18l-4.5 4.5" /><path d="M14.5 9.5L18 6" /></svg>;
-
-const CAMPUS_BLOCKS = [
-  {
-    id: 'khaldun',
-    name: 'Ibn-e-Khaldun Block',
-    tag: 'CS, IT & ENGINEERING FACULTY',
-    desc: 'Connecting CS, Information Technology & Engineering students with high-speed digital tools.',
-    image: mulCampusImg,
-  },
-  {
-    id: 'razi',
-    name: 'Al-Razi Block',
-    tag: 'BASIC & HEALTH SCIENCES',
-    desc: 'Fostering medical research, biological sciences, and state-of-the-art laboratory innovation.',
-    image: 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: 'farabi',
-    name: 'Al-Farabi Block',
-    tag: 'MANAGEMENT & ECONOMICS',
-    desc: 'Empowering future business leaders, financial analysts, and tech entrepreneurs.',
-    image: 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: 'sina',
-    name: 'Ibn-Sina Block',
-    tag: 'SOCIAL SCIENCES & HUMANITIES',
-    desc: 'Promoting humanities, international relations, literature, and interdisciplinary research.',
-    image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80',
-  },
-];
 
 const FEATURES = [
   {
@@ -177,7 +146,6 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [blockIndex, setBlockIndex] = useState(0);
 
   useEffect(() => {
     setIsLoggedIn(!!sessionStorage.getItem("token"));
@@ -189,17 +157,7 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Auto slide campus blocks every 4.5 seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setBlockIndex((prev) => (prev + 1) % CAMPUS_BLOCKS.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, []);
-
   useScrollReveal();
-
-  const activeBlock = CAMPUS_BLOCKS[blockIndex];
 
   return (
     <div className="font-sans text-[#0F172A] bg-[#F8FAFC] h-full w-full max-w-full overflow-y-auto overflow-x-hidden cc-page-cursor-none cc-page">
@@ -302,66 +260,39 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right Column: Minhaj University Auto-Sliding Blocks Showcase */}
+          {/* Right Column: Minhaj University Showcase Video */}
           <div className="lg:col-span-5 relative cc-reveal">
             <div className="relative rounded-[24px] sm:rounded-[32px] overflow-hidden border border-white/20 bg-white/5 backdrop-blur-xl shadow-[0_25px_60px_rgba(0,0,0,0.4)] group">
-              {/* Dynamic Image with smooth transition key */}
-              <img
-                key={activeBlock.id}
-                src={activeBlock.image}
-                alt={activeBlock.name}
-                className="w-full h-[320px] sm:h-[410px] md:h-[470px] object-cover transition-all duration-700 ease-in-out group-hover:scale-105 animate-[fadeIn_0.5s_ease-in-out]"
+              <video
+                src={mulVideo}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-[320px] sm:h-[410px] md:h-[470px] object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-[#0F172A]/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-[#0F172A]/30 to-transparent pointer-events-none" />
               
               {/* Floating Glass Badge Top Left */}
-              <div className="absolute top-3 left-3 sm:top-5 sm:left-5 bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl py-1.5 px-3 sm:py-2.5 sm:px-4 text-white text-[11px] sm:text-[13px] font-extrabold flex items-center gap-2 shadow-lg">
+              <div className="absolute top-3 left-3 sm:top-5 sm:left-5 bg-white/15 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl py-1.5 px-3 sm:py-2.5 sm:px-4 text-white text-[11px] sm:text-[13px] font-extrabold flex items-center gap-2 shadow-lg z-10">
                 <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#06B6D4] animate-ping" />
                 Minhaj University Lahore
               </div>
 
-              {/* Prev / Next Manual Controls */}
-              <button
-                onClick={() => setBlockIndex((prev) => (prev - 1 + CAMPUS_BLOCKS.length) % CAMPUS_BLOCKS.length)}
-                className="absolute top-1/2 left-2 sm:left-3 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-[#4F46E5] border border-white/20 text-white flex items-center justify-center backdrop-blur-md opacity-70 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
-                aria-label="Previous Block"
-              >
-                ‹
-              </button>
-              <button
-                onClick={() => setBlockIndex((prev) => (prev + 1) % CAMPUS_BLOCKS.length)}
-                className="absolute top-1/2 right-2 sm:right-3 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/40 hover:bg-[#4F46E5] border border-white/20 text-white flex items-center justify-center backdrop-blur-md opacity-70 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
-                aria-label="Next Block"
-              >
-                ›
-              </button>
-
               {/* Bottom Card Detail Overlay */}
-              <div className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 text-left text-white shadow-2xl transition-all duration-500">
+              <div className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 text-left text-white shadow-2xl transition-all duration-500 z-10">
                 <div className="flex items-center gap-2.5 sm:gap-3 mb-1.5 sm:mb-2">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center p-1 shrink-0 shadow-md">
                     <img src={logo} alt="MUL Logo" className="w-full h-full object-contain" />
                   </div>
                   <div>
-                    <h4 className="text-[14px] sm:text-[17px] font-black text-white leading-tight">{activeBlock.name}</h4>
-                    <span className="text-[10px] sm:text-[11px] font-bold text-[#06B6D4] uppercase tracking-wider">{activeBlock.tag}</span>
+                    <h4 className="text-[14px] sm:text-[17px] font-black text-white leading-tight">Admissions Open – MUL</h4>
+                    <span className="text-[10px] sm:text-[11px] font-bold text-[#06B6D4] uppercase tracking-wider">A PLACE WHERE CHARACTER RISES</span>
                   </div>
                 </div>
-                <p className="text-[11.5px] sm:text-[12.5px] text-white/85 leading-relaxed font-medium mb-2.5 line-clamp-2 sm:line-clamp-none">
-                  {activeBlock.desc}
+                <p className="text-[11.5px] sm:text-[12.5px] text-white/85 leading-relaxed font-medium">
+                  Discover academic excellence and a modern digital campus experience at Minhaj University Lahore.
                 </p>
-
-                {/* Slider Pagination Dots */}
-                <div className="flex items-center justify-center gap-2 pt-1.5 border-t border-white/10">
-                  {CAMPUS_BLOCKS.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setBlockIndex(idx)}
-                      className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 border-none cursor-pointer ${idx === blockIndex ? 'w-5 sm:w-6 bg-[#06B6D4]' : 'w-1.5 sm:w-2 bg-white/40 hover:bg-white/70'}`}
-                      aria-label={`Slide to block ${idx + 1}`}
-                    />
-                  ))}
-                </div>
               </div>
             </div>
           </div>
