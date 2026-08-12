@@ -288,73 +288,47 @@ export default function Home() {
       <section className="py-14 sm:py-20 md:py-24 bg-[#0F172A] relative">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-[#06B6D4] backdrop-blur-md py-1.5 px-4 rounded-full text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-4">
-              ✦ AUTHORIZED ROLE ACCESS ✦
-            </div>
+            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#06B6D4]">PORTAL ACCESS</div>
             <h2 className="text-[clamp(26px,4vw,48px)] font-black text-white mb-3 sm:mb-4 leading-tight">
-              Dedicated Governance &amp; Alumni Portals
+              Administrators, Moderators &amp; Alumni
             </h2>
-            <p className="text-[14px] sm:text-[17px] md:text-[18px] text-white/80 max-w-[720px] mx-auto font-medium leading-relaxed">
-              CampusConnect provides specialized, role-tailored workspaces built for university administration, safety, and alumni engagement. Select your official workspace below to access your command desk.
+            <p className="text-[14px] sm:text-[17px] md:text-[18px] text-white/80 max-w-[680px] mx-auto font-medium leading-relaxed">
+              Are you a Campus Administrator, Student Moderator, or Alumni? Access your dedicated portal below.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-[950px] mx-auto cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
             {/* Card 1: Admin & Moderator Login */}
-            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_60px_rgba(79,70,229,0.35)] hover:border-[#4F46E5]/60 transition-all duration-300 flex flex-col justify-between text-left group">
-              <div>
-                <div className="flex items-center justify-between mb-5 sm:mb-6">
-                  <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-[#4F46E5]/30 to-[#4F46E5]/10 border border-[#4F46E5]/40 text-[#818CF8] flex items-center justify-center text-2xl sm:text-3xl group-hover:scale-110 transition-transform duration-300">
-                    🛡️
-                  </div>
-                  <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-[#818CF8] bg-[#4F46E5]/20 border border-[#4F46E5]/40 py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-full">
-                    ADMIN &amp; MOD DESK
-                  </span>
-                </div>
-                <h3 className="text-[18px] sm:text-[22px] font-black text-white mb-2.5 sm:mb-3">Institutional Command &amp; Moderation Desk</h3>
-                <p className="text-[13.5px] sm:text-[14.5px] text-white/75 mb-5 sm:mb-6 font-medium leading-relaxed">
-                  Designed for campus administrators and student moderators to oversee campus operations, review reported petitions, enforce safety policies, and maintain smooth academic governance.
-                </p>
-                <ul className="list-none p-0 m-0 mb-6 sm:mb-8 space-y-2 sm:space-y-2.5 text-[12.5px] sm:text-[13.5px] text-white/80 font-medium">
-                  <li className="flex items-center gap-2 sm:gap-2.5"><span className="text-[#818CF8]">✓</span> Review &amp; resolve department petitions</li>
-                  <li className="flex items-center gap-2 sm:gap-2.5"><span className="text-[#818CF8]">✓</span> Content moderation &amp; flagged user investigations</li>
-                  <li className="flex items-center gap-2 sm:gap-2.5"><span className="text-[#818CF8]">✓</span> Real-time push security notifications</li>
-                </ul>
+            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_60px_rgba(79,70,229,0.35)] hover:border-[#4F46E5]/60 transition-all duration-300 flex flex-col items-center text-center group">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl sm:text-3xl mb-5 group-hover:scale-110 transition-transform duration-300">
+                🛡️
               </div>
+              <h3 className="text-[18px] sm:text-[22px] font-black text-white mb-2.5 sm:mb-3">Admin &amp; Moderator Portal</h3>
+              <p className="text-[13.5px] sm:text-[14.5px] text-white/75 mb-6 sm:mb-8 font-medium leading-relaxed">
+                Log in to manage campus users, review flagged content, resolve petitions, and handle moderation queues.
+              </p>
               <button
                 onClick={() => navigate('/login')}
-                className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3.5 sm:py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(79,70,229,0.4)] cursor-pointer border-none text-[14px] sm:text-[15px]"
+                className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3.5 sm:py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(79,70,229,0.4)] cursor-pointer border-none text-[14px] sm:text-[15px] mt-auto"
               >
-                Access Admin &amp; Moderator Desk <IconArrow />
+                Login as Admin / Moderator <IconArrow />
               </button>
             </div>
 
             {/* Card 2: Alumni Portal */}
-            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_60px_rgba(6,182,212,0.35)] hover:border-[#06B6D4]/60 transition-all duration-300 flex flex-col justify-between text-left group">
-              <div>
-                <div className="flex items-center justify-between mb-5 sm:mb-6">
-                  <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-[#06B6D4]/30 to-[#06B6D4]/10 border border-[#06B6D4]/40 text-[#38BDF8] flex items-center justify-center text-2xl sm:text-3xl group-hover:scale-110 transition-transform duration-300">
-                    🎓
-                  </div>
-                  <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-[#38BDF8] bg-[#06B6D4]/20 border border-[#06B6D4]/40 py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-full">
-                    ALUMNI NETWORK
-                  </span>
-                </div>
-                <h3 className="text-[18px] sm:text-[22px] font-black text-white mb-2.5 sm:mb-3">Global Alumni &amp; Career Acceleration Hub</h3>
-                <p className="text-[13.5px] sm:text-[14.5px] text-white/75 mb-5 sm:mb-6 font-medium leading-relaxed">
-                  Tailored exclusively for Minhaj University graduates to reconnect with the campus, post industry career opportunities, guide current students, and lead subject discussions.
-                </p>
-                <ul className="list-none p-0 m-0 mb-6 sm:mb-8 space-y-2 sm:space-y-2.5 text-[12.5px] sm:text-[13.5px] text-white/80 font-medium">
-                  <li className="flex items-center gap-2 sm:gap-2.5"><span className="text-[#38BDF8]">✓</span> Mentor students via structured Career Paths</li>
-                  <li className="flex items-center gap-2 sm:gap-2.5"><span className="text-[#38BDF8]">✓</span> Post job vacancies &amp; internship opportunities</li>
-                  <li className="flex items-center gap-2 sm:gap-2.5"><span className="text-[#38BDF8]">✓</span> Engage in peer study forums &amp; discussions</li>
-                </ul>
+            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_60px_rgba(6,182,212,0.35)] hover:border-[#06B6D4]/60 transition-all duration-300 flex flex-col items-center text-center group">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl sm:text-3xl mb-5 group-hover:scale-110 transition-transform duration-300">
+                🎓
               </div>
+              <h3 className="text-[18px] sm:text-[22px] font-black text-white mb-2.5 sm:mb-3">Alumni Network Portal</h3>
+              <p className="text-[13.5px] sm:text-[14.5px] text-white/75 mb-6 sm:mb-8 font-medium leading-relaxed">
+                Connect with career paths, post job opportunities, mentor students, and participate in forum discussions.
+              </p>
               <button
                 onClick={() => navigate('/login')}
-                className="w-full bg-[#06B6D4] hover:bg-[#0891b2] text-white font-bold py-3.5 sm:py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(6,182,212,0.4)] cursor-pointer border-none text-[14px] sm:text-[15px]"
+                className="w-full bg-[#06B6D4] hover:bg-[#0891b2] text-white font-bold py-3.5 sm:py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(6,182,212,0.4)] cursor-pointer border-none text-[14px] sm:text-[15px] mt-auto"
               >
-                Access Alumni Network <IconArrow />
+                Login as Alumni <IconArrow />
               </button>
             </div>
           </div>
@@ -367,8 +341,11 @@ export default function Home() {
           <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
             <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#4F46E5]">WHY CAMPUSCONNECT</div>
             <h2 className="text-[clamp(26px,4vw,48px)] font-black text-[#0F172A] mb-3 sm:mb-4">Empowering Campus Life</h2>
-            <p className="text-[14px] sm:text-[17px] text-slate-500 max-w-[640px] mx-auto font-medium">
+            <p className="text-[14px] sm:text-[17px] text-slate-500 max-w-[680px] mx-auto font-medium mb-3">
               Everything you need for a modern, connected, and hassle-free university experience in one sleek portal.
+            </p>
+            <p className="text-[13px] sm:text-[15px] text-[#4F46E5] max-w-[680px] mx-auto font-semibold">
+              For Minhaj University Lahore, we have implemented this platform to facilitate seamless study circles, peer connections, and academic collaborations across all departments.
             </p>
           </div>
 
@@ -450,9 +427,9 @@ export default function Home() {
         </div>
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
           <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#06B6D4]">EASY SETUP</div>
-            <h2 className="text-[clamp(26px,4vw,48px)] font-black text-white mb-3 sm:mb-4">How CampusConnect Works</h2>
-            <p className="text-[14px] sm:text-[17px] text-slate-300 max-w-[600px] mx-auto font-medium">Get started in just four simple steps and transform how you interact with your campus.</p>
+            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#06B6D4]">OUR VISION</div>
+            <h2 className="text-[clamp(26px,4vw,48px)] font-black text-white mb-3 sm:mb-4">Our Vision for CampusConnect</h2>
+            <p className="text-[14px] sm:text-[17px] text-slate-300 max-w-[680px] mx-auto font-medium">We aim to provide a customized, state-of-the-art digital ecosystem tailored specifically to the unique needs of Minhaj University Lahore — empowering students, graduates, and administration under one unified hub.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
