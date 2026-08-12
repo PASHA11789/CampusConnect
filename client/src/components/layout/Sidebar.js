@@ -75,58 +75,78 @@ const Sidebar = ({ isOpen, onClose }) => {
         </div>
 
         <nav className="flex-1 flex flex-col gap-3">
-          {/* Main Menu Panel */}
-          <div className="bg-[#0C274E]/80 rounded-[1.2rem] p-2 flex flex-col gap-1 border border-white/5 shadow-inner">
-            <div className="text-[9px] font-black tracking-[0.15em] text-white/40 px-3 pt-1 pb-1.5 uppercase">MAIN MENU</div>
-            <Link to="/dashboard" className={getNavItemClass('/dashboard')}>
-              <div className="flex items-center gap-2.5">
-                <span className="text-xs">●</span>
-                <IconZap />
-                <span>Dashboard</span>
+          {user?.role === 'alumni' ? (
+            <div className="bg-[#0C274E]/80 rounded-[1.2rem] p-2 flex flex-col gap-1 border border-white/5 shadow-inner">
+              <div className="text-[9px] font-black tracking-[0.15em] text-white/40 px-3 pt-1 pb-1.5 uppercase">ALUMNI NAVIGATION</div>
+              <Link to="/career" className={getNavItemClass('/career')}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-[14px]">💼</span>
+                  <span>Career Paths</span>
+                </div>
+              </Link>
+              <Link to="/forum" className={getNavItemClass('/forum')}>
+                <div className="flex items-center gap-2.5">
+                  <IconForum />
+                  <span>Forum</span>
+                </div>
+              </Link>
+            </div>
+          ) : (
+            <>
+              {/* Main Menu Panel */}
+              <div className="bg-[#0C274E]/80 rounded-[1.2rem] p-2 flex flex-col gap-1 border border-white/5 shadow-inner">
+                <div className="text-[9px] font-black tracking-[0.15em] text-white/40 px-3 pt-1 pb-1.5 uppercase">MAIN MENU</div>
+                <Link to="/dashboard" className={getNavItemClass('/dashboard')}>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xs">●</span>
+                    <IconZap />
+                    <span>Dashboard</span>
+                  </div>
+                </Link>
+                <Link to="/forum" className={getNavItemClass('/forum')}>
+                  <div className="flex items-center gap-2.5">
+                    <IconForum />
+                    <span>Forum</span>
+                  </div>
+                </Link>
+                <Link to="/career" className={getNavItemClass('/career')}>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-[14px]">💼</span>
+                    <span>Career Paths</span>
+                  </div>
+                </Link>
               </div>
-            </Link>
-            <Link to="/forum" className={getNavItemClass('/forum')}>
-              <div className="flex items-center gap-2.5">
-                <IconForum />
-                <span>Forum</span>
-              </div>
-            </Link>
-            <Link to="/career" className={getNavItemClass('/career')}>
-              <div className="flex items-center gap-2.5">
-                <span className="text-[14px]">💼</span>
-                <span>Career Paths</span>
-              </div>
-            </Link>
-          </div>
 
-          {/* Campus Services Panel */}
-          <div className="bg-[#0C274E]/80 rounded-[1.2rem] p-2 flex flex-col gap-1 border border-white/5 shadow-inner">
-            <div className="text-[9px] font-black tracking-[0.15em] text-white/40 px-3 pt-1 pb-1.5 uppercase">CAMPUS SERVICES</div>
-            <Link to="/canteen" className={getNavItemClass('/canteen')}>
-              <div className="flex items-center gap-2.5">
-                <span className="text-[14px]">☕</span>
-                <span>Canteen</span>
+              {/* Campus Services Panel */}
+              <div className="bg-[#0C274E]/80 rounded-[1.2rem] p-2 flex flex-col gap-1 border border-white/5 shadow-inner">
+                <div className="text-[9px] font-black tracking-[0.15em] text-white/40 px-3 pt-1 pb-1.5 uppercase">CAMPUS SERVICES</div>
+                <Link to="/canteen" className={getNavItemClass('/canteen')}>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-[14px]">☕</span>
+                    <span>Canteen</span>
+                  </div>
+                </Link>
+                <Link to="/petitions" className={getNavItemClass('/petitions')}>
+                  <div className="flex items-center gap-2.5">
+                    <IconClipboard />
+                    <span>Petitions</span>
+                  </div>
+                </Link>
+                <Link to="/lost-found" className={getNavItemClass('/lost-found')}>
+                  <div className="flex items-center gap-2.5">
+                    <IconSearch />
+                    <span>Lost &amp; Found</span>
+                  </div>
+                </Link>
+                <Link to="/bus-routes" className={getNavItemClass('/bus-routes')}>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-[14px]">🚌</span>
+                    <span>Bus Routes</span>
+                  </div>
+                </Link>
               </div>
-            </Link>
-            <Link to="/petitions" className={getNavItemClass('/petitions')}>
-              <div className="flex items-center gap-2.5">
-                <IconClipboard />
-                <span>Petitions</span>
-              </div>
-            </Link>
-            <Link to="/lost-found" className={getNavItemClass('/lost-found')}>
-              <div className="flex items-center gap-2.5">
-                <IconSearch />
-                <span>Lost &amp; Found</span>
-              </div>
-            </Link>
-            <Link to="/bus-routes" className={getNavItemClass('/bus-routes')}>
-              <div className="flex items-center gap-2.5">
-                <span className="text-[14px]">🚌</span>
-                <span>Bus Routes</span>
-              </div>
-            </Link>
-          </div>
+            </>
+          )}
 
           {isMod && (
             <div className="bg-[#0C274E]/80 rounded-[1.2rem] p-2 flex flex-col gap-1 border border-white/5">

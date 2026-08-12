@@ -62,6 +62,10 @@ export default function Dashboard() {
     if (userStr) {
       try {
         const parsedUser = JSON.parse(userStr);
+        if (parsedUser.role === 'alumni') {
+          navigate('/career', { replace: true });
+          return;
+        }
         setUser(parsedUser);
         if (parsedUser.avatar) {
           setAvatar(parsedUser.avatar);

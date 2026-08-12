@@ -47,7 +47,11 @@ const MULClone = () => {
       setMessage({ type: 'info', text: 'Login successful. Redirecting...' });
       
       setTimeout(() => {
-        navigate('/mul-dashboard');
+        if (response.data.role === 'alumni') {
+          navigate('/career');
+        } else {
+          navigate('/mul-dashboard');
+        }
       }, 500);
     } catch (err) {
       setMessage({ 

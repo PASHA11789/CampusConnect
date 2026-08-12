@@ -30,7 +30,11 @@ const Login = () => {
             // Trigger push notification setup immediately after login
             // so the browser permission prompt appears while the user is active
             setupPushNotifications();
-            navigate('/dashboard');
+            if (response.data.role === 'alumni') {
+                navigate('/career');
+            } else {
+                navigate('/dashboard');
+            }
 
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
