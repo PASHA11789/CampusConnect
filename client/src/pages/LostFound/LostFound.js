@@ -28,6 +28,8 @@ export default function LostFound() {
   const [selectedTab, setSelectedTab] = useState("recent"); // "recent", "lost", "found", "returned", "mine"
   const [filterType, setFilterType] = useState("ALL"); // "ALL", "LOST", "FOUND"
   const [filterStatus, setFilterStatus] = useState("ALL"); // "ALL", "Open", "At Office"
+  const [dateFilterMode, setDateFilterMode] = useState("ALL"); // "ALL", "today", "yesterday", "this_week", "custom"
+  const [selectedCustomDate, setSelectedCustomDate] = useState("");
   const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
   const [sortBy, setSortBy] = useState("latest"); // "latest", "oldest"
   const [currentPage, setCurrentPage] = useState(1);
@@ -206,8 +208,19 @@ export default function LostFound() {
     }
   }, [user, showToast]);
 
-  // Handle URL redirect query param for detail modal on mount
+  // Handle URL redirect query param for detail modal or tab selection on mount
   useEffect(() => {
+    if (location.state?.filterType) {
+      setFilterType(location.state.filterType);
+    }
+    if (location.state?.selectedTab) {
+      setSelectedTab(location.state.selectedTab);
+    }
+    if (location.state?.openReportModal) {
+      setNewItemType(location.state.type || "LOST");
+      setIsModalOpen(true);
+    }
+
     if (!loading && items.length > 0) {
       const queryId = searchParams.get("id");
       const targetId = queryId || location.state?.itemId;
@@ -227,7 +240,7 @@ export default function LostFound() {
   // Reset to page 1 whenever filters, tab, or search changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedCategory, selectedTab, filterType, filterStatus, sortBy]);
+  }, [searchTerm, selectedCategory, selectedTab, filterType, filterStatus, sortBy, dateFilterMode, selectedCustomDate]);
 
   // Prevent background scroll when modal detail is active
   useEffect(() => {
@@ -555,7 +568,37 @@ export default function LostFound() {
       }
     }
 
-    return matchesSearch && matchesType && matchesStatus && matchesTab && matchesCategory;
+    // Date Filter logic: ALL, today, yesterday, this_week, custom
+    let matchesDate = true;
+    if (dateFilterMode !== "ALL") {
+      const itemDate = new Date(item.createdAt);
+      const now = new Date();
+      if (dateFilterMode === "today") {
+        matchesDate =
+          itemDate.getFullYear() === now.getFullYear() &&
+          itemDate.getMonth() === now.getMonth() &&
+          itemDate.getDate() === now.getDate();
+      } else if (dateFilterMode === "yesterday") {
+        const yesterday = new Date();
+        yesterday.setDate(now.getDate() - 1);
+        matchesDate =
+          itemDate.getFullYear() === yesterday.getFullYear() &&
+          itemDate.getMonth() === yesterday.getMonth() &&
+          itemDate.getDate() === yesterday.getDate();
+      } else if (dateFilterMode === "this_week") {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(now.getDate() - 7);
+        matchesDate = itemDate >= sevenDaysAgo;
+      } else if (dateFilterMode === "custom" && selectedCustomDate) {
+        const itemYear = itemDate.getFullYear();
+        const itemMonth = String(itemDate.getMonth() + 1).padStart(2, "0");
+        const itemDay = String(itemDate.getDate()).padStart(2, "0");
+        const itemDateStr = `${itemYear}-${itemMonth}-${itemDay}`;
+        matchesDate = itemDateStr === selectedCustomDate;
+      }
+    }
+
+    return matchesSearch && matchesType && matchesStatus && matchesTab && matchesCategory && matchesDate;
   }).sort((a, b) => {
     if (sortBy === "oldest") return new Date(a.createdAt) - new Date(b.createdAt);
     return new Date(b.createdAt) - new Date(a.createdAt);
@@ -618,10 +661,6 @@ export default function LostFound() {
             <div className="absolute -bottom-10 -left-10 w-32 sm:w-40 h-32 sm:h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
 
             <div className="flex flex-col text-left z-10">
-              <div className="bg-white/10 text-[#00c2cb] text-[9.5px] sm:text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-2 border border-white/10">
-                <span>✨</span>
-                <span>CAMPUS BELONGINGS PORTAL</span>
-              </div>
               <h1 className="text-xl sm:text-[26px] font-black text-white leading-tight tracking-tight mb-1">
                 Lost &amp; Found
               </h1>
@@ -706,12 +745,52 @@ export default function LostFound() {
                 <option value="Claimed">Claimed</option>
               </select>
 
+              {/* Date Filter Dropdown */}
+              <select
+                value={dateFilterMode}
+                onChange={(e) => setDateFilterMode(e.target.value)}
+                className={`shrink-0 px-3 py-2 rounded-full border text-[11px] sm:text-xs font-extrabold focus:outline-none focus:ring-2 focus:ring-[#071A35]/20 cursor-pointer transition-colors ${
+                  dateFilterMode !== "ALL"
+                    ? "bg-[#071A35] text-white border-[#071A35]"
+                    : "bg-[#FAF7F0] text-[#071A35] border-[#E8E1D5]"
+                }`}
+              >
+                <option value="ALL">All Dates</option>
+                <option value="today">📅 Published Today</option>
+                <option value="yesterday">📅 Published Yesterday</option>
+                <option value="this_week">📅 Past 7 Days</option>
+                <option value="custom">📅 Specific Date...</option>
+              </select>
+
+              {/* Specific Date Picker Input */}
+              {dateFilterMode === "custom" && (
+                <div className="relative shrink-0 flex items-center">
+                  <input
+                    type="date"
+                    value={selectedCustomDate}
+                    onChange={(e) => setSelectedCustomDate(e.target.value)}
+                    className="px-3 py-1.5 rounded-full bg-[#FAF7F0] border border-[#00c2cb] text-[11px] sm:text-xs font-extrabold text-[#071A35] focus:outline-none focus:ring-2 focus:ring-[#00c2cb]/30 cursor-pointer shadow-inner"
+                  />
+                  {selectedCustomDate && (
+                    <button
+                      onClick={() => setSelectedCustomDate("")}
+                      className="ml-1 text-slate-400 hover:text-red-500 text-xs font-black cursor-pointer border-none bg-transparent"
+                      title="Clear custom date"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              )}
+
               <button
                 onClick={() => {
                   setSearchTerm("");
                   setSelectedCategory("All");
                   setFilterType("ALL");
                   setFilterStatus("ALL");
+                  setDateFilterMode("ALL");
+                  setSelectedCustomDate("");
                 }}
                 className="shrink-0 px-3 py-2 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] text-[11px] sm:text-xs font-extrabold text-[#211A24]/70 hover:bg-[#F3EEE4] hover:text-[#071A35] transition-all flex items-center gap-1 cursor-pointer"
               >

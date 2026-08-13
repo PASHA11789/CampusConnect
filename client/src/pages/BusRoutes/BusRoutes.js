@@ -154,13 +154,13 @@ export default function BusRoutes() {
 
         <div className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-5 sm:gap-6 max-w-full [&>*]:animate-fade-in">
           {/* Header Section */}
-          <div className="bg-white rounded-[1.5rem] p-4 sm:p-6 border border-[#E8E1D5] shadow-[0_10px_35px_rgba(7,26,53,0.05)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-6">
-            <div className="flex flex-col text-left">
-              <h1 className="text-[18px] sm:text-[22px] xl:text-[24px] font-black text-[#071A35] tracking-tight m-0">{t("Bus Routes & Live Map")}</h1>
-              <p className="text-[11px] sm:text-[12px] text-slate-500 mt-1 font-semibold m-0">{t("Track campus shuttle services, timelines, and live status")}</p>
+          <div className="bg-[#071A35] text-white rounded-[1.5rem] p-5 sm:p-7 border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.15)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
+            <div className="flex flex-col text-left z-10">
+              <h1 className="text-[20px] sm:text-[26px] font-black text-white tracking-tight m-0 mb-1.5">{t("Bus Routes & Live Map")}</h1>
+              <p className="text-[11.5px] sm:text-[12px] text-white/70 font-semibold m-0 max-w-[550px] leading-relaxed">{t("Track campus shuttle services, timelines, and live status.")}</p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-[10px] sm:text-[11px] font-extrabold text-[#071A35] bg-[#FAF7F0] px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-[#E8E1D5] shadow-xs">
+            <div className="flex items-center gap-2 shrink-0 z-10">
+              <span className="text-[11px] font-extrabold text-white bg-[#00c2cb] px-4 py-2 rounded-full shadow-sm">
                 🚌 Shuttle Active
               </span>
             </div>

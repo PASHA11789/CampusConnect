@@ -361,24 +361,13 @@ export default function Dashboard() {
         <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-5 sm:gap-6 [&>*]:animate-fade-in">
 
           {/* Welcome Hero Banner */}
-          <div className="bg-white rounded-[1.5rem] p-5 sm:p-7 border border-[#E8E1D5] shadow-[0_10px_35px_rgba(7,26,53,0.05)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6">
-            <div className="flex flex-col text-left">
-              <div className="text-[10.5px] sm:text-[11px] font-black text-[#00c2cb] tracking-widest uppercase flex items-center gap-1 mb-1">
-                <span>STUDENT DASHBOARD</span>
-                <span>✨</span>
-              </div>
-              <h1 className="text-[20px] sm:text-[24px] xl:text-[28px] font-black text-[#071A35] leading-[1.25] tracking-tight mb-2">
-                Your campus world, curated for {user?.name || 'Hamza Malik'}.
-              </h1>
-              <p className="text-[11px] sm:text-[12px] font-medium text-[#211A24]/70 max-w-[600px] leading-relaxed m-0">
-                Move through services, food spots, community spaces, petitions, routes, and opportunities from one expressive dashboard designed to feel alive.
-              </p>
-            </div>
-            <div className="flex items-center gap-3 shrink-0 max-md:hidden">
-              <span className="text-[11px] font-extrabold text-[#071A35] bg-[#FAF7F0] px-4 py-2 rounded-full border border-[#E8E1D5] shadow-sm">
-                🌙 Campus Ecosystem Active
-              </span>
-            </div>
+          <div className="bg-[#071A35] text-white rounded-[1.5rem] p-5 sm:p-7 border border-[#071A35] shadow-[0_10px_35px_rgba(7,26,53,0.12)] flex flex-col text-left">
+            <h1 className="text-[20px] sm:text-[24px] xl:text-[28px] font-black text-white leading-[1.25] tracking-tight mb-2">
+              Your campus world, curated for {user?.name || 'Hamza Malik'}.
+            </h1>
+            <p className="text-[11px] sm:text-[12px] font-medium text-white/75 max-w-[600px] leading-relaxed m-0">
+              Move through services, food spots, community spaces, petitions, routes, and opportunities from one expressive dashboard designed to feel alive.
+            </p>
           </div>
 
           {/* Mobile Dashboard View (md:hidden): Student Card at top + 8 Pastel Quick Access Widgets */}

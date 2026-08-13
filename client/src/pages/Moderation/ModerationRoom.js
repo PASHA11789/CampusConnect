@@ -505,10 +505,6 @@ export default function ModerationRoom() {
             <div className="absolute -bottom-10 -left-10 w-44 h-44 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
 
             <div className="flex flex-col text-left z-10">
-              <div className="bg-white/10 text-[#00c2cb] text-[10px] sm:text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-2.5 border border-white/10">
-                <span>⚖️</span>
-                <span>COMMUNITY SAFETY &amp; MODERATION</span>
-              </div>
               <h1 className="text-[22px] sm:text-[26px] font-black text-white leading-tight tracking-tight mb-1">
                 Moderator Control Room
               </h1>
@@ -520,162 +516,94 @@ export default function ModerationRoom() {
             <button
               onClick={fetchQueue}
               disabled={isLoading}
-              className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-black px-4 sm:px-5 py-2.5 sm:py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center gap-2 shrink-0 z-10 hover:scale-105 active:scale-95 border-none disabled:opacity-50"
+              className="bg-[#00c2cb] hover:bg-[#00a8b5] text-white font-black px-4 sm:px-5 py-2.5 sm:py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center gap-2 shrink-0 z-10 hover:scale-105 active:scale-95 border-none disabled:opacity-50"
             >
               <span className={`text-sm ${isLoading ? 'animate-spin' : ''}`}>🔄</span> Refresh Queue
             </button>
           </div>
 
-          {/* ── METRIC STAT CARDS ── */}
+          {/* ── INTERACTIVE MODERATION CATEGORY STAT CARDS (TAB SELECTORS) ── */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
-            <div className="bg-white rounded-2xl border border-[#E8E1D5] p-3.5 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#071A35]/10 text-[#071A35] flex items-center justify-center text-lg shrink-0">
-                🛡️
-              </div>
-              <div className="flex flex-col text-left min-w-0">
-                <span className="text-[19px] font-black text-[#071A35] leading-none">{counts.total}</span>
-                <span className="text-[10.5px] font-bold text-slate-500 mt-1 truncate">Total Queue</span>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-[#E8E1D5] p-3.5 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center text-lg shrink-0">
-                💬
-              </div>
-              <div className="flex flex-col text-left min-w-0">
-                <span className="text-[19px] font-black text-[#071A35] leading-none">{reportedForums.length + reportedCareers.length + flaggedReplies.length}</span>
-                <span className="text-[10.5px] font-bold text-slate-500 mt-1 truncate">Flagged Posts</span>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-[#E8E1D5] p-3.5 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#00c2cb]/15 text-[#00a8b5] flex items-center justify-center text-lg shrink-0">
-                📋
-              </div>
-              <div className="flex flex-col text-left min-w-0">
-                <span className="text-[19px] font-black text-[#071A35] leading-none">{queue.petitions.length}</span>
-                <span className="text-[10.5px] font-bold text-slate-500 mt-1 truncate">Pending Petitions</span>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-[#E8E1D5] p-3.5 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-lg shrink-0">
-                🔍
-              </div>
-              <div className="flex flex-col text-left min-w-0">
-                <span className="text-[19px] font-black text-[#071A35] leading-none">{queue.lostFound?.length || 0}</span>
-                <span className="text-[10.5px] font-bold text-slate-500 mt-1 truncate">Lost &amp; Found</span>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-[#E8E1D5] p-3.5 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center text-lg shrink-0">
-                👤
-              </div>
-              <div className="flex flex-col text-left min-w-0">
-                <span className="text-[19px] font-black text-[#071A35] leading-none">{queue.profileReports?.length || 0}</span>
-                <span className="text-[10.5px] font-bold text-slate-500 mt-1 truncate">User Reports</span>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-[#E8E1D5] p-3.5 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-lg shrink-0">
-                💡
-              </div>
-              <div className="flex flex-col text-left min-w-0">
-                <span className="text-[19px] font-black text-[#071A35] leading-none">{queue.complaints?.length || 0}</span>
-                <span className="text-[10.5px] font-bold text-slate-500 mt-1 truncate">Complaints &amp; Suggestions</span>
-              </div>
-            </div>
-          </div>
-
-          {/* ── CATEGORY TAB NAVIGATION BAR ── */}
-          <div className="bg-white rounded-[1.5rem] border border-[#E8E1D5] p-2.5 sm:p-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 w-full">
-              <button
-                onClick={() => setActiveTab("forums")}
-                className={`px-3 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5 border-none w-full ${activeTab === "forums"
-                    ? "bg-[#00c2cb] text-[#071A35] shadow-sm scale-102"
-                    : "bg-[#FAF7F0] text-slate-600 hover:bg-slate-200/60"
+            {[
+              {
+                id: "forums",
+                label: "Flagged Posts",
+                count: reportedForums.length + reportedCareers.length + flaggedReplies.length,
+                icon: "💬",
+                colorBg: "bg-rose-500/10",
+                colorText: "text-rose-600"
+              },
+              {
+                id: "petitions",
+                label: "Pending Petitions",
+                count: queue.petitions?.length || 0,
+                icon: "📋",
+                colorBg: "bg-[#00c2cb]/15",
+                colorText: "text-[#00a8b5]"
+              },
+              {
+                id: "lostfound",
+                label: "Lost & Found",
+                count: queue.lostFound?.length || 0,
+                icon: "🔍",
+                colorBg: "bg-emerald-500/10",
+                colorText: "text-emerald-600"
+              },
+              {
+                id: "oldUnclaimed",
+                label: "Old Unclaimed",
+                count: queue.oldUnclaimed?.length || 0,
+                icon: "🧹",
+                colorBg: "bg-amber-500/10",
+                colorText: "text-amber-600"
+              },
+              {
+                id: "profileReports",
+                label: "User Reports",
+                count: queue.profileReports?.length || 0,
+                icon: "👤",
+                colorBg: "bg-purple-500/10",
+                colorText: "text-purple-600"
+              },
+              {
+                id: "complaints",
+                label: "Complaints",
+                count: queue.complaints?.length || 0,
+                icon: "💡",
+                colorBg: "bg-amber-500/10",
+                colorText: "text-amber-600"
+              }
+            ].map((cat) => {
+              const isSelected = activeTab === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setActiveTab(cat.id)}
+                  className={`rounded-2xl p-3.5 flex items-center gap-3 transition-all duration-200 cursor-pointer text-left w-full border ${
+                    isSelected
+                      ? "bg-[#071A35] text-white border-[#00c2cb] shadow-[0_6px_20px_rgba(7,26,53,0.18)] scale-[1.03] ring-2 ring-[#00c2cb]"
+                      : "bg-white text-[#071A35] border-[#E8E1D5] hover:border-[#00c2cb]/60 hover:bg-slate-50/80 shadow-[0_4px_15px_rgba(7,26,53,0.03)] hover:-translate-y-0.5"
                   }`}
-              >
-                <span>💬</span>
-                <span className="truncate">Discussions</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 ${activeTab === "forums" ? "bg-[#071A35] text-[#00c2cb]" : "bg-slate-200 text-slate-700"}`}>
-                  {reportedForums.length + reportedCareers.length + flaggedReplies.length}
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("petitions")}
-                className={`px-3 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5 border-none w-full ${activeTab === "petitions"
-                    ? "bg-[#00c2cb] text-[#071A35] shadow-sm scale-102"
-                    : "bg-[#FAF7F0] text-slate-600 hover:bg-slate-200/60"
-                  }`}
-              >
-                <span>📋</span>
-                <span className="truncate">Petitions</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 ${activeTab === "petitions" ? "bg-[#071A35] text-[#00c2cb]" : "bg-slate-200 text-slate-700"}`}>
-                  {queue.petitions.length}
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("lostfound")}
-                className={`px-3 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5 border-none w-full ${activeTab === "lostfound"
-                    ? "bg-[#00c2cb] text-[#071A35] shadow-sm scale-102"
-                    : "bg-[#FAF7F0] text-slate-600 hover:bg-slate-200/60"
-                  }`}
-              >
-                <span>🔍</span>
-                <span className="truncate">Lost &amp; Found</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 ${activeTab === "lostfound" ? "bg-[#071A35] text-[#00c2cb]" : "bg-slate-200 text-slate-700"}`}>
-                  {queue.lostFound?.length || 0}
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("oldUnclaimed")}
-                className={`px-3 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5 border-none w-full ${activeTab === "oldUnclaimed"
-                    ? "bg-[#00c2cb] text-[#071A35] shadow-sm scale-102"
-                    : "bg-[#FAF7F0] text-slate-600 hover:bg-slate-200/60"
-                  }`}
-              >
-                <span>🧹</span>
-                <span className="truncate">Old Unclaimed</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 ${activeTab === "oldUnclaimed" ? "bg-[#071A35] text-[#00c2cb]" : "bg-slate-200 text-slate-700"}`}>
-                  {queue.oldUnclaimed?.length || 0}
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("profileReports")}
-                className={`px-3 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5 border-none w-full ${activeTab === "profileReports"
-                    ? "bg-[#00c2cb] text-[#071A35] shadow-sm scale-102"
-                    : "bg-[#FAF7F0] text-slate-600 hover:bg-slate-200/60"
-                  }`}
-              >
-                <span>👤</span>
-                <span className="truncate">User Reports</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 ${activeTab === "profileReports" ? "bg-[#071A35] text-[#00c2cb]" : "bg-slate-200 text-slate-700"}`}>
-                  {queue.profileReports?.length || 0}
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("complaints")}
-                className={`px-2 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1 border-none w-full min-w-0 overflow-hidden ${activeTab === "complaints"
-                    ? "bg-[#00c2cb] text-[#071A35] shadow-sm scale-102"
-                    : "bg-[#FAF7F0] text-slate-600 hover:bg-slate-200/60"
-                  }`}
-              >
-                <span>💡</span>
-                <span className="truncate min-w-0">Complaints</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 ${activeTab === "complaints" ? "bg-[#071A35] text-[#00c2cb]" : "bg-slate-200 text-slate-700"}`}>
-                  {queue.complaints?.length || 0}
-                </span>
-              </button>
-            </div>
+                >
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 ${
+                      isSelected ? "bg-white/10 text-white" : `${cat.colorBg} ${cat.colorText}`
+                    }`}
+                  >
+                    {cat.icon}
+                  </div>
+                  <div className="flex flex-col text-left min-w-0">
+                    <span className={`text-[19px] font-black leading-none ${isSelected ? "text-white" : "text-[#071A35]"}`}>
+                      {cat.count}
+                    </span>
+                    <span className={`text-[10.5px] font-bold mt-1 truncate ${isSelected ? "text-[#00c2cb]" : "text-slate-500"}`}>
+                      {cat.label}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
           {/* ── MAIN CONTENT CONTAINER ── */}

@@ -5,16 +5,15 @@ import { formatDate } from '../../utils/helpers';
 export const LostFoundWidget = ({ items = [] }) => {
   const navigate = useNavigate();
 
-  // Filter items (maximum 2 for each to fit fixed height)
-  const lostItems = items.filter(item => item.type?.toUpperCase() === 'LOST').slice(0, 2);
-  const foundItems = items.filter(item => item.type?.toUpperCase() === 'FOUND').slice(0, 2);
+  const lostCount = items.filter(item => item.type?.toUpperCase() === 'LOST').length;
+  const foundCount = items.filter(item => item.type?.toUpperCase() === 'FOUND').length;
 
   return (
-    <div className="w-full max-w-[480px] bg-white rounded-[1.5rem] border border-[#E8E1D5] p-5 flex flex-col font-sans justify-between shadow-[0_10px_35px_rgba(7,26,53,0.05)] h-[295px] min-h-[295px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(7,26,53,0.12)]">
+    <div className="w-full max-w-[480px] bg-white rounded-[1.5rem] border border-[#E8E1D5] p-5 flex flex-col font-sans justify-between shadow-[0_10px_35px_rgba(7,26,53,0.05)] min-h-[295px] h-[295px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(7,26,53,0.12)]">
       {/* Header */}
-      <div className="flex justify-between items-center pb-2.5 border-b border-[#E8E1D5] mb-2">
+      <div className="flex items-center pb-2.5 border-b border-[#E8E1D5]">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-[#00c2cb] text-[#071A35] text-base font-black flex items-center justify-center shadow-sm">
+          <div className="w-9 h-9 rounded-full bg-[#00c2cb] text-[#071A35] text-base font-black flex items-center justify-center shadow-sm shrink-0">
             🔍
           </div>
           <div className="flex flex-col text-left leading-tight">
@@ -22,92 +21,50 @@ export const LostFoundWidget = ({ items = [] }) => {
             <span className="text-[9.5px] font-semibold text-[#211A24]/60 mt-0.5">Track or report campus items</span>
           </div>
         </div>
-        <button
-          onClick={() => navigate('/lost-found')}
-          className="bg-transparent border border-[#E8E1D5] rounded-full px-2.5 py-0.5 text-[10.5px] font-extrabold text-[#071A35] hover:bg-[#FAF7F0] transition-colors cursor-pointer flex items-center gap-1"
-        >
-          View all ➔
-        </button>
       </div>
 
-      {/* Stacked Cards Container - Fixed Height Grid */}
-      <div className="flex flex-col gap-2.5 flex-1 justify-between">
+      {/* Two Simple Clean Sections */}
+      <div className="flex flex-col gap-3 flex-1 justify-center my-auto py-1">
 
-        {/* Top: LOST ITEMS Card (Soft Lavender) */}
-        <div className="bg-[#E2DEFC]/60 border border-[#DCD9F7] rounded-[1.1rem] p-3 flex flex-col justify-between text-left h-[105px]">
-          <div className="flex flex-col min-h-0">
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-[11px] font-black text-[#071A35]">ⓘ</span>
-              <span className="text-[10px] font-black text-[#071A35] uppercase tracking-wider">LOST ITEMS</span>
+        {/* Section 1: Lost Items (Soft Lavender / Violet) */}
+        <div className="bg-[#E2DEFC]/70 border border-[#DCD9F7] rounded-2xl p-3.5 flex items-center justify-between gap-3 text-left shadow-xs transition-all hover:border-[#00c2cb]/60">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-white text-[#071A35] flex items-center justify-center text-lg shrink-0 shadow-xs border border-white">
+              🔍
             </div>
-
-            {/* Scrollable list with fixed max height */}
-            <div className="flex flex-col gap-1 max-h-[42px] overflow-y-auto scrollbar-none pr-0.5">
-              {lostItems.length > 0 ? (
-                lostItems.map((item, i) => (
-                  <div key={i} className="bg-white/80 border border-white rounded-md px-2 py-1 flex items-center justify-between shadow-xs">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-[10px]">🔍</span>
-                      <div className="flex flex-col min-w-0 text-left leading-tight">
-                        <span className="text-[10px] font-black text-[#071A35] truncate">{item.itemName || item.title || 'Lost Item'}</span>
-                        <span className="text-[8.5px] font-semibold text-[#211A24]/60 truncate">{item.location || 'Campus'}</span>
-                      </div>
-                    </div>
-                    <span className="text-[8px] font-bold text-[#071A35]/60 shrink-0">{formatDate(item.createdAt)}</span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-[9.5px] font-semibold text-[#211A24]/70 m-0 leading-tight">
-                  No active lost reports. Need help finding something?
-                </p>
-              )}
+            <div className="flex flex-col min-w-0">
+              <span className="text-[13.5px] font-black text-[#071A35] leading-snug">Lost Items</span>
+              <span className="text-[10px] font-semibold text-[#071A35]/70 truncate">
+                {lostCount > 0 ? `${lostCount} active lost report${lostCount === 1 ? '' : 's'}` : 'View missing campus items'}
+              </span>
             </div>
           </div>
-
           <button
-            onClick={() => navigate('/lost-found', { state: { openReportModal: true, type: 'LOST' } })}
-            className="w-full bg-white hover:bg-slate-50 border border-white text-[#071A35] py-1 rounded-full text-[10px] font-black transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs mt-1"
+            onClick={() => navigate('/lost-found', { state: { filterType: 'LOST', selectedTab: 'lost' } })}
+            className="px-4 py-1.5 rounded-full text-[11px] font-black text-[#071A35] bg-white hover:bg-slate-50 transition-all cursor-pointer shadow-xs border border-white shrink-0"
           >
-            <span>+</span> Report Lost Item
+            View ➔
           </button>
         </div>
 
-        {/* Bottom: FOUND ITEMS Card (Dark Navy) */}
-        <div className="bg-[#071A35] text-white border border-[#071A35] rounded-[1.1rem] p-3 flex flex-col justify-between text-left h-[105px]">
-          <div className="flex flex-col min-h-0">
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-[11px] font-black text-[#00c2cb]">✓</span>
-              <span className="text-[10px] font-black text-[#00c2cb] uppercase tracking-wider">FOUND ITEMS</span>
+        {/* Section 2: Found Items (Dark Navy & Cyan) */}
+        <div className="bg-[#071A35] text-white border border-[#071A35] rounded-2xl p-3.5 flex items-center justify-between gap-3 text-left shadow-sm transition-all hover:border-[#00c2cb]/60">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-lg shrink-0 border border-white/10">
+              🤝
             </div>
-
-            {/* Scrollable list with fixed max height */}
-            <div className="flex flex-col gap-1 max-h-[42px] overflow-y-auto scrollbar-none pr-0.5">
-              {foundItems.length > 0 ? (
-                foundItems.map((item, i) => (
-                  <div key={i} className="bg-white/10 border border-white/10 rounded-md px-2 py-1 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-[10px]">🤝</span>
-                      <div className="flex flex-col min-w-0 text-left leading-tight">
-                        <span className="text-[10px] font-black text-white truncate">{item.itemName || item.title || 'Found Item'}</span>
-                        <span className="text-[8.5px] font-semibold text-white/70 truncate">{item.location || 'Campus'}</span>
-                      </div>
-                    </div>
-                    <span className="text-[8px] font-bold text-[#00c2cb] shrink-0">{formatDate(item.createdAt)}</span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-[9.5px] font-semibold text-white/80 m-0 leading-tight">
-                  No found reports. Found something on campus?
-                </p>
-              )}
+            <div className="flex flex-col min-w-0">
+              <span className="text-[13.5px] font-black text-[#00c2cb] leading-snug">Found Items</span>
+              <span className="text-[10px] font-semibold text-white/75 truncate">
+                {foundCount > 0 ? `${foundCount} active found item${foundCount === 1 ? '' : 's'}` : 'View surrendered & found items'}
+              </span>
             </div>
           </div>
-
           <button
-            onClick={() => navigate('/lost-found', { state: { openReportModal: true, type: 'FOUND' } })}
-            className="w-full bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-1 rounded-full text-[10px] font-black transition-all flex items-center justify-center gap-1 cursor-pointer shadow-md border-none mt-1"
+            onClick={() => navigate('/lost-found', { state: { filterType: 'FOUND', selectedTab: 'found' } })}
+            className="px-4 py-1.5 rounded-full text-[11px] font-black text-white bg-[#00c2cb] hover:bg-[#00a8b5] transition-all cursor-pointer shadow-sm border-none shrink-0"
           >
-            <span>+</span> Submit Found Item
+            View ➔
           </button>
         </div>
 

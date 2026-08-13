@@ -81,6 +81,21 @@ export default function Petitions() {
   const [isAccessDeniedOpen, setIsAccessDeniedOpen] = useState(false);
   const [accessDeniedMsg, setAccessDeniedMsg] = useState("");
 
+  // Report & Delete Modal States
+  const [reportModal, setReportModal] = useState({
+    isOpen: false,
+    petition: null,
+    reason: "Inappropriate or offensive content",
+    customReason: "",
+    isSubmitting: false,
+  });
+
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    petition: null,
+    isDeleting: false,
+  });
+
   const [selectedPublicUserId, setSelectedPublicUserId] = useState(null);
   const [isPublicProfileOpen, setIsPublicProfileOpen] = useState(false);
   const [isMyProfileOpen, setIsMyProfileOpen] = useState(false);
@@ -564,6 +579,115 @@ export default function Petitions() {
     }
   };
 
+  // Check if current user can delete a petition
+  const canDeletePetition = (p) => {
+    if (!user || !p) return false;
+    const creatorId = p.creator?._id || p.creator;
+    const isCreator = creatorId && user._id && creatorId.toString() === user._id.toString();
+    const isModOrAdmin = user.role === "admin" || user.role === "campus_admin" || user.role === "student_mod";
+    return isCreator || isModOrAdmin;
+  };
+
+  // Open & submit Report Modal
+  const openReportModal = (petition, e) => {
+    if (e) e.stopPropagation();
+    setReportModal({
+      isOpen: true,
+      petition,
+      reason: "Inappropriate or offensive content",
+      customReason: "",
+      isSubmitting: false,
+    });
+  };
+
+  const closeReportModal = () => {
+    setReportModal({
+      isOpen: false,
+      petition: null,
+      reason: "Inappropriate or offensive content",
+      customReason: "",
+      isSubmitting: false,
+    });
+  };
+
+  const handleSubmitReport = async (e) => {
+    if (e) e.preventDefault();
+    if (!reportModal.petition) return;
+    setReportModal((prev) => ({ ...prev, isSubmitting: true }));
+    try {
+      const token = sessionStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const finalReason = reportModal.reason === "Other"
+        ? (reportModal.customReason.trim() || "Inappropriate petition content")
+        : reportModal.reason;
+
+      await axios.post(
+        `/api/petitions/${reportModal.petition._id}/report`,
+        { reason: finalReason },
+        config
+      );
+
+      // Hide petition from current view immediately
+      setPetitions((prev) => prev.filter((p) => p._id !== reportModal.petition._id));
+      if (selectedPetition?._id === reportModal.petition._id) {
+        handleCloseDetail();
+      }
+      closeReportModal();
+      showToast("Petition reported to moderators and hidden from your feed.", "success");
+    } catch (error) {
+      console.error("Failed to report petition:", error);
+      showToast(error.response?.data?.message || "Failed to report petition.", "error");
+      setReportModal((prev) => ({ ...prev, isSubmitting: false }));
+    }
+  };
+
+  // Open & confirm Delete Modal
+  const openDeleteModal = (petition, e) => {
+    if (e) e.stopPropagation();
+    setDeleteModal({
+      isOpen: true,
+      petition,
+      isDeleting: false,
+    });
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModal({
+      isOpen: false,
+      petition: null,
+      isDeleting: false,
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.petition) return;
+    setDeleteModal((prev) => ({ ...prev, isDeleting: true }));
+    try {
+      const token = sessionStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+
+      await axios.delete(`/api/petitions/${deleteModal.petition._id}`, config);
+
+      const targetId = deleteModal.petition._id.toString();
+      setPetitions((prev) => prev.filter((p) => p._id?.toString() !== targetId));
+
+      const userStorageKey = user?._id ? `my_created_petitions_${user._id}` : "my_created_petitions";
+      const localPetitions = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
+      const updatedLocal = localPetitions.filter((p) => p._id?.toString() !== targetId);
+      localStorage.setItem(userStorageKey, JSON.stringify(updatedLocal));
+
+      if (selectedPetition?._id === deleteModal.petition._id) {
+        handleCloseDetail();
+      }
+      closeDeleteModal();
+      showToast("Petition permanently deleted.", "success");
+    } catch (error) {
+      console.error("Failed to delete petition:", error);
+      showToast(error.response?.data?.message || "Failed to delete petition.", "error");
+      setDeleteModal((prev) => ({ ...prev, isDeleting: false }));
+    }
+  };
+
   // Reset page when filter/search changes
   useEffect(() => {
     setCurrentPage(1);
@@ -695,10 +819,6 @@ export default function Petitions() {
               <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
 
               <div className="flex flex-col text-left z-10">
-                <div className="bg-white/10 text-[#00c2cb] text-[9.5px] sm:text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-2 sm:mb-2.5 border border-white/10">
-                  <span>✨</span>
-                  <span>CAMPUS ADVOCACY</span>
-                </div>
                 <h1 className="text-xl sm:text-[26px] font-black text-white leading-tight tracking-tight mb-1.5">
                   {t("Campus Petitions")}
                 </h1>
@@ -710,9 +830,9 @@ export default function Petitions() {
               <button
                 type="button"
                 onClick={() => setIsCreateModalOpen(true)}
-                className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-black px-5 py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center justify-center gap-2 shrink-0 z-10 hover:scale-105 active:scale-95 border-none w-full sm:w-auto"
+                className="bg-[#00c2cb] hover:bg-[#00a8b5] text-white font-black px-5 py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center justify-center gap-2 shrink-0 z-10 hover:scale-105 active:scale-95 border-none w-full sm:w-auto"
               >
-                <span>+</span> {t("Start a Petition")}
+                <span className="text-white font-black text-base leading-none">+</span> {t("Start a Petition")}
               </button>
             </div>
 
@@ -942,7 +1062,7 @@ export default function Petitions() {
                                   e.stopPropagation();
                                   setSharePetition(petition);
                                 }}
-                                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#FAF7F0] hover:bg-[#F3EEE4] border border-[#E8E1D5] flex items-center justify-center text-[#211A24]/70 hover:text-[#00c2cb] transition-colors shrink-0"
+                                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#FAF7F0] hover:bg-[#F3EEE4] border border-[#E8E1D5] flex items-center justify-center text-[#211A24]/70 hover:text-[#00c2cb] transition-colors shrink-0 cursor-pointer"
                                 title={t("Share & QR Code")}
                               >
                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -953,6 +1073,32 @@ export default function Petitions() {
                                   <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
                                 </svg>
                               </button>
+
+                              {/* Report Button (For non-creators) */}
+                              {petition.creator?._id !== user?._id && petition.creator !== user?._id && (
+                                <button
+                                  onClick={(e) => openReportModal(petition, e)}
+                                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#FAF7F0] hover:bg-rose-50 border border-[#E8E1D5] hover:border-rose-200 flex items-center justify-center text-[#211A24]/60 hover:text-rose-600 transition-colors shrink-0 cursor-pointer"
+                                  title={t("Report Petition")}
+                                >
+                                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                                  </svg>
+                                </button>
+                              )}
+
+                              {/* Delete Button (For Creator, Moderator, or Admin) */}
+                              {canDeletePetition(petition) && (
+                                <button
+                                  onClick={(e) => openDeleteModal(petition, e)}
+                                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#FAF7F0] hover:bg-red-50 border border-[#E8E1D5] hover:border-red-200 flex items-center justify-center text-[#211A24]/60 hover:text-red-600 transition-colors shrink-0 cursor-pointer"
+                                  title={t("Delete Petition")}
+                                >
+                                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                              )}
                             </div>
                           </div>
                         );
@@ -1371,19 +1517,37 @@ export default function Petitions() {
               })()}
 
               {/* Actions inside modal */}
-              <div className="flex gap-2.5 sm:gap-3 mt-1">
+              <div className="flex gap-2.5 sm:gap-3 mt-1 flex-wrap">
                 <button
                   onClick={handleCloseDetail}
-                  className="flex-1 bg-white hover:bg-[#F3EEE4] text-[#071A35] border border-[#E8E1D5] py-2.5 sm:py-3 rounded-xl text-xs sm:text-[13px] font-bold transition-all duration-200 cursor-pointer"
+                  className="flex-1 min-w-[80px] bg-white hover:bg-[#F3EEE4] text-[#071A35] border border-[#E8E1D5] py-2.5 sm:py-3 rounded-xl text-xs sm:text-[13px] font-bold transition-all duration-200 cursor-pointer"
                 >
                   {t("Close")}
                 </button>
-                <button
-                  onClick={() => handleReportPetition(selectedPetition._id)}
-                  className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 py-2.5 sm:py-3 rounded-xl text-xs sm:text-[13px] font-bold transition-all duration-200 cursor-pointer"
-                >
-                  {t("Report")}
-                </button>
+
+                {selectedPetition.creator?._id !== user?._id && selectedPetition.creator !== user?._id && (
+                  <button
+                    onClick={(e) => openReportModal(selectedPetition, e)}
+                    className="flex-1 min-w-[90px] bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 py-2.5 sm:py-3 rounded-xl text-xs sm:text-[13px] font-bold transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                    </svg>
+                    {t("Report")}
+                  </button>
+                )}
+
+                {canDeletePetition(selectedPetition) && (
+                  <button
+                    onClick={(e) => openDeleteModal(selectedPetition, e)}
+                    className="flex-1 min-w-[90px] bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 py-2.5 sm:py-3 rounded-xl text-xs sm:text-[13px] font-bold transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    {t("Delete")}
+                  </button>
+                )}
 
                 {selectedPetition.status === "Active" && (
                   (() => {
@@ -1566,6 +1730,137 @@ export default function Petitions() {
         </div>
       )}
 
+
+      {/* ── REPORT PETITION MODAL ── */}
+      {reportModal.isOpen && reportModal.petition && (
+        <div className="fixed inset-0 bg-[#071A35]/65 backdrop-blur-sm flex items-center justify-center z-[2500] p-4 animate-fade-in" onClick={closeReportModal}>
+          <div
+            className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-3xl max-w-[480px] w-full p-5 sm:p-6 shadow-[0_20px_50px_rgba(7,26,53,0.25)] relative animate-modal-slide-in flex flex-col gap-4 text-left"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-[#E8E1D5]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center text-lg shrink-0">
+                  🚩
+                </div>
+                <div>
+                  <h3 className="text-[15px] font-black text-[#071A35] m-0">Report Petition</h3>
+                  <span className="text-[10.5px] font-semibold text-slate-500">Send for campus moderator safety review</span>
+                </div>
+              </div>
+              <button onClick={closeReportModal} className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-base cursor-pointer border-none">
+                ✕
+              </button>
+            </div>
+
+            <div className="bg-[#FAF7F0] p-3 rounded-xl border border-[#E8E1D5] text-[12px] font-bold text-[#071A35] truncate">
+              "{reportModal.petition.title}"
+            </div>
+
+            <form onSubmit={handleSubmitReport} className="flex flex-col gap-3">
+              <label className="text-[11.5px] font-bold text-slate-600">Select reason for report:</label>
+              <div className="flex flex-col gap-2">
+                {[
+                  "Inappropriate or offensive content",
+                  "Harassment, bullying, or defamation",
+                  "Misleading or false information",
+                  "Spam or advertising",
+                  "Other"
+                ].map((r) => (
+                  <label
+                    key={r}
+                    onClick={() => setReportModal((prev) => ({ ...prev, reason: r }))}
+                    className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-[12px] font-bold cursor-pointer transition-all ${
+                      reportModal.reason === r
+                        ? "bg-[#071A35] text-white border-[#071A35]"
+                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="reportReason"
+                      value={r}
+                      checked={reportModal.reason === r}
+                      onChange={() => {}}
+                      className="accent-[#00c2cb]"
+                    />
+                    <span>{r}</span>
+                  </label>
+                ))}
+              </div>
+
+              {reportModal.reason === "Other" && (
+                <textarea
+                  value={reportModal.customReason}
+                  onChange={(e) => setReportModal((prev) => ({ ...prev, customReason: e.target.value }))}
+                  placeholder="Please specify why this petition should be reviewed..."
+                  className="w-full bg-white border border-slate-200 rounded-xl p-3 text-[12px] font-medium text-[#071A35] focus:outline-none focus:border-[#00c2cb] resize-none h-20"
+                  required
+                />
+              )}
+
+              <div className="flex gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={closeReportModal}
+                  className="flex-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={reportModal.isSubmitting}
+                  className="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-2.5 rounded-xl text-xs font-black transition-colors cursor-pointer disabled:opacity-50 border-none flex items-center justify-center gap-1.5"
+                >
+                  {reportModal.isSubmitting ? "Submitting..." : "Submit Report"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── DELETE PETITION CONFIRMATION MODAL ── */}
+      {deleteModal.isOpen && deleteModal.petition && (
+        <div className="fixed inset-0 bg-[#071A35]/65 backdrop-blur-sm flex items-center justify-center z-[2500] p-4 animate-fade-in" onClick={closeDeleteModal}>
+          <div
+            className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-3xl max-w-[440px] w-full p-5 sm:p-6 shadow-[0_20px_50px_rgba(7,26,53,0.25)] relative animate-modal-slide-in flex flex-col gap-4 text-left"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-red-500/10 text-red-600 flex items-center justify-center text-xl shrink-0">
+                🗑️
+              </div>
+              <div>
+                <h3 className="text-[16px] font-black text-[#071A35] m-0">Delete Petition?</h3>
+                <span className="text-[11px] font-semibold text-slate-500">This action cannot be undone</span>
+              </div>
+            </div>
+
+            <p className="text-[12.5px] font-medium text-slate-600 leading-relaxed m-0">
+              Are you sure you want to permanently delete <strong className="text-[#071A35]">"{deleteModal.petition.title}"</strong>? All associated signatures will be permanently removed.
+            </p>
+
+            <div className="flex gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={closeDeleteModal}
+                className="flex-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={deleteModal.isDeleting}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-xs font-black transition-colors cursor-pointer disabled:opacity-50 border-none flex items-center justify-center gap-1.5"
+              >
+                {deleteModal.isDeleting ? "Deleting..." : "Yes, Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Profile Modals */}
       <PublicProfileModal

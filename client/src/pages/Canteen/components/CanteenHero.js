@@ -26,10 +26,6 @@ export default function CanteenHero({
       {/* Hero Banner Card (Matching Forum & Career design) */}
       <div className="bg-[#071A35] rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-white border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative overflow-hidden">
         <div className="flex flex-col text-left z-10">
-          <div className="bg-white/10 text-[#00c2cb] text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-3 border border-white/10">
-            <span>🍔</span>
-            <span>{getGreeting()}, {user?.name || "Student"} 👏</span>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight mb-1.5">
             What's on your plate today?
           </h1>

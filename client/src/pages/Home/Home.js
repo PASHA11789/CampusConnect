@@ -222,9 +222,7 @@ export default function Home() {
         <div className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Headline & Action */}
           <div className="lg:col-span-7 text-center lg:text-left cc-reveal">
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white backdrop-blur-md py-2 px-4 sm:py-2.5 sm:px-5 rounded-full text-[12px] sm:text-[13px] md:text-[14px] font-bold mb-6">
-              <span className="text-[#06B6D4]">✧</span> Official Minhaj University Digital Ecosystem
-            </div>
+
             <h1 className="text-[clamp(32px,4.5vw,72px)] font-black text-white leading-[1.1] mb-5 sm:mb-6 tracking-tight">
               What is <span className="bg-gradient-to-r from-[#06B6D4] via-[#38BDF8] to-[#4F46E5] bg-clip-text text-transparent">CampusConnect?</span>
             </h1>

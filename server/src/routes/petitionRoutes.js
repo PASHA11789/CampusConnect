@@ -8,7 +8,8 @@ import {
     createPetition,
     signPetition,
     moderatePetition,
-    reportPetition
+    reportPetition,
+    deletePetition
 } from "../controller/petitionController.js"
 
 const router = express.Router()
@@ -18,6 +19,7 @@ router.route("/")
     .post(protect, aiModeration, createPetition)
 router.route("/:id")
     .get(protect, getPetitionById)
+    .delete(protect, deletePetition)
 router.route("/:id/sign")
     .put(protect, signPetition)
 router.route("/:id/report")

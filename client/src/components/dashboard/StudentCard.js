@@ -23,26 +23,8 @@ const StudentCard = ({ user, avatar }) => {
       </div>
 
       {/* Main Content Section - Light Blue Background */}
-      <div className="bg-[#0275B8] px-4 sm:px-6 py-3 sm:py-3.5 flex-1 flex items-center justify-start gap-3 sm:gap-4 relative min-w-0">
-        {/* Photo Frame - On Left */}
-        <div className="flex flex-col items-center shrink-0">
-          <div className="w-[85px] h-[105px] sm:w-[95px] sm:h-[115px] bg-white border-2 border-white rounded-[0.85rem] sm:rounded-[1rem] overflow-hidden shadow-md flex items-center justify-center">
-            {showFallback ? (
-              <div className="font-black text-[#0275B8] text-2xl sm:text-3xl">
-                {initials}
-              </div>
-            ) : (
-              <img
-                src={avatar}
-                alt="Profile"
-                className="w-full h-full object-cover"
-                onError={() => setImageError(true)}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Student Info - On Right */}
+      <div className="bg-[#0275B8] px-4 sm:px-6 py-3 sm:py-3.5 flex-1 flex items-center justify-between gap-3 sm:gap-4 relative min-w-0">
+        {/* Student Info - On Left */}
         <div className="flex flex-col gap-1 sm:gap-1.5 text-left z-[2] min-w-0 flex-1 overflow-hidden">
           <div className="flex items-baseline gap-1.5 min-w-0">
             <span className="text-[#7dd3fc] font-bold text-[11.5px] sm:text-[12.5px] min-w-[48px] sm:min-w-[55px] shrink-0">Name:</span>
@@ -63,6 +45,24 @@ const StudentCard = ({ user, avatar }) => {
           <div className="flex items-baseline gap-1.5 min-w-0">
             <span className="text-[#7dd3fc] font-bold text-[11.5px] sm:text-[12.5px] min-w-[48px] sm:min-w-[55px] shrink-0">Session:</span>
             <span className="text-white font-semibold text-[11.5px] sm:text-[12.5px] leading-tight">{user?.session || '2022-26 Fall'}</span>
+          </div>
+        </div>
+
+        {/* Photo Frame - On Right */}
+        <div className="flex flex-col items-center shrink-0">
+          <div className="w-[85px] h-[105px] sm:w-[95px] sm:h-[115px] bg-white border-2 border-white rounded-[0.85rem] sm:rounded-[1rem] overflow-hidden shadow-md flex items-center justify-center">
+            {showFallback ? (
+              <div className="font-black text-[#0275B8] text-2xl sm:text-3xl">
+                {initials}
+              </div>
+            ) : (
+              <img
+                src={avatar}
+                alt="Profile"
+                className="w-full h-full object-cover"
+                onError={() => setImageError(true)}
+              />
+            )}
           </div>
         </div>
       </div>

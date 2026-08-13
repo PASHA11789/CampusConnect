@@ -631,10 +631,6 @@ export default function Career() {
           {/* Hero Banner (Matching Design Theme) */}
           <div className="bg-[#071A35] rounded-2xl sm:rounded-[1.5rem] p-5 sm:p-8 text-white border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
             <div className="flex flex-col text-left z-10">
-              <div className="bg-white/10 text-[#00c2cb] text-[10px] sm:text-[10.5px] font-black tracking-widest uppercase px-3 py-1 rounded-full w-fit flex items-center gap-1.5 mb-2.5 sm:mb-3 border border-white/10">
-                <span>💼</span>
-                <span>ALUMNI &amp; CAREER NETWORK</span>
-              </div>
               <h1 className="text-[20px] sm:text-[28px] font-black text-white leading-tight tracking-tight mb-2">
                 Career Paths &amp; Mentorship
               </h1>
@@ -650,9 +646,9 @@ export default function Career() {
                 setCategory("general_discussion");
                 setIsCreateOpen(true);
               }}
-              className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-extrabold px-5 py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center justify-center gap-2 shrink-0 z-10 w-full sm:w-auto mt-1 sm:mt-0"
+              className="bg-[#00c2cb] hover:bg-[#00a8b5] text-white font-extrabold px-5 py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center justify-center gap-2 shrink-0 z-10 w-full sm:w-auto mt-1 sm:mt-0"
             >
-              <span>+</span> Share Opportunity
+              <span className="text-white font-black text-base leading-none">+</span> Share Opportunity
             </button>
           </div>
 

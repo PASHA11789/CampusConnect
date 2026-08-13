@@ -4,16 +4,85 @@ import Topbar from '../../components/layout/Topbar';
 import { getUsers, createUser, deleteUser, updateUserRole, resetUserPassword, updateUser } from '../../services/adminService';
 import { useNavigate } from 'react-router-dom';
 
-const DEFAULT_DEPARTMENTS = [
-  "All Departments",
-  "Computer Science & IT",
-  "Software Engineering",
-  "Business Administration",
-  "Electrical Engineering",
-  "Mathematics & Statistics",
-  "English & Humanities",
-  "Law & Political Science",
-  "Islamic Studies"
+/* ─────────────────────────────────────────────────────────────────────────────
+   Minhaj University Lahore - Official Academic Catalog
+───────────────────────────────────────────────────────────────────────────── */
+export const MINHAJ_PROGRAMS = {
+  "Associate Degree Programs": [
+    "Associate Degree in Business Administration",
+    "Associate Degree in Accounting and Finance",
+    "Associate Degree in Islamic Banking and Finance",
+    "Associate Degree in Computer Science",
+    "Associate Degree in Mass Communication",
+    "Associate Degree in English",
+    "Associate Degree in Information Technology",
+    "Associate Degree in software Engineering",
+    "Associate Degree in Artificial intelligence",
+    "Associate Degree in Cyber Security",
+    "Associate Degree in Political Science",
+    "Associate Degree in Sociology",
+    "Associate Degree in Digital Marketing",
+    "Associate Degree in Data Science",
+    "Associate Degree in Bioinformatics",
+    "ADP Information System & Technology Management",
+    "Associate Degree in Psychology",
+    "Associate Degree in Education",
+    "B.Com (Associate Degree in Commerce)"
+  ],
+  "BS Programs": [
+    "BS Human Nutrition and Dietetics",
+    "BS Criminology and Forensic Sciences",
+    "BS Digital Marketing",
+    "BS E-Commerce",
+    "BS in Digital Media Communication",
+    "BS in Multimedia Arts-Animation",
+    "Bachelor of Science in Financial Technology",
+    "BS Economics and Data Science",
+    "BS Statistics & Data Science",
+    "BS Computational Plant Sciences",
+    "BS Chemistry & Industrial Entrepreneurship",
+    "BS Information System & Technology Management",
+    "BS Zoology and Entomology",
+    "BS Islamic Banking & Financial Technology",
+    "BS Information Management",
+    "BS Mathematics & Data Science",
+    "BS Defense and Strategic Studies",
+    "Bachelor of Laws (LLB) 4 years",
+    "BS Business Analytics",
+    "BS Psychology",
+    "Doctor of Physical Therapy",
+    "BS Aesthetics and Cosmetology",
+    "BS Computer Science",
+    "Doctor of Pharmacy",
+    "BS Information Technology",
+    "BS Software Engineering",
+    "BS Artificial Intelligence",
+    "BS Cyber Security",
+    "BBA",
+    "BS Education",
+    "BS Biotechnology",
+    "BS Data Science",
+    "BS English",
+    "BS Political Science",
+    "BS International Relations",
+    "BS Medical Laboratory Technology",
+    "BS Food Science & Technology",
+    "BS Economics",
+    "BS Economics and Financial Technology",
+    "BS Islamic Banking & Finance",
+    "B.Com (4 Year)",
+    "BS Accounting and Finance",
+    "BS Sociology",
+    "B.Sc. Chemical Engineering",
+    "B.Sc. Electrical Engineering",
+    "BS Biochemistry",
+    "BS Peace and Conflict Studies"
+  ]
+};
+
+export const ALL_MINHAJ_PROGRAMS = [
+  ...MINHAJ_PROGRAMS["BS Programs"],
+  ...MINHAJ_PROGRAMS["Associate Degree Programs"]
 ];
 
 const DEFAULT_SEMESTERS = [
@@ -31,6 +100,26 @@ const DEFAULT_SEMESTERS = [
   "Alumni / Graduated"
 ];
 
+const ADP_SEMESTERS = [
+  "1st Semester",
+  "2nd Semester",
+  "3rd Semester",
+  "4th Semester"
+];
+
+const BS_SEMESTERS = [
+  "1st Semester",
+  "2nd Semester",
+  "3rd Semester",
+  "4th Semester",
+  "5th Semester",
+  "6th Semester",
+  "7th Semester",
+  "8th Semester",
+  "9th Semester",
+  "10th Semester"
+];
+
 const DEFAULT_SECTIONS = [
   "All Sections",
   "Section A",
@@ -40,6 +129,20 @@ const DEFAULT_SECTIONS = [
   "Section E",
   "Evening Section"
 ];
+
+export const getProgramCategory = (programOrDept) => {
+  if (!programOrDept) return "BS Programs";
+  const str = String(programOrDept).toLowerCase();
+  if (
+    str.includes("associate") ||
+    str.includes("adp") ||
+    str.includes("associate degree") ||
+    MINHAJ_PROGRAMS["Associate Degree Programs"].some(p => p.toLowerCase() === str)
+  ) {
+    return "Associate Degree Programs";
+  }
+  return "BS Programs";
+};
 
 const UsersManager = () => {
   const navigate = useNavigate();
@@ -56,7 +159,8 @@ const UsersManager = () => {
 
   // Search & Category Filters State
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDepartment, setSelectedDepartment] = useState('All Departments');
+  const [selectedTrack, setSelectedTrack] = useState('All Tracks');
+  const [selectedDepartment, setSelectedDepartment] = useState('All Programs');
   const [selectedSemester, setSelectedSemester] = useState('All Semesters');
   const [selectedSection, setSelectedSection] = useState('All Sections');
   const [selectedRole, setSelectedRole] = useState('All Roles');
@@ -71,17 +175,36 @@ const UsersManager = () => {
 
   // Form states for Create User
   const [newUserData, setNewUserData] = useState({
-    name: '', email: '', password: '', role: 'student', registrationNumber: '', department: 'Computer Science & IT', semester: '4th Semester'
+    name: '',
+    email: '',
+    password: '',
+    role: 'student',
+    registrationNumber: '',
+    programCategory: 'BS Programs',
+    department: 'BS Computer Science',
+    semester: '1st Semester',
+    section: 'Section A'
   });
 
   // Form states for Edit User
   const [editUserData, setEditUserData] = useState({
-    _id: '', name: '', email: '', registeration_number: '', department: '', semester: '4th Semester'
+    _id: '',
+    name: '',
+    email: '',
+    role: 'student',
+    registeration_number: '',
+    programCategory: 'BS Programs',
+    department: 'BS Computer Science',
+    semester: '1st Semester',
+    section: 'Section A'
   });
 
   // Form states for Reset Password
   const [resetData, setResetData] = useState({
-    userId: null, userName: '', adminPassword: '', newStudentPassword: ''
+    userId: null,
+    userName: '',
+    adminPassword: '',
+    newStudentPassword: ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -117,30 +240,37 @@ const UsersManager = () => {
     }
   };
 
-  // Helper function to resolve department for a user
+  // Helper function to resolve course/degree/department for a user
   const getUserDepartment = (user) => {
-    if (user && user.department !== undefined && user.department !== null) {
-      const deptStr = String(user.department).trim();
-      if (deptStr !== '') {
-        return deptStr;
-      }
+    if (user?.department && String(user.department).trim() !== '') {
+      return String(user.department).trim();
+    }
+    if (user?.program && String(user.program).trim() !== '' && user.program !== 'BS Programs' && user.program !== 'Associate Degree Programs') {
+      return String(user.program).trim();
     }
     const reg = String(user?.registeration_number || user?.registration_no || '').toLowerCase();
-    if (reg.includes('cs') || reg.includes('bscs') || reg.includes('it')) return "Computer Science & IT";
-    if (reg.includes('se') || reg.includes('bsse')) return "Software Engineering";
-    if (reg.includes('bba') || reg.includes('mba')) return "Business Administration";
-    if (reg.includes('ee')) return "Electrical Engineering";
-    if (reg.includes('math')) return "Mathematics & Statistics";
-    if (reg.includes('eng')) return "English & Humanities";
-    if (reg.includes('law')) return "Law & Political Science";
-    return "Computer Science & IT";
+    if (reg.includes('bscs') || reg.includes('cs')) return "BS Computer Science";
+    if (reg.includes('bsse') || reg.includes('se')) return "BS Software Engineering";
+    if (reg.includes('bsit') || reg.includes('it')) return "BS Information Technology";
+    if (reg.includes('bba')) return "BBA";
+    if (reg.includes('pharm')) return "Doctor of Pharmacy";
+    if (reg.includes('dpt')) return "Doctor of Physical Therapy";
+    if (reg.includes('llb') || reg.includes('law')) return "Bachelor of Laws (LLB) 4 years";
+    if (reg.includes('math')) return "BS Mathematics & Data Science";
+    if (reg.includes('eng')) return "BS English";
+    if (reg.includes('ds') || reg.includes('data')) return "BS Data Science";
+    if (reg.includes('ai')) return "BS Artificial Intelligence";
+    if (reg.includes('cyber')) return "BS Cyber Security";
+    return "BS Computer Science";
   };
 
   // Helper function to resolve semester for a user
   const getUserSemester = (user) => {
+    if (user?.role === 'alumni') return "Alumni / Graduated";
+    if (user?.role === 'campus_admin') return "Campus Admin";
     if (user && user.semester !== undefined && user.semester !== null) {
       const semStr = String(user.semester).trim();
-      if (semStr !== '') {
+      if (semStr !== '' && semStr !== '0') {
         if (!isNaN(semStr)) {
           const n = parseInt(semStr, 10);
           const suffix = n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th';
@@ -149,7 +279,6 @@ const UsersManager = () => {
         return semStr;
       }
     }
-    if (user?.role === 'alumni') return "Alumni / Graduated";
     const reg = String(user?.registeration_number || user?.registration_no || '').toUpperCase();
     if (reg.includes('2025F') || reg.includes('25F')) return "2nd Semester";
     if (reg.includes('2025S') || reg.includes('25S')) return "1st Semester";
@@ -164,6 +293,7 @@ const UsersManager = () => {
 
   // Helper function to resolve section for a user
   const getUserSection = (user) => {
+    if (user?.role === 'alumni' || user?.role === 'campus_admin') return "—";
     if (user && user.section !== undefined && user.section !== null) {
       const secStr = String(user.section).trim();
       if (secStr !== '') {
@@ -207,17 +337,39 @@ const UsersManager = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const payload = { ...newUserData };
-      // Convert "4th Semester" to 4
-      if (payload.semester) {
-        let semNum = parseInt(String(payload.semester).replace(/\D/g, ''), 10);
-        if (isNaN(semNum)) semNum = 0;
+      const isNonStudent = newUserData.role === 'alumni' || newUserData.role === 'campus_admin';
+
+      const payload = {
+        name: newUserData.name.trim(),
+        email: newUserData.email.trim(),
+        password: newUserData.password,
+        role: newUserData.role,
+        registrationNumber: newUserData.registrationNumber.trim(),
+        program: isNonStudent ? '' : newUserData.programCategory,
+        department: isNonStudent ? '' : newUserData.department,
+        section: isNonStudent ? '' : (newUserData.section || 'Section A'),
+        semester: 0
+      };
+
+      if (!isNonStudent && newUserData.semester) {
+        let semNum = parseInt(String(newUserData.semester).replace(/\D/g, ''), 10);
+        if (isNaN(semNum)) semNum = 1;
         payload.semester = semNum;
       }
 
       await createUser(payload);
       setIsCreateModalOpen(false);
-      setNewUserData({ name: '', email: '', password: '', role: 'student', registrationNumber: '', department: 'Computer Science & IT', semester: '4th Semester', section: 'Section A' });
+      setNewUserData({
+        name: '',
+        email: '',
+        password: '',
+        role: 'student',
+        registrationNumber: '',
+        programCategory: 'BS Programs',
+        department: 'BS Computer Science',
+        semester: '1st Semester',
+        section: 'Section A'
+      });
       fetchUsersData(); // Refresh list
     } catch (err) {
       alert(err.response?.data?.message || "Failed to create user");
@@ -247,12 +399,16 @@ const UsersManager = () => {
   };
 
   const openEditModal = (user) => {
+    const userDept = getUserDepartment(user);
+    const category = getProgramCategory(userDept);
     setEditUserData({
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role || 'student',
       registeration_number: user.registeration_number || user.registration_no || '',
-      department: getUserDepartment(user),
+      programCategory: category,
+      department: userDept,
       semester: getUserSemester(user),
       section: getUserSection(user)
     });
@@ -263,19 +419,34 @@ const UsersManager = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const payload = { ...editUserData };
-      
-      // Convert "4th Semester" to 4
-      if (payload.semester) {
-        let semNum = parseInt(String(payload.semester).replace(/\D/g, ''), 10);
-        if (isNaN(semNum)) semNum = 0;
+      const isNonStudent = editUserData.role === 'alumni' || editUserData.role === 'campus_admin';
+
+      const payload = {
+        _id: editUserData._id,
+        name: editUserData.name.trim(),
+        email: editUserData.email.trim(),
+        role: editUserData.role,
+        registeration_number: editUserData.registeration_number.trim(),
+        program: isNonStudent ? '' : editUserData.programCategory,
+        department: isNonStudent ? '' : editUserData.department,
+        section: isNonStudent ? '' : editUserData.section,
+        semester: 0
+      };
+
+      if (!isNonStudent && editUserData.semester) {
+        let semNum = parseInt(String(editUserData.semester).replace(/\D/g, ''), 10);
+        if (isNaN(semNum)) semNum = 1;
         payload.semester = semNum;
       }
 
       await updateUser(payload._id, payload);
-      
-      // Update local state and map the correct semester for the view
-      setUsers(users.map(u => u._id === editUserData._id ? { ...u, ...editUserData, semester: payload.semester } : u));
+
+      setUsers(users.map(u => u._id === editUserData._id ? {
+        ...u,
+        ...payload,
+        semester: payload.semester
+      } : u));
+
       setIsEditUserModalOpen(false);
     } catch (err) {
       alert(err.response?.data?.message || "Failed to update user");
@@ -290,10 +461,14 @@ const UsersManager = () => {
     const emailMatch = (u.email || '').toLowerCase().includes(searchQuery.toLowerCase());
     const regNum = (u.registeration_number || u.registration_no || u.registrationNumber || u.registration_number || '').toLowerCase();
     const regMatch = regNum.includes(searchQuery.toLowerCase());
-    const matchesSearch = nameMatch || emailMatch || regMatch;
-
     const dept = getUserDepartment(u);
-    const matchesDepartment = selectedDepartment === 'All Departments' || dept === selectedDepartment;
+    const deptMatch = dept.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = nameMatch || emailMatch || regMatch || deptMatch;
+
+    const category = getProgramCategory(dept);
+    const matchesTrack = selectedTrack === 'All Tracks' || category === selectedTrack;
+
+    const matchesDepartment = selectedDepartment === 'All Programs' || dept === selectedDepartment;
 
     const sem = getUserSemester(u);
     const matchesSemester = selectedSemester === 'All Semesters' || sem === selectedSemester;
@@ -303,12 +478,12 @@ const UsersManager = () => {
 
     const matchesRole = selectedRole === 'All Roles' || String(u.role || '').toLowerCase() === selectedRole.toLowerCase();
 
-    return matchesSearch && matchesDepartment && matchesSemester && matchesSection && matchesRole;
+    return matchesSearch && matchesTrack && matchesDepartment && matchesSemester && matchesSection && matchesRole;
   });
 
   // Calculate unique departments for dynamic filter options
   const existingDepartments = Array.from(new Set(users.map(u => getUserDepartment(u))));
-  const allDepartmentOptions = Array.from(new Set(["All Departments", ...DEFAULT_DEPARTMENTS.slice(1), ...existingDepartments]));
+  const allDepartmentOptions = Array.from(new Set(["All Programs", ...ALL_MINHAJ_PROGRAMS, ...existingDepartments]));
 
   // Stats calculation
   const totalStudents = users.filter(u => u.role === 'student').length;
@@ -339,25 +514,19 @@ const UsersManager = () => {
               <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
 
               <div className="flex flex-col gap-1.5 z-10 text-left">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl sm:text-2xl">🏛️</span>
-                  <span className="text-[10.5px] sm:text-xs font-black tracking-widest uppercase text-[#00c2cb] bg-[#00c2cb]/15 px-3 py-1 rounded-full border border-[#00c2cb]/30">
-                    Campus Directory
-                  </span>
-                </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                   Students, Alumni, Mods &amp; Admins
                 </h1>
                 <p className="text-xs sm:text-sm font-semibold text-slate-300 max-w-xl">
-                  Manage student profiles, alumni records, campus administrators, and moderator access permissions.
+                  Manage student degree programs (ADP &amp; BS), alumni records, campus administrators, and moderator access permissions.
                 </p>
               </div>
 
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="w-full sm:w-auto bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] px-5 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 shadow-[0_4px_15px_rgba(0,194,203,0.3)] hover:shadow-[0_6px_20px_rgba(0,194,203,0.45)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 border-none cursor-pointer shrink-0 z-10"
+                className="w-full sm:w-auto bg-[#00c2cb] hover:bg-[#00a8b5] text-white px-5 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 shadow-[0_4px_15px_rgba(0,194,203,0.3)] hover:shadow-[0_6px_20px_rgba(0,194,203,0.45)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 border-none cursor-pointer shrink-0 z-10"
               >
-                <span>➕</span> Add New User
+                <span className="text-white font-black text-base leading-none">+</span> Add New User
               </button>
             </div>
 
@@ -412,7 +581,7 @@ const UsersManager = () => {
                 <div className="flex items-center gap-2 text-left">
                   <span className="text-base">📁</span>
                   <h3 className="text-[14px] font-black text-[#071A35] uppercase tracking-wide">
-                    Department &amp; Semester Categories Filter
+                    Minhaj Degree Programs &amp; Directory Filter
                   </h3>
                   <span className="text-[11px] font-extrabold bg-[#00c2cb]/15 text-[#0079c2] px-2.5 py-0.5 rounded-full">
                     {filteredUsers.length} Results
@@ -439,7 +608,7 @@ const UsersManager = () => {
               </div>
 
               {/* Category Filter Controls Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
 
                 {/* Search Input */}
                 <div className="relative flex items-center w-full">
@@ -449,7 +618,7 @@ const UsersManager = () => {
                   </svg>
                   <input
                     type="text"
-                    placeholder="Search name, email, roll no..."
+                    placeholder="Search name, roll no, course..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl pl-9 pr-8 py-2.5 text-[12px] font-semibold text-[#071A35] placeholder-slate-400 focus:outline-none focus:border-[#00c2cb] focus:bg-white transition-colors"
@@ -461,17 +630,51 @@ const UsersManager = () => {
                   )}
                 </div>
 
-                {/* Department Dropdown Filter */}
+                {/* Program Track Filter */}
+                <div className="relative flex items-center w-full">
+                  <span className="absolute left-3 text-sm pointer-events-none">📚</span>
+                  <select
+                    value={selectedTrack}
+                    onChange={(e) => {
+                      setSelectedTrack(e.target.value);
+                      setSelectedDepartment('All Programs');
+                    }}
+                    className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl pl-9 pr-7 py-2.5 text-[12px] font-extrabold text-[#071A35] focus:outline-none focus:border-[#00c2cb] focus:bg-white appearance-none cursor-pointer"
+                  >
+                    <option value="All Tracks">All Program Tracks</option>
+                    <option value="BS Programs">BS Programs (4-5 Years)</option>
+                    <option value="Associate Degree Programs">Associate Degree Programs (ADP)</option>
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Degree / Course Dropdown Filter */}
                 <div className="relative flex items-center w-full">
                   <span className="absolute left-3 text-sm pointer-events-none">🏢</span>
                   <select
                     value={selectedDepartment}
                     onChange={(e) => setSelectedDepartment(e.target.value)}
-                    className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl pl-9 pr-7 py-2.5 text-[12px] font-extrabold text-[#071A35] focus:outline-none focus:border-[#00c2cb] focus:bg-white appearance-none cursor-pointer"
+                    className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl pl-9 pr-7 py-2.5 text-[12px] font-extrabold text-[#071A35] focus:outline-none focus:border-[#00c2cb] focus:bg-white appearance-none cursor-pointer truncate"
                   >
-                    {allDepartmentOptions.map((dept) => (
-                      <option key={dept} value={dept}>{dept}</option>
-                    ))}
+                    <option value="All Programs">All Programs &amp; Courses</option>
+                    {selectedTrack === 'All Tracks' ? (
+                      <>
+                        <optgroup label="── BS Programs ──">
+                          {MINHAJ_PROGRAMS["BS Programs"].map(p => <option key={p} value={p}>{p}</option>)}
+                        </optgroup>
+                        <optgroup label="── Associate Degree Programs (ADP) ──">
+                          {MINHAJ_PROGRAMS["Associate Degree Programs"].map(p => <option key={p} value={p}>{p}</option>)}
+                        </optgroup>
+                      </>
+                    ) : (
+                      MINHAJ_PROGRAMS[selectedTrack]?.map(p => (
+                        <option key={p} value={p}>{p}</option>
+                      ))
+                    )}
                   </select>
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
@@ -490,25 +693,6 @@ const UsersManager = () => {
                   >
                     {DEFAULT_SEMESTERS.map((sem) => (
                       <option key={sem} value={sem}>{sem}</option>
-                    ))}
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </div>
-                </div>
-
-                {/* Section Dropdown Filter */}
-                <div className="relative flex items-center w-full">
-                  <span className="absolute left-3 text-sm pointer-events-none">🔖</span>
-                  <select
-                    value={selectedSection}
-                    onChange={(e) => setSelectedSection(e.target.value)}
-                    className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl pl-9 pr-7 py-2.5 text-[12px] font-extrabold text-[#071A35] focus:outline-none focus:border-[#00c2cb] focus:bg-white appearance-none cursor-pointer"
-                  >
-                    {DEFAULT_SECTIONS.map((sec) => (
-                      <option key={sec} value={sec}>{sec}</option>
                     ))}
                   </select>
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
@@ -542,25 +726,25 @@ const UsersManager = () => {
               </div>
 
               {/* Active Category Badges & Clear button */}
-              {(selectedDepartment !== 'All Departments' || selectedSemester !== 'All Semesters' || selectedSection !== 'All Sections' || selectedRole !== 'All Roles' || searchQuery) && (
+              {(selectedTrack !== 'All Tracks' || selectedDepartment !== 'All Programs' || selectedSemester !== 'All Semesters' || selectedSection !== 'All Sections' || selectedRole !== 'All Roles' || searchQuery) && (
                 <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-[#E8E1D5]/40 text-left">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Filters:</span>
-                  {selectedDepartment !== 'All Departments' && (
+                  {selectedTrack !== 'All Tracks' && (
                     <span className="bg-[#071A35] text-white text-[10.5px] font-black px-2.5 py-1 rounded-full flex items-center gap-1">
+                      📚 {selectedTrack}
+                      <button onClick={() => setSelectedTrack('All Tracks')} className="hover:text-red-300 ml-1">✕</button>
+                    </span>
+                  )}
+                  {selectedDepartment !== 'All Programs' && (
+                    <span className="bg-[#00c2cb] text-[#071A35] text-[10.5px] font-black px-2.5 py-1 rounded-full flex items-center gap-1">
                       🏢 {selectedDepartment}
-                      <button onClick={() => setSelectedDepartment('All Departments')} className="hover:text-red-300 ml-1">✕</button>
+                      <button onClick={() => setSelectedDepartment('All Programs')} className="hover:text-red-700 ml-1">✕</button>
                     </span>
                   )}
                   {selectedSemester !== 'All Semesters' && (
-                    <span className="bg-[#00c2cb] text-[#071A35] text-[10.5px] font-black px-2.5 py-1 rounded-full flex items-center gap-1">
+                    <span className="bg-indigo-700 text-white text-[10.5px] font-black px-2.5 py-1 rounded-full flex items-center gap-1">
                       🎓 {selectedSemester}
-                      <button onClick={() => setSelectedSemester('All Semesters')} className="hover:text-red-700 ml-1">✕</button>
-                    </span>
-                  )}
-                  {selectedSection !== 'All Sections' && (
-                    <span className="bg-emerald-700 text-white text-[10.5px] font-black px-2.5 py-1 rounded-full flex items-center gap-1">
-                      🔖 {selectedSection}
-                      <button onClick={() => setSelectedSection('All Sections')} className="hover:text-red-200 ml-1">✕</button>
+                      <button onClick={() => setSelectedSemester('All Semesters')} className="hover:text-red-300 ml-1">✕</button>
                     </span>
                   )}
                   {selectedRole !== 'All Roles' && (
@@ -578,7 +762,8 @@ const UsersManager = () => {
                   <button
                     onClick={() => {
                       setSearchQuery('');
-                      setSelectedDepartment('All Departments');
+                      setSelectedTrack('All Tracks');
+                      setSelectedDepartment('All Programs');
                       setSelectedSemester('All Semesters');
                       setSelectedSection('All Sections');
                       setSelectedRole('All Roles');
@@ -603,21 +788,22 @@ const UsersManager = () => {
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-16 gap-3">
                   <div className="w-9 h-9 border-3 border-[#E8E1D5] border-t-[#00c2cb] rounded-full animate-spin"></div>
-                  <span className="text-xs font-bold text-slate-400">Loading student directory...</span>
+                  <span className="text-xs font-bold text-slate-400">Loading directory records...</span>
                 </div>
               ) : filteredUsers.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-14 px-4 text-center">
                   <div className="w-16 h-16 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center text-2xl mb-3 shadow-inner">
                     🔍
                   </div>
-                  <h4 className="text-[15px] font-black text-[#071A35] mb-1">No Users Match Selected Category</h4>
+                  <h4 className="text-[15px] font-black text-[#071A35] mb-1">No Users Match Selected Filters</h4>
                   <p className="text-[12px] font-semibold text-slate-500 max-w-sm mb-4">
-                    Try adjusting your department, semester, or role filter options.
+                    Try adjusting your degree program, semester, or role filter options.
                   </p>
                   <button
                     onClick={() => {
                       setSearchQuery('');
-                      setSelectedDepartment('All Departments');
+                      setSelectedTrack('All Tracks');
+                      setSelectedDepartment('All Programs');
                       setSelectedSemester('All Semesters');
                       setSelectedRole('All Roles');
                     }}
@@ -632,9 +818,9 @@ const UsersManager = () => {
                   <table className="w-full text-left border-collapse min-w-[1050px]">
                     <thead>
                       <tr className="border-b border-[#E8E1D5] text-[11px] font-black text-slate-400 uppercase tracking-wider">
-                        <th className="pb-3 px-3 whitespace-nowrap">Student &amp; User Details</th>
+                        <th className="pb-3 px-3 whitespace-nowrap">Member Details</th>
                         <th className="pb-3 px-3 whitespace-nowrap">Roll / Reg #</th>
-                        <th className="pb-3 px-3 whitespace-nowrap">Department</th>
+                        <th className="pb-3 px-3 whitespace-nowrap">Degree / Program</th>
                         <th className="pb-3 px-3 whitespace-nowrap">Semester</th>
                         <th className="pb-3 px-3 whitespace-nowrap">Section</th>
                         <th className="pb-3 px-3 whitespace-nowrap">Role</th>
@@ -646,6 +832,8 @@ const UsersManager = () => {
                         const dept = getUserDepartment(u);
                         const sem = getUserSemester(u);
                         const sec = getUserSection(u);
+                        const isNonStudent = u.role === 'alumni' || u.role === 'campus_admin';
+
                         return (
                           <tr key={u._id} className="hover:bg-[#FAF7F0]/60 transition-colors group">
                             {/* User details */}
@@ -672,25 +860,43 @@ const UsersManager = () => {
                               </span>
                             </td>
 
-                            {/* Department Tag */}
+                            {/* Department / Program Tag */}
                             <td className="py-3.5 px-3">
-                              <span className="text-[11px] font-black text-[#071A35] bg-[#071A35]/5 border border-[#071A35]/10 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1">
-                                🏢 {dept}
-                              </span>
+                              {u.role === 'campus_admin' ? (
+                                <span className="text-[11px] font-black text-[#071A35] bg-[#071A35]/10 border border-[#071A35]/20 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1 shadow-xs">
+                                  🛡️ Campus Administrator
+                                </span>
+                              ) : u.role === 'alumni' ? (
+                                <span className="text-[11px] font-black text-purple-800 bg-purple-50 border border-purple-200 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1 shadow-xs">
+                                  🎓 Alumni Member
+                                </span>
+                              ) : (
+                                <span className="text-[11px] font-black text-[#071A35] bg-[#071A35]/5 border border-[#071A35]/10 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1 shadow-xs">
+                                  🏛️ {dept}
+                                </span>
+                              )}
                             </td>
 
                             {/* Semester Tag */}
                             <td className="py-3.5 px-3">
-                              <span className="text-[11px] font-black text-[#0079c2] bg-[#00c2cb]/15 border border-[#00c2cb]/30 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1">
-                                🎓 {sem}
-                              </span>
+                              {isNonStudent ? (
+                                <span className="text-[11px] font-bold text-slate-400">—</span>
+                              ) : (
+                                <span className="text-[11px] font-black text-[#0079c2] bg-[#00c2cb]/15 border border-[#00c2cb]/30 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1">
+                                  🎓 {sem}
+                                </span>
+                              )}
                             </td>
 
                             {/* Section Tag */}
                             <td className="py-3.5 px-3">
-                              <span className="text-[11px] font-black text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1">
-                                🔖 {sec}
-                              </span>
+                              {isNonStudent ? (
+                                <span className="text-[11px] font-bold text-slate-400">—</span>
+                              ) : (
+                                <span className="text-[11px] font-black text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1">
+                                  🔖 {sec}
+                                </span>
+                              )}
                             </td>
 
                             {/* Role Selector */}
@@ -755,6 +961,8 @@ const UsersManager = () => {
                   {filteredUsers.map(u => {
                     const dept = getUserDepartment(u);
                     const sem = getUserSemester(u);
+                    const isNonStudent = u.role === 'alumni' || u.role === 'campus_admin';
+
                     return (
                       <div key={u._id} className="bg-white border border-[#E8E1D5] rounded-2xl p-4 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all hover:border-[#00c2cb] text-left relative overflow-hidden">
                         <div className="flex items-start justify-between gap-3">
@@ -779,18 +987,30 @@ const UsersManager = () => {
                             <span className="text-slate-400 font-bold">Reg #:</span>
                             <span className="font-mono font-bold text-slate-700">{u.registeration_number || u.registration_number || u.registration_no || u.registrationNumber || 'N/A'}</span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-400 font-bold">Department:</span>
-                            <span className="font-black text-[#071A35]">{dept}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-400 font-bold">Semester:</span>
-                            <span className="font-black text-[#0079c2]">{sem}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-400 font-bold">Section:</span>
-                            <span className="font-black text-emerald-700">{getUserSection(u)}</span>
-                          </div>
+
+                          {isNonStudent ? (
+                            <div className="bg-[#FAF7F0] p-2.5 rounded-xl border border-[#E8E1D5] flex items-center gap-2 mt-1">
+                              <span className="text-base">{u.role === 'alumni' ? '🎓' : '🛡️'}</span>
+                              <span className="font-extrabold text-[#071A35] text-[11.5px]">
+                                {u.role === 'alumni' ? 'Alumni Member' : 'Campus Administrator'}
+                              </span>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex justify-between items-start gap-2">
+                                <span className="text-slate-400 font-bold shrink-0">Program:</span>
+                                <span className="font-black text-[#071A35] text-right truncate">{dept}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-slate-400 font-bold">Semester:</span>
+                                <span className="font-black text-[#0079c2]">{sem}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-slate-400 font-bold">Section:</span>
+                                <span className="font-black text-emerald-700">{getUserSection(u)}</span>
+                              </div>
+                            </>
+                          )}
                         </div>
 
                         {/* Role Select & Actions */}
@@ -840,7 +1060,7 @@ const UsersManager = () => {
         </main>
       </div>
 
-      {/* ── CREATE USER MODAL (Forum / Profile Theme) ── */}
+      {/* ── CREATE USER MODAL ── */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 bg-[#071A35]/65 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 animate-fade-in" onClick={() => setIsCreateModalOpen(false)}>
           <div className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-3xl max-w-lg w-full shadow-[0_20px_50px_rgba(7,26,53,0.25)] relative animate-modal-slide-in flex flex-col overflow-hidden text-left" onClick={(e) => e.stopPropagation()}>
@@ -851,10 +1071,10 @@ const UsersManager = () => {
                 </div>
                 <h2 className="text-base sm:text-lg font-black text-white">Create New User</h2>
               </div>
-              <button onClick={() => setIsCreateModalOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20">✕</button>
+              <button onClick={() => setIsCreateModalOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20 cursor-pointer">✕</button>
             </div>
 
-            <form onSubmit={handleCreateUser} className="p-6 flex flex-col gap-4 bg-[#FAF7F0]/60 max-h-[80vh] overflow-y-auto">
+            <form onSubmit={handleCreateUser} className="p-6 flex flex-col gap-4 bg-[#FAF7F0]/60 max-h-[82vh] overflow-y-auto">
               <div className="flex flex-col gap-1.5">
                 <label className="text-[12px] font-extrabold text-[#071A35]">Full Name <span className="text-red-500">*</span></label>
                 <input required type="text" value={newUserData.name} onChange={e => setNewUserData({ ...newUserData, name: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-4 py-2.5 text-[12.5px] font-semibold text-[#071A35] focus:outline-none focus:border-[#071A35]" placeholder="e.g. Ali Ahmed" />
@@ -870,46 +1090,125 @@ const UsersManager = () => {
                 <input required type="text" value={newUserData.registrationNumber} onChange={e => setNewUserData({ ...newUserData, registrationNumber: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-4 py-2.5 text-[12.5px] font-semibold text-[#071A35] focus:outline-none focus:border-[#071A35]" placeholder="e.g. 2024F-MULBSCS-042" />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#071A35]">Department</label>
-                  <select value={newUserData.department} onChange={e => setNewUserData({ ...newUserData, department: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-2.5 py-2.5 text-[11.5px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]">
-                    {DEFAULT_DEPARTMENTS.slice(1).map(d => <option key={d} value={d}>{d}</option>)}
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#071A35]">Semester</label>
-                  <select value={newUserData.semester} onChange={e => setNewUserData({ ...newUserData, semester: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-2.5 py-2.5 text-[11.5px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]">
-                    {DEFAULT_SEMESTERS.slice(1).map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#071A35]">Section</label>
-                  <input type="text" value={newUserData.section || ''} onChange={e => setNewUserData({ ...newUserData, section: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-3 py-2.5 text-[12.5px] font-semibold text-[#071A35] focus:outline-none focus:border-[#071A35]" placeholder="e.g. Section A" />
-                </div>
+              {/* Role Selection */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[12px] font-extrabold text-[#071A35]">User Role <span className="text-red-500">*</span></label>
+                <select
+                  value={newUserData.role}
+                  onChange={e => {
+                    const newRole = e.target.value;
+                    setNewUserData({ ...newUserData, role: newRole });
+                  }}
+                  className="w-full bg-white border border-[#E8E1D5] rounded-xl px-3 py-2.5 text-[12px] font-extrabold text-[#071A35] focus:outline-none focus:border-[#071A35]"
+                >
+                  <option value="student">Student</option>
+                  <option value="student_mod">Student Moderator</option>
+                  <option value="alumni">Alumni</option>
+                  <option value="campus_admin">Campus Admin</option>
+                </select>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#071A35]">Initial Password <span className="text-red-500">*</span></label>
-                  <input required type="text" value={newUserData.password} onChange={e => setNewUserData({ ...newUserData, password: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-4 py-2.5 text-[12.5px] font-semibold text-[#071A35] focus:outline-none focus:border-[#071A35]" placeholder="Pass123" />
+              {/* Dynamic Academic Program Details (Disabled/Invalidated for Alumni & Campus Admin) */}
+              {newUserData.role === 'alumni' || newUserData.role === 'campus_admin' ? (
+                <div className="bg-gradient-to-r from-[#071A35]/10 to-[#00c2cb]/10 border border-[#071A35]/20 rounded-2xl p-4 flex items-center gap-3.5 my-1">
+                  <div className="w-10 h-10 rounded-xl bg-[#071A35] text-white flex items-center justify-center text-xl shrink-0">
+                    {newUserData.role === 'alumni' ? '🎓' : '🛡️'}
+                  </div>
+                  <div>
+                    <h4 className="text-[12.5px] font-black text-[#071A35] m-0">
+                      {newUserData.role === 'alumni' ? 'Alumni Account Role' : 'Campus Administrator Role'}
+                    </h4>
+                    <p className="text-[11.5px] font-medium text-slate-600 m-0 mt-0.5 leading-snug">
+                      Academic enrollment fields (Program, Course, Semester, Section) are disabled for {newUserData.role === 'alumni' ? 'Alumni' : 'Campus Administrators'}.
+                    </p>
+                  </div>
                 </div>
+              ) : (
+                <div className="flex flex-col gap-3 p-3.5 bg-white border border-[#E8E1D5] rounded-2xl">
+                  <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+                    <span className="text-sm">🎓</span>
+                    <span className="text-[11.5px] font-black text-[#071A35] uppercase tracking-wider">
+                      Student Academic Program &amp; Class
+                    </span>
+                  </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#071A35]">Role</label>
-                  <select value={newUserData.role} onChange={e => setNewUserData({ ...newUserData, role: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-3 py-2.5 text-[12px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]">
-                    <option value="student">Student</option>
-                    <option value="alumni">Alumni</option>
-                    <option value="student_mod">Moderator</option>
-                    <option value="campus_admin">Campus Admin</option>
-                  </select>
+                  {/* Program Level (Category Track) */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11.5px] font-extrabold text-[#071A35]">
+                      Program Category (Degree Level)
+                    </label>
+                    <select
+                      value={newUserData.programCategory}
+                      onChange={e => {
+                        const newCategory = e.target.value;
+                        const firstCourse = MINHAJ_PROGRAMS[newCategory][0];
+                        setNewUserData({
+                          ...newUserData,
+                          programCategory: newCategory,
+                          department: firstCourse,
+                          semester: '1st Semester'
+                        });
+                      }}
+                      className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-3 py-2 text-[12px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]"
+                    >
+                      <option value="BS Programs">BS Programs (4-5 Years)</option>
+                      <option value="Associate Degree Programs">Associate Degree Programs (ADP - 2 Years)</option>
+                    </select>
+                  </div>
+
+                  {/* Specific Degree / Program (Course) */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11.5px] font-extrabold text-[#071A35]">
+                      Degree / Program (Course)
+                    </label>
+                    <select
+                      value={newUserData.department}
+                      onChange={e => setNewUserData({ ...newUserData, department: e.target.value })}
+                      className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-3 py-2 text-[12px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35] truncate"
+                    >
+                      {MINHAJ_PROGRAMS[newUserData.programCategory]?.map(course => (
+                        <option key={course} value={course}>{course}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Semester and Section */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11.5px] font-extrabold text-[#071A35]">Semester</label>
+                      <select
+                        value={newUserData.semester}
+                        onChange={e => setNewUserData({ ...newUserData, semester: e.target.value })}
+                        className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-2.5 py-2 text-[11.5px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]"
+                      >
+                        {(newUserData.programCategory === 'Associate Degree Programs' ? ADP_SEMESTERS : BS_SEMESTERS).map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11.5px] font-extrabold text-[#071A35]">Section</label>
+                      <input
+                        type="text"
+                        value={newUserData.section || ''}
+                        onChange={e => setNewUserData({ ...newUserData, section: e.target.value })}
+                        className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-3 py-2 text-[12px] font-semibold text-[#071A35] focus:outline-none focus:border-[#071A35]"
+                        placeholder="e.g. Section A"
+                      />
+                    </div>
+                  </div>
                 </div>
+              )}
+
+              {/* Initial Password */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[12px] font-extrabold text-[#071A35]">Initial Password <span className="text-red-500">*</span></label>
+                <input required type="text" value={newUserData.password} onChange={e => setNewUserData({ ...newUserData, password: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-4 py-2.5 text-[12.5px] font-semibold text-[#071A35] focus:outline-none focus:border-[#071A35]" placeholder="Pass123" />
               </div>
 
-              <div className="flex gap-3 mt-3 pt-3 border-t border-[#E8E1D5]">
-                <button type="button" onClick={() => setIsCreateModalOpen(false)} className="flex-1 bg-white border border-[#E8E1D5] text-[#071A35] py-2.5 rounded-xl text-xs font-bold hover:bg-[#F3EEE4] transition-colors">Cancel</button>
+              <div className="flex gap-3 mt-2 pt-3 border-t border-[#E8E1D5]">
+                <button type="button" onClick={() => setIsCreateModalOpen(false)} className="flex-1 bg-white border border-[#E8E1D5] text-[#071A35] py-2.5 rounded-xl text-xs font-bold hover:bg-[#F3EEE4] transition-colors cursor-pointer">Cancel</button>
                 <button type="submit" disabled={isSubmitting} className="flex-1 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md border-none cursor-pointer flex items-center justify-center">
                   {isSubmitting ? "Creating..." : "Create User"}
                 </button>
@@ -928,7 +1227,7 @@ const UsersManager = () => {
                 <span className="text-xl">🔑</span>
                 <h2 className="text-base font-black text-white">Reset User Password</h2>
               </div>
-              <button onClick={() => setIsResetModalOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20">✕</button>
+              <button onClick={() => setIsResetModalOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20 cursor-pointer">✕</button>
             </div>
 
             <form onSubmit={handleResetPassword} className="p-6 flex flex-col gap-4 bg-[#FAF7F0]/60">
@@ -947,7 +1246,7 @@ const UsersManager = () => {
               </div>
 
               <div className="flex gap-3 mt-2">
-                <button type="button" onClick={() => setIsResetModalOpen(false)} className="flex-1 bg-white border border-[#E8E1D5] text-[#071A35] py-2.5 rounded-xl text-xs font-bold hover:bg-[#F3EEE4] transition-colors">Cancel</button>
+                <button type="button" onClick={() => setIsResetModalOpen(false)} className="flex-1 bg-white border border-[#E8E1D5] text-[#071A35] py-2.5 rounded-xl text-xs font-bold hover:bg-[#F3EEE4] transition-colors cursor-pointer">Cancel</button>
                 <button type="submit" disabled={isSubmitting} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md border-none cursor-pointer">
                   {isSubmitting ? "Resetting..." : "Reset Password"}
                 </button>
@@ -966,51 +1265,138 @@ const UsersManager = () => {
                 <span className="text-xl">✏️</span>
                 <h2 className="text-base font-black text-white">Edit User Profile</h2>
               </div>
-              <button onClick={() => setIsEditUserModalOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20">✕</button>
+              <button onClick={() => setIsEditUserModalOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20 cursor-pointer">✕</button>
             </div>
 
-            <form onSubmit={handleEditUser} className="p-6 flex flex-col gap-4 bg-[#FAF7F0]/60 max-h-[80vh] overflow-y-auto">
+            <form onSubmit={handleEditUser} className="p-6 flex flex-col gap-4 bg-[#FAF7F0]/60 max-h-[82vh] overflow-y-auto">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12px] font-extrabold text-[#071A35]">Full Name</label>
+                <label className="text-[12px] font-extrabold text-[#071A35]">Full Name <span className="text-red-500">*</span></label>
                 <input required type="text" value={editUserData.name} onChange={e => setEditUserData({ ...editUserData, name: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-4 py-2.5 text-[12.5px] font-semibold text-[#071A35] focus:outline-none focus:border-[#071A35]" />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12px] font-extrabold text-[#071A35]">Email</label>
+                <label className="text-[12px] font-extrabold text-[#071A35]">Email <span className="text-red-500">*</span></label>
                 <input required type="email" value={editUserData.email} onChange={e => setEditUserData({ ...editUserData, email: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-4 py-2.5 text-[12.5px] font-semibold text-[#071A35] focus:outline-none focus:border-[#071A35]" />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12px] font-extrabold text-[#071A35]">Registration #</label>
+                <label className="text-[12px] font-extrabold text-[#071A35]">Registration # <span className="text-red-500">*</span></label>
                 <input required type="text" value={editUserData.registeration_number} onChange={e => setEditUserData({ ...editUserData, registeration_number: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-4 py-2.5 text-[12.5px] font-semibold text-[#071A35] focus:outline-none focus:border-[#071A35]" />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#071A35]">Department</label>
-                  <select value={editUserData.department} onChange={e => setEditUserData({ ...editUserData, department: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-2.5 py-2.5 text-[11.5px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]">
-                    {DEFAULT_DEPARTMENTS.slice(1).map(d => <option key={d} value={d}>{d}</option>)}
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#071A35]">Semester</label>
-                  <select value={editUserData.semester} onChange={e => setEditUserData({ ...editUserData, semester: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-2.5 py-2.5 text-[11.5px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]">
-                    {DEFAULT_SEMESTERS.slice(1).map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#071A35]">Section</label>
-                  <select value={editUserData.section} onChange={e => setEditUserData({ ...editUserData, section: e.target.value })} className="w-full bg-white border border-[#E8E1D5] rounded-xl px-2.5 py-2.5 text-[11.5px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]">
-                    {DEFAULT_SECTIONS.slice(1).map(sec => <option key={sec} value={sec}>{sec}</option>)}
-                  </select>
-                </div>
+              {/* Role Selection */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[12px] font-extrabold text-[#071A35]">User Role</label>
+                <select
+                  value={editUserData.role}
+                  onChange={e => setEditUserData({ ...editUserData, role: e.target.value })}
+                  className="w-full bg-white border border-[#E8E1D5] rounded-xl px-3 py-2.5 text-[12px] font-extrabold text-[#071A35] focus:outline-none focus:border-[#071A35]"
+                >
+                  <option value="student">Student</option>
+                  <option value="student_mod">Student Moderator</option>
+                  <option value="alumni">Alumni</option>
+                  <option value="campus_admin">Campus Admin</option>
+                </select>
               </div>
 
-              <div className="flex gap-3 mt-3 pt-3 border-t border-[#E8E1D5]">
-                <button type="button" onClick={() => setIsEditUserModalOpen(false)} className="flex-1 bg-white border border-[#E8E1D5] text-[#071A35] py-2.5 rounded-xl text-xs font-bold hover:bg-[#F3EEE4] transition-colors">Cancel</button>
-                <button type="submit" className="flex-1 bg-[#071A35] hover:bg-[#00c2cb] hover:text-[#071A35] text-white py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md border-none cursor-pointer">Save Changes</button>
+              {/* Dynamic Academic Program Details (Disabled for Alumni & Campus Admin) */}
+              {editUserData.role === 'alumni' || editUserData.role === 'campus_admin' ? (
+                <div className="bg-gradient-to-r from-[#071A35]/10 to-[#00c2cb]/10 border border-[#071A35]/20 rounded-2xl p-4 flex items-center gap-3.5 my-1">
+                  <div className="w-10 h-10 rounded-xl bg-[#071A35] text-white flex items-center justify-center text-xl shrink-0">
+                    {editUserData.role === 'alumni' ? '🎓' : '🛡️'}
+                  </div>
+                  <div>
+                    <h4 className="text-[12.5px] font-black text-[#071A35] m-0">
+                      {editUserData.role === 'alumni' ? 'Alumni Account' : 'Campus Administrator'}
+                    </h4>
+                    <p className="text-[11.5px] font-medium text-slate-600 m-0 mt-0.5 leading-snug">
+                      Academic enrollment fields (Program, Course, Semester, Section) are disabled for {editUserData.role === 'alumni' ? 'Alumni' : 'Campus Administrators'}.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3 p-3.5 bg-white border border-[#E8E1D5] rounded-2xl">
+                  <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+                    <span className="text-sm">🎓</span>
+                    <span className="text-[11.5px] font-black text-[#071A35] uppercase tracking-wider">
+                      Student Academic Program &amp; Class
+                    </span>
+                  </div>
+
+                  {/* Program Level (Category Track) */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11.5px] font-extrabold text-[#071A35]">
+                      Program Category (Degree Level)
+                    </label>
+                    <select
+                      value={editUserData.programCategory}
+                      onChange={e => {
+                        const newCategory = e.target.value;
+                        const firstCourse = MINHAJ_PROGRAMS[newCategory][0];
+                        setEditUserData({
+                          ...editUserData,
+                          programCategory: newCategory,
+                          department: firstCourse,
+                          semester: '1st Semester'
+                        });
+                      }}
+                      className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-3 py-2 text-[12px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]"
+                    >
+                      <option value="BS Programs">BS Programs (4-5 Years)</option>
+                      <option value="Associate Degree Programs">Associate Degree Programs (ADP - 2 Years)</option>
+                    </select>
+                  </div>
+
+                  {/* Specific Degree / Program (Course) */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11.5px] font-extrabold text-[#071A35]">
+                      Degree / Program (Course)
+                    </label>
+                    <select
+                      value={editUserData.department}
+                      onChange={e => setEditUserData({ ...editUserData, department: e.target.value })}
+                      className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-3 py-2 text-[12px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35] truncate"
+                    >
+                      {MINHAJ_PROGRAMS[editUserData.programCategory]?.map(course => (
+                        <option key={course} value={course}>{course}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Semester and Section */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11.5px] font-extrabold text-[#071A35]">Semester</label>
+                      <select
+                        value={editUserData.semester}
+                        onChange={e => setEditUserData({ ...editUserData, semester: e.target.value })}
+                        className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-2.5 py-2 text-[11.5px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]"
+                      >
+                        {(editUserData.programCategory === 'Associate Degree Programs' ? ADP_SEMESTERS : BS_SEMESTERS).map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[11.5px] font-extrabold text-[#071A35]">Section</label>
+                      <input
+                        type="text"
+                        value={editUserData.section || ''}
+                        onChange={e => setEditUserData({ ...editUserData, section: e.target.value })}
+                        className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-3 py-2 text-[12px] font-semibold text-[#071A35] focus:outline-none focus:border-[#071A35]"
+                        placeholder="e.g. Section A"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 mt-2 pt-3 border-t border-[#E8E1D5]">
+                <button type="button" onClick={() => setIsEditUserModalOpen(false)} className="flex-1 bg-white border border-[#E8E1D5] text-[#071A35] py-2.5 rounded-xl text-xs font-bold hover:bg-[#F3EEE4] transition-colors cursor-pointer">Cancel</button>
+                <button type="submit" disabled={isSubmitting} className="flex-1 bg-[#071A35] hover:bg-[#00c2cb] hover:text-[#071A35] text-white py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md border-none cursor-pointer">
+                  {isSubmitting ? "Saving..." : "Save Changes"}
+                </button>
               </div>
             </form>
           </div>

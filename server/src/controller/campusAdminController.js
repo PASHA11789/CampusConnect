@@ -116,7 +116,7 @@ export const deleteRestaurant = async (req, res) => {
 
 export const createUser = async (req, res) => {
   try {
-    const { name, email, password, phone, role, registrationNumber, department, semester, section } = req.body;
+    const { name, email, password, phone, role, registrationNumber, department, program, semester, section } = req.body;
 
     if (!['student', 'student_mod', 'alumni', 'campus_admin'].includes(role)) {
       return res.status(400).json({ message: "Invalid role. Must be student, student_mod, alumni, or campus_admin." });
@@ -127,15 +127,18 @@ export const createUser = async (req, res) => {
       return res.status(400).json({ message: "User with this email already exists." });
     }
 
+    const isNonStudent = role === 'alumni' || role === 'campus_admin';
+
     const newUser = await User.create({
       name,
       email,
       password,
       role,
       registeration_number: registrationNumber || req.body.registeration_number || "",
-      department: department || "",
-      semester: semester !== undefined ? semester : 0,
-      section: section || ""
+      department: isNonStudent ? (department || "") : (department || ""),
+      program: isNonStudent ? (program || "") : (program || ""),
+      semester: isNonStudent ? 0 : (semester !== undefined ? semester : 0),
+      section: isNonStudent ? "" : (section || "")
     });
 
     res.status(201).json({ success: true, message: `${role} created successfully.`, userId: newUser._id });
@@ -147,19 +150,26 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    const { name, email, registeration_number, department, semester, section } = req.body;
+    const { name, email, registeration_number, department, program, semester, section, role } = req.body;
     
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
+    if (role && ['student', 'student_mod', 'alumni', 'campus_admin'].includes(role)) {
+      user.role = role;
+    }
+
+    const isNonStudent = user.role === 'alumni' || user.role === 'campus_admin';
+
     user.name = name || user.name;
     user.email = email || user.email;
     user.registeration_number = registeration_number || user.registeration_number;
-    user.department = department || user.department;
-    user.semester = semester !== undefined ? semester : user.semester;
-    user.section = section || user.section;
+    user.department = department !== undefined ? department : user.department;
+    user.program = program !== undefined ? program : user.program;
+    user.semester = isNonStudent ? 0 : (semester !== undefined ? semester : user.semester);
+    user.section = isNonStudent ? "" : (section !== undefined ? section : user.section);
 
     await user.save();
 

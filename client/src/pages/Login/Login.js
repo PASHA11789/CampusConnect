@@ -32,6 +32,8 @@ const Login = () => {
             setupPushNotifications();
             if (response.data.role === 'alumni') {
                 navigate('/career');
+            } else if (response.data.role === 'campus_admin') {
+                navigate('/admin/users');
             } else {
                 navigate('/dashboard');
             }

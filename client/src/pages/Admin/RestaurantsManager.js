@@ -114,16 +114,26 @@ const RestaurantsManager = () => {
 
           <div className="flex-1 px-8 py-7 flex flex-col gap-6 overflow-y-auto max-md:p-4">
 
-            <div className="flex justify-between items-center mb-2 max-md:flex-col max-md:items-start max-md:gap-4">
-              <div className="flex flex-col">
-                <h1 className="text-[22px] font-black text-[#0a2342] tracking-tight">Manage Restaurants</h1>
-                <p className="text-[12px] text-slate-500 mt-1 font-semibold">Campus Administration / Restaurants</p>
+            {/* ── HERO BANNER ── */}
+            <div className="bg-[#071A35] rounded-[1.5rem] p-5 sm:p-7 text-white border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
+              {/* Glow Accents */}
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#00c2cb]/20 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#00c2cb]/15 rounded-full blur-2xl pointer-events-none" />
+
+              <div className="flex flex-col gap-1.5 z-10 text-left">
+                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight m-0">
+                  Manage Restaurants &amp; Food Vendors
+                </h1>
+                <p className="text-xs sm:text-sm font-semibold text-white/70 max-w-xl m-0">
+                  Onboard canteen vendors, manage food outlets, and review campus dining operations.
+                </p>
               </div>
+
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="px-5 py-2.5 rounded-full text-[13px] font-bold text-white bg-[#00c2cb] hover:bg-[#00a8b0] transition-colors shadow-md flex items-center gap-2"
+                className="w-full sm:w-auto bg-[#00c2cb] hover:bg-[#00a8b5] text-white px-5 py-3 rounded-full font-black text-xs uppercase tracking-wider transition-all duration-200 shadow-md flex items-center justify-center gap-2 border-none cursor-pointer shrink-0 z-10 hover:scale-105 active:scale-95"
               >
-                + Onboard Vendor
+                <span className="text-white font-black text-base leading-none">+</span> Onboard Vendor
               </button>
             </div>
 

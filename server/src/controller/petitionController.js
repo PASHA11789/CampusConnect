@@ -331,3 +331,31 @@ export const reportPetition = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server error reporting petition", error: safeError(error) });
   }
 };
+
+export const deletePetition = async (req, res) => {
+  try {
+    const petition = await Petition.findById(req.params.id);
+    if (!petition) {
+      return res.status(404).json({ success: false, message: "Petition not found" });
+    }
+
+    const isCreator = petition.creator && (petition.creator._id || petition.creator).toString() === req.user._id.toString();
+    const isModOrAdmin = req.user.role === "admin" || req.user.role === "campus_admin" || req.user.role === "student_mod";
+
+    if (!isCreator && !isModOrAdmin) {
+      return res.status(403).json({ success: false, message: "Not authorized to delete this petition" });
+    }
+
+    const deletedId = petition._id;
+    await petition.deleteOne();
+
+    const io = req.app.get("socketio");
+    if (io) {
+      io.emit("petition_deleted", { petitionId: deletedId });
+    }
+
+    return res.status(200).json({ success: true, message: "Petition deleted successfully." });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Server error deleting petition", error: safeError(error) });
+  }
+};

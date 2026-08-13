@@ -8,50 +8,48 @@ export const getDepartmentCategoryKey = (deptStr) => {
   const s = String(deptStr || "").toLowerCase().trim();
   if (!s) return "general";
 
-  // Check specific non-tech categories first or use strict word boundary regex
-
   // 1. BS English (Literature & Applied Linguistics)
   if (/\b(english|bs english|literature|linguistics)\b/i.test(s)) {
     return "english";
   }
 
   // 2. Media, Design & Fine Arts
-  if (/\b(humanities|media|mass comm|communication|fine arts|design|graphics)\b/i.test(s)) {
+  if (/\b(humanities|media|mass comm|communication|fine arts|design|graphics|multimedia|animation)\b/i.test(s)) {
     return "media_arts";
   }
 
-  // 2. Doctor of Pharmacy & Health
-  if (/\b(pharm|pharm\.d|d\.pharm|pharmacy|pharmaceutical|clinical|health|medical)\b/i.test(s)) {
+  // 3. Doctor of Pharmacy, Physical Therapy & Health Sciences
+  if (/\b(pharm|pharm\.d|d\.pharm|pharmacy|pharmaceutical|clinical|health|medical|nutrition|dietetics|dpt|physical therapy|laboratory technology|aesthetics|cosmetology)\b/i.test(s)) {
     return "pharmacy";
   }
 
-  // 3. Law & Social Sciences
-  if (/\b(law|llb|political|criminology|international relations)\b/i.test(s)) {
+  // 4. Law, Social Sciences & Humanities
+  if (/\b(law|llb|political|criminology|international relations|peace|conflict|defense|strategic|sociology|psychology|education)\b/i.test(s)) {
     return "law";
   }
 
-  // 4. Islamic Studies & Theology
+  // 5. Islamic Studies & Theology
   if (/\b(islamic|religion|theology|philosophy)\b/i.test(s)) {
     return "islamic_studies";
   }
 
-  // 5. Business & Economics
-  if (/\b(bba|business|finance|accounting|management|marketing|mba|commerce|economics)\b/i.test(s)) {
+  // 6. Business, Economics & FinTech
+  if (/\b(bba|business|finance|accounting|management|marketing|mba|commerce|economics|b\.com|fintech|financial technology|e-commerce|analytics)\b/i.test(s)) {
     return "business";
   }
 
-  // 6. Engineering
-  if (/\b(engineer|engineering|electrical|mechanical|civil|mechatronics?|bsee|bsme)\b/i.test(s)) {
+  // 7. Engineering
+  if (/\b(engineer|engineering|electrical|mechanical|civil|chemical|mechatronics?|bsee|bsme)\b/i.test(s)) {
     return "engineering";
   }
 
-  // 7. Sciences & Mathematics
-  if (/\b(math|maths|mathematics|statistics?|physics|chemistry|biology|biological)\b/i.test(s)) {
+  // 8. Natural Sciences, Bio & Mathematics
+  if (/\b(math|maths|mathematics|statistics?|physics|chemistry|biology|biological|biotechnology|bioinformatics|biochemistry|zoology|entomology|plant|food science)\b/i.test(s)) {
     return "sciences";
   }
 
-  // 8. Tech / CS / Software Engineering (Strict word boundary for 'it', 'cs', 'se')
-  if (/\b(computer|cs|software|se|information technology|bsit|\bit\b|data science|ai|cyber|tech)\b/i.test(s)) {
+  // 9. Tech / Computer Science / Software Engineering / AI / Cyber
+  if (/\b(computer|cs|software|se|information technology|bsit|\bit\b|data science|ai|cyber|tech|artificial intelligence|information system)\b/i.test(s)) {
     return "tech";
   }
 
@@ -106,9 +104,9 @@ export const DEPARTMENT_FIELD_DEFAULTS = {
     ],
   },
   tech: {
-    categoryLabel: "Computer Science & IT",
+    categoryLabel: "BS Computer Science",
     defaultBio: "Aspiring Software Engineer & Full-Stack Developer | Passionate about DSA, Web Dev & AI | Lifelong learner.",
-    defaultDeptLabel: "BS Computer Science (BSCS)",
+    defaultDeptLabel: "BS Computer Science",
     skills: [
       { name: "Full-Stack Web Development", level: 90 },
       { name: "Data Structures & Algorithms", level: 85 },
