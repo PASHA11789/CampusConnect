@@ -2,6 +2,7 @@ import express from "express";
 import upload from "../../utils/cloudinaryConfig.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { updateProfile, getPublicProfile, reportUserProfile, warnUser, acknowledgeWarning, subscribePushNotification, getVapidPublicKey, testPushNotification } from "../controller/userController.js";
+import { getAllBookmarks, removeBookmark } from "../controller/bookmarkController.js";
 
 
 
@@ -27,6 +28,13 @@ router.post("/upload-avatar", upload.single("avatar"), (req, res) => {
     imageUrl: req.file.path,
   });
 });
+
+// Declared before the '/:id/...' routes so 'bookmarks' is never captured as an id.
+router.route('/bookmarks')
+  .get(getAllBookmarks);
+
+router.route('/bookmarks/:type/:id')
+  .delete(removeBookmark);
 
 router.route('/profile')
   .put(updateProfile);

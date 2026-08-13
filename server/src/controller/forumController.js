@@ -1,20 +1,37 @@
 import Forum from "../models/Forum.js"
 import Notification from "../models/Notification.js"
+import User from "../models/User.js"
 
 const safeError = (error) =>
   process.env.NODE_ENV === "development" ? error.message : "Internal server error";
 
-export const getForumSummary = async (_req, res) => {
+// Returns the caller's bookmarked forum thread ids as a Set of strings, so the
+// list endpoints can stamp isSaved on each thread in one pass rather than
+// making the client fetch its bookmarks separately and reconcile them.
+const getSavedForumIdSet = async (userId) => {
+  if (!userId) return new Set();
+  const user = await User.findById(userId).select("savedForumPosts").lean();
+  return new Set((user?.savedForumPosts || []).map((id) => id.toString()));
+};
+
+export const getForumSummary = async (req, res) => {
   try {
     const threads = await Forum.find({ isHidden: false })
       .sort({ createdAt: -1 })
       .populate('author', 'registeration_number avatar name')
       .select('title content image tags repliesCount createdAt author')
+      .lean()
+
+    const savedIds = await getSavedForumIdSet(req.user?._id);
+    const threadsWithSavedFlag = threads.map((thread) => ({
+      ...thread,
+      isSaved: savedIds.has(thread._id.toString()),
+    }));
 
     res.status(200).json({
       success: true,
-      count: threads.length,
-      threads,
+      count: threadsWithSavedFlag.length,
+      threads: threadsWithSavedFlag,
     })
   } catch (error) {
     res.status(500).json({
@@ -24,6 +41,50 @@ export const getForumSummary = async (_req, res) => {
     })
   }
 }
+
+// POST /api/forums/:id/save — toggle a bookmark on a forum discussion.
+// Mirrors toggleSaveCareerThread so both post types behave identically.
+export const toggleSaveForumThread = async (req, res) => {
+  try {
+    const thread = await Forum.findById(req.params.id).select("_id");
+    if (!thread) {
+      return res.status(404).json({ success: false, message: "Discussion not found" });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (!Array.isArray(user.savedForumPosts)) user.savedForumPosts = [];
+
+    const threadIdStr = req.params.id.toString();
+    const existingIndex = user.savedForumPosts.findIndex((id) => id.toString() === threadIdStr);
+
+    let isSaved = false;
+    if (existingIndex >= 0) {
+      user.savedForumPosts.splice(existingIndex, 1);
+      isSaved = false;
+    } else {
+      user.savedForumPosts.push(req.params.id);
+      isSaved = true;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: isSaved ? "Discussion saved to bookmarks." : "Discussion removed from bookmarks.",
+      isSaved,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error toggling bookmark",
+      error: safeError(error),
+    });
+  }
+};
 
 export const createForumThread = async (req, res) => {
   try {
@@ -360,15 +421,18 @@ export const getForumThreadById = async (req, res) => {
   try {
     const thread = await Forum.findById(req.params.id)
       .populate("author", "registeration_number avatar")
-      .populate("replies.author", "registeration_number avatar");
+      .populate("replies.author", "registeration_number avatar")
+      .lean();
 
     if (!thread) {
       return res.status(404).json({ message: "Thread not found" });
     }
 
+    const savedIds = await getSavedForumIdSet(req.user?._id);
+
     res.status(200).json({
       success: true,
-      thread
+      thread: { ...thread, isSaved: savedIds.has(thread._id.toString()) }
     });
   } catch (error) {
     res.status(500).json({

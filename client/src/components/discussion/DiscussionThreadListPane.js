@@ -16,7 +16,12 @@ export default function DiscussionThreadListPane({
   onPageChange,
   onAvatarClick,
   variant = "forum",
-  getCategoryLabel
+  getCategoryLabel,
+  // Forwarded straight to each card so the Forum page owns bookmark state.
+  showBookmark = false,
+  bookmarkedIds = {},
+  onBookmarkToggle,
+  onBookmarkError
 }) {
   if (variant === "career") {
     if (!filteredThreads || filteredThreads.length === 0) {
@@ -67,6 +72,10 @@ export default function DiscussionThreadListPane({
             t={t}
             onAvatarClick={onAvatarClick}
             variant="forum"
+            showBookmark={showBookmark}
+            isBookmarked={!!bookmarkedIds[post._id]}
+            onBookmarkToggle={onBookmarkToggle}
+            onBookmarkError={onBookmarkError}
           />
         </div>
       ));
@@ -95,6 +104,10 @@ export default function DiscussionThreadListPane({
           t={t}
           onAvatarClick={onAvatarClick}
           variant="forum"
+          showBookmark={showBookmark}
+          isBookmarked={!!bookmarkedIds[post._id]}
+          onBookmarkToggle={onBookmarkToggle}
+          onBookmarkError={onBookmarkError}
         />
       );
 

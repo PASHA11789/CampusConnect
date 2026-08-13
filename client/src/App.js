@@ -15,6 +15,7 @@ import PartnerRegister from './pages/Canteen/PartnerRegister';
 import VendorDashboard from './pages/Canteen/VendorDashboard';
 import RiderMarketplace from './pages/Canteen/RiderMarketplace';
 import BusRoutes from './pages/BusRoutes/BusRoutes';
+import Bookmarks from './pages/Bookmarks/Bookmarks';
 import UsersManager from './pages/Admin/UsersManager';
 import RestaurantsManager from './pages/Admin/RestaurantsManager';
 import MULClone from './pages/MUL-clone';
@@ -54,6 +55,7 @@ function App() {
           <Route path="/bus-routes" element={<BusRoutes />} />
           <Route path="/lost-found" element={<LostFound />} />
           <Route path="/career" element={<Career />} />
+          <Route path="/bookmarks" element={<Bookmarks />} />
           <Route path="/vendor/login" element={<PartnerLogin />} />
           <Route path="/vendor/register" element={<PartnerRegister />} />
           <Route path="/vendor/dashboard" element={<VendorDashboard />} />

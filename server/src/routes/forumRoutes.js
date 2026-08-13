@@ -11,7 +11,8 @@ import { getForumSummary,
          reportForumThread,
          reportThreadReply,
          toggleHideThread,
-         searchForumSuggestions
+         searchForumSuggestions,
+         toggleSaveForumThread
 
      } from "../controller/forumController.js"
 import {protect} from "../middleware/authMiddleware.js"
@@ -28,6 +29,9 @@ router.route('/:id')
   .get(protect, getForumThreadById)
   .put(protect, aiModeration, updateForumThread)
   .delete(protect, deleteForumThread);
+
+router.route('/:id/save')
+  .post(protect, toggleSaveForumThread)
 
 router.route("/:id/replies")
   .post(protect, aiModeration, addThreadReply)

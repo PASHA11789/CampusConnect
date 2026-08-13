@@ -31,6 +31,9 @@ export default function Forum() {
 
   // Forum-specific states
   const [threads, setThreads] = useState([]);
+  // Map of threadId -> true for threads this user has bookmarked. Held here
+  // rather than in each card so the state survives re-sorting and pagination.
+  const [bookmarkedIds, setBookmarkedIds] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -188,8 +191,16 @@ export default function Forum() {
         if (!token) return;
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const { data } = await axios.get("/api/forums", config);
-        console.log("🔥 Forums API Data:", data);
-        setThreads(data.threads || []);
+        const loadedThreads = data.threads || [];
+        setThreads(loadedThreads);
+
+        // The list endpoint stamps isSaved on each thread, so the initial
+        // bookmark state comes back with the feed — no second request.
+        const initialBookmarks = {};
+        loadedThreads.forEach((thread) => {
+          if (thread.isSaved) initialBookmarks[thread._id] = true;
+        });
+        setBookmarkedIds(initialBookmarks);
       } catch (error) {
         console.error("Error fetching forums:", error);
       } finally {
@@ -298,6 +309,23 @@ export default function Forum() {
     setToast({ message, type, id: Date.now() });
     setTimeout(() => setToast(null), 5500);
   }, []);
+
+  // ── BOOKMARKS ──
+  // BookmarkButton has already called the API and rolled itself back on
+  // failure; this only mirrors the confirmed result into page state so the
+  // icon stays correct when the list re-renders.
+  const handleBookmarkToggle = useCallback((threadId, isSaved) => {
+    setBookmarkedIds((prev) => {
+      const next = { ...prev };
+      if (isSaved) next[threadId] = true;
+      else delete next[threadId];
+      return next;
+    });
+    showToast(
+      isSaved ? "Discussion saved to bookmarks." : "Discussion removed from bookmarks.",
+      "success"
+    );
+  }, [showToast]);
 
   const handleThreadClick = useCallback(async (id) => {
     setSelectedThreadId(id);
@@ -847,6 +875,8 @@ export default function Forum() {
 
             {/* Category Filter Pills */}
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1">
+              {/* Saved items. Pushed to the far right and given the accent
+                  treatment so it reads as an action, not another category. */}
               {categoriesList.map((cat) => {
                 const isActiveCat = selectedCategory === cat;
                 return (
@@ -863,6 +893,17 @@ export default function Forum() {
                   </button>
                 );
               })}
+
+              <button
+                onClick={() => navigate("/bookmarks")}
+                title={t("View your saved posts")}
+                className="ml-auto flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11.5px] font-extrabold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 border border-[#E8E1D5] bg-[#FAF7F0] text-[#211A24]/70 hover:bg-[#00c2cb]/10 hover:border-[#00c2cb] hover:text-[#00808a]"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                </svg>
+                {t("Saved")}
+              </button>
             </div>
           </div>
 
@@ -882,6 +923,10 @@ export default function Forum() {
               totalPages={totalPages}
               onPageChange={setCurrentPage}
               onAvatarClick={openPublicProfile}
+              showBookmark
+              bookmarkedIds={bookmarkedIds}
+              onBookmarkToggle={handleBookmarkToggle}
+              onBookmarkError={(message) => showToast(message, "error")}
             />
 
             {selectedThreadId && (

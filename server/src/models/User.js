@@ -44,6 +44,15 @@ const userSchema = new mongoose.Schema(
         ref: "CareerThread",
       },
     ],
+    // Bookmarked forum discussions. Mirrors savedCareerPosts deliberately so
+    // both bookmark types are read and toggled the same way. See the note in
+    // bookmarkController.js on when this should become its own collection.
+    savedForumPosts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Forum",
+      },
+    ],
     activeWarning: {
       hasWarning: { type: Boolean, default: false },
       reason: { type: String, default: "" },

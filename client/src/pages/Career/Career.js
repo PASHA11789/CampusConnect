@@ -14,6 +14,7 @@ import MyProfileModal from "../../components/profile/MyProfileModal";
 import EditCareerProfileModal from "../../components/profile/EditCareerProfileModal";
 import ShowCareerProfileModal from "../../components/profile/ShowCareerProfileModal";
 import AskQuestionModal from "../../components/discussion/AskQuestionModal";
+import BookmarkButton from "../../components/common/BookmarkButton";
 
 const t = (s) => s;
 
@@ -381,28 +382,23 @@ export default function Career() {
     setTimeout(() => setToast(null), 5500);
   }, []);
 
-  const toggleSavePost = async (postId, e) => {
-    if (e) e.stopPropagation();
-    const isCurrentlySaved = !!savedPosts[postId];
-
-    setSavedPosts((prev) => ({
-      ...prev,
-      [postId]: !isCurrentlySaved,
-    }));
-
-    try {
-      const token = sessionStorage.getItem("token");
-      if (token && !postId.startsWith("mock-")) {
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-        const { data } = await axios.post(`/api/careers/${postId}/save`, {}, config);
-        showToast(data.message || (isCurrentlySaved ? "Post removed from bookmarks." : "Post saved to bookmarks."), "success");
-        return;
-      }
-    } catch (err) {
-      console.error("Error toggling bookmark on backend:", err);
-    }
-    showToast(isCurrentlySaved ? "Post removed from bookmarks." : "Post saved to bookmarks.", "success");
-  };
+  // BookmarkButton owns the request and rolls itself back on failure; this only
+  // mirrors the confirmed result into page state so the filled icon survives a
+  // re-render. It replaces the previous handler, which optimistically flipped
+  // the icon, swallowed any error, and then showed a success toast regardless —
+  // so a failed save looked identical to a successful one.
+  const handleBookmarkSync = useCallback((postId, isSaved) => {
+    setSavedPosts((prev) => {
+      const next = { ...prev };
+      if (isSaved) next[postId] = true;
+      else delete next[postId];
+      return next;
+    });
+    showToast(
+      isSaved ? "Post saved to bookmarks." : "Post removed from bookmarks.",
+      "success"
+    );
+  }, [showToast]);
 
   const toggleLikePost = async (postId, e) => {
     if (e) e.stopPropagation();
@@ -737,6 +733,20 @@ export default function Career() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
+
+              {/* Saved items. Deliberately outside the category pill group and
+                  beside the search field, because this navigates away rather
+                  than filtering the list in place. */}
+              <button
+                onClick={() => navigate("/bookmarks")}
+                title={t("View your saved posts")}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-extrabold border border-[#E8E1D5] bg-[#FAF7F0] text-[#211A24]/70 hover:bg-[#00c2cb]/10 hover:border-[#00c2cb] hover:text-[#00808a] transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                </svg>
+                {t("Saved")}
+              </button>
             </div>
           </div>
 
@@ -971,15 +981,15 @@ export default function Career() {
                               <span>👍</span> {post.likesCount || 0}
                             </button>
 
-                            <button
-                              type="button"
-                              className={`p-1 rounded-full hover:bg-slate-100 transition-colors border-none bg-transparent cursor-pointer text-[12px] ${isBookmarked ? "text-[#071A35]" : "text-slate-400 hover:text-slate-600"
-                                }`}
-                              onClick={() => toggleSavePost(post._id)}
-                              title={isBookmarked ? "Bookmarked" : "Save Post"}
-                            >
-                              🔖
-                            </button>
+                            <BookmarkButton
+                              postId={post._id}
+                              type="career"
+                              initialSaved={!!isBookmarked}
+                              localOnly={String(post._id).startsWith("mock-")}
+                              onToggle={(saved) => handleBookmarkSync(post._id, saved)}
+                              onError={(message) => showToast(message, "error")}
+                              size="sm"
+                            />
                           </div>
 
                           <button

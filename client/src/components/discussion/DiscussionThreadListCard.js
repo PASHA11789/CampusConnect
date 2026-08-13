@@ -1,4 +1,5 @@
 import React from "react";
+import BookmarkButton from "../common/BookmarkButton";
 
 export default function DiscussionThreadListCard({
   post,
@@ -8,7 +9,13 @@ export default function DiscussionThreadListCard({
   t = (s) => s,
   onAvatarClick,
   variant = "forum",
-  getCategoryLabel = (s) => s
+  getCategoryLabel = (s) => s,
+  // Bookmarking is opt-in: pass showBookmark to render the toggle. Omitted by
+  // default so existing usages of this card are unaffected.
+  showBookmark = false,
+  isBookmarked = false,
+  onBookmarkToggle,
+  onBookmarkError
 }) {
   const authorName = post.author?.registeration_number || post.author?.name || t('Student');
 
@@ -90,9 +97,21 @@ export default function DiscussionThreadListCard({
           </div>
         </div>
 
-        <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/15 shrink-0">
-          {categoryTag.label || 'General'}
-        </span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/15">
+            {categoryTag.label || 'General'}
+          </span>
+          {showBookmark && (
+            <BookmarkButton
+              postId={post._id}
+              type="forum"
+              initialSaved={isBookmarked}
+              onToggle={(saved) => onBookmarkToggle && onBookmarkToggle(post._id, saved)}
+              onError={onBookmarkError}
+              size="sm"
+            />
+          )}
+        </div>
       </div>
 
       {/* Body: Title & Content snippet */}
