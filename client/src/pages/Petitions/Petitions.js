@@ -473,19 +473,6 @@ export default function Petitions() {
     }
   };
 
-  const handleReportPetition = async (id) => {
-    try {
-      const token = sessionStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.post(`/api/petitions/${id}/report`, { reason: "Inappropriate Content" }, config);
-      showToast(t("Petition reported successfully"), "success");
-      setIsDetailOpen(false);
-      setPetitions((prev) => prev.filter((p) => p._id !== id));
-    } catch (err) {
-      showToast(err.response?.data?.message || t("Failed to report petition"), "error");
-    }
-  };
-
   // Copy Link Action Handler
   const handleCopyLink = (link) => {
     navigator.clipboard.writeText(link)

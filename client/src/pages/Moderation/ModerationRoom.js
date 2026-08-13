@@ -29,7 +29,8 @@ export default function ModerationRoom() {
   // Moderation state
   const [activeTab, setActiveTab] = useState("forums");
   const [queue, setQueue] = useState({ forums: [], petitions: [], lostFound: [], oldUnclaimed: [], profileReports: [], complaints: [] });
-  const [counts, setCounts] = useState({ forums: 0, petitions: 0, lostFound: 0, total: 0 });
+  // Only the setter is used; the tab badges read their counts from `queue`.
+  const [, setCounts] = useState({ forums: 0, petitions: 0, lostFound: 0, total: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState(null);
   const [actioningId, setActioningId] = useState(null);

@@ -14,13 +14,6 @@ export default function CanteenHero({
   activeTab,
   setActiveTab,
 }) {
-  const getGreeting = () => {
-    const hrs = new Date().getHours();
-    if (hrs < 12) return "Good morning";
-    if (hrs < 18) return "Good afternoon";
-    return "Good evening";
-  };
-
   return (
     <section className="flex flex-col gap-6 w-full">
       {/* Hero Banner Card (Matching Forum & Career design) */}

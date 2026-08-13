@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formatDate } from '../../utils/helpers';
 
 export const LostFoundWidget = ({ items = [] }) => {
   const navigate = useNavigate();

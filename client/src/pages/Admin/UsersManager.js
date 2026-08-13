@@ -120,15 +120,6 @@ const BS_SEMESTERS = [
   "10th Semester"
 ];
 
-const DEFAULT_SECTIONS = [
-  "All Sections",
-  "Section A",
-  "Section B",
-  "Section C",
-  "Section D",
-  "Section E",
-  "Evening Section"
-];
 
 export const getProgramCategory = (programOrDept) => {
   if (!programOrDept) return "BS Programs";
@@ -481,9 +472,6 @@ const UsersManager = () => {
     return matchesSearch && matchesTrack && matchesDepartment && matchesSemester && matchesSection && matchesRole;
   });
 
-  // Calculate unique departments for dynamic filter options
-  const existingDepartments = Array.from(new Set(users.map(u => getUserDepartment(u))));
-  const allDepartmentOptions = Array.from(new Set(["All Programs", ...ALL_MINHAJ_PROGRAMS, ...existingDepartments]));
 
   // Stats calculation
   const totalStudents = users.filter(u => u.role === 'student').length;
