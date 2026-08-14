@@ -23,22 +23,22 @@ const IconRocket = ({ className = "w-6 h-6" }) => <i className={`fa-solid fa-roc
 
 const FEATURES = [
   {
-    icon: <IconZap className="w-7 h-7 text-[#06B6D4]" />,
+    icon: <IconZap className="w-7 h-7 text-[#00c2cb]" />,
     title: 'Real-Time Peer Discussions',
     desc: 'Collaborate with classmates, share subject notes, and ask questions in instant study channels.'
   },
   {
-    icon: <IconShieldCheck className="w-7 h-7 text-[#4F46E5]" />,
+    icon: <IconShieldCheck className="w-7 h-7 text-[#071A35]" />,
     title: 'Official Student Petitions',
     desc: 'Raise genuine student concerns directly to university management with full transparency.'
   },
   {
-    icon: <IconSparkles className="w-7 h-7 text-[#06B6D4]" />,
+    icon: <IconSparkles className="w-7 h-7 text-[#00c2cb]" />,
     title: 'Smart Canteen Pre-Ordering',
     desc: 'View live canteen menus, place orders online, and skip long queue lines during break hours.'
   },
   {
-    icon: <IconRocket className="w-7 h-7 text-[#4F46E5]" />,
+    icon: <IconRocket className="w-7 h-7 text-[#071A35]" />,
     title: 'Alumni Network & Career Paths',
     desc: 'Get mentored by university alumni, discover job postings, and accelerate your career path.'
   }
@@ -131,8 +131,8 @@ function CustomCursor() {
 
   return (
     <>
-      <div ref={dotRef} className={`fixed top-0 left-0 rounded-full pointer-events-none z-[9999] transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform ${isHovering ? 'w-3 h-3 -ml-[6px] -mt-[6px] bg-[#4F46E5]' : 'w-1.5 h-1.5 -ml-[3px] -mt-[3px] bg-[#06B6D4]'}`} />
-      <div ref={outlineRef} className={`fixed top-0 left-0 rounded-full pointer-events-none z-[9998] transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform ${isHovering ? 'w-[60px] h-[60px] -ml-[30px] -mt-[30px] border-[#4F46E5]/80 bg-[#4F46E5]/10' : 'w-10 h-10 -ml-[20px] -mt-[20px] border-[#06B6D4]/50 bg-[#06B6D4]/5'}`} />
+      <div ref={dotRef} className={`fixed top-0 left-0 rounded-full pointer-events-none z-[9999] transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform ${isHovering ? 'w-3 h-3 -ml-[6px] -mt-[6px] bg-[#00c2cb]' : 'w-1.5 h-1.5 -ml-[3px] -mt-[3px] bg-[#00c2cb]'}`} />
+      <div ref={outlineRef} className={`fixed top-0 left-0 rounded-full pointer-events-none z-[9998] transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform ${isHovering ? 'w-[50px] h-[50px] -ml-[25px] -mt-[25px] border-[#00c2cb]/80 bg-[#00c2cb]/10' : 'w-9 h-9 -ml-[18px] -mt-[18px] border-[#071A35]/40 bg-[#071A35]/5'}`} />
     </>
   );
 }
@@ -141,11 +141,8 @@ export default function Home() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    setIsLoggedIn(!!sessionStorage.getItem("token"));
-
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -156,120 +153,103 @@ export default function Home() {
   useScrollReveal();
 
   return (
-    <div className="font-sans text-[#0F172A] bg-[#F8FAFC] h-full w-full max-w-full overflow-y-auto overflow-x-hidden cc-page-cursor-none cc-page">
+    <div className="font-sans text-[#071A35] bg-[#FAF7F0] h-full w-full max-w-full overflow-y-auto overflow-x-hidden cc-page-cursor-none cc-page">
       <CustomCursor />
 
       {/* Mobile Menu Backdrop */}
       {menuOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
+          className="fixed inset-0 bg-[#071A35]/70 backdrop-blur-sm z-40 md:hidden transition-opacity"
           onClick={() => setMenuOpen(false)}
         />
       )}
 
       {/* ══════════════ NAVBAR ══════════════ */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-400 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${isScrolled ? 'bg-white/90 backdrop-blur-[24px] border-slate-200/50 shadow-[0_10px_40px_rgba(0,0,0,0.04)]' : 'bg-transparent border-transparent'}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md border-[#E8E1D5] shadow-sm' : 'bg-[#071A35] border-[#071A35]'}`}>
         <div className="mx-auto px-4 sm:px-6 h-20 flex items-center gap-4 sm:gap-8 max-w-[1200px] w-full justify-between">
           <div className="flex flex-row items-center gap-2.5 sm:gap-3 no-underline cursor-pointer" onClick={() => navigate('/')}>
-            <div className="w-10 h-10 sm:w-11 sm:h-11 bg-white rounded-full flex items-center justify-center p-1 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 bg-white rounded-full flex items-center justify-center p-1 border border-[#E8E1D5] shadow-xs">
               <img src={logo} alt="Minhaj Logo" className="w-full h-full object-contain" />
             </div>
-            <div className="text-[20px] sm:text-[24px] font-black bg-gradient-to-b from-[#06B6D4] to-[#4F46E5] bg-clip-text text-transparent leading-none">X</div>
+            <div className="text-[20px] sm:text-[22px] font-black text-[#00c2cb] leading-none">X</div>
             <div className="flex flex-col items-start">
-              <h1 className={`text-[14px] sm:text-[16px] font-black leading-none tracking-tight transition-colors duration-400 ${isScrolled ? 'text-[#0F172A]' : 'text-white'}`}>CAMPUS<span className="text-[#06B6D4]">CONNECT</span></h1>
-              <span className="text-[7px] sm:text-[8px] font-bold tracking-[0.3em] sm:tracking-[0.35em] text-[#06B6D4] mt-0.5 uppercase">UNIVERSITY PORTAL</span>
+              <h1 className={`text-[14px] sm:text-[16px] font-black leading-none tracking-tight transition-colors ${isScrolled ? 'text-[#071A35]' : 'text-white'}`}>CAMPUS<span className="text-[#00c2cb]">CONNECT</span></h1>
+              <span className="text-[7px] sm:text-[8px] font-bold tracking-[0.25em] sm:tracking-[0.3em] text-[#00c2cb] mt-0.5 uppercase">FOR MINHAJ UNIVERSITY STUDENTS</span>
             </div>
           </div>
 
-          <ul className={`list-none flex gap-1 ml-auto max-[768px]:fixed max-[768px]:top-0 max-[768px]:w-[280px] sm:max-[768px]:w-[320px] max-[768px]:h-screen max-[768px]:bg-white max-[768px]:flex-col max-[768px]:p-8 max-[768px]:pt-20 max-[768px]:gap-3 max-[768px]:transition-all max-[768px]:duration-[400ms] max-[768px]:shadow-[-10px_0_40px_rgba(0,0,0,0.15)] z-50 ${menuOpen ? 'max-[768px]:right-0' : 'max-[768px]:-right-full'}`}>
+          <ul className={`list-none flex gap-1 ml-auto max-[768px]:fixed max-[768px]:top-0 max-[768px]:w-[280px] sm:max-[768px]:w-[320px] max-[768px]:h-screen max-[768px]:bg-white max-[768px]:flex-col max-[768px]:p-8 max-[768px]:pt-20 max-[768px]:gap-3 max-[768px]:transition-all max-[768px]:duration-300 max-[768px]:shadow-xl z-50 ${menuOpen ? 'max-[768px]:right-0' : 'max-[768px]:-right-full'}`}>
             {['Home', 'About', 'Modules', 'Contact'].map(l => (
-              <li key={l}><a href={`#${l.toLowerCase()}`} className={`text-[15px] font-semibold no-underline py-2 px-5 rounded-[50px] transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] max-[768px]:text-[#0F172A] max-[768px]:text-[18px] max-[768px]:block max-[768px]:py-2.5 max-[768px]:px-4 max-[768px]:rounded-xl max-[768px]:hover:bg-slate-100 ${l === 'Home' ? (isScrolled ? 'text-[#4F46E5] bg-[#4F46E5]/8' : 'text-white bg-white/10') : (isScrolled ? 'text-slate-600 hover:text-[#4F46E5] hover:bg-[#4F46E5]/8' : 'text-slate-300 hover:text-white hover:bg-white/10')}`} onClick={() => setMenuOpen(false)}>{l}</a></li>
+              <li key={l}><a href={`#${l.toLowerCase()}`} className={`text-[14px] font-bold no-underline py-2 px-4 rounded-xl transition-colors max-[768px]:text-[#071A35] max-[768px]:text-[17px] max-[768px]:block max-[768px]:py-2.5 max-[768px]:px-4 max-[768px]:hover:bg-[#FAF7F0] ${l === 'Home' ? (isScrolled ? 'text-[#071A35] bg-[#FAF7F0]' : 'text-white bg-white/10') : (isScrolled ? 'text-[#211A24]/70 hover:text-[#071A35] hover:bg-[#FAF7F0]' : 'text-white/80 hover:text-white hover:bg-white/10')}`} onClick={() => setMenuOpen(false)}>{l}</a></li>
             ))}
-            <li className="hidden max-[768px]:block mt-4 pt-4 border-t border-slate-100">
+            <li className="hidden max-[768px]:block mt-4 pt-4 border-t border-[#E8E1D5]">
               <button
-                onClick={() => { setMenuOpen(false); navigate(isLoggedIn ? '/dashboard' : '/mul-login'); }}
-                className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3 px-6 rounded-xl shadow-md text-[15px] cursor-pointer transition-all"
+                onClick={() => { setMenuOpen(false); navigate('/mul-login'); }}
+                className="w-full bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-black py-3 px-6 rounded-xl shadow-sm text-[15px] cursor-pointer transition-colors border-none"
               >
-                {isLoggedIn ? 'Go to Dashboard' : 'Sign In to Portal'}
+                Sign In to Portal
               </button>
             </li>
           </ul>
 
-          {isLoggedIn ? (
-            <button className="max-[768px]:hidden flex items-center gap-2 bg-[#4F46E5] text-white border-none rounded-xl py-2.5 px-6 text-[14px] font-bold cursor-pointer transition-all duration-[250ms] hover:bg-[#4338CA] hover:-translate-y-[2px] shadow-[0_6px_20px_rgba(79,70,229,0.3)] whitespace-nowrap cc-page-cursor-none" onClick={() => navigate('/dashboard')}>
-              Go to Dashboard
-            </button>
-          ) : (
-            <button className="max-[768px]:hidden flex items-center gap-2 bg-[#4F46E5] text-white border-none rounded-xl py-2.5 px-6 text-[14px] font-bold cursor-pointer transition-all duration-[250ms] hover:bg-[#4338CA] hover:-translate-y-[2px] shadow-[0_6px_20px_rgba(79,70,229,0.3)] whitespace-nowrap cc-page-cursor-none" onClick={() => navigate('/mul-login')}>
-              Sign In
-            </button>
-          )}
+          <button className="max-[768px]:hidden flex items-center gap-2 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] border-none rounded-xl py-2.5 px-5 text-[13.5px] font-black cursor-pointer transition-all shadow-sm active:scale-95 whitespace-nowrap cc-page-cursor-none" onClick={() => navigate('/mul-login')}>
+            Sign In
+          </button>
 
           <button className="hidden max-[768px]:flex flex-col justify-center gap-1.5 bg-none border-none cursor-pointer p-2 rounded-lg ml-auto z-50 cc-page-cursor-none" onClick={() => setMenuOpen(o => !o)} aria-label="Toggle menu">
-            <span className={`block w-[22px] h-0.5 rounded-sm transition-all duration-300 ${menuOpen ? 'bg-[#0F172A] rotate-45 translate-y-2' : (isScrolled ? 'bg-[#0F172A]' : 'bg-white')}`} />
-            <span className={`block w-[22px] h-0.5 rounded-sm transition-all duration-300 ${menuOpen ? 'opacity-0' : (isScrolled ? 'bg-[#0F172A]' : 'bg-white')}`} />
-            <span className={`block w-[22px] h-0.5 rounded-sm transition-all duration-300 ${menuOpen ? 'bg-[#0F172A] -rotate-45 -translate-y-2' : (isScrolled ? 'bg-[#0F172A]' : 'bg-white')}`} />
+            <span className={`block w-[22px] h-0.5 rounded-sm transition-all duration-300 ${menuOpen ? 'bg-[#071A35] rotate-45 translate-y-2' : (isScrolled ? 'bg-[#071A35]' : 'bg-white')}`} />
+            <span className={`block w-[22px] h-0.5 rounded-sm transition-all duration-300 ${menuOpen ? 'opacity-0' : (isScrolled ? 'bg-[#071A35]' : 'bg-white')}`} />
+            <span className={`block w-[22px] h-0.5 rounded-sm transition-all duration-300 ${menuOpen ? 'bg-[#071A35] -rotate-45 -translate-y-2' : (isScrolled ? 'bg-[#071A35]' : 'bg-white')}`} />
           </button>
         </div>
       </nav>
 
       {/* ══════════════ HERO ══════════════ */}
-      <section id="home" className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] min-h-[92vh] flex items-center pt-[90px] md:pt-[110px] pb-12 md:pb-20">
-        <div className="absolute inset-0 pointer-events-none z-0">
-          <div className="absolute rounded-full filter blur-[100px] opacity-30 w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] bg-[#4F46E5] -top-[150px] -left-[150px] animate-float" />
-          <div className="absolute rounded-full filter blur-[100px] opacity-20 w-[280px] sm:w-[450px] h-[280px] sm:h-[450px] bg-[#06B6D4] bottom-[-100px] right-[5%] animate-[float_10s_ease-in-out_infinite_reverse]" />
-        </div>
-
+      <section id="home" className="relative overflow-hidden bg-[#071A35] min-h-[88vh] flex items-center pt-[100px] md:pt-[120px] pb-12 md:pb-20 border-b border-[#071A35]">
         <div className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Headline & Action */}
           <div className="lg:col-span-7 text-center lg:text-left cc-reveal">
 
-            <h1 className="text-[clamp(32px,4.5vw,72px)] font-black text-white leading-[1.1] mb-5 sm:mb-6 tracking-tight">
-              What is <span className="bg-gradient-to-r from-[#06B6D4] via-[#38BDF8] to-[#4F46E5] bg-clip-text text-transparent">CampusConnect?</span>
+            <h1 className="text-[clamp(30px,4.2vw,64px)] font-black text-white leading-[1.15] mb-5 sm:mb-6 tracking-tight">
+              CampusConnect <span className="text-[#00c2cb]">For Minhaj Students</span>
             </h1>
-            <p className="text-[15px] sm:text-[18px] md:text-[20px] text-white/80 leading-[1.65] mb-6 sm:mb-8 max-w-[620px] mx-auto lg:mx-0 font-medium">
-              Bringing your entire Minhaj University experience into one intelligent, unified platform. From academic discussions and student petitions to smart canteen orders and alumni networking.
+            <p className="text-[15px] sm:text-[17px] md:text-[19px] text-white/85 leading-[1.65] mb-6 sm:mb-8 max-w-[620px] mx-auto lg:mx-0 font-medium">
+              A student-built digital platform created for Minhaj University Lahore. Connect with academic study forums, voice student petitions, pre-order from campus canteens, and engage with verified alumni networks.
             </p>
 
             <div className="flex gap-3 sm:gap-4 items-center justify-center lg:justify-start flex-wrap mb-6 sm:mb-8">
-              {isLoggedIn ? (
-                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#4F46E5] text-white border-none rounded-xl py-3.5 sm:py-4 px-7 sm:px-8 text-[15px] sm:text-[16px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_10px_30px_rgba(79,70,229,0.4)] hover:bg-[#4338CA] hover:-translate-y-[2px] cc-page-cursor-none" onClick={() => navigate('/dashboard')}>
-                  Go to Dashboard <span><IconArrow /></span>
-                </button>
-              ) : (
-                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#4F46E5] text-white border-none rounded-xl py-3.5 sm:py-4 px-7 sm:px-8 text-[15px] sm:text-[16px] font-bold cursor-pointer transition-all duration-[250ms] shadow-[0_10px_30px_rgba(79,70,229,0.4)] hover:bg-[#4338CA] hover:-translate-y-[2px] cc-page-cursor-none" onClick={() => navigate('/mul-login')}>
-                  Get Started Now <span><IconArrow /></span>
-                </button>
-              )}
-              <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white/10 text-white border-[1.5px] border-white/20 rounded-xl py-3.5 sm:py-4 px-7 sm:px-8 text-[15px] sm:text-[16px] font-bold cursor-pointer transition-all duration-[250ms] backdrop-blur-[8px] hover:bg-white/20 hover:-translate-y-[2px] cc-page-cursor-none" onClick={() => document.getElementById('modules').scrollIntoView({ behavior: 'smooth' })}>
+              <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] border-none rounded-xl py-3.5 sm:py-4 px-7 sm:px-8 text-[14.5px] sm:text-[15.5px] font-black cursor-pointer transition-all shadow-md active:scale-98 cc-page-cursor-none" onClick={() => navigate('/mul-login')}>
+                Get Started Now <span><IconArrow /></span>
+              </button>
+              <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white/10 text-white border border-white/20 hover:bg-white/20 rounded-xl py-3.5 sm:py-4 px-7 sm:px-8 text-[14.5px] sm:text-[15.5px] font-bold cursor-pointer transition-all active:scale-98 cc-page-cursor-none" onClick={() => document.getElementById('modules').scrollIntoView({ behavior: 'smooth' })}>
                 Explore Modules <span>✦</span>
               </button>
             </div>
 
             {/* Quick feature tags */}
-            <div className="flex items-center justify-center lg:justify-start gap-3 sm:gap-6 pt-4 border-t border-white/10 text-white/70 text-[12px] sm:text-[13px] font-semibold flex-wrap">
-              <span className="flex items-center gap-1.5"><span className="text-[#06B6D4]">✓</span> Verified Student Portal</span>
-              <span className="flex items-center gap-1.5"><span className="text-[#4F46E5]">✓</span> Real-Time Moderation</span>
-              <span className="flex items-center gap-1.5"><span className="text-[#06B6D4]">✓</span> Alumni Mentorship</span>
+            <div className="flex items-center justify-center lg:justify-start gap-3 sm:gap-6 pt-4 border-t border-white/15 text-white/80 text-[12px] sm:text-[13px] font-bold flex-wrap">
+              <span className="flex items-center gap-1.5"><span className="text-[#00c2cb]">✓</span> Student-Built Platform</span>
+              <span className="flex items-center gap-1.5"><span className="text-[#00c2cb]">✓</span> Student Petitions & Forums</span>
+              <span className="flex items-center gap-1.5"><span className="text-[#00c2cb]">✓</span> Canteen Pre-Ordering</span>
             </div>
           </div>
 
           {/* Right Column: Minhaj University Vertical Reel Showcase Video */}
           <div className="lg:col-span-5 relative flex justify-center cc-reveal">
-            <div className="relative w-full max-w-[320px] sm:max-w-[360px] rounded-[32px] overflow-hidden border-[2px] border-white/20 bg-slate-950 shadow-[0_25px_60px_rgba(0,0,0,0.6)] group">
+            <div className="relative w-full max-w-[320px] sm:max-w-[360px] rounded-[28px] overflow-hidden border-2 border-white/20 bg-[#071A35] shadow-xl group">
               <video
                 src={mulVideo}
                 autoPlay
                 loop
                 muted
                 playsInline
-                className="w-full h-[460px] sm:h-[520px] object-cover block transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-[440px] sm:h-[500px] object-cover block transition-transform duration-500 group-hover:scale-102"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/60 via-transparent to-black/30 pointer-events-none" />
+              <div className="absolute inset-0 bg-slate-900/30 pointer-events-none" />
 
-              {/* Floating Glass Badge Top Left */}
-              <div className="absolute top-4 left-4 bg-slate-900/70 backdrop-blur-md border border-white/20 rounded-full py-1.5 px-3.5 text-white text-[11px] sm:text-[12px] font-extrabold flex items-center gap-2 shadow-lg z-10">
-                <span className="w-2 h-2 rounded-full bg-[#06B6D4] animate-ping" />
+              {/* Solid Badge Top Left */}
+              <div className="absolute top-4 left-4 bg-[#071A35] border border-white/20 rounded-full py-1.5 px-3.5 text-white text-[11px] sm:text-[12px] font-black flex items-center gap-2 shadow-md z-10">
+                <span className="w-2 h-2 rounded-full bg-[#00c2cb]" />
                 Minhaj University Lahore
               </div>
             </div>
@@ -279,22 +259,22 @@ export default function Home() {
 
 
       {/* ══════════════ PORTAL ACCESS FOR ADMINS, MODS & ALUMNI ══════════════ */}
-      <section className="py-14 sm:py-20 md:py-24 bg-[#0F172A] relative">
+      <section className="py-14 sm:py-20 md:py-24 bg-[#071A35] border-t border-white/10 relative">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#06B6D4]">PORTAL ACCESS</div>
-            <h2 className="text-[clamp(26px,4vw,48px)] font-black text-white mb-3 sm:mb-4 leading-tight">
+          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-500">
+            <div className="inline-block text-[11px] sm:text-[12px] font-black tracking-[0.18em] uppercase mb-3 text-[#00c2cb]">PORTAL ACCESS</div>
+            <h2 className="text-[clamp(26px,4vw,44px)] font-black text-white mb-3 sm:mb-4 leading-tight">
               Administrators, Moderators &amp; Alumni
             </h2>
-            <p className="text-[14px] sm:text-[17px] md:text-[18px] text-white/80 max-w-[680px] mx-auto font-medium leading-relaxed">
-              Are you a Campus Administrator, Student Moderator, or Alumni? Access your dedicated portal below.
+            <p className="text-[14px] sm:text-[16.5px] text-white/80 max-w-[680px] mx-auto font-semibold leading-relaxed">
+              Dedicated access portals for university administrative management, student content moderation, and alumni networking.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-[950px] mx-auto cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-[950px] mx-auto cc-reveal opacity-0 translate-y-8 transition-all duration-500 delay-100">
             {/* Card 1: Admin & Moderator Login */}
-            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_60px_rgba(79,70,229,0.35)] hover:border-[#4F46E5]/60 transition-all duration-300 flex flex-col items-center text-center group">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl sm:text-3xl mb-5 group-hover:scale-110 transition-transform duration-300">
+            <div className="bg-white/5 border border-white/15 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-md hover:border-[#00c2cb]/60 transition-all duration-300 flex flex-col items-center text-center group">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-2xl sm:text-3xl mb-5 border border-white/10">
                 🛡️
               </div>
               <h3 className="text-[18px] sm:text-[22px] font-black text-white mb-2.5 sm:mb-3">Admin &amp; Moderator Portal</h3>
@@ -303,15 +283,15 @@ export default function Home() {
               </p>
               <button
                 onClick={() => navigate('/login')}
-                className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3.5 sm:py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(79,70,229,0.4)] cursor-pointer border-none text-[14px] sm:text-[15px] mt-auto"
+                className="w-full bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-black py-3.5 sm:py-4 px-6 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer border-none text-[14px] sm:text-[15px] mt-auto"
               >
                 Login as Admin / Moderator <IconArrow />
               </button>
             </div>
 
             {/* Card 2: Alumni Portal */}
-            <div className="bg-white/5 border border-white/15 backdrop-blur-xl rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_25px_60px_rgba(6,182,212,0.35)] hover:border-[#06B6D4]/60 transition-all duration-300 flex flex-col items-center text-center group">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl sm:text-3xl mb-5 group-hover:scale-110 transition-transform duration-300">
+            <div className="bg-white/5 border border-white/15 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-md hover:border-white/40 transition-all duration-300 flex flex-col items-center text-center group">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl sm:text-3xl mb-5 border border-white/10">
                 🎓
               </div>
               <h3 className="text-[18px] sm:text-[22px] font-black text-white mb-2.5 sm:mb-3">Alumni Network Portal</h3>
@@ -320,7 +300,7 @@ export default function Home() {
               </p>
               <button
                 onClick={() => navigate('/login')}
-                className="w-full bg-[#06B6D4] hover:bg-[#0891b2] text-white font-bold py-3.5 sm:py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(6,182,212,0.4)] cursor-pointer border-none text-[14px] sm:text-[15px] mt-auto"
+                className="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-3.5 sm:py-4 px-6 rounded-xl transition-colors flex items-center justify-center gap-2 border border-white/20 cursor-pointer text-[14px] sm:text-[15px] mt-auto"
               >
                 Login as Alumni <IconArrow />
               </button>
@@ -330,28 +310,28 @@ export default function Home() {
       </section>
 
       {/* ══════════════ WHY CAMPUSCONNECT ══════════════ */}
-      <section className="py-14 sm:py-20 md:py-24 bg-gradient-to-b from-white to-[#F8FAFC] relative overflow-hidden">
+      <section className="py-14 sm:py-20 md:py-24 bg-[#FAF7F0] relative overflow-hidden">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
-          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#4F46E5]">EMPOWERING CAMPUS LIFE</div>
-            <h2 className="text-[clamp(32px,5vw,56px)] font-black text-[#0F172A] mb-3 sm:mb-4">Why CampusConnect?</h2>
-            <p className="text-[14px] sm:text-[17px] text-slate-500 max-w-[680px] mx-auto font-medium mb-3">
+          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-500">
+            <div className="inline-block text-[11px] sm:text-[12px] font-black tracking-[0.18em] uppercase mb-3 text-[#071A35]">EMPOWERING CAMPUS LIFE</div>
+            <h2 className="text-[clamp(30px,4.5vw,50px)] font-black text-[#071A35] mb-3 sm:mb-4">Why CampusConnect?</h2>
+            <p className="text-[14px] sm:text-[16.5px] text-[#211A24]/75 max-w-[680px] mx-auto font-medium mb-3">
               Everything you need for a modern, connected, and hassle-free university experience in one sleek portal.
             </p>
-            <p className="text-[13px] sm:text-[15px] text-[#0F172A] max-w-[680px] mx-auto font-semibold">
-              For Minhaj University Lahore, we have implemented this platform to facilitate seamless study circles, peer connections, and academic collaborations across all departments.
+            <p className="text-[13px] sm:text-[15px] text-[#071A35] max-w-[680px] mx-auto font-bold">
+              Built by students specifically for Minhaj University Lahore to facilitate seamless study circles, peer connections, and academic collaborations across all departments.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 cc-reveal opacity-0 translate-y-8 transition-all duration-500 delay-100">
             {FEATURES.map((f, i) => (
-              <div key={i} className="bg-white border border-slate-200/80 rounded-[20px] sm:rounded-[28px] p-6 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_45px_rgba(79,70,229,0.1)] hover:border-[#4F46E5]/40 transition-all duration-300 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-6 group">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#F1F5F9] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-[#4F46E5]/10 transition-all duration-300">
+              <div key={i} className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xs hover:border-[#071A35] transition-all duration-300 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-6 group">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#071A35]/5 text-[#071A35] flex items-center justify-center shrink-0 border border-[#071A35]/10">
                   {f.icon}
                 </div>
                 <div>
-                  <h3 className="text-[18px] sm:text-[20px] font-extrabold text-[#0F172A] mb-2">{f.title}</h3>
-                  <p className="text-[13.5px] sm:text-[15px] text-slate-500 leading-relaxed font-medium">{f.desc}</p>
+                  <h3 className="text-[18px] sm:text-[20px] font-black text-[#071A35] mb-2">{f.title}</h3>
+                  <p className="text-[13.5px] sm:text-[15px] text-[#211A24]/75 leading-relaxed font-medium">{f.desc}</p>
                 </div>
               </div>
             ))}
@@ -360,31 +340,31 @@ export default function Home() {
       </section>
 
       {/* ══════════════ CONNECT WITH STUDENTS (GALLERY) ══════════════ */}
-      <section id="about" className="py-14 sm:py-20 md:py-24 bg-white relative overflow-hidden border-t border-slate-100">
+      <section id="about" className="py-14 sm:py-20 md:py-24 bg-white relative overflow-hidden border-t border-[#E8E1D5]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.15em] uppercase mb-3 sm:mb-4 text-[#4F46E5]">COMMUNITY</div>
-            <h2 className="text-[clamp(26px,4vw,48px)] font-black text-[#0F172A] mb-3 sm:mb-4">Connect With Your Fellows</h2>
-            <p className="text-[14px] sm:text-[17px] text-slate-500 max-w-[600px] mx-auto">Engage, collaborate, and build lasting relationships with students across all departments.</p>
+          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-500">
+            <div className="inline-block text-[11px] sm:text-[12px] font-black tracking-[0.15em] uppercase mb-3 sm:mb-4 text-[#071A35]">COMMUNITY</div>
+            <h2 className="text-[clamp(26px,4vw,44px)] font-black text-[#071A35] mb-3 sm:mb-4">Connect With Your Fellows</h2>
+            <p className="text-[14px] sm:text-[16.5px] text-[#211A24]/75 max-w-[600px] mx-auto font-medium">Engage, collaborate, and build lasting relationships with students across all departments.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
-            <div className="group rounded-[20px] sm:rounded-[24px] overflow-hidden relative h-[260px] sm:h-[320px] shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
-              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80" alt="Students studying" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-6 sm:p-8">
-                <span className="text-white font-bold text-[16px] sm:text-[18px]">Group Discussions</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 cc-reveal opacity-0 translate-y-8 transition-all duration-500 delay-100">
+            <div className="group rounded-2xl sm:rounded-3xl overflow-hidden relative h-[260px] sm:h-[320px] shadow-sm border border-[#E8E1D5] cc-page-cursor-none">
+              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80" alt="Students studying" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103" />
+              <div className="absolute inset-0 bg-[#071A35]/65 flex flex-col justify-end p-6 sm:p-8">
+                <span className="text-white font-black text-[16px] sm:text-[18px]">Group Discussions</span>
               </div>
             </div>
-            <div className="group rounded-[20px] sm:rounded-[24px] overflow-hidden relative h-[260px] sm:h-[320px] md:-translate-y-6 shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
-              <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80" alt="Students laughing" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-6 sm:p-8">
-                <span className="text-white font-bold text-[16px] sm:text-[18px]">Campus Life</span>
+            <div className="group rounded-2xl sm:rounded-3xl overflow-hidden relative h-[260px] sm:h-[320px] md:-translate-y-4 shadow-sm border border-[#E8E1D5] cc-page-cursor-none">
+              <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80" alt="Students laughing" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103" />
+              <div className="absolute inset-0 bg-[#071A35]/65 flex flex-col justify-end p-6 sm:p-8">
+                <span className="text-white font-black text-[16px] sm:text-[18px]">Campus Life</span>
               </div>
             </div>
-            <div className="group rounded-[20px] sm:rounded-[24px] overflow-hidden relative h-[260px] sm:h-[320px] shadow-[0_20px_40px_rgba(0,0,0,0.06)] cc-page-cursor-none">
-              <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80" alt="Students collaborating" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent flex flex-col justify-end p-6 sm:p-8">
-                <span className="text-white font-bold text-[16px] sm:text-[18px]">Peer Networking</span>
+            <div className="group rounded-2xl sm:rounded-3xl overflow-hidden relative h-[260px] sm:h-[320px] shadow-sm border border-[#E8E1D5] cc-page-cursor-none">
+              <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80" alt="Students collaborating" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103" />
+              <div className="absolute inset-0 bg-[#071A35]/65 flex flex-col justify-end p-6 sm:p-8">
+                <span className="text-white font-black text-[16px] sm:text-[18px]">Peer Networking</span>
               </div>
             </div>
           </div>
@@ -392,22 +372,21 @@ export default function Home() {
       </section>
 
       {/* ══════════════ MODULES ══════════════ */}
-      <section id="modules" className="py-14 sm:py-20 md:py-24 bg-[#F8FAFC]">
+      <section id="modules" className="py-14 sm:py-20 md:py-24 bg-[#FAF7F0] border-t border-[#E8E1D5]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.15em] uppercase mb-3 sm:mb-4 text-[#06B6D4]">OUR PLATFORM</div>
-            <h2 className="text-[clamp(26px,4vw,48px)] font-black text-[#0F172A] mb-3 sm:mb-4">A Module For Every Need</h2>
-            <p className="text-[14px] sm:text-[17px] text-slate-500 max-w-[600px] mx-auto">Everything you need to thrive at university is right at your fingertips.</p>
+          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-500">
+            <div className="inline-block text-[11px] sm:text-[12px] font-black tracking-[0.15em] uppercase mb-3 sm:mb-4 text-[#071A35]">OUR PLATFORM</div>
+            <h2 className="text-[clamp(26px,4vw,44px)] font-black text-[#071A35] mb-3 sm:mb-4">A Module For Every Need</h2>
+            <p className="text-[14px] sm:text-[16.5px] text-[#211A24]/75 max-w-[600px] mx-auto font-medium">Everything you need to thrive at university is right at your fingertips.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             {MODULES.map((m, i) => (
-              <div key={i} className="group/module bg-white border border-slate-200 rounded-[20px] sm:rounded-[24px] p-6 sm:p-8 transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] cursor-pointer relative overflow-hidden hover:-translate-y-[8px] hover:shadow-[0_24px_48px_rgba(79,70,229,0.1)] hover:border-[#4F46E5]/30 cc-page-cursor-none cc-reveal opacity-0 translate-y-8" style={{ transitionDelay: `${i * 100}ms` }}>
-                <div className="absolute inset-0 bg-gradient-to-br from-[#4F46E5]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover/module:opacity-100 pointer-events-none" />
-                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#F1F5F9] rounded-2xl flex items-center justify-center text-[#4F46E5] mb-5 sm:mb-6 transition-all duration-300 group-hover/module:scale-110 group-hover/module:rotate-6 group-hover/module:bg-[#4F46E5] group-hover/module:text-white relative z-10 shadow-sm">{m.icon}</div>
-                <h3 className="text-[18px] sm:text-[20px] font-black text-[#0F172A] mb-2 sm:mb-3 relative z-10">{m.title}</h3>
-                <p className="text-[13.5px] sm:text-[15px] text-slate-500 leading-[1.6] relative z-10 font-medium">{m.desc}</p>
-                <div className="absolute bottom-6 right-6 w-5 text-[#4F46E5] opacity-0 -translate-x-[10px] transition-all duration-300 group-hover/module:opacity-100 group-hover/module:translate-x-0 z-10"><IconArrow /></div>
+              <div key={i} className="group/module bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-3xl p-6 sm:p-8 transition-all duration-300 cursor-pointer relative overflow-hidden hover:border-[#071A35] shadow-xs cc-page-cursor-none cc-reveal opacity-0 translate-y-8" style={{ transitionDelay: `${i * 80}ms` }}>
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#FAF7F0] rounded-2xl flex items-center justify-center text-[#071A35] mb-5 sm:mb-6 border border-[#E8E1D5] group-hover/module:bg-[#071A35] group-hover/module:text-[#00c2cb] transition-colors relative z-10">{m.icon}</div>
+                <h3 className="text-[18px] sm:text-[20px] font-black text-[#071A35] mb-2 sm:mb-3 relative z-10">{m.title}</h3>
+                <p className="text-[13.5px] sm:text-[15px] text-[#211A24]/75 leading-[1.6] relative z-10 font-medium">{m.desc}</p>
+                <div className="absolute bottom-6 right-6 w-5 text-[#071A35] opacity-0 -translate-x-[10px] transition-all duration-300 group-hover/module:opacity-100 group-hover/module:translate-x-0 z-10"><IconArrow /></div>
               </div>
             ))}
           </div>
@@ -415,24 +394,21 @@ export default function Home() {
       </section>
 
       {/* ══════════════ HOW IT WORKS ══════════════ */}
-      <section className="py-14 sm:py-20 md:py-24 bg-[#0F172A] text-white relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none opacity-20">
-          <div className="absolute w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-[#4F46E5] rounded-full blur-[120px] -top-40 -right-40" />
-        </div>
+      <section className="py-14 sm:py-20 md:py-24 bg-[#071A35] text-white relative overflow-hidden border-t border-[#071A35]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
-          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="inline-block text-[11px] sm:text-[12px] font-extrabold tracking-[0.18em] uppercase mb-3 text-[#06B6D4]">OUR VISION</div>
-            <h2 className="text-[clamp(26px,4vw,48px)] font-black text-white mb-3 sm:mb-4">Our Vision for CampusConnect</h2>
-            <p className="text-[14px] sm:text-[17px] text-slate-300 max-w-[680px] mx-auto font-medium">We aim to provide a customized, state-of-the-art digital ecosystem tailored specifically to the unique needs of Minhaj University Lahore — empowering students, graduates, and administration under one unified hub.</p>
+          <div className="text-center mb-12 sm:mb-16 cc-reveal opacity-0 translate-y-8 transition-all duration-500">
+            <div className="inline-block text-[11px] sm:text-[12px] font-black tracking-[0.18em] uppercase mb-3 text-[#00c2cb]">OUR VISION</div>
+            <h2 className="text-[clamp(26px,4vw,44px)] font-black text-white mb-3 sm:mb-4">Our Vision for CampusConnect</h2>
+            <p className="text-[14px] sm:text-[16.5px] text-white/80 max-w-[680px] mx-auto font-medium">We aim to provide a customized, state-of-the-art digital ecosystem tailored specifically to the unique needs of Minhaj University Lahore — empowering students, graduates, and administration under one unified hub.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 cc-reveal opacity-0 translate-y-8 transition-all duration-700 delay-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 cc-reveal opacity-0 translate-y-8 transition-all duration-500 delay-100">
             {HOW_IT_WORKS.map((hw, i) => (
-              <div key={i} className="bg-white/5 border border-white/10 backdrop-blur-md rounded-[20px] sm:rounded-[24px] p-6 sm:p-7 flex flex-col justify-between hover:bg-white/10 hover:border-white/20 transition-all duration-300 group">
+              <div key={i} className="bg-white/5 border border-white/15 rounded-2xl sm:rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:bg-white/10 hover:border-white/30 transition-colors group">
                 <div>
-                  <span className="text-[30px] sm:text-[36px] font-black text-transparent bg-clip-text bg-gradient-to-r from-[#06B6D4] to-[#4F46E5] block mb-3 sm:mb-4 group-hover:scale-105 transition-transform duration-300">{hw.step}</span>
-                  <h3 className="text-[16px] sm:text-[18px] font-extrabold text-white mb-2">{hw.title}</h3>
-                  <p className="text-[13px] sm:text-[14px] text-slate-400 font-medium leading-relaxed">{hw.desc}</p>
+                  <span className="text-[30px] sm:text-[36px] font-black text-[#00c2cb] block mb-3 sm:mb-4">{hw.step}</span>
+                  <h3 className="text-[16px] sm:text-[18px] font-black text-white mb-2">{hw.title}</h3>
+                  <p className="text-[13px] sm:text-[14px] text-white/75 font-medium leading-relaxed">{hw.desc}</p>
                 </div>
               </div>
             ))}
@@ -441,29 +417,27 @@ export default function Home() {
       </section>
 
       {/* ══════════════ CTA BANNER ══════════════ */}
-      <section className="py-12 sm:py-16 bg-white relative">
+      <section className="py-12 sm:py-16 bg-[#FAF7F0] relative">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-          <div className="bg-gradient-to-r from-[#0F172A] via-[#1E293B] to-[#0F172A] border border-white/10 rounded-[24px] sm:rounded-[32px] p-7 sm:p-10 md:p-14 text-center relative overflow-hidden shadow-[0_25px_60px_rgba(15,23,42,0.25)] cc-reveal opacity-0 translate-y-8 transition-all duration-700">
-            <div className="absolute -right-20 -bottom-20 w-60 sm:w-80 h-60 sm:h-80 bg-[#4F46E5]/30 rounded-full filter blur-[80px] pointer-events-none" />
-            <div className="absolute -left-20 -top-20 w-60 sm:w-80 h-60 sm:h-80 bg-[#06B6D4]/30 rounded-full filter blur-[80px] pointer-events-none" />
+          <div className="bg-[#071A35] border border-[#071A35] rounded-2xl sm:rounded-3xl p-7 sm:p-10 md:p-14 text-center relative overflow-hidden shadow-lg cc-reveal opacity-0 translate-y-8 transition-all duration-500">
 
             <div className="relative z-10 max-w-[700px] mx-auto">
-              <h2 className="text-[clamp(24px,3.8vw,44px)] font-black text-white mb-3 sm:mb-4 leading-tight">
-                Ready to Upgrade Your <span className="bg-gradient-to-r from-[#06B6D4] to-[#4F46E5] bg-clip-text text-transparent">Campus Experience?</span>
+              <h2 className="text-[clamp(24px,3.8vw,42px)] font-black text-white mb-3 sm:mb-4 leading-tight">
+                Ready to Upgrade Your <span className="text-[#00c2cb]">Campus Experience?</span>
               </h2>
               <p className="text-[14px] sm:text-[16px] md:text-[18px] text-white/80 mb-6 sm:mb-8 font-medium">
-                Join thousands of students and faculty members already enjoying a connected, efficient campus life.
+                Join thousands of students and faculty members already enjoying a connected, efficient campus life at Minhaj University Lahore.
               </p>
               <div className="flex gap-3 sm:gap-4 justify-center flex-wrap">
                 <button
                   onClick={() => navigate('/mul-login')}
-                  className="w-full sm:w-auto bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3.5 px-7 sm:px-8 rounded-xl transition-all duration-300 shadow-[0_10px_25px_rgba(79,70,229,0.4)] hover:-translate-y-0.5 border-none text-[14px] sm:text-[15px] cursor-pointer"
+                  className="w-full sm:w-auto bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-black py-3.5 px-7 sm:px-8 rounded-xl transition-all shadow-md active:scale-98 border-none text-[14px] sm:text-[15px] cursor-pointer"
                 >
                   Join CampusConnect Now
                 </button>
                 <button
                   onClick={() => document.getElementById('modules').scrollIntoView({ behavior: 'smooth' })}
-                  className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-bold py-3.5 px-7 sm:px-8 rounded-xl transition-all duration-300 border border-white/20 hover:-translate-y-0.5 text-[14px] sm:text-[15px] cursor-pointer backdrop-blur-sm"
+                  className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-bold py-3.5 px-7 sm:px-8 rounded-xl transition-all border border-white/20 text-[14px] sm:text-[15px] cursor-pointer"
                 >
                   Learn More
                 </button>
@@ -474,45 +448,45 @@ export default function Home() {
       </section>
 
       {/* ══════════════ FOOTER ══════════════ */}
-      <footer className="bg-[#0F172A] pt-10 pb-6 border-t border-white/10">
+      <footer className="bg-[#071A35] pt-10 pb-6 border-t border-white/10">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8 items-start">
           {/* Left: Brand & Social Links */}
           <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
             <div className="flex flex-row items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-              <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center p-1 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+              <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center p-1 border border-white/20 shadow-xs">
                 <img src={logo} alt="CampusConnect Logo" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col items-start">
-                <h1 className="text-[15px] font-black leading-none tracking-tight text-white">CAMPUS<span className="text-[#06B6D4]">CONNECT</span></h1>
-                <span className="text-[8px] font-bold tracking-[0.35em] text-[#06B6D4] mt-0.5 uppercase">UNIVERSITY PORTAL</span>
+                <h1 className="text-[15px] font-black leading-none tracking-tight text-white">CAMPUS<span className="text-[#00c2cb]">CONNECT</span></h1>
+                <span className="text-[8px] font-bold tracking-[0.35em] text-[#00c2cb] mt-0.5 uppercase">MINHAJ UNIVERSITY LAHORE</span>
               </div>
             </div>
-            <p className="text-[13px] text-slate-400 my-3 max-w-[280px]">
+            <p className="text-[13px] text-white/70 my-3 max-w-[280px]">
               Empowering students with connection, convenience, and a smarter campus life.
             </p>
             <div className="flex gap-2.5 mt-1">
-              <a href="#!" aria-label="Facebook" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white transition-all duration-300 hover:bg-[#4F46E5] hover:-translate-y-[2px] cc-page-cursor-none"><IconFacebook /></a>
-              <a href="#!" aria-label="Instagram" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white transition-all duration-300 hover:bg-[#4F46E5] hover:-translate-y-[2px] cc-page-cursor-none"><IconInstagram /></a>
-              <a href="#!" aria-label="Twitter" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white transition-all duration-300 hover:bg-[#4F46E5] hover:-translate-y-[2px] cc-page-cursor-none"><IconTwitter /></a>
-              <a href="#!" aria-label="LinkedIn" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white transition-all duration-300 hover:bg-[#4F46E5] hover:-translate-y-[2px] cc-page-cursor-none"><IconLinkedin /></a>
+              <a href="#!" aria-label="Facebook" className="w-9 h-9 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center text-white transition-colors hover:bg-[#00c2cb] hover:text-[#071A35] cc-page-cursor-none"><IconFacebook /></a>
+              <a href="#!" aria-label="Instagram" className="w-9 h-9 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center text-white transition-colors hover:bg-[#00c2cb] hover:text-[#071A35] cc-page-cursor-none"><IconInstagram /></a>
+              <a href="#!" aria-label="Twitter" className="w-9 h-9 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center text-white transition-colors hover:bg-[#00c2cb] hover:text-[#071A35] cc-page-cursor-none"><IconTwitter /></a>
+              <a href="#!" aria-label="LinkedIn" className="w-9 h-9 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center text-white transition-colors hover:bg-[#00c2cb] hover:text-[#071A35] cc-page-cursor-none"><IconLinkedin /></a>
             </div>
           </div>
 
           {/* Middle: Quick Links */}
           <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-            <h4 className="text-[15px] font-extrabold text-white mb-3">Quick Links</h4>
-            <ul className="list-none m-0 p-0 space-y-2 text-[13.5px] text-slate-400">
-              <li><a href="#home" className="no-underline text-slate-400 hover:text-[#06B6D4] transition-colors">Home</a></li>
-              <li><a href="#about" className="no-underline text-slate-400 hover:text-[#06B6D4] transition-colors">About Us</a></li>
-              <li><a href="#modules" className="no-underline text-slate-400 hover:text-[#06B6D4] transition-colors">Features &amp; Modules</a></li>
-              <li><a href="#contact" className="no-underline text-slate-400 hover:text-[#06B6D4] transition-colors">Contact</a></li>
+            <h4 className="text-[15px] font-black text-white mb-3">Quick Links</h4>
+            <ul className="list-none m-0 p-0 space-y-2 text-[13.5px] text-white/70 font-medium">
+              <li><a href="#home" className="no-underline text-white/70 hover:text-[#00c2cb] transition-colors">Home</a></li>
+              <li><a href="#about" className="no-underline text-white/70 hover:text-[#00c2cb] transition-colors">About Us</a></li>
+              <li><a href="#modules" className="no-underline text-white/70 hover:text-[#00c2cb] transition-colors">Features &amp; Modules</a></li>
+              <li><a href="#contact" className="no-underline text-white/70 hover:text-[#00c2cb] transition-colors">Contact</a></li>
             </ul>
           </div>
 
           {/* Right: Contact Us */}
           <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-            <h4 className="text-[15px] font-extrabold text-white mb-3">Contact Us</h4>
-            <ul className="list-none m-0 p-0 text-[13.5px] text-slate-400 space-y-2">
+            <h4 className="text-[15px] font-black text-white mb-3">Contact Us</h4>
+            <ul className="list-none m-0 p-0 text-[13.5px] text-white/70 space-y-2 font-medium">
               <li className="flex items-center gap-2"><span>✉</span> info@mul.edu.pk</li>
               <li className="flex items-center gap-2"><span>📞</span> +92 42 35145621</li>
               <li className="flex items-start gap-2 leading-snug"><span>📍</span> Minhaj University Lahore,<br />Near Hamdard Chowk, Lahore</li>
@@ -520,8 +494,8 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="max-w-[1200px] mx-auto mt-6 pt-4 px-4 sm:px-6 border-t border-white/5 text-center text-[12.5px] text-slate-400 font-medium">
-          <span>© {new Date().getFullYear()} CampusConnect. All rights reserved. | <span className="text-[#06B6D4] font-semibold">An idea by Mr. Sagheer Ahmad &amp; Mr. Shujaat Ali Hashim</span></span>
+        <div className="max-w-[1200px] mx-auto mt-6 pt-4 px-4 sm:px-6 border-t border-white/10 text-center text-[12.5px] text-white/60 font-medium">
+          <span>© {new Date().getFullYear()} CampusConnect. All rights reserved. | <span className="text-[#00c2cb] font-extrabold">An idea by Mr. Sagheer Ahmad &amp; Mr. Shujaat Ali Hashim</span></span>
         </div>
       </footer>
     </div>
