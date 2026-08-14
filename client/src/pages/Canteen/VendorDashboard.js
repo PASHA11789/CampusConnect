@@ -865,10 +865,7 @@ export default function VendorDashboard() {
               }}
               className="relative cursor-pointer p-2 bg-white rounded-full border border-slate-200/60 shadow-sm hover:bg-slate-50 transition-colors"
             >
-              <svg className="w-5 h-5 text-[#0a2342] hover:scale-105 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-              </svg>
+              <i className="fa-solid fa-bell text-[#0a2342] text-sm hover:scale-105 transition-transform flex items-center justify-center" />
               {newNotifications > 0 && (
                 <span className="absolute top-0.5 right-0.5 bg-rose-500 w-2.5 h-2.5 rounded-full border-2 border-white animate-pulse"></span>
               )}
@@ -1652,7 +1649,7 @@ export default function VendorDashboard() {
                   className="group bg-[#00c2cb] hover:bg-[#00a8b5] text-white text-xs font-extrabold px-4 sm:px-5 py-2.5 rounded-[14px] transition-all duration-300 shadow-[0_8px_20px_-8px_rgba(0,194,203,0.5)] hover:shadow-[0_12px_25px_-8px_rgba(0,194,203,0.6)] flex items-center gap-2 hover:-translate-y-0.5"
                 >
                   <div className="bg-white/20 rounded-md p-1 group-hover:bg-white/30 transition-colors">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"></path></svg>
+                    <i className="fa-solid fa-plus text-xs flex items-center justify-center" />
                   </div>
                   Add New Item
                 </button>
@@ -1696,7 +1693,7 @@ export default function VendorDashboard() {
                         onClick={() => handleEditItemClick(item)}
                         className="flex-1 py-2.5 bg-slate-50 hover:bg-[#00c2cb] border border-slate-100 hover:border-[#00c2cb] rounded-xl text-[11px] font-extrabold text-slate-600 hover:text-white flex items-center justify-center gap-1.5 transition-all shadow-sm"
                       >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        <i className="fa-solid fa-pen-to-square text-xs flex items-center justify-center" />
                         Edit Item
                       </button>
                       <button
@@ -1704,7 +1701,7 @@ export default function VendorDashboard() {
                         className="p-2.5 bg-white border border-rose-100 hover:bg-rose-50 hover:border-rose-200 text-rose-500 rounded-xl transition-all shadow-sm group/btn"
                         title="Delete"
                       >
-                        <svg className="w-4 h-4 group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <i className="fa-solid fa-trash-can text-sm group-hover/btn:scale-110 transition-transform flex items-center justify-center" />
                       </button>
                     </div>
                   </div>

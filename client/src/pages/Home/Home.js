@@ -4,21 +4,22 @@ import logo from '../../assets/MUL-Logo.png';
 import mulVideo from './A place where character rises in every direction.Admissions Open – Minhaj University Lahore – Fa.mp4';
 
 /* ─────────────────────────────────────────────
-   Inline SVG icons (no external icon lib needed)
+   FontAwesome 6 Icons
  ───────────────────────────────────────────── */
-const IconForum = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>;
-const IconClipboard = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" /><rect x="9" y="3" width="6" height="4" rx="1" /></svg>;
-const IconMenu = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3h18M3 9h18M3 15h18M3 21h18" /></svg>;
-const IconArrow = ({ className = "w-4 h-4" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>;
-const IconUsers = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>;
-const IconFacebook = ({ className = "w-5 h-5" }) => <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg>;
-const IconInstagram = ({ className = "w-5 h-5" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>;
-const IconTwitter = ({ className = "w-5 h-5" }) => <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" /></svg>;
-const IconLinkedin = ({ className = "w-5 h-5" }) => <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg>;
-const IconSparkles = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z" /></svg>;
-const IconShieldCheck = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>;
-const IconZap = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>;
-const IconRocket = ({ className = "w-6 h-6" }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z" /><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-3.05 10a22.35 22.35 0 01-3.95 2z" /><path d="M9 18l-4.5 4.5" /><path d="M14.5 9.5L18 6" /></svg>;
+const IconForum = ({ className = "w-6 h-6" }) => <i className={`fa-solid fa-comments flex items-center justify-center ${className}`} />;
+const IconClipboard = ({ className = "w-6 h-6" }) => <i className={`fa-solid fa-clipboard-list flex items-center justify-center ${className}`} />;
+const IconMenu = ({ className = "w-6 h-6" }) => <i className={`fa-solid fa-utensils flex items-center justify-center ${className}`} />;
+const IconArrow = ({ className = "w-4 h-4" }) => <i className={`fa-solid fa-arrow-right flex items-center justify-center ${className}`} />;
+const IconUsers = ({ className = "w-6 h-6" }) => <i className={`fa-solid fa-user-graduate flex items-center justify-center ${className}`} />;
+const IconFacebook = ({ className = "w-5 h-5" }) => <i className={`fa-brands fa-facebook-f flex items-center justify-center ${className}`} />;
+const IconInstagram = ({ className = "w-5 h-5" }) => <i className={`fa-brands fa-instagram flex items-center justify-center ${className}`} />;
+const IconTwitter = ({ className = "w-5 h-5" }) => <i className={`fa-brands fa-x-twitter flex items-center justify-center ${className}`} />;
+const IconLinkedin = ({ className = "w-5 h-5" }) => <i className={`fa-brands fa-linkedin-in flex items-center justify-center ${className}`} />;
+const IconSparkles = ({ className = "w-6 h-6" }) => <i className={`fa-solid fa-wand-magic-sparkles flex items-center justify-center ${className}`} />;
+const IconShieldCheck = ({ className = "w-6 h-6" }) => <i className={`fa-solid fa-shield-halved flex items-center justify-center ${className}`} />;
+const IconZap = ({ className = "w-6 h-6" }) => <i className={`fa-solid fa-bolt flex items-center justify-center ${className}`} />;
+const IconRocket = ({ className = "w-6 h-6" }) => <i className={`fa-solid fa-rocket flex items-center justify-center ${className}`} />;
+
 
 const FEATURES = [
   {

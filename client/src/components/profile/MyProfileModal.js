@@ -156,9 +156,7 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
             className="relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 text-white/90 hover:text-white border border-white/20 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer border-none shrink-0 ml-2"
             title="Close"
           >
-            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <i className="fa-solid fa-xmark text-sm flex items-center justify-center" />
           </button>
         </div>
 
@@ -185,10 +183,7 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
                       <div className="w-6 h-6 sm:w-7 sm:h-7 border-[3px] border-white/30 border-t-white rounded-full animate-spin shadow-md" />
                     ) : (
                       <>
-                        <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                        <i className="fa-solid fa-camera text-lg text-white drop-shadow-md flex items-center justify-center" />
                         <span className="text-[9px] sm:text-[10px] font-extrabold mt-1 tracking-wider uppercase">Change</span>
                       </>
                     )}
@@ -201,18 +196,15 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
                 </label>
 
                 {/* User Name & Email */}
-                <h3 className="text-base sm:text-[19px] font-black text-[#0a2342] tracking-tight leading-snug break-words max-w-full">
+                <h2 className="text-base sm:text-lg font-black text-[#0a2342] leading-snug line-clamp-1">
                   {name || user?.name || "Student Name"}
-                </h3>
-                <p className="text-[11.5px] sm:text-[12px] text-slate-500 font-semibold mb-2.5 sm:mb-3 break-all max-w-full">
+                </h2>
+                <span className="text-[11px] sm:text-[11.5px] font-bold text-[#00c2cb] bg-[#00c2cb]/10 border border-[#00c2cb]/20 px-3 py-0.5 rounded-full mt-1">
+                  {user?.role ? user.role.toUpperCase() : "STUDENT"}
+                </span>
+                <p className="text-[11.5px] sm:text-[12px] text-slate-500 font-semibold mt-2 break-all max-w-full">
                   {user?.email || "CampusConnect Member"}
                 </p>
-
-                {/* Role Pill Badge */}
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-[10.5px] font-black uppercase tracking-wider bg-[#071A35] text-[#00c2cb] border border-[#00c2cb]/30">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00c2cb] animate-pulse" />
-                  {user?.role || "Student"}
-                </span>
               </div>
 
               {/* Academic Metadata Grid Card (Responsive tiles) */}
@@ -236,9 +228,7 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
                           className="text-slate-400 hover:text-[#00c2cb] transition-colors border-none bg-transparent cursor-pointer p-0.5 shrink-0"
                           title="Copy Registration Number"
                         >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                          </svg>
+                          <i className="fa-solid fa-copy text-xs flex items-center justify-center" />
                         </button>
                       )}
                       {copiedReg && (
@@ -287,18 +277,14 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
                   <div className="flex flex-col gap-4 sm:gap-5">
                     {error && (
                       <div className="bg-red-50 text-red-600 p-3 sm:p-3.5 rounded-xl text-xs font-bold border border-red-200 flex items-center gap-2 animate-fade-in">
-                        <svg className="w-4 h-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <i className="fa-solid fa-triangle-exclamation text-sm text-red-500 shrink-0 flex items-center justify-center" />
                         <span>{error}</span>
                       </div>
                     )}
 
                     {success && (
                       <div className="bg-emerald-50 text-emerald-700 p-3 sm:p-3.5 rounded-xl text-xs font-bold border border-emerald-200 flex items-center gap-2 animate-fade-in">
-                        <svg className="w-4.5 h-4.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <i className="fa-solid fa-circle-check text-sm text-emerald-600 shrink-0 flex items-center justify-center" />
                         <span>Profile settings updated successfully!</span>
                       </div>
                     )}
@@ -368,9 +354,7 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
                       ) : (
                         <>
                           <span>Save Changes</span>
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                          </svg>
+                          <i className="fa-solid fa-check text-xs flex items-center justify-center" />
                         </>
                       )}
                     </button>

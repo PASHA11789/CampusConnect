@@ -160,15 +160,13 @@ export default function DiscussionThreadListCard({
       {/* Footer: Replies count & Join Discussion action */}
       <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-left mt-auto">
         <div className="flex items-center gap-1.5 bg-slate-100/80 group-hover:bg-[#00c2cb]/10 px-2.5 py-1 rounded-lg text-[11px] font-extrabold text-slate-600 group-hover:text-[#00c2cb] transition-colors">
-          <span>💬</span>
+          <i className="fa-solid fa-comments text-xs" />
           <span>{repliesCount} {repliesCount === 1 ? t('reply') : t('replies')}</span>
         </div>
 
         <div className="flex items-center gap-1 text-[11px] font-extrabold text-[#071A35] group-hover:text-[#00c2cb] transition-colors">
           <span>{t('View Topic')}</span>
-          <svg className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
+          <i className="fa-solid fa-chevron-right text-[10px] transition-transform duration-200 group-hover:translate-x-1" />
         </div>
       </div>
     </div>

@@ -661,9 +661,7 @@ export default function Career() {
                   }`}
                 onClick={() => setSelectedCategory("All")}
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
+                <i className="fa-solid fa-table-cells text-xs flex items-center justify-center" />
                 {t("All")}
               </button>
 
@@ -674,9 +672,7 @@ export default function Career() {
                   }`}
                 onClick={() => setSelectedCategory("job_opportunity")}
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+                <i className="fa-solid fa-briefcase text-xs flex items-center justify-center" />
                 {t("Job Posts")}
               </button>
 
@@ -687,9 +683,7 @@ export default function Career() {
                   }`}
                 onClick={() => setSelectedCategory("general_discussion")}
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
+                <i className="fa-solid fa-comments text-xs flex items-center justify-center" />
                 {t("Discussions")}
               </button>
 
@@ -700,10 +694,7 @@ export default function Career() {
                   }`}
                 onClick={() => setSelectedCategory("internship")}
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                </svg>
+                <i className="fa-solid fa-graduation-cap text-xs flex items-center justify-center" />
                 {t("Internships")}
               </button>
 
@@ -714,9 +705,7 @@ export default function Career() {
                   }`}
                 onClick={() => setSelectedCategory("mentorship_qa")}
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20H2v-2a3 3 0 015.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+                <i className="fa-solid fa-user-group text-xs flex items-center justify-center" />
                 {t("Mentorship Q&A")}
               </button>
             </div>
@@ -742,9 +731,7 @@ export default function Career() {
                 title={t("View your saved posts")}
                 className="flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-extrabold border border-[#E8E1D5] bg-[#FAF7F0] text-[#211A24]/70 hover:bg-[#00c2cb]/10 hover:border-[#00c2cb] hover:text-[#00808a] transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0"
               >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                </svg>
+                <i className="fa-solid fa-bookmark text-xs flex items-center justify-center" />
                 {t("Saved")}
               </button>
             </div>

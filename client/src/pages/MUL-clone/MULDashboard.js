@@ -7,109 +7,47 @@ const NAV_ITEMS = [
   {
     label: 'Dashboard',
     active: true,
-    icon: (
-      <svg className="w-7 h-7 md:w-8 md:h-8" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="5" y="6" width="26" height="18" rx="2" fill="#e8eaf6" stroke="#4d5ec1" strokeWidth="2" />
-        <path d="M14 24v5M22 24v5M10 29h16" stroke="#4d5ec1" strokeWidth="2" strokeLinecap="round" />
-        <rect x="8" y="9" width="8" height="6" fill="#66bb6a" rx="1" />
-        <circle cx="23" cy="12" r="3.5" fill="#ef5350" />
-        <rect x="8" y="17" width="14" height="4" fill="#42a5f5" rx="1" />
-      </svg>
-    ),
+    icon: <i className="fa-solid fa-chart-line text-[#4d5ec1] text-xl" />,
   },
   {
     label: 'Lecture Schedule',
     active: false,
-    icon: (
-      <svg className="w-7 h-7 md:w-8 md:h-8" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="5" y="8" width="26" height="22" rx="3" fill="#ffffff" stroke="#e57373" strokeWidth="2" />
-        <path d="M5 8h26v6H5z" fill="#ff5252" />
-        <rect x="9" y="5" width="3" height="5" rx="1" fill="#d32f2f" />
-        <rect x="24" y="5" width="3" height="5" rx="1" fill="#d32f2f" />
-        <circle cx="24" cy="24" r="6" fill="#29b6f6" />
-        <path d="M24 21v3h2.5" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
+    icon: <i className="fa-solid fa-calendar-days text-[#e57373] text-xl" />,
   },
   {
     label: 'Fee Challans',
     active: false,
-    icon: (
-      <svg className="w-7 h-7 md:w-8 md:h-8" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M8 6h20v24H8z" fill="#ffca28" />
-        <path d="M8 6l3 2 3-2 3 2 3-2 3 2 3-2v24l-3-2-3 2-3-2-3 2-3-2-3 2V6z" fill="#ffc107" />
-        <text x="10" y="21" fill="#ffffff" fontSize="9" fontWeight="bold" fontFamily="sans-serif">FEE</text>
-      </svg>
-    ),
+    icon: <i className="fa-solid fa-receipt text-[#ffc107] text-xl" />,
   },
   {
     label: 'Grade Book',
     active: false,
-    icon: (
-      <svg className="w-7 h-7 md:w-8 md:h-8" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="6" y="6" width="20" height="24" rx="2" fill="#ffffff" stroke="#90a4ae" strokeWidth="2" />
-        <path d="M10 11h7M10 15h12M10 19h12M10 23h8" stroke="#78909c" strokeWidth="2" strokeLinecap="round" />
-        <text x="10" y="13" fill="#29b6f6" fontSize="7" fontWeight="bold">A+</text>
-        <path d="M26 14l4 10-2 2-4-10z" fill="#29b6f6" />
-      </svg>
-    ),
+    icon: <i className="fa-solid fa-graduation-cap text-[#78909c] text-xl" />,
   },
   {
     label: 'Roll Number Slip',
     active: false,
-    icon: (
-      <svg className="w-7 h-7 md:w-8 md:h-8" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="7" y="6" width="22" height="24" rx="2" fill="#ffffff" stroke="#42a5f5" strokeWidth="2" />
-        <path d="M7 26h22v4H7z" fill="#ffca28" />
-        <path d="M11 11h14M11 15h14M11 19h10" stroke="#b0bec5" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    ),
+    icon: <i className="fa-solid fa-id-card text-[#42a5f5] text-xl" />,
   },
   {
     label: 'Datesheet',
     active: false,
-    icon: (
-      <svg className="w-7 h-7 md:w-8 md:h-8" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="6" y="7" width="24" height="23" rx="3" fill="#e1f5fe" stroke="#29b6f6" strokeWidth="2" />
-        <path d="M6 7h24v6H6z" fill="#ef5350" />
-        <text x="11" y="24" fill="#37474f" fontSize="11" fontWeight="bold" fontFamily="sans-serif">31</text>
-      </svg>
-    ),
+    icon: <i className="fa-solid fa-calendar-check text-[#ef5350] text-xl" />,
   },
   {
     label: 'Academic Calender',
     active: false,
-    icon: (
-      <svg className="w-7 h-7 md:w-8 md:h-8" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="7" y="7" width="22" height="23" rx="3" fill="#81d4fa" />
-        <circle cx="18" cy="17" r="5" fill="#e1f5fe" />
-        <text x="10" y="11" fill="#ffffff" fontSize="4" fontWeight="bold">DIARY</text>
-        <path d="M15 26l3 2 3-2v4h-6z" fill="#ffb74d" />
-      </svg>
-    ),
+    icon: <i className="fa-solid fa-book-bookmark text-[#81d4fa] text-xl" />,
   },
   {
     label: 'Student Services',
     active: false,
-    icon: (
-      <svg className="w-7 h-7 md:w-8 md:h-8" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="6" y="8" width="20" height="20" rx="4" fill="#ffffff" stroke="#ab47bc" strokeWidth="2" />
-        <circle cx="16" cy="18" r="4" stroke="#ab47bc" strokeWidth="2" fill="none" />
-        <path d="M22 20a6 6 0 00-6-6" stroke="#ab47bc" strokeWidth="2" />
-        <circle cx="24" cy="12" r="4" fill="#42a5f5" />
-      </svg>
-    ),
+    icon: <i className="fa-solid fa-user-gear text-[#ab47bc] text-xl" />,
   },
   {
     label: 'Scheme of Study',
     active: false,
-    icon: (
-      <svg className="w-7 h-7 md:w-8 md:h-8" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="5" y="10" width="24" height="6" rx="2" fill="#ef5350" transform="rotate(-10 5 10)" />
-        <rect x="7" y="16" width="24" height="6" rx="2" fill="#66bb6a" transform="rotate(-3 7 16)" />
-        <rect x="8" y="23" width="24" height="6" rx="2" fill="#42a5f5" />
-      </svg>
-    ),
+    icon: <i className="fa-solid fa-layer-group text-[#42a5f5] text-xl" />,
   },
 ];
 
@@ -120,18 +58,9 @@ const COURSES = [
     name: 'Information Security',
     bg: '#5479be',
     illustration: (
-      <svg viewBox="0 0 200 160" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="60,35 75,25 75,100 60,110" fill="#d96c43" />
-        <polygon points="75,25 90,32 90,107 75,100" fill="#ee8959" />
-        <polygon points="60,35 75,25 90,32 75,42" fill="#f4a275" />
-        <polygon points="85,20 105,8 105,95 85,107" fill="#2d4282" />
-        <polygon points="105,8 125,18 125,105 105,95" fill="#3f59ab" />
-        <polygon points="85,20 105,8 125,18 105,30" fill="#5876d6" />
-        <polygon points="120,45 135,32 135,115 120,128" fill="#d69b36" />
-        <polygon points="135,32 152,42 152,125 135,115" fill="#f5be56" />
-        <polygon points="120,45 135,32 152,42 137,55" fill="#fcd17d" />
-        <ellipse cx="106" cy="125" rx="65" ry="14" fill="#000000" opacity="0.12" />
-      </svg>
+      <div className="w-full h-full flex items-center justify-center">
+        <i className="fa-solid fa-shield-halved text-5xl text-white/80" />
+      </div>
     ),
     badges: [
       { count: 4, type: 'book', bgClass: 'bg-[#ffebee] text-[#f44336]' },
@@ -143,24 +72,9 @@ const COURSES = [
     name: 'Data Science Technologies',
     bg: '#4b8e43',
     illustration: (
-      <svg viewBox="0 0 200 160" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="100" cy="140" rx="70" ry="8" fill="#000000" opacity="0.15" />
-        <rect x="50" y="125" width="100" height="12" rx="3" fill="#fcd17d" />
-        <rect x="58" y="113" width="84" height="12" rx="3" fill="#ffffff" />
-        <rect x="55" y="101" width="90" height="12" rx="3" fill="#81c784" />
-        <rect x="62" y="89" width="76" height="12" rx="3" fill="#e57373" />
-        <circle cx="100" cy="45" r="7" fill="#ffe0b2" />
-        <path d="M94 54 h12 v25 h-12 z" fill="#303f9f" />
-        <line x1="96" y1="79" x2="94" y2="90" stroke="#1a237e" strokeWidth="4" />
-        <line x1="104" y1="79" x2="106" y2="90" stroke="#1a237e" strokeWidth="4" />
-        <line x1="94" y1="58" x2="88" y2="38" stroke="#ffe0b2" strokeWidth="3" />
-        <line x1="106" y1="58" x2="112" y2="38" stroke="#ffe0b2" strokeWidth="3" />
-        <polygon points="100,22 103,30 111,30 104,35 107,43 100,38 93,43 96,35 89,30 97,30" fill="#fbc02d" />
-        <circle cx="65" cy="50" r="1.5" fill="#ffffff" opacity="0.8" />
-        <circle cx="135" cy="40" r="2" fill="#ffffff" opacity="0.8" />
-        <circle cx="145" cy="70" r="1.5" fill="#ffffff" opacity="0.8" />
-        <circle cx="55" cy="80" r="2" fill="#ffffff" opacity="0.8" />
-      </svg>
+      <div className="w-full h-full flex items-center justify-center">
+        <i className="fa-solid fa-database text-5xl text-white/80" />
+      </div>
     ),
     badges: [
       { count: 4, type: 'book', bgClass: 'bg-[#ffebee] text-[#f44336]' },
@@ -249,9 +163,7 @@ const MULDashboard = () => {
             onClick={() => setIsSidebarOpen(false)}
             className="lg:hidden text-gray-500 hover:text-gray-700 p-1"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <i className="fa-solid fa-xmark text-xl text-gray-500" />
           </button>
         </div>
 
@@ -289,9 +201,7 @@ const MULDashboard = () => {
               onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden text-gray-700 hover:text-gray-900 p-1.5 rounded-md bg-white border border-gray-200 shadow-xs"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <i className="fa-solid fa-bars text-xl text-gray-700" />
             </button>
             <span className="text-sm sm:text-[15px] font-medium text-[#5a6b82]">Dashboard</span>
           </div>
@@ -301,9 +211,7 @@ const MULDashboard = () => {
 
             {/* Bell Icon with Red Badge (59) */}
             <div className="relative cursor-default flex items-center justify-center">
-              <svg className="w-6 h-6 sm:w-7 sm:h-7 text-[#2c3e50]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
+              <i className="fa-solid fa-bell text-xl text-[#2c3e50]" />
               <span className="absolute -top-1 -right-2 bg-[#ff5252] text-white text-[9px] font-bold rounded-full h-4 min-w-[16px] sm:min-w-[18px] px-1 flex items-center justify-center border border-white shadow-xs">
                 59
               </span>
@@ -311,10 +219,7 @@ const MULDashboard = () => {
 
             {/* Red Button: MUL Jobs Portal (Hidden text on very small mobile) */}
             <button className="flex items-center gap-1.5 sm:gap-2 bg-[#ff0000] hover:bg-[#e60000] text-white text-[11px] sm:text-xs font-bold px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-md shadow-xs tracking-wide transition-colors">
-              <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
-                <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
-              </svg>
+              <i className="fa-solid fa-briefcase text-sm text-white flex-shrink-0" />
               <span className="hidden sm:inline">MUL Jobs Employment Portal</span>
               <span className="sm:hidden">Jobs</span>
             </button>
@@ -331,18 +236,10 @@ const MULDashboard = () => {
 
             {/* Icons Group */}
             <div className="flex items-center gap-2 sm:gap-4 text-[#2c3e50]">
-              <svg className="w-5 h-5 sm:w-6 sm:h-6 hidden md:block cursor-default stroke-current" fill="none" strokeWidth={1.8} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              <svg className="w-5 h-5 sm:w-6 sm:h-6 hidden md:block cursor-default stroke-current" fill="none" strokeWidth={1.8} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-              <svg className="w-5 h-5 sm:w-6 sm:h-6 hidden sm:block cursor-default stroke-current" fill="none" strokeWidth={1.8} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <svg className="w-5 h-5 sm:w-6 sm:h-6 hidden sm:block cursor-default stroke-current" fill="none" strokeWidth={1.8} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
+              <i className="fa-solid fa-comments text-lg hidden md:block cursor-default" />
+              <i className="fa-solid fa-book-open text-lg hidden md:block cursor-default" />
+              <i className="fa-solid fa-calendar-days text-lg hidden sm:block cursor-default" />
+              <i className="fa-solid fa-user text-lg hidden sm:block cursor-default" />
               <div 
                 className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-white shadow-xs cursor-default flex-shrink-0"
                 title={`${currentUser?.name || "Student"} (${currentUser?.registeration_number || ""})`}
@@ -374,9 +271,7 @@ const MULDashboard = () => {
                 >
                   <option>Spring 2026</option>
                 </select>
-                <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                <i className="fa-solid fa-chevron-down text-xs text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
             </div>
 
@@ -419,13 +314,9 @@ const MULDashboard = () => {
                           className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold ${badge.bgClass} border border-current/20 shadow-xs`}
                         >
                           {badge.type === 'book' ? (
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                            </svg>
+                            <i className="fa-solid fa-book text-xs" />
                           ) : (
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
+                            <i className="fa-solid fa-bell text-xs" />
                           )}
                           <span>{badge.count}</span>
                         </div>

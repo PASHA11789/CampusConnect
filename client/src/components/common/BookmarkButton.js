@@ -98,18 +98,11 @@ export default function BookmarkButton({
           aria-hidden="true"
         />
       ) : (
-        <svg
-          className={iconSize}
-          viewBox="0 0 24 24"
-          fill={isSaved ? "currentColor" : "none"}
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+        <i
+          className={`${isSaved ? "fa-solid" : "fa-regular"} fa-bookmark ${iconSize} flex items-center justify-center`}
           aria-hidden="true"
-        >
-          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-        </svg>
+        />
+
       )}
       {showLabel && (
         <span className="text-[11px] font-extrabold">

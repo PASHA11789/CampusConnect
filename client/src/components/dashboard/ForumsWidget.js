@@ -42,9 +42,7 @@ export const ForumsWidget = ({ forums = [], onThreadClick }) => {
             <div key={i} className="flex items-center gap-3 py-2.5 border-b border-[#E8E1D5]/60 cursor-pointer relative transition-all duration-200 ease-out hover:translate-x-1 [&:last-child]:border-b-0 group" onClick={() => onThreadClick && onThreadClick(post._id)}>
               <div className="relative w-9 h-9 shrink-0">
                 <div className="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold shadow-sm border border-[#00c2cb]/30" style={{ background: 'linear-gradient(135deg, #071A35, #102A4A)', color: '#00c2cb' }}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
+                  <i className="fa-solid fa-comments text-xs flex items-center justify-center" />
                 </div>
               </div>
 

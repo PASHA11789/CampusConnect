@@ -241,9 +241,7 @@ export default function Bookmarks() {
           {!isLoading && error && (
             <div className="bg-white border-2 border-dashed border-rose-200 rounded-2xl p-8 flex flex-col items-center justify-center text-center gap-3">
               <div className="w-11 h-11 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center">
-                <svg className="w-5 h-5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" />
-                </svg>
+                <i className="fa-solid fa-circle-exclamation text-lg text-rose-500 flex items-center justify-center" />
               </div>
               <div>
                 <h3 className="text-[14px] font-black text-[#071A35] mb-1">Could not load bookmarks</h3>
@@ -262,9 +260,7 @@ export default function Bookmarks() {
           {!isLoading && !error && bookmarks.length === 0 && (
             <div className="flex flex-col items-center justify-center py-14 px-6 text-center bg-white border-2 border-dashed border-[#E8E1D5] rounded-2xl w-full shadow-xs">
               <div className="w-12 h-12 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center mb-3">
-                <svg className="w-5 h-5 text-[#00c2cb]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                </svg>
+                <i className="fa-solid fa-bookmark text-lg text-[#00c2cb] flex items-center justify-center" />
               </div>
               <h3 className="text-[14.5px] font-black text-[#071A35] mb-1">
                 {activeTab === "all" ? "No bookmarks yet" : `No saved ${activeTab === "career" ? "career posts" : "discussions"}`}
@@ -345,9 +341,7 @@ export default function Bookmarks() {
                           {removingId === post._id ? (
                             <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                           ) : (
-                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                            </svg>
+                            <i className="fa-solid fa-bookmark text-xs flex items-center justify-center" />
                           )}
                         </button>
                       </div>
@@ -411,9 +405,7 @@ export default function Bookmarks() {
                     {/* Footer */}
                     <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-left mt-auto">
                       <div className="flex items-center gap-1.5 bg-slate-100/80 group-hover:bg-[#00c2cb]/10 px-2.5 py-1 rounded-lg text-[11px] font-extrabold text-slate-600 group-hover:text-[#00c2cb] transition-colors">
-                        <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                        </svg>
+                        <i className="fa-solid fa-comments text-xs flex items-center justify-center" />
                         <span>
                           {post.repliesCount} {post.repliesCount === 1 ? "reply" : "replies"}
                         </span>
@@ -421,9 +413,7 @@ export default function Bookmarks() {
 
                       <div className="flex items-center gap-1 text-[11px] font-extrabold text-[#071A35] group-hover:text-[#00c2cb] transition-colors">
                         <span>Open</span>
-                        <svg className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <polyline points="9 18 15 12 9 6" />
-                        </svg>
+                        <i className="fa-solid fa-chevron-right text-[10px] transition-transform duration-200 group-hover:translate-x-1 flex items-center justify-center" />
                       </div>
                     </div>
                   </div>

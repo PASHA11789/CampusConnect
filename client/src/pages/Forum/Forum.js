@@ -899,9 +899,7 @@ export default function Forum() {
                 title={t("View your saved posts")}
                 className="ml-auto flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11.5px] font-extrabold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 border border-[#E8E1D5] bg-[#FAF7F0] text-[#211A24]/70 hover:bg-[#00c2cb]/10 hover:border-[#00c2cb] hover:text-[#00808a]"
               >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                </svg>
+                <i className="fa-solid fa-bookmark text-xs flex items-center justify-center" />
                 {t("Saved")}
               </button>
             </div>

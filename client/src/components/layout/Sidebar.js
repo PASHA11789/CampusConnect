@@ -2,12 +2,12 @@ import React from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import logo from '../../assets/MUL-Logo.png';
 
-const IconForum = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>;
-const IconSearch = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>;
-const IconClipboard = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" /><rect x="9" y="3" width="6" height="4" rx="1" /></svg>;
-const IconLogout = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>;
+const IconForum = () => <i className="fa-solid fa-comments w-4 h-4 shrink-0 flex items-center justify-center" />;
+const IconSearch = () => <i className="fa-solid fa-magnifying-glass w-4 h-4 shrink-0 flex items-center justify-center" />;
+const IconClipboard = () => <i className="fa-solid fa-clipboard-list w-4 h-4 shrink-0 flex items-center justify-center" />;
+const IconLogout = () => <i className="fa-solid fa-right-from-bracket w-4 h-4 shrink-0 flex items-center justify-center" />;
+const IconZap = () => <i className="fa-solid fa-bolt w-4 h-4 shrink-0 flex items-center justify-center" />;
 
-const IconZap = () => <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>;
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
