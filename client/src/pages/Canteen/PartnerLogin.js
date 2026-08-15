@@ -137,7 +137,7 @@ export default function PartnerLogin() {
             {/* Error Message */}
             {error && (
               <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-400 text-xs sm:text-sm font-bold flex items-center gap-2.5">
-                <span>⚠️</span>
+                <i className="fa-solid fa-triangle-exclamation" />
                 <span>{error}</span>
               </div>
             )}
@@ -203,7 +203,10 @@ export default function PartnerLogin() {
                     <span>Authenticating...</span>
                   </>
                 ) : (
-                  <span>SIGN IN TO PORTAL →</span>
+                  <>
+                    <span>SIGN IN TO PORTAL</span>
+                    <i className="fa-solid fa-arrow-right text-xs" />
+                  </>
                 )}
               </button>
             </form>

@@ -35,9 +35,7 @@ export default function CanteenHero({
           <label htmlFor="canteen-search-input" className="sr-only">
             Search for food or restaurants
           </label>
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
-            🔍
-          </span>
+          <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
           <input
             id="canteen-search-input"
             name="searchQuery"
@@ -51,21 +49,21 @@ export default function CanteenHero({
         {/* Tab Selection Row (Browse, Active Order) */}
         <div className="flex gap-2 sm:gap-2.5 shrink-0 overflow-x-auto pb-1 sm:pb-0 scrollbar-none w-full sm:w-auto">
           {[
-            { id: "browse", label: "Browse Menu", icon: "🍽️" },
-            { id: "track", label: "Active Order", icon: "🛵" },
+            { id: "browse", label: "Browse Menu", icon: "fa-solid fa-utensils" },
+            { id: "track", label: "Active Order", icon: "fa-solid fa-motorcycle" },
           ].map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`h-11 rounded-2xl px-4 sm:px-5 text-xs font-bold tracking-wide transition-all duration-300 flex-1 sm:flex-initial flex items-center justify-center gap-2 whitespace-nowrap focus:outline-none cursor-pointer hover:-translate-y-1 hover:shadow-lg ${
+                className={`h-11 rounded-2xl px-4 sm:px-5 text-xs font-bold tracking-wide transition-all duration-300 flex-1 sm:flex-initial flex items-center justify-center gap-2 whitespace-nowrap focus:outline-none cursor-pointer hover:-translate-y-1 hover:shadow-lg border-none ${
                   isActive
-                    ? "bg-[#071A35] text-white shadow-md shadow-[#071A35]/20 border border-[#071A35]"
+                    ? "bg-[#071A35] text-white shadow-md shadow-[#071A35]/20"
                     : "bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-50 hover:text-[#071A35] hover:border-slate-300"
                 }`}
               >
-                <span className="text-sm">{tab.icon}</span>
+                <i className={`${tab.icon} text-xs`} />
                 <span className="font-extrabold">{tab.label}</span>
               </button>
             );

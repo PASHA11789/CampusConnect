@@ -212,8 +212,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
 
     if (isCanteen) {
       return (
-        <div className="w-7 h-7 rounded-full bg-orange-50 border border-orange-100/60 text-orange-500 flex items-center justify-center shrink-0 text-xs">
-          🍔
+        <div className="w-7 h-7 rounded-full bg-orange-50 border border-orange-100/60 text-orange-500 flex items-center justify-center shrink-0">
+          <i className="fa-solid fa-burger text-xs flex items-center justify-center" />
         </div>
       );
     }
@@ -289,7 +289,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
                     : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
                   }`}
               >
-                <span className="text-xs group-hover:scale-110 transition-transform">🍔</span>
+                <i className="fa-solid fa-burger text-xs group-hover:scale-110 transition-transform flex items-center justify-center" />
                 {unreadCanteen > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
                     {unreadCanteen}
@@ -409,9 +409,10 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => setSubView(null)}
-                      className="text-[#2563EB] hover:text-[#071A35] text-[11px] font-black border-none bg-none cursor-pointer flex items-center gap-1 transition-colors"
+                      className="text-[#2563EB] hover:text-[#071A35] text-[11px] font-black border-none bg-none cursor-pointer flex items-center gap-1.5 transition-colors"
                     >
-                      ← Back
+                      <i className="fa-solid fa-arrow-left text-[10px]" />
+                      <span>Back</span>
                     </button>
                     <span className="text-[11px] font-black text-[#071A35] uppercase tracking-wider">
                       {subView === 'canteen' ? 'Canteen Orders' : subView === 'petitions' ? 'Petitions' : subView === 'forums' ? 'Forums' : 'Others'}
@@ -486,8 +487,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
                     ))
                   ) : (
                     <div className="py-10 px-6 text-center text-slate-400 font-bold text-[12px] flex flex-col items-center justify-center gap-2.5">
-                      <div className="w-11 h-11 rounded-full bg-slate-50 flex items-center justify-center text-[18px] text-slate-350 shadow-inner">
-                        🔔
+                      <div className="w-11 h-11 rounded-full bg-slate-50 flex items-center justify-center text-slate-350 shadow-inner">
+                        <i className="fa-solid fa-bell text-[18px] text-slate-400 flex items-center justify-center" />
                       </div>
                       <span className="text-slate-500">All caught up!</span>
                       <p className="text-[10px] text-slate-400 font-semibold max-w-[180px] leading-normal">

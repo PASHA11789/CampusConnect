@@ -214,7 +214,7 @@ export default function Forum() {
       const socket = io(SOCKET_URL);
 
       socket.on("connect", () => {
-        console.log("⚡ Connected to forum updates socket");
+        console.log("[Socket] Connected to forum updates socket");
       });
 
       socket.on("new_forum_thread", (data) => {
@@ -787,7 +787,8 @@ export default function Forum() {
               }}
               className="bg-[#00c2cb] hover:bg-[#00a8b5] text-white font-black px-5 py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center gap-2 shrink-0 z-10 hover:scale-105 active:scale-95 border-none"
             >
-              <span className="text-white font-black text-base leading-none">+</span> {t("Start a Discussion")}
+              <i className="fa-solid fa-plus text-xs" />
+              <span>{t("Start a Discussion")}</span>
             </button>
           </div>
 
@@ -795,7 +796,7 @@ export default function Forum() {
           <div className="relative z-50 bg-white rounded-[1.5rem] border border-[#E8E1D5] p-4 flex flex-col gap-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
             {/* Search Input */}
             <div className="search-container relative flex items-center w-full z-50">
-              <span className="absolute left-4 text-slate-400 text-sm">🔍</span>
+              <i className="fa-solid fa-magnifying-glass absolute left-4 text-slate-400 text-xs" />
               <input
                 type="text"
                 placeholder={t("Search topics, tags, or peers...")}
@@ -809,15 +810,17 @@ export default function Forum() {
               {showSuggestionsDropdown && (
                 <div className="absolute left-0 right-0 top-[108%] z-[9999] bg-white border border-[#E8E1D5] rounded-2xl shadow-[0_20px_50px_rgba(7,26,53,0.25)] overflow-hidden text-left animate-modal-fade-in p-2.5">
                   <div className="flex justify-between items-center px-3 py-1.5 border-b border-slate-100 mb-1">
-                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                      💡 {isSearchingSuggestions ? t("Searching...") : t("Matching Discussions")}
+                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <i className="fa-solid fa-lightbulb text-[#00c2cb]" />
+                      <span>{isSearchingSuggestions ? t("Searching...") : t("Matching Discussions")}</span>
                     </span>
                     <button
                       type="button"
                       onClick={() => setShowSuggestionsDropdown(false)}
-                      className="text-[10px] font-bold text-slate-400 hover:text-slate-600 bg-transparent border-none cursor-pointer"
+                      className="text-[10px] font-bold text-slate-400 hover:text-slate-600 bg-transparent border-none cursor-pointer flex items-center gap-1"
                     >
-                      ✕ {t("Close")}
+                      <i className="fa-solid fa-xmark text-[10px]" />
+                      <span>{t("Close")}</span>
                     </button>
                   </div>
 
@@ -857,9 +860,10 @@ export default function Forum() {
 
                           <div className="flex items-center gap-2 shrink-0">
                             <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
-                              💬 {item.repliesCount || 0}
+                              <i className="fa-solid fa-comment text-[10px]" />
+                              <span>{item.repliesCount || 0}</span>
                             </span>
-                            <span className="text-[11px] text-slate-400 group-hover:text-[#071A35] font-bold">→</span>
+                            <i className="fa-solid fa-arrow-right text-[10px] text-slate-400 group-hover:text-[#071A35] transition-colors" />
                           </div>
                         </div>
                       ))}
@@ -1009,11 +1013,11 @@ export default function Forum() {
       {/* ── AI MODERATION TOAST NOTIFICATION ── */}
       {toast && (
         <div className={`fixed top-24 right-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl z-[3000] flex gap-3 w-[360px] animate-modal-slide-in ${toast.type === 'warning' ? 'border-l-4 border-l-amber-500' : toast.type === 'error' ? 'border-l-4 border-l-red-500' : toast.type === 'success' ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-[#00c2cb]'}`}>
-          <div className="text-[18px] mt-0.5">
-            {toast.type === 'warning' && <span>⚠️</span>}
-            {toast.type === 'error' && <span>❌</span>}
-            {toast.type === 'success' && <span>✅</span>}
-            {toast.type === 'info' && <span>ℹ️</span>}
+          <div className="text-[18px] mt-0.5 flex items-center justify-center">
+            {toast.type === 'warning' && <i className="fa-solid fa-triangle-exclamation text-amber-500" />}
+            {toast.type === 'error' && <i className="fa-solid fa-circle-xmark text-red-500" />}
+            {toast.type === 'success' && <i className="fa-solid fa-circle-check text-emerald-500" />}
+            {toast.type === 'info' && <i className="fa-solid fa-circle-info text-[#00c2cb]" />}
           </div>
           <div className="flex-1 flex flex-col gap-0.5">
             <strong className="text-[13px] font-black text-[#0a2342]">
@@ -1023,7 +1027,9 @@ export default function Forum() {
             </strong>
             <p className="text-[12px] text-slate-500 leading-normal">{toast.message}</p>
           </div>
-          <button className="text-[18px] text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1" onClick={() => setToast(null)}>×</button>
+          <button className="text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1 p-1" onClick={() => setToast(null)}>
+            <i className="fa-solid fa-xmark text-sm" />
+          </button>
         </div>
       )}
 

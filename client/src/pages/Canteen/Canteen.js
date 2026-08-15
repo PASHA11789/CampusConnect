@@ -43,10 +43,10 @@ const CAMPUS_LOCATIONS = [
 ];
 
 const CATEGORIES = [
-  { name: "All", icon: "🍽️", bgColor: "bg-[#00c2cb]/10", textColor: "text-[#0079c2]" },
-  { name: "Fast Food", icon: "🍔", bgColor: "bg-orange-50", textColor: "text-orange-500" },
-  { name: "Beverages", icon: "🥤", bgColor: "bg-blue-50", textColor: "text-blue-500" },
-  { name: "Desserts", icon: "🍰", bgColor: "bg-pink-50", textColor: "text-pink-500" },
+  { name: "All", iconClass: "fa-solid fa-utensils", bgColor: "bg-[#00c2cb]/10", textColor: "text-[#0079c2]" },
+  { name: "Fast Food", iconClass: "fa-solid fa-burger", bgColor: "bg-orange-50", textColor: "text-orange-500" },
+  { name: "Beverages", iconClass: "fa-solid fa-mug-hot", bgColor: "bg-blue-50", textColor: "text-blue-500" },
+  { name: "Desserts", iconClass: "fa-solid fa-ice-cream", bgColor: "bg-pink-50", textColor: "text-pink-500" },
 ];
 
 const DEFAULT_CANTEENS = [];
@@ -161,13 +161,13 @@ export default function Canteen() {
         type: "student_nudge_arrival",
         nudgeType: "student_coming",
         orderId: targetOrderId,
-        message: `🏃‍♂️ Student is heading to collect Order ${activeOrder?.orderId || targetOrderId} — they're on their way!`
+        message: `Student is heading to collect Order ${activeOrder?.orderId || targetOrderId} — they're on their way!`
       });
       channel.close();
     } catch (_) { }
 
     if (!targetOrderId) {
-      showToast("🏃 Rider notified! Heading to meetup point.", "success");
+      showToast("Rider notified! Heading to meetup point.", "success");
       return;
     }
 
@@ -177,9 +177,9 @@ export default function Canteen() {
       await axios.post(`/api/orders/${targetOrderId}/nudge-rider`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      showToast("🏃 Notification sent! Rider knows you are coming to pick up food.", "success");
+      showToast("Notification sent! Rider knows you are coming to pick up food.", "success");
     } catch (err) {
-      showToast("🏃 Rider notified! Heading to meetup point.", "info");
+      showToast("Rider notified! Heading to meetup point.", "info");
     } finally {
       setIsNotifyingRider(false);
     }
@@ -342,15 +342,15 @@ export default function Canteen() {
         lastToastStatusRef.current = { status: sKey, time: now };
 
         if (sKey === "ready") {
-          showToast(msg || "🍱 Order Ready! Your food is cooked & packed at the canteen.", "success");
+          showToast(msg || "Order Ready! Your food is cooked & packed at the canteen.", "success");
         } else if (sKey === "on_the_way" || sKey === "accepted") {
-          showToast(msg || "🛵 Rider On The Way! Rider has picked up your food.", "info");
+          showToast(msg || "Rider On The Way! Rider has picked up your food.", "info");
         } else if (sKey === "arrived") {
-          showToast(msg || "📍 Rider Arrived! Rider has reached your location. Please receive your food.", "info");
+          showToast(msg || "Rider Arrived! Rider has reached your location. Please receive your food.", "info");
         } else if (sKey === "completed" || sKey === "delivered") {
-          showToast(msg || "✅ Order Delivered! Enjoy your meal.", "success");
+          showToast(msg || "Order Delivered! Enjoy your meal.", "success");
         } else if (sKey === "cancelled") {
-          showToast(msg || "❌ Order Cancelled. We apologize for the inconvenience.", "error");
+          showToast(msg || "Order Cancelled. We apologize for the inconvenience.", "error");
         }
       }
 
@@ -642,7 +642,7 @@ export default function Canteen() {
     handleRemovePromo();
     setActiveTab("track");
     setIsTrackingOpen(false);
-    showToast("Order placed successfully! 🛵 Delivery tracking is now live.", "success");
+    showToast("Order placed successfully! Delivery tracking is now live.", "success");
   };
 
   // ── Helper to determine food category dynamically ─────────────────
@@ -739,8 +739,8 @@ export default function Canteen() {
                   : "bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white border-amber-300 animate-pulse"
                 }`}>
                 <div className="flex items-center gap-3.5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-2xl shadow-inner shrink-0">
-                    {isStudentComingNotified ? "🏃" : "📍"}
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-xl shadow-inner shrink-0">
+                    <i className={`fa-solid ${isStudentComingNotified ? "fa-person-running" : "fa-location-dot"}`} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
@@ -748,12 +748,14 @@ export default function Canteen() {
                         }`}>
                         {isStudentComingNotified ? "Student On The Way" : "Rider at Delivery Location"}
                       </span>
-                      <span className={`text-xs font-bold ${isStudentComingNotified ? "text-emerald-100" : "text-amber-200"}`}>
-                        {isStudentComingNotified ? "🔔 Bell Stopped • Rider Notified" : "🔔 Continuous Alert Active (5s Ring • 8s Pause)"}
+                      <span className={`text-xs font-bold flex items-center gap-1 ${isStudentComingNotified ? "text-emerald-100" : "text-amber-200"}`}>
+                        <i className="fa-solid fa-bell text-[10px]" />
+                        <span>{isStudentComingNotified ? "Bell Stopped • Rider Notified" : "Continuous Alert Active (5s Ring • 8s Pause)"}</span>
                       </span>
                     </div>
-                    <h4 className="text-sm sm:text-base font-black text-white mt-1 m-0">
-                      {isStudentComingNotified ? "Rider Notified! You are heading out to collect food 🛵" : "Rider Has Arrived! 🛵 Please collect your order!"}
+                    <h4 className="text-sm sm:text-base font-black text-white mt-1 m-0 flex items-center gap-1.5">
+                      <span>{isStudentComingNotified ? "Rider Notified! You are heading out to collect food" : "Rider Has Arrived! Please collect your order!"}</span>
+                      <i className="fa-solid fa-motorcycle text-xs" />
                     </h4>
                     <p className={`text-xs font-medium mt-0.5 m-0 ${isStudentComingNotified ? "text-emerald-100" : "text-rose-100"}`}>
                       {isStudentComingNotified
@@ -771,11 +773,19 @@ export default function Canteen() {
                         : "bg-white text-rose-700 hover:bg-rose-50 border-amber-200 cursor-pointer active:scale-95"
                       }`}
                   >
-                    {isStudentComingNotified
-                      ? "✅ Rider Notified (On My Way 🏃)"
-                      : isNotifyingRider
-                        ? "Notifying Rider..."
-                        : "🏃 I'm Coming to Pick Up! (Notify Rider)"}
+                    {isStudentComingNotified ? (
+                      <>
+                        <i className="fa-solid fa-circle-check text-xs" />
+                        <span>Rider Notified (On My Way)</span>
+                      </>
+                    ) : isNotifyingRider ? (
+                      <span>Notifying Rider...</span>
+                    ) : (
+                      <>
+                        <i className="fa-solid fa-person-running text-xs" />
+                        <span>I'm Coming to Pick Up! (Notify Rider)</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -828,7 +838,7 @@ export default function Canteen() {
 
                         <div className="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-xs font-semibold text-white/80 flex-wrap mt-0.5">
                           <div className="flex items-center gap-1 bg-white/10 text-[#00c2cb] px-2 py-0.5 rounded-lg border border-white/10 font-black text-[10px] sm:text-[11px]">
-                            <span className="text-amber-400">★</span>
+                            <i className="fa-solid fa-star text-amber-400 text-[10px]" />
                             <span>4.8</span>
                           </div>
                           <span className="hidden sm:inline">Campus Favorite</span>
@@ -843,7 +853,7 @@ export default function Canteen() {
                         onClick={() => setActiveRestaurant("")}
                         className="w-full md:w-auto flex items-center justify-center gap-2 text-xs font-black text-[#071A35] hover:bg-[#00a8b5] bg-[#00c2cb] px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl transition-all cursor-pointer border-none shadow-md group"
                       >
-                        <span className="group-hover:-translate-x-0.5 transition-transform">←</span>
+                        <i className="fa-solid fa-arrow-left group-hover:-translate-x-0.5 transition-transform" />
                         <span>Select Another Canteen</span>
                       </button>
                     </div>
@@ -860,18 +870,18 @@ export default function Canteen() {
                       setSelectedCategory={setSelectedCategory}
                       categories={(() => {
                         const cats = Array.from(new Set((menuList || []).map((i) => i.category).filter(Boolean)));
-                        const list = [{ name: "All", icon: "🍽️", bgColor: "bg-[#00c2cb]/10", textColor: "text-[#0079c2]" }];
+                        const list = [{ name: "All", iconClass: "fa-solid fa-utensils", bgColor: "bg-[#00c2cb]/10", textColor: "text-[#0079c2]" }];
                         cats.forEach((catName) => {
-                          let icon = "🍛";
+                          let iconClass = "fa-solid fa-bowl-food";
                           const lower = catName.toLowerCase();
-                          if (lower.includes("burger")) icon = "🍔";
-                          else if (lower.includes("pizza")) icon = "🍕";
-                          else if (lower.includes("pasta")) icon = "🍝";
-                          else if (lower.includes("beverage") || lower.includes("drink")) icon = "🥤";
-                          else if (lower.includes("dessert") || lower.includes("cake")) icon = "🍰";
+                          if (lower.includes("burger")) iconClass = "fa-solid fa-burger";
+                          else if (lower.includes("pizza")) iconClass = "fa-solid fa-pizza-slice";
+                          else if (lower.includes("pasta") || lower.includes("noodle")) iconClass = "fa-solid fa-bowl-rice";
+                          else if (lower.includes("beverage") || lower.includes("drink") || lower.includes("tea") || lower.includes("coffee")) iconClass = "fa-solid fa-mug-hot";
+                          else if (lower.includes("dessert") || lower.includes("cake") || lower.includes("sweet")) iconClass = "fa-solid fa-ice-cream";
                           list.push({
                             name: catName,
-                            icon,
+                            iconClass,
                             bgColor: "bg-slate-50",
                             textColor: "text-slate-700"
                           });
@@ -922,8 +932,9 @@ export default function Canteen() {
                   <div className="flex flex-col gap-6 animate-fade-in">
                     <div className="relative rounded-3xl overflow-hidden shadow-lg bg-gradient-to-r from-[#0a2342] via-[#0f2e54] to-[#0a2342] p-6 flex flex-col gap-3 text-white border border-[#00c2cb]/30">
                       <div className="flex justify-between items-center flex-wrap gap-2">
-                        <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#00c2cb] bg-[#00c2cb]/15 px-3 py-1 rounded-full border border-[#00c2cb]/30">
-                          🛵 Live Active Order Tracking
+                        <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#00c2cb] bg-[#00c2cb]/15 px-3 py-1 rounded-full border border-[#00c2cb]/30 flex items-center gap-1.5">
+                          <i className="fa-solid fa-motorcycle text-xs" />
+                          <span>Live Active Order Tracking</span>
                         </span>
                         {activeOrder && (
                           <span className="text-xs font-black text-[#00c2cb]">
@@ -936,7 +947,7 @@ export default function Canteen() {
                         {activeOrder ? (activeOrder.canteenName || activeOrder.restaurantName || activeOrder.restaurant?.name || DEFAULT_CANTEENS.find(c => c._id === (activeOrder.restaurant?._id || activeOrder.restaurant))?.name || "Campus Canteen") : "Canteen Active Order"}
                       </h2>
                       <p className="text-[12px] text-slate-300 font-medium">
-                        Real-time status updates: Kitchen Preparation → Food Ready → Rider Picked Up → Arrival at Location
+                        Real-time status updates: Kitchen Preparation / Food Ready / Rider Picked Up / Arrival at Location
                       </p>
                     </div>
 
@@ -968,10 +979,10 @@ export default function Canteen() {
                         <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
                           <div className="grid grid-cols-4 gap-2">
                             {[
-                              { id: "preparing", label: "Preparing", icon: "🍳" },
-                              { id: "ready", label: "Order Ready", icon: "🍱" },
-                              { id: "on_the_way", label: "Rider On Way", icon: "🛵" },
-                              { id: "arrived", label: "Rider at Location", icon: "📍" },
+                              { id: "preparing", label: "Preparing", icon: "fa-solid fa-fire-burner" },
+                              { id: "ready", label: "Order Ready", icon: "fa-solid fa-box-open" },
+                              { id: "on_the_way", label: "Rider On Way", icon: "fa-solid fa-motorcycle" },
+                              { id: "arrived", label: "Rider at Location", icon: "fa-solid fa-location-dot" },
                             ].map((step, idx) => {
                               const currentKey = getNormalizedStatus(activeOrder.status);
                               const getStepIdx = (st) => {
@@ -988,14 +999,14 @@ export default function Canteen() {
                               return (
                                 <div key={step.id} className="flex flex-col items-center text-center">
                                   <div
-                                    className={`w-10 h-10 rounded-2xl flex items-center justify-center text-base font-bold transition-all duration-300 ${isActive
+                                    className={`w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-bold transition-all duration-300 ${isActive
                                       ? "bg-[#00c2cb] text-[#0a2342] scale-110 shadow-[0_0_15px_rgba(0,194,203,0.5)] ring-4 ring-[#00c2cb]/20"
                                       : isPassed
                                         ? "bg-emerald-500 text-white"
                                         : "bg-slate-200 text-slate-400"
                                       }`}
                                   >
-                                    {isPassed ? "✓" : step.icon}
+                                    {isPassed ? <i className="fa-solid fa-check" /> : <i className={step.icon} />}
                                   </div>
                                   <span
                                     className={`text-[11px] font-bold mt-2 ${isActive ? "text-[#00c2cb] font-black" : isPassed ? "text-emerald-600" : "text-slate-400"
@@ -1011,12 +1022,12 @@ export default function Canteen() {
 
                         {/* Current Live Status Banner */}
                         <div className="p-4 rounded-2xl bg-gradient-to-r from-[#0a2342] to-[#0f2e54] text-white flex items-center gap-4 shadow-md">
-                          <div className="text-3xl animate-bounce">
-                            {getNormalizedStatus(activeOrder.status) === "preparing" && "🍳"}
-                            {getNormalizedStatus(activeOrder.status) === "ready" && "🍱"}
-                            {getNormalizedStatus(activeOrder.status) === "on_the_way" && "🛵"}
-                            {getNormalizedStatus(activeOrder.status) === "arrived" && "📍"}
-                            {getNormalizedStatus(activeOrder.status) === "completed" && "✅"}
+                          <div className="text-2xl text-[#00c2cb] animate-bounce">
+                            {getNormalizedStatus(activeOrder.status) === "preparing" && <i className="fa-solid fa-fire-burner" />}
+                            {getNormalizedStatus(activeOrder.status) === "ready" && <i className="fa-solid fa-box-open" />}
+                            {getNormalizedStatus(activeOrder.status) === "on_the_way" && <i className="fa-solid fa-motorcycle" />}
+                            {getNormalizedStatus(activeOrder.status) === "arrived" && <i className="fa-solid fa-location-dot" />}
+                            {getNormalizedStatus(activeOrder.status) === "completed" && <i className="fa-solid fa-circle-check text-emerald-400" />}
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
@@ -1032,8 +1043,8 @@ export default function Canteen() {
                             <p className="text-xs font-semibold text-slate-200 mt-1 m-0">
                               {getNormalizedStatus(activeOrder.status) === "preparing" && "Kitchen has received your order and is currently preparing your meal."}
                               {getNormalizedStatus(activeOrder.status) === "ready" && "Khana canteen par ready ho gaya hai! Waiting for rider pickup."}
-                              {getNormalizedStatus(activeOrder.status) === "on_the_way" && "Rider order le kar aap ki location ki taraf aa raha hai! 🛵"}
-                              {getNormalizedStatus(activeOrder.status) === "arrived" && "Rider aap ki location par pohnch gaya hai! 📍 Kripya food receive karein."}
+                              {getNormalizedStatus(activeOrder.status) === "on_the_way" && "Rider order le kar aap ki location ki taraf aa raha hai!"}
+                              {getNormalizedStatus(activeOrder.status) === "arrived" && "Rider aap ki location par pohnch gaya hai! Kripya food receive karein."}
                               {getNormalizedStatus(activeOrder.status) === "completed" && "Order has been delivered successfully. Enjoy your meal!"}
                             </p>
                           </div>
@@ -1049,13 +1060,16 @@ export default function Canteen() {
                             rel="noreferrer"
                             className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none py-2.5 px-5 rounded-xl text-xs font-black tracking-wider uppercase cursor-pointer transition-all shadow-md no-underline"
                           >
-                            💬 Contact via WhatsApp
+                            <i className="fa-brands fa-whatsapp text-sm" />
+                            <span>Contact via WhatsApp</span>
                           </a>
                         </div>
                       </div>
                     ) : (
                       <div className="bg-white border border-slate-200/90 rounded-3xl p-8 sm:p-10 text-center flex flex-col items-center gap-3 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                        <span className="text-4xl">🛵</span>
+                        <div className="w-16 h-16 rounded-full bg-[#00c2cb]/10 text-[#00c2cb] flex items-center justify-center text-3xl mb-1">
+                          <i className="fa-solid fa-motorcycle" />
+                        </div>
                         <h3 className="text-base font-black text-[#0a2342]">No Active Order Currently</h3>
                         <p className="text-xs text-slate-500 font-semibold max-w-sm m-0">
                           You don't have an active canteen order right now. Select a restaurant and place an order from the Browse Menu tab to track it here live!
@@ -1123,15 +1137,17 @@ export default function Canteen() {
       {toast && (
         <div className={`fixed top-24 sm:top-28 right-3 sm:right-6 w-max max-w-[320px] sm:max-w-[400px] bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl px-4 py-3 shadow-xl z-[3000] flex items-start gap-2.5 animate-modal-slide-in ${toast.type === 'warning' ? 'border-l-4 border-l-amber-500' : toast.type === 'error' ? 'border-l-4 border-l-red-500' : toast.type === 'success' ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-[#00c2cb]'}`}>
           <div className="text-sm shrink-0 mt-0.5">
-            {toast.type === 'warning' && <span>⚠️</span>}
-            {toast.type === 'error' && <span>❌</span>}
-            {toast.type === 'success' && <span>✅</span>}
-            {toast.type === 'info' && <span>ℹ️</span>}
+            {toast.type === 'warning' && <i className="fa-solid fa-triangle-exclamation text-amber-500" />}
+            {toast.type === 'error' && <i className="fa-solid fa-circle-xmark text-rose-500" />}
+            {toast.type === 'success' && <i className="fa-solid fa-circle-check text-emerald-500" />}
+            {toast.type === 'info' && <i className="fa-solid fa-circle-info text-[#00c2cb]" />}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-bold text-[#0a2342] leading-snug">{toast.message}</p>
           </div>
-          <button className="text-xs font-black text-slate-400 hover:text-slate-700 cursor-pointer border-none bg-none p-0.5 shrink-0 leading-none" onClick={() => setToast(null)}>×</button>
+          <button className="text-xs font-black text-slate-400 hover:text-slate-700 cursor-pointer border-none bg-none p-0.5 shrink-0 leading-none" onClick={() => setToast(null)}>
+            <i className="fa-solid fa-xmark text-xs" />
+          </button>
         </div>
       )}
     </div>

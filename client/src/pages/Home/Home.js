@@ -225,15 +225,16 @@ export default function Home() {
                 Get Started Now <span><IconArrow /></span>
               </button>
               <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white/10 text-white border border-white/20 hover:bg-white/20 rounded-xl py-3.5 sm:py-4 px-7 sm:px-8 text-[14.5px] sm:text-[15.5px] font-bold cursor-pointer transition-all active:scale-98 cc-page-cursor-none" onClick={() => document.getElementById('modules').scrollIntoView({ behavior: 'smooth' })}>
-                Explore Modules <span>✦</span>
+                <span>Explore Modules</span>
+                <i className="fa-solid fa-wand-magic-sparkles text-xs text-[#00c2cb]" />
               </button>
             </div>
 
             {/* Quick feature tags */}
             <div className="flex items-center justify-center lg:justify-start gap-3 sm:gap-6 pt-4 border-t border-white/15 text-white/80 text-[12px] sm:text-[13px] font-bold flex-wrap">
-              <span className="flex items-center gap-1.5"><span className="text-[#00c2cb]">✓</span> Student-Built Platform</span>
-              <span className="flex items-center gap-1.5"><span className="text-[#00c2cb]">✓</span> Student Petitions & Forums</span>
-              <span className="flex items-center gap-1.5"><span className="text-[#00c2cb]">✓</span> Canteen Pre-Ordering</span>
+              <span className="flex items-center gap-1.5"><i className="fa-solid fa-check text-[#00c2cb] text-xs" /> Student-Built Platform</span>
+              <span className="flex items-center gap-1.5"><i className="fa-solid fa-check text-[#00c2cb] text-xs" /> Student Petitions & Forums</span>
+              <span className="flex items-center gap-1.5"><i className="fa-solid fa-check text-[#00c2cb] text-xs" /> Canteen Pre-Ordering</span>
             </div>
           </div>
 

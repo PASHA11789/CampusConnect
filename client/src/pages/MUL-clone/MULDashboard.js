@@ -251,7 +251,7 @@ const MULDashboard = () => {
               onClick={() => navigate('/dashboard')}
               className="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white text-[11px] sm:text-xs font-bold px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-md shadow-xs tracking-wide transition-all transform hover:scale-105"
             >
-              <span className="text-[14px]">🎓</span>
+              <i className="fa-solid fa-graduation-cap text-xs" />
               <span className="hidden sm:inline">CampusConnect</span>
               <span className="sm:hidden">CC</span>
             </button>

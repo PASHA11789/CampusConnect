@@ -9,6 +9,14 @@ const IconLogout = () => <i className="fa-solid fa-right-from-bracket w-4 h-4 sh
 const IconZap = () => <i className="fa-solid fa-bolt w-4 h-4 shrink-0 flex items-center justify-center" />;
 
 
+const IconCareer = () => <i className="fa-solid fa-briefcase w-4 h-4 shrink-0 flex items-center justify-center" />;
+const IconCanteen = () => <i className="fa-solid fa-utensils w-4 h-4 shrink-0 flex items-center justify-center" />;
+const IconBus = () => <i className="fa-solid fa-bus w-4 h-4 shrink-0 flex items-center justify-center" />;
+const IconMod = () => <i className="fa-solid fa-shield-halved w-4 h-4 shrink-0 flex items-center justify-center" />;
+const IconUsers = () => <i className="fa-solid fa-users w-4 h-4 shrink-0 flex items-center justify-center" />;
+const IconStore = () => <i className="fa-solid fa-store w-4 h-4 shrink-0 flex items-center justify-center" />;
+
+
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -80,7 +88,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               <div className="text-[9px] font-black tracking-wider text-slate-400 px-3 pt-1 pb-1.5 uppercase">ALUMNI NAVIGATION</div>
               <Link to="/career" className={getNavItemClass('/career')}>
                 <div className="flex items-center gap-2.5">
-                  <span className="text-[14px]">💼</span>
+                  <IconCareer />
                   <span>Career Paths</span>
                 </div>
               </Link>
@@ -110,7 +118,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 </Link>
                 <Link to="/career" className={getNavItemClass('/career')}>
                   <div className="flex items-center gap-2.5">
-                    <span className="text-[14px]">💼</span>
+                    <IconCareer />
                     <span>Career Paths</span>
                   </div>
                 </Link>
@@ -121,7 +129,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 <div className="text-[9px] font-black tracking-wider text-slate-400 px-3 pt-1 pb-1.5 uppercase">CAMPUS SERVICES</div>
                 <Link to="/canteen" className={getNavItemClass('/canteen')}>
                   <div className="flex items-center gap-2.5">
-                    <span className="text-[14px]">☕</span>
+                    <IconCanteen />
                     <span>Canteen</span>
                   </div>
                 </Link>
@@ -139,7 +147,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 </Link>
                 <Link to="/bus-routes" className={getNavItemClass('/bus-routes')}>
                   <div className="flex items-center gap-2.5">
-                    <span className="text-[14px]">🚌</span>
+                    <IconBus />
                     <span>Bus Routes</span>
                   </div>
                 </Link>
@@ -152,7 +160,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               <div className="text-[9px] font-black tracking-wider text-slate-400 px-3 pt-1 pb-1.5 uppercase">MODERATION</div>
               <Link to="/moderation" className={getNavItemClass('/moderation')}>
                 <div className="flex items-center gap-2.5">
-                  <span className="text-[14px]">🛡️</span>
+                  <IconMod />
                   <span>Moderator Room</span>
                 </div>
               </Link>
@@ -164,13 +172,13 @@ const Sidebar = ({ isOpen, onClose }) => {
               <div className="text-[9px] font-black tracking-wider text-slate-400 px-3 pt-1 pb-1.5 uppercase">ADMINISTRATION</div>
               <Link to="/admin/users" className={getNavItemClass('/admin/users')}>
                 <div className="flex items-center gap-2.5">
-                  <span className="text-[14px]">👥</span>
+                  <IconUsers />
                   <span>Manage Users</span>
                 </div>
               </Link>
               <Link to="/admin/restaurants" className={getNavItemClass('/admin/restaurants')}>
                 <div className="flex items-center gap-2.5">
-                  <span className="text-[14px]">🏬</span>
+                  <IconStore />
                   <span>Manage Restaurants</span>
                 </div>
               </Link>

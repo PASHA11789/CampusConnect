@@ -3,6 +3,7 @@ import Sidebar from '../../components/layout/Sidebar';
 import Topbar from '../../components/layout/Topbar';
 import { getUsers, createUser, deleteUser, updateUserRole, resetUserPassword, updateUser } from '../../services/adminService';
 import { useNavigate } from 'react-router-dom';
+import AnimatedSelect from '../../components/common/AnimatedSelect';
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Minhaj University Lahore - Official Academic Catalog
@@ -521,8 +522,8 @@ const UsersManager = () => {
             {/* ── METRICS OVERVIEW CARDS ── */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
               <div className="bg-white rounded-2xl border border-[#E8E1D5] p-4 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-xl bg-[#071A35]/10 text-[#071A35] flex items-center justify-center text-xl shrink-0">
-                  👥
+                <div className="w-11 h-11 rounded-xl bg-[#071A35]/10 text-[#071A35] flex items-center justify-center text-lg shrink-0">
+                  <i className="fa-solid fa-users" />
                 </div>
                 <div className="flex flex-col text-left min-w-0">
                   <span className="text-[20px] font-black text-[#071A35] leading-none">{users.length}</span>
@@ -531,8 +532,8 @@ const UsersManager = () => {
               </div>
 
               <div className="bg-white rounded-2xl border border-[#E8E1D5] p-4 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-xl bg-[#00c2cb]/15 text-[#00a8b5] flex items-center justify-center text-xl shrink-0">
-                  🎓
+                <div className="w-11 h-11 rounded-xl bg-[#00c2cb]/15 text-[#00a8b5] flex items-center justify-center text-lg shrink-0">
+                  <i className="fa-solid fa-graduation-cap" />
                 </div>
                 <div className="flex flex-col text-left min-w-0">
                   <span className="text-[20px] font-black text-[#071A35] leading-none">{totalStudents}</span>
@@ -541,8 +542,8 @@ const UsersManager = () => {
               </div>
 
               <div className="bg-white rounded-2xl border border-[#E8E1D5] p-4 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center text-xl shrink-0">
-                  📜
+                <div className="w-11 h-11 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center text-lg shrink-0">
+                  <i className="fa-solid fa-scroll" />
                 </div>
                 <div className="flex flex-col text-left min-w-0">
                   <span className="text-[20px] font-black text-[#071A35] leading-none">{totalAlumni}</span>
@@ -551,8 +552,8 @@ const UsersManager = () => {
               </div>
 
               <div className="bg-white rounded-2xl border border-[#E8E1D5] p-4 shadow-[0_4px_15px_rgba(7,26,53,0.03)] flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center text-xl shrink-0">
-                  🛡️
+                <div className="w-11 h-11 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center text-lg shrink-0">
+                  <i className="fa-solid fa-shield-halved" />
                 </div>
                 <div className="flex flex-col text-left min-w-0">
                   <span className="text-[20px] font-black text-[#071A35] leading-none">{totalAdminsMods}</span>
@@ -567,7 +568,7 @@ const UsersManager = () => {
               {/* Header Title & View Toggle */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[#E8E1D5]/60 pb-3.5">
                 <div className="flex items-center gap-2 text-left">
-                  <span className="text-base">📁</span>
+                  <i className="fa-solid fa-folder-open text-[#00c2cb] text-sm" />
                   <h3 className="text-[14px] font-black text-[#071A35] uppercase tracking-wide">
                     Minhaj Degree Programs &amp; Directory Filter
                   </h3>
@@ -580,17 +581,19 @@ const UsersManager = () => {
                 <div className="flex items-center gap-1 bg-[#FAF7F0] p-1 rounded-xl border border-[#E8E1D5] self-end sm:self-auto">
                   <button
                     onClick={() => setViewMode('table')}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-black transition-all flex items-center gap-1.5 cursor-pointer border-none ${viewMode === 'table' ? "bg-[#071A35] text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-black transition-all flex items-center gap-1.5 cursor-pointer border-none ${viewMode === 'table' ? "bg-[#071A35] text-white shadow-xs" : "text-slate-600 hover:text-slate-900 bg-transparent"
                       }`}
                   >
-                    <span>📋</span> Table
+                    <i className="fa-solid fa-table-list text-xs" />
+                    <span>Table</span>
                   </button>
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-black transition-all flex items-center gap-1.5 cursor-pointer border-none ${viewMode === 'grid' ? "bg-[#071A35] text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-black transition-all flex items-center gap-1.5 cursor-pointer border-none ${viewMode === 'grid' ? "bg-[#071A35] text-white shadow-xs" : "text-slate-600 hover:text-slate-900 bg-transparent"
                       }`}
                   >
-                    <span>🎴</span> Cards
+                    <i className="fa-solid fa-grip text-xs" />
+                    <span>Cards</span>
                   </button>
                 </div>
               </div>
@@ -609,95 +612,80 @@ const UsersManager = () => {
                     className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl pl-9 pr-8 py-2.5 text-[12px] font-semibold text-[#071A35] placeholder-slate-400 focus:outline-none focus:border-[#00c2cb] focus:bg-white transition-colors"
                   />
                   {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} className="absolute right-3 text-slate-400 hover:text-slate-600 font-bold text-xs cursor-pointer">
-                      ✕
+                    <button onClick={() => setSearchQuery('')} className="absolute right-3 text-slate-400 hover:text-slate-600 font-bold text-xs cursor-pointer border-none bg-transparent">
+                      <i className="fa-solid fa-xmark" />
                     </button>
                   )}
                 </div>
 
                 {/* Program Track Filter */}
-                <div className="relative flex items-center w-full">
-                  <span className="absolute left-3 text-sm pointer-events-none">📚</span>
-                  <select
+                <div className="w-full">
+                  <AnimatedSelect
+                    size="sm"
+                    icon="fa-solid fa-book-open"
                     value={selectedTrack}
                     onChange={(e) => {
                       setSelectedTrack(e.target.value);
                       setSelectedDepartment('All Programs');
                     }}
-                    className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl pl-9 pr-7 py-2.5 text-[12px] font-extrabold text-[#071A35] focus:outline-none focus:border-[#00c2cb] focus:bg-white appearance-none cursor-pointer"
-                  >
-                    <option value="All Tracks">All Program Tracks</option>
-                    <option value="BS Programs">BS Programs (4-5 Years)</option>
-                    <option value="Associate Degree Programs">Associate Degree Programs (ADP)</option>
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                    <i className="fa-solid fa-chevron-down text-xs flex items-center justify-center" />
-                  </div>
+                    options={[
+                      { value: "All Tracks", label: "All Program Tracks" },
+                      { value: "BS Programs", label: "BS Programs (4-5 Years)" },
+                      { value: "Associate Degree Programs", label: "Associate Degree Programs (ADP)" }
+                    ]}
+                    buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[12px] font-extrabold text-[#071A35] py-2 px-3 rounded-xl"
+                  />
                 </div>
 
                 {/* Degree / Course Dropdown Filter */}
-                <div className="relative flex items-center w-full">
-                  <span className="absolute left-3 text-sm pointer-events-none">🏢</span>
-                  <select
+                <div className="w-full">
+                  <AnimatedSelect
+                    size="sm"
+                    icon="fa-solid fa-building-columns"
                     value={selectedDepartment}
                     onChange={(e) => setSelectedDepartment(e.target.value)}
-                    className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl pl-9 pr-7 py-2.5 text-[12px] font-extrabold text-[#071A35] focus:outline-none focus:border-[#00c2cb] focus:bg-white appearance-none cursor-pointer truncate"
-                  >
-                    <option value="All Programs">All Programs &amp; Courses</option>
-                    {selectedTrack === 'All Tracks' ? (
-                      <>
-                        <optgroup label="── BS Programs ──">
-                          {MINHAJ_PROGRAMS["BS Programs"].map(p => <option key={p} value={p}>{p}</option>)}
-                        </optgroup>
-                        <optgroup label="── Associate Degree Programs (ADP) ──">
-                          {MINHAJ_PROGRAMS["Associate Degree Programs"].map(p => <option key={p} value={p}>{p}</option>)}
-                        </optgroup>
-                      </>
-                    ) : (
-                      MINHAJ_PROGRAMS[selectedTrack]?.map(p => (
-                        <option key={p} value={p}>{p}</option>
-                      ))
-                    )}
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                    <i className="fa-solid fa-chevron-down text-xs flex items-center justify-center" />
-                  </div>
+                    options={[
+                      { value: "All Programs", label: "All Programs & Courses" },
+                      ...(selectedTrack === 'All Tracks'
+                        ? [
+                            ...MINHAJ_PROGRAMS["BS Programs"].map(p => ({ value: p, label: `BS: ${p}` })),
+                            ...MINHAJ_PROGRAMS["Associate Degree Programs"].map(p => ({ value: p, label: `ADP: ${p}` }))
+                          ]
+                        : (MINHAJ_PROGRAMS[selectedTrack] || []).map(p => ({ value: p, label: p }))
+                      )
+                    ]}
+                    buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[12px] font-extrabold text-[#071A35] py-2 px-3 rounded-xl truncate"
+                  />
                 </div>
 
                 {/* Semester Dropdown Filter */}
-                <div className="relative flex items-center w-full">
-                  <span className="absolute left-3 text-sm pointer-events-none">🎓</span>
-                  <select
+                <div className="w-full">
+                  <AnimatedSelect
+                    size="sm"
+                    icon="fa-solid fa-graduation-cap"
                     value={selectedSemester}
                     onChange={(e) => setSelectedSemester(e.target.value)}
-                    className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl pl-9 pr-7 py-2.5 text-[12px] font-extrabold text-[#071A35] focus:outline-none focus:border-[#00c2cb] focus:bg-white appearance-none cursor-pointer"
-                  >
-                    {DEFAULT_SEMESTERS.map((sem) => (
-                      <option key={sem} value={sem}>{sem}</option>
-                    ))}
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                    <i className="fa-solid fa-chevron-down text-xs flex items-center justify-center" />
-                  </div>
+                    options={DEFAULT_SEMESTERS.map(sem => ({ value: sem, label: sem }))}
+                    buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[12px] font-extrabold text-[#071A35] py-2 px-3 rounded-xl"
+                  />
                 </div>
 
                 {/* Role Filter Dropdown */}
-                <div className="relative flex items-center w-full">
-                  <span className="absolute left-3 text-sm pointer-events-none">🏷️</span>
-                  <select
+                <div className="w-full">
+                  <AnimatedSelect
+                    size="sm"
+                    icon="fa-solid fa-tag"
                     value={selectedRole}
                     onChange={(e) => setSelectedRole(e.target.value)}
-                    className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl pl-9 pr-7 py-2.5 text-[12px] font-extrabold text-[#071A35] focus:outline-none focus:border-[#00c2cb] focus:bg-white appearance-none cursor-pointer"
-                  >
-                    <option value="All Roles">All Roles</option>
-                    <option value="student">Student</option>
-                    <option value="alumni">Alumni</option>
-                    <option value="student_mod">Moderator</option>
-                    <option value="campus_admin">Campus Admin</option>
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                    <i className="fa-solid fa-chevron-down text-xs flex items-center justify-center" />
-                  </div>
+                    options={[
+                      { value: "All Roles", label: "All Roles" },
+                      { value: "student", label: "Student" },
+                      { value: "alumni", label: "Alumni" },
+                      { value: "student_mod", label: "Moderator" },
+                      { value: "campus_admin", label: "Campus Admin" }
+                    ]}
+                    buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[12px] font-extrabold text-[#071A35] py-2 px-3 rounded-xl"
+                  />
                 </div>
 
               </div>
@@ -708,32 +696,47 @@ const UsersManager = () => {
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Filters:</span>
                   {selectedTrack !== 'All Tracks' && (
                     <span className="bg-[#071A35] text-white text-[10.5px] font-black px-2.5 py-1 rounded-full flex items-center gap-1">
-                      📚 {selectedTrack}
-                      <button onClick={() => setSelectedTrack('All Tracks')} className="hover:text-red-300 ml-1">✕</button>
+                      <i className="fa-solid fa-book-open text-[10px]" />
+                      <span>{selectedTrack}</span>
+                      <button onClick={() => setSelectedTrack('All Tracks')} className="hover:text-red-300 ml-1 border-none bg-transparent cursor-pointer text-white">
+                        <i className="fa-solid fa-xmark text-[10px]" />
+                      </button>
                     </span>
                   )}
                   {selectedDepartment !== 'All Programs' && (
                     <span className="bg-[#00c2cb] text-[#071A35] text-[10.5px] font-black px-2.5 py-1 rounded-full flex items-center gap-1">
-                      🏢 {selectedDepartment}
-                      <button onClick={() => setSelectedDepartment('All Programs')} className="hover:text-red-700 ml-1">✕</button>
+                      <i className="fa-solid fa-building-columns text-[10px]" />
+                      <span>{selectedDepartment}</span>
+                      <button onClick={() => setSelectedDepartment('All Programs')} className="hover:text-red-700 ml-1 border-none bg-transparent cursor-pointer text-[#071A35]">
+                        <i className="fa-solid fa-xmark text-[10px]" />
+                      </button>
                     </span>
                   )}
                   {selectedSemester !== 'All Semesters' && (
                     <span className="bg-indigo-700 text-white text-[10.5px] font-black px-2.5 py-1 rounded-full flex items-center gap-1">
-                      🎓 {selectedSemester}
-                      <button onClick={() => setSelectedSemester('All Semesters')} className="hover:text-red-300 ml-1">✕</button>
+                      <i className="fa-solid fa-graduation-cap text-[10px]" />
+                      <span>{selectedSemester}</span>
+                      <button onClick={() => setSelectedSemester('All Semesters')} className="hover:text-red-300 ml-1 border-none bg-transparent cursor-pointer text-white">
+                        <i className="fa-solid fa-xmark text-[10px]" />
+                      </button>
                     </span>
                   )}
                   {selectedRole !== 'All Roles' && (
                     <span className="bg-purple-600 text-white text-[10.5px] font-black px-2.5 py-1 rounded-full flex items-center gap-1">
-                      🏷️ {selectedRole}
-                      <button onClick={() => setSelectedRole('All Roles')} className="hover:text-red-300 ml-1">✕</button>
+                      <i className="fa-solid fa-tag text-[10px]" />
+                      <span>{selectedRole}</span>
+                      <button onClick={() => setSelectedRole('All Roles')} className="hover:text-red-300 ml-1 border-none bg-transparent cursor-pointer text-white">
+                        <i className="fa-solid fa-xmark text-[10px]" />
+                      </button>
                     </span>
                   )}
                   {searchQuery && (
                     <span className="bg-slate-200 text-slate-800 text-[10.5px] font-black px-2.5 py-1 rounded-full flex items-center gap-1">
-                      🔍 "{searchQuery}"
-                      <button onClick={() => setSearchQuery('')} className="hover:text-red-600 ml-1">✕</button>
+                      <i className="fa-solid fa-magnifying-glass text-[10px]" />
+                      <span>"{searchQuery}"</span>
+                      <button onClick={() => setSearchQuery('')} className="hover:text-red-600 ml-1 border-none bg-transparent cursor-pointer text-slate-800">
+                        <i className="fa-solid fa-xmark text-[10px]" />
+                      </button>
                     </span>
                   )}
                   <button
@@ -769,8 +772,8 @@ const UsersManager = () => {
                 </div>
               ) : filteredUsers.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-14 px-4 text-center">
-                  <div className="w-16 h-16 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center text-2xl mb-3 shadow-inner">
-                    🔍
+                  <div className="w-16 h-16 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center text-xl mb-3 shadow-inner text-slate-400">
+                    <i className="fa-solid fa-magnifying-glass" />
                   </div>
                   <h4 className="text-[15px] font-black text-[#071A35] mb-1">No Users Match Selected Filters</h4>
                   <p className="text-[12px] font-semibold text-slate-500 max-w-sm mb-4">
@@ -840,16 +843,19 @@ const UsersManager = () => {
                             {/* Department / Program Tag */}
                             <td className="py-3.5 px-3">
                               {u.role === 'campus_admin' ? (
-                                <span className="text-[11px] font-black text-[#071A35] bg-[#071A35]/10 border border-[#071A35]/20 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1 shadow-xs">
-                                  🛡️ Campus Administrator
+                                <span className="text-[11px] font-black text-[#071A35] bg-[#071A35]/10 border border-[#071A35]/20 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1.5 shadow-xs">
+                                  <i className="fa-solid fa-shield-halved text-[#071A35]" />
+                                  <span>Campus Administrator</span>
                                 </span>
                               ) : u.role === 'alumni' ? (
-                                <span className="text-[11px] font-black text-purple-800 bg-purple-50 border border-purple-200 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1 shadow-xs">
-                                  🎓 Alumni Member
+                                <span className="text-[11px] font-black text-purple-800 bg-purple-50 border border-purple-200 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1.5 shadow-xs">
+                                  <i className="fa-solid fa-graduation-cap text-purple-700" />
+                                  <span>Alumni Member</span>
                                 </span>
                               ) : (
-                                <span className="text-[11px] font-black text-[#071A35] bg-[#071A35]/5 border border-[#071A35]/10 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1 shadow-xs">
-                                  🏛️ {dept}
+                                <span className="text-[11px] font-black text-[#071A35] bg-[#071A35]/5 border border-[#071A35]/10 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1.5 shadow-xs">
+                                  <i className="fa-solid fa-building-columns text-[#00c2cb]" />
+                                  <span>{dept}</span>
                                 </span>
                               )}
                             </td>
@@ -859,8 +865,9 @@ const UsersManager = () => {
                               {isNonStudent ? (
                                 <span className="text-[11px] font-bold text-slate-400">—</span>
                               ) : (
-                                <span className="text-[11px] font-black text-[#0079c2] bg-[#00c2cb]/15 border border-[#00c2cb]/30 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1">
-                                  🎓 {sem}
+                                <span className="text-[11px] font-black text-[#0079c2] bg-[#00c2cb]/15 border border-[#00c2cb]/30 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1.5">
+                                  <i className="fa-solid fa-graduation-cap text-[#0079c2]" />
+                                  <span>{sem}</span>
                                 </span>
                               )}
                             </td>
@@ -870,29 +877,33 @@ const UsersManager = () => {
                               {isNonStudent ? (
                                 <span className="text-[11px] font-bold text-slate-400">—</span>
                               ) : (
-                                <span className="text-[11px] font-black text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1">
-                                  🔖 {sec}
+                                <span className="text-[11px] font-black text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1.5">
+                                  <i className="fa-solid fa-bookmark text-emerald-700" />
+                                  <span>{sec}</span>
                                 </span>
                               )}
                             </td>
 
                             {/* Role Selector */}
-                            <td className="py-3.5 px-3">
-                              <select
+                            <td className="py-3.5 px-3 min-w-[140px]">
+                              <AnimatedSelect
+                                size="sm"
                                 value={u.role}
                                 onChange={(e) => handleRoleChange(u._id, e.target.value)}
-                                className={`text-[11.5px] font-extrabold rounded-lg px-2.5 py-1.5 border focus:outline-none cursor-pointer transition-colors ${u.role === 'campus_admin' ? "bg-[#071A35] text-[#00c2cb] border-[#071A35]" :
-                                  u.role === 'student_mod' ? "bg-indigo-50 text-indigo-700 border-indigo-200" :
-                                    u.role === 'alumni' ? "bg-purple-50 text-purple-700 border-purple-200" :
-                                      "bg-slate-50 text-slate-800 border-slate-200"
-                                  }`}
                                 disabled={u._id === currentUser?._id}
-                              >
-                                <option value="student">Student</option>
-                                <option value="alumni">Alumni</option>
-                                <option value="student_mod">Moderator</option>
-                                <option value="campus_admin">Campus Admin</option>
-                              </select>
+                                options={[
+                                  { value: "student", label: "Student", iconClass: "fa-solid fa-graduation-cap" },
+                                  { value: "alumni", label: "Alumni", iconClass: "fa-solid fa-user-graduate" },
+                                  { value: "student_mod", label: "Moderator", iconClass: "fa-solid fa-shield-halved" },
+                                  { value: "campus_admin", label: "Campus Admin", iconClass: "fa-solid fa-user-shield" }
+                                ]}
+                                buttonClassName={`text-[11.5px] font-extrabold rounded-lg py-1.5 px-2.5 border ${
+                                  u.role === 'campus_admin' ? "bg-[#071A35] text-[#00c2cb] border-[#071A35]" :
+                                  u.role === 'student_mod' ? "bg-indigo-50 text-indigo-700 border-indigo-200" :
+                                  u.role === 'alumni' ? "bg-purple-50 text-purple-700 border-purple-200" :
+                                  "bg-slate-50 text-slate-800 border-slate-200"
+                                }`}
+                              />
                             </td>
 
                             {/* Action Buttons */}
@@ -903,7 +914,8 @@ const UsersManager = () => {
                                   className="px-2.5 py-1.5 rounded-lg bg-amber-500/10 text-amber-700 border border-amber-500/20 text-[11px] font-black hover:bg-amber-500/20 transition-all cursor-pointer flex items-center gap-1"
                                   title="Reset User Password"
                                 >
-                                  🔑 Reset
+                                  <i className="fa-solid fa-key text-[10px]" />
+                                  <span>Reset</span>
                                 </button>
                                 <button
                                   onClick={() => openEditModal(u)}
@@ -963,7 +975,7 @@ const UsersManager = () => {
 
                           {isNonStudent ? (
                             <div className="bg-[#FAF7F0] p-2.5 rounded-xl border border-[#E8E1D5] flex items-center gap-2 mt-1">
-                              <span className="text-base">{u.role === 'alumni' ? '🎓' : '🛡️'}</span>
+                              <i className={`fa-solid ${u.role === 'alumni' ? 'fa-graduation-cap text-purple-600' : 'fa-shield-halved text-[#071A35]'} text-sm`} />
                               <span className="font-extrabold text-[#071A35] text-[11.5px]">
                                 {u.role === 'alumni' ? 'Alumni Member' : 'Campus Administrator'}
                               </span>
@@ -988,37 +1000,44 @@ const UsersManager = () => {
 
                         {/* Role Select & Actions */}
                         <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
-                          <select
-                            value={u.role}
-                            onChange={(e) => handleRoleChange(u._id, e.target.value)}
-                            className="text-[11px] font-extrabold rounded-lg px-2 py-1 border focus:outline-none cursor-pointer bg-slate-50"
-                            disabled={u._id === currentUser?._id}
-                          >
-                            <option value="student">Student</option>
-                            <option value="alumni">Alumni</option>
-                            <option value="student_mod">Moderator</option>
-                            <option value="campus_admin">Campus Admin</option>
-                          </select>
+                          <div className="w-[125px]">
+                            <AnimatedSelect
+                              size="sm"
+                              value={u.role}
+                              onChange={(e) => handleRoleChange(u._id, e.target.value)}
+                              disabled={u._id === currentUser?._id}
+                              options={[
+                                { value: "student", label: "Student", iconClass: "fa-solid fa-graduation-cap" },
+                                { value: "alumni", label: "Alumni", iconClass: "fa-solid fa-user-graduate" },
+                                { value: "student_mod", label: "Moderator", iconClass: "fa-solid fa-shield-halved" },
+                                { value: "campus_admin", label: "Campus Admin", iconClass: "fa-solid fa-user-shield" }
+                              ]}
+                              buttonClassName="bg-slate-50 border-slate-200 text-[11px] font-extrabold py-1 px-2 rounded-lg"
+                            />
+                          </div>
 
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => openResetModal(u)}
-                              className="px-2 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 text-[10.5px] font-bold hover:bg-amber-100 transition-colors"
+                              className="px-2 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 text-[10.5px] font-bold hover:bg-amber-100 transition-colors flex items-center gap-1 cursor-pointer"
                             >
-                              🔑 Reset
+                              <i className="fa-solid fa-key text-[10px]" />
+                              <span>Reset</span>
                             </button>
                             <button
                               onClick={() => openEditModal(u)}
-                              className="p-1 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-colors"
+                              className="p-1 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-colors cursor-pointer"
+                              title="Edit User"
                             >
-                              ✏️
+                              <i className="fa-solid fa-pen text-xs" />
                             </button>
                             <button
                               onClick={() => handleDeleteUser(u._id, u.name)}
                               disabled={u._id === currentUser?._id}
-                              className="p-1 rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors disabled:opacity-30"
+                              className="p-1 rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors disabled:opacity-30 cursor-pointer"
+                              title="Delete User"
                             >
-                              🗑️
+                              <i className="fa-solid fa-trash-can text-xs" />
                             </button>
                           </div>
                         </div>
@@ -1039,12 +1058,14 @@ const UsersManager = () => {
           <div className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-3xl max-w-lg w-full shadow-[0_20px_50px_rgba(7,26,53,0.25)] relative animate-modal-slide-in flex flex-col overflow-hidden text-left" onClick={(e) => e.stopPropagation()}>
             <div className="relative bg-[#071A35] px-6 py-4 flex justify-between items-center text-white border-b border-[#071A35]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-lg text-[#00c2cb]">
-                  👤
+                <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-sm text-[#00c2cb]">
+                  <i className="fa-solid fa-user-plus" />
                 </div>
                 <h2 className="text-base sm:text-lg font-black text-white">Create New User</h2>
               </div>
-              <button onClick={() => setIsCreateModalOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20 cursor-pointer">✕</button>
+              <button onClick={() => setIsCreateModalOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20 cursor-pointer">
+                <i className="fa-solid fa-xmark text-xs" />
+              </button>
             </div>
 
             <form onSubmit={handleCreateUser} className="p-6 flex flex-col gap-4 bg-[#FAF7F0]/60 max-h-[82vh] overflow-y-auto">
@@ -1066,26 +1087,27 @@ const UsersManager = () => {
               {/* Role Selection */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[12px] font-extrabold text-[#071A35]">User Role <span className="text-red-500">*</span></label>
-                <select
+                <AnimatedSelect
                   value={newUserData.role}
                   onChange={e => {
                     const newRole = e.target.value;
                     setNewUserData({ ...newUserData, role: newRole });
                   }}
-                  className="w-full bg-white border border-[#E8E1D5] rounded-xl px-3 py-2.5 text-[12px] font-extrabold text-[#071A35] focus:outline-none focus:border-[#071A35]"
-                >
-                  <option value="student">Student</option>
-                  <option value="student_mod">Student Moderator</option>
-                  <option value="alumni">Alumni</option>
-                  <option value="campus_admin">Campus Admin</option>
-                </select>
+                  options={[
+                    { value: "student", label: "Student", iconClass: "fa-solid fa-graduation-cap" },
+                    { value: "student_mod", label: "Student Moderator", iconClass: "fa-solid fa-shield-halved" },
+                    { value: "alumni", label: "Alumni", iconClass: "fa-solid fa-user-graduate" },
+                    { value: "campus_admin", label: "Campus Admin", iconClass: "fa-solid fa-user-shield" }
+                  ]}
+                  buttonClassName="bg-white border-[#E8E1D5] py-2.5 px-3.5 text-[12px] font-extrabold text-[#071A35] rounded-xl"
+                />
               </div>
 
               {/* Dynamic Academic Program Details (Disabled/Invalidated for Alumni & Campus Admin) */}
               {newUserData.role === 'alumni' || newUserData.role === 'campus_admin' ? (
                 <div className="bg-gradient-to-r from-[#071A35]/10 to-[#00c2cb]/10 border border-[#071A35]/20 rounded-2xl p-4 flex items-center gap-3.5 my-1">
-                  <div className="w-10 h-10 rounded-xl bg-[#071A35] text-white flex items-center justify-center text-xl shrink-0">
-                    {newUserData.role === 'alumni' ? '🎓' : '🛡️'}
+                  <div className="w-10 h-10 rounded-xl bg-[#071A35] text-white flex items-center justify-center text-lg shrink-0">
+                    <i className={`fa-solid ${newUserData.role === 'alumni' ? 'fa-graduation-cap' : 'fa-shield-halved'}`} />
                   </div>
                   <div>
                     <h4 className="text-[12.5px] font-black text-[#071A35] m-0">
@@ -1099,7 +1121,7 @@ const UsersManager = () => {
               ) : (
                 <div className="flex flex-col gap-3 p-3.5 bg-white border border-[#E8E1D5] rounded-2xl">
                   <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-                    <span className="text-sm">🎓</span>
+                    <i className="fa-solid fa-graduation-cap text-xs text-[#00c2cb]" />
                     <span className="text-[11.5px] font-black text-[#071A35] uppercase tracking-wider">
                       Student Academic Program &amp; Class
                     </span>
@@ -1110,7 +1132,8 @@ const UsersManager = () => {
                     <label className="text-[11.5px] font-extrabold text-[#071A35]">
                       Program Category (Degree Level)
                     </label>
-                    <select
+                    <AnimatedSelect
+                      size="sm"
                       value={newUserData.programCategory}
                       onChange={e => {
                         const newCategory = e.target.value;
@@ -1122,11 +1145,12 @@ const UsersManager = () => {
                           semester: '1st Semester'
                         });
                       }}
-                      className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-3 py-2 text-[12px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]"
-                    >
-                      <option value="BS Programs">BS Programs (4-5 Years)</option>
-                      <option value="Associate Degree Programs">Associate Degree Programs (ADP - 2 Years)</option>
-                    </select>
+                      options={[
+                        { value: "BS Programs", label: "BS Programs (4-5 Years)" },
+                        { value: "Associate Degree Programs", label: "Associate Degree Programs (ADP - 2 Years)" }
+                      ]}
+                      buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[12px] font-bold text-[#071A35] py-2 px-3 rounded-xl"
+                    />
                   </div>
 
                   {/* Specific Degree / Program (Course) */}
@@ -1134,30 +1158,26 @@ const UsersManager = () => {
                     <label className="text-[11.5px] font-extrabold text-[#071A35]">
                       Degree / Program (Course)
                     </label>
-                    <select
+                    <AnimatedSelect
+                      size="sm"
                       value={newUserData.department}
                       onChange={e => setNewUserData({ ...newUserData, department: e.target.value })}
-                      className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-3 py-2 text-[12px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35] truncate"
-                    >
-                      {MINHAJ_PROGRAMS[newUserData.programCategory]?.map(course => (
-                        <option key={course} value={course}>{course}</option>
-                      ))}
-                    </select>
+                      options={(MINHAJ_PROGRAMS[newUserData.programCategory] || []).map(course => ({ value: course, label: course }))}
+                      buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[12px] font-bold text-[#071A35] py-2 px-3 rounded-xl truncate"
+                    />
                   </div>
 
                   {/* Semester and Section */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-[11.5px] font-extrabold text-[#071A35]">Semester</label>
-                      <select
+                      <AnimatedSelect
+                        size="sm"
                         value={newUserData.semester}
                         onChange={e => setNewUserData({ ...newUserData, semester: e.target.value })}
-                        className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-2.5 py-2 text-[11.5px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]"
-                      >
-                        {(newUserData.programCategory === 'Associate Degree Programs' ? ADP_SEMESTERS : BS_SEMESTERS).map(s => (
-                          <option key={s} value={s}>{s}</option>
-                        ))}
-                      </select>
+                        options={(newUserData.programCategory === 'Associate Degree Programs' ? ADP_SEMESTERS : BS_SEMESTERS).map(s => ({ value: s, label: s }))}
+                        buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[11.5px] font-bold text-[#071A35] py-2 px-2.5 rounded-xl"
+                      />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
@@ -1197,10 +1217,12 @@ const UsersManager = () => {
           <div className="bg-white border border-[#E8E1D5] rounded-2xl max-w-sm w-full shadow-[0_20px_50px_rgba(7,26,53,0.25)] relative animate-modal-slide-in flex flex-col overflow-hidden text-left" onClick={(e) => e.stopPropagation()}>
             <div className="relative bg-[#071A35] px-6 py-4 flex justify-between items-center text-white border-b border-[#071A35]">
               <div className="flex items-center gap-2.5">
-                <span className="text-xl">🔑</span>
+                <i className="fa-solid fa-key text-amber-400 text-base" />
                 <h2 className="text-base font-black text-white">Reset User Password</h2>
               </div>
-              <button onClick={() => setIsResetModalOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20 cursor-pointer">✕</button>
+              <button onClick={() => setIsResetModalOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20 cursor-pointer">
+                <i className="fa-solid fa-xmark text-xs" />
+              </button>
             </div>
 
             <form onSubmit={handleResetPassword} className="p-6 flex flex-col gap-4 bg-[#FAF7F0]/60">
@@ -1235,10 +1257,12 @@ const UsersManager = () => {
           <div className="bg-white border border-[#E8E1D5] rounded-2xl max-w-lg w-full shadow-[0_20px_50px_rgba(7,26,53,0.25)] relative animate-modal-slide-in flex flex-col overflow-hidden text-left" onClick={(e) => e.stopPropagation()}>
             <div className="relative bg-[#071A35] px-6 py-4 flex justify-between items-center text-white border-b border-[#071A35]">
               <div className="flex items-center gap-2.5">
-                <span className="text-xl">✏️</span>
+                <i className="fa-solid fa-pen-to-square text-[#00c2cb] text-base" />
                 <h2 className="text-base font-black text-white">Edit User Profile</h2>
               </div>
-              <button onClick={() => setIsEditUserModalOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20 cursor-pointer">✕</button>
+              <button onClick={() => setIsEditUserModalOpen(false)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20 cursor-pointer">
+                <i className="fa-solid fa-xmark text-xs" />
+              </button>
             </div>
 
             <form onSubmit={handleEditUser} className="p-6 flex flex-col gap-4 bg-[#FAF7F0]/60 max-h-[82vh] overflow-y-auto">
@@ -1260,23 +1284,24 @@ const UsersManager = () => {
               {/* Role Selection */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[12px] font-extrabold text-[#071A35]">User Role</label>
-                <select
+                <AnimatedSelect
                   value={editUserData.role}
                   onChange={e => setEditUserData({ ...editUserData, role: e.target.value })}
-                  className="w-full bg-white border border-[#E8E1D5] rounded-xl px-3 py-2.5 text-[12px] font-extrabold text-[#071A35] focus:outline-none focus:border-[#071A35]"
-                >
-                  <option value="student">Student</option>
-                  <option value="student_mod">Student Moderator</option>
-                  <option value="alumni">Alumni</option>
-                  <option value="campus_admin">Campus Admin</option>
-                </select>
+                  options={[
+                    { value: "student", label: "Student", iconClass: "fa-solid fa-graduation-cap" },
+                    { value: "student_mod", label: "Student Moderator", iconClass: "fa-solid fa-shield-halved" },
+                    { value: "alumni", label: "Alumni", iconClass: "fa-solid fa-user-graduate" },
+                    { value: "campus_admin", label: "Campus Admin", iconClass: "fa-solid fa-user-shield" }
+                  ]}
+                  buttonClassName="bg-white border-[#E8E1D5] py-2.5 px-3.5 text-[12px] font-extrabold text-[#071A35] rounded-xl"
+                />
               </div>
 
               {/* Dynamic Academic Program Details (Disabled for Alumni & Campus Admin) */}
               {editUserData.role === 'alumni' || editUserData.role === 'campus_admin' ? (
                 <div className="bg-gradient-to-r from-[#071A35]/10 to-[#00c2cb]/10 border border-[#071A35]/20 rounded-2xl p-4 flex items-center gap-3.5 my-1">
-                  <div className="w-10 h-10 rounded-xl bg-[#071A35] text-white flex items-center justify-center text-xl shrink-0">
-                    {editUserData.role === 'alumni' ? '🎓' : '🛡️'}
+                  <div className="w-10 h-10 rounded-xl bg-[#071A35] text-white flex items-center justify-center text-lg shrink-0">
+                    <i className={`fa-solid ${editUserData.role === 'alumni' ? 'fa-graduation-cap' : 'fa-shield-halved'}`} />
                   </div>
                   <div>
                     <h4 className="text-[12.5px] font-black text-[#071A35] m-0">
@@ -1290,7 +1315,7 @@ const UsersManager = () => {
               ) : (
                 <div className="flex flex-col gap-3 p-3.5 bg-white border border-[#E8E1D5] rounded-2xl">
                   <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-                    <span className="text-sm">🎓</span>
+                    <i className="fa-solid fa-graduation-cap text-xs text-[#00c2cb]" />
                     <span className="text-[11.5px] font-black text-[#071A35] uppercase tracking-wider">
                       Student Academic Program &amp; Class
                     </span>
@@ -1301,7 +1326,8 @@ const UsersManager = () => {
                     <label className="text-[11.5px] font-extrabold text-[#071A35]">
                       Program Category (Degree Level)
                     </label>
-                    <select
+                    <AnimatedSelect
+                      size="sm"
                       value={editUserData.programCategory}
                       onChange={e => {
                         const newCategory = e.target.value;
@@ -1313,11 +1339,12 @@ const UsersManager = () => {
                           semester: '1st Semester'
                         });
                       }}
-                      className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-3 py-2 text-[12px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]"
-                    >
-                      <option value="BS Programs">BS Programs (4-5 Years)</option>
-                      <option value="Associate Degree Programs">Associate Degree Programs (ADP - 2 Years)</option>
-                    </select>
+                      options={[
+                        { value: "BS Programs", label: "BS Programs (4-5 Years)" },
+                        { value: "Associate Degree Programs", label: "Associate Degree Programs (ADP - 2 Years)" }
+                      ]}
+                      buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[12px] font-bold text-[#071A35] py-2 px-3 rounded-xl"
+                    />
                   </div>
 
                   {/* Specific Degree / Program (Course) */}
@@ -1325,30 +1352,26 @@ const UsersManager = () => {
                     <label className="text-[11.5px] font-extrabold text-[#071A35]">
                       Degree / Program (Course)
                     </label>
-                    <select
+                    <AnimatedSelect
+                      size="sm"
                       value={editUserData.department}
                       onChange={e => setEditUserData({ ...editUserData, department: e.target.value })}
-                      className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-3 py-2 text-[12px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35] truncate"
-                    >
-                      {MINHAJ_PROGRAMS[editUserData.programCategory]?.map(course => (
-                        <option key={course} value={course}>{course}</option>
-                      ))}
-                    </select>
+                      options={(MINHAJ_PROGRAMS[editUserData.programCategory] || []).map(course => ({ value: course, label: course }))}
+                      buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[12px] font-bold text-[#071A35] py-2 px-3 rounded-xl truncate"
+                    />
                   </div>
 
                   {/* Semester and Section */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-[11.5px] font-extrabold text-[#071A35]">Semester</label>
-                      <select
+                      <AnimatedSelect
+                        size="sm"
                         value={editUserData.semester}
                         onChange={e => setEditUserData({ ...editUserData, semester: e.target.value })}
-                        className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl px-2.5 py-2 text-[11.5px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35]"
-                      >
-                        {(editUserData.programCategory === 'Associate Degree Programs' ? ADP_SEMESTERS : BS_SEMESTERS).map(s => (
-                          <option key={s} value={s}>{s}</option>
-                        ))}
-                      </select>
+                        options={(editUserData.programCategory === 'Associate Degree Programs' ? ADP_SEMESTERS : BS_SEMESTERS).map(s => ({ value: s, label: s }))}
+                        buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[11.5px] font-bold text-[#071A35] py-2 px-2.5 rounded-xl"
+                      />
                     </div>
 
                     <div className="flex flex-col gap-1.5">

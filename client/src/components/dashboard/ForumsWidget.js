@@ -30,7 +30,8 @@ export const ForumsWidget = ({ forums = [], onThreadClick }) => {
           <p className="text-[10px] text-[#211A24]/60 mt-0.5 font-semibold">Engage, ask, and share with fellow classmates</p>
         </div>
         <Link to="/forum" className="bg-[#FAF7F0] border border-[#E8E1D5] hover:bg-[#F3EEE4] text-[#071A35] text-[11px] font-extrabold px-3 py-1 rounded-full transition-all duration-200 cursor-pointer no-underline shrink-0 flex items-center gap-1 shadow-sm">
-          View all ➔
+          <span>View all</span>
+          <i className="fa-solid fa-arrow-right text-[10px]" />
         </Link>
       </div>
 
@@ -57,8 +58,8 @@ export const ForumsWidget = ({ forums = [], onThreadClick }) => {
           );
         }) : (
           <div className="flex flex-col items-center justify-center py-6 px-4 text-center my-auto">
-            <div className="w-12 h-12 rounded-full bg-[#DCD9F7]/50 text-[#071A35] flex items-center justify-center text-xl mb-3 shadow-inner">
-              💬
+            <div className="w-12 h-12 rounded-full bg-[#DCD9F7]/50 text-[#071A35] flex items-center justify-center text-base mb-3 shadow-inner">
+              <i className="fa-solid fa-comments text-lg text-[#071A35]" />
             </div>
             <p className="text-[13px] font-extrabold text-[#071A35] mb-1 m-0">No active discussions found</p>
             <p className="text-[10px] text-[#211A24]/60 font-semibold max-w-[200px] leading-relaxed">
@@ -73,7 +74,7 @@ export const ForumsWidget = ({ forums = [], onThreadClick }) => {
         onClick={() => navigate('/forum', { state: { openModal: true } })}
         className="mt-3 w-full bg-[#DCD9F7] hover:bg-[#D0CBF5] text-[#071A35] py-2.5 rounded-full text-[12px] font-extrabold transition-all border-none cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
       >
-        <span>+</span> Start a Discussion
+        <i className="fa-solid fa-plus text-xs" /> Start a Discussion
       </button>
     </div>
   );

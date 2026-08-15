@@ -15,27 +15,27 @@
 // Map of order statuses to notification content
 const STATUS_NOTIFICATIONS = {
   accepted: {
-    title: "🛵 Rider Found! — CampusConnect",
+    title: "Rider Found! — CampusConnect",
     icon: "/logo192.png",
   },
   preparing: {
-    title: "👨‍🍳 Order Being Prepared — CampusConnect",
+    title: "Order Being Prepared — CampusConnect",
     icon: "/logo192.png",
   },
   ready: {
-    title: "✅ Order Ready for Pickup — CampusConnect",
+    title: "Order Ready for Pickup — CampusConnect",
     icon: "/logo192.png",
   },
   picked_up: {
-    title: "🛵 Order En Route — CampusConnect",
+    title: "Order En Route — CampusConnect",
     icon: "/logo192.png",
   },
   arrived: {
-    title: "📍 Rider Has Arrived! — CampusConnect",
+    title: "Rider Has Arrived! — CampusConnect",
     icon: "/logo192.png",
   },
   completed: {
-    title: "🎉 Order Delivered! — CampusConnect",
+    title: "Order Delivered! — CampusConnect",
     icon: "/logo192.png",
   },
 };

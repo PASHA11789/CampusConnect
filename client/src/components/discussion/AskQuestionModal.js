@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import AnimatedSelect from "../common/AnimatedSelect";
 
 export default function AskQuestionModal({
   isOpen,
@@ -10,6 +11,12 @@ export default function AskQuestionModal({
   const [subject, setSubject] = useState("");
   const [queryCategory, setQueryCategory] = useState("mentorship_qa");
   const [details, setDetails] = useState("");
+
+  const QUERY_OPTIONS = [
+    { value: "mentorship_qa", label: t("Mentorship Q&A"), iconClass: "fa-solid fa-graduation-cap" },
+    { value: "general_discussion", label: t("Career Guidance"), iconClass: "fa-solid fa-compass" },
+    { value: "job_opportunity", label: t("Admin Support / Inquiry"), iconClass: "fa-solid fa-headset" }
+  ];
 
   useEffect(() => {
     if (isOpen) {
@@ -50,7 +57,7 @@ export default function AskQuestionModal({
         <div className="bg-[#071A35] px-4 sm:px-7 py-4 sm:py-5 flex justify-between items-center border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-[16px] sm:text-[18px] border border-white/10 shrink-0">
-              ❓
+              <i className="fa-solid fa-circle-question" />
             </div>
             <div className="flex flex-col">
               <h2 className="text-[16px] sm:text-[18px] font-black text-white tracking-tight m-0">{t("Ask Admin & Mentors")}</h2>
@@ -62,7 +69,7 @@ export default function AskQuestionModal({
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-all border-none cursor-pointer"
           >
-            ✕
+            <i className="fa-solid fa-xmark text-sm" />
           </button>
         </div>
 
@@ -84,20 +91,12 @@ export default function AskQuestionModal({
           {/* Topic Category */}
           <div className="flex flex-col gap-2">
             <label className="text-[11.5px] font-black text-[#071A35] uppercase tracking-wider ml-1">{t("Query Category")}</label>
-            <div className="relative">
-              <select
-                className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-2xl px-4 py-3 text-[13px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35] focus:bg-white focus:ring-4 focus:ring-[#071A35]/10 transition-all appearance-none cursor-pointer"
-                value={queryCategory}
-                onChange={(e) => setQueryCategory(e.target.value)}
-              >
-                <option value="mentorship_qa">{t("🤝 Mentorship Q&A")}</option>
-                <option value="general_discussion">{t("💬 Career Guidance")}</option>
-                <option value="job_opportunity">{t("💼 Admin Support / Inquiry")}</option>
-              </select>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#071A35]/50 text-[10px]">
-                ▼
-              </div>
-            </div>
+            <AnimatedSelect
+              value={queryCategory}
+              onChange={(e) => setQueryCategory(e.target.value)}
+              options={QUERY_OPTIONS}
+              buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] rounded-2xl py-3 px-4 text-[13px] font-bold text-[#071A35]"
+            />
           </div>
 
           {/* Question Details */}
@@ -113,7 +112,7 @@ export default function AskQuestionModal({
           </div>
 
           <div className="p-3 bg-[#FAF7F0] border border-[#E8E1D5] rounded-2xl text-[11px] text-[#071A35]/80 font-semibold flex items-center gap-2">
-            <span>🛡️</span>
+            <i className="fa-solid fa-shield-halved text-[#00c2cb] text-sm shrink-0" />
             <span>{t("Your query will be routed directly to campus mentors and moderators.")}</span>
           </div>
         </form>
@@ -131,13 +130,16 @@ export default function AskQuestionModal({
           <button
             type="submit"
             form="ask-question-form"
-            className="px-7 py-2.5 rounded-full border-none bg-[#071A35] hover:bg-[#0A2246] text-white text-[12.5px] font-black cursor-pointer shadow-md transition-all flex items-center justify-center min-w-[130px] disabled:opacity-50"
+            className="px-7 py-2.5 rounded-full border-none bg-[#071A35] hover:bg-[#0A2246] text-white text-[12.5px] font-black cursor-pointer shadow-md transition-all flex items-center justify-center gap-1.5 min-w-[130px] disabled:opacity-50"
             disabled={isSubmitting || !subject.trim() || !details.trim()}
           >
             {isSubmitting ? (
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
             ) : (
-              t("Send to Admins →")
+              <>
+                <span>{t("Send to Admins")}</span>
+                <i className="fa-solid fa-arrow-right text-xs" />
+              </>
             )}
           </button>
         </div>

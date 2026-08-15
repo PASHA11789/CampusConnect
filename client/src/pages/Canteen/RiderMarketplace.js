@@ -19,15 +19,15 @@ const translations = {
     liveStudentAlert: "Live Student Alert",
     headingOut: "Heading Out",
     statusWaiting: "Waiting for vendor to prepare food...",
-    statusPreparing: "Vendor is preparing food 🍳",
-    statusReady: "🍔 FOOD IS READY — Pick up now!",
-    statusPickedUp: "🛵 Food picked up! Heading to student location",
-    statusArrived: "📍 Arrived at location! Ringing student...",
-    btnPickedUp: "🍔 Mark Picked Up — Food Ready!",
-    btnWaitingReady: "⏳ Waiting for Vendor to Mark Ready...",
-    btnFoodPickedUp: "✅ Food Picked Up",
-    btnMarkArrived: "📍 Mark Arrived at Location",
-    btnComplete: "✅ Mark Delivered & Complete Order",
+    statusPreparing: "Vendor is preparing food",
+    statusReady: "FOOD IS READY — Pick up now!",
+    statusPickedUp: "Food picked up! Heading to student location",
+    statusArrived: "Arrived at location! Ringing student...",
+    btnPickedUp: "Mark Picked Up — Food Ready!",
+    btnWaitingReady: "Waiting for Vendor to Mark Ready...",
+    btnFoodPickedUp: "Food Picked Up",
+    btnMarkArrived: "Mark Arrived at Location",
+    btnComplete: "Mark Delivered & Complete Order",
     readyForDeliveries: "Ready for Deliveries",
     readyDesc: "Claim available order tickets below to start earning.",
     onlineReady: "Online & Ready",
@@ -40,7 +40,7 @@ const translations = {
     noTicketsDesc: "When canteen vendors mark orders ready, new tickets will appear here automatically.",
     deliverTo: "Deliver to",
     deliveryReward: "Delivery Reward",
-    acceptOrder: "Accept Order ➔",
+    acceptOrder: "Accept Order",
     busyOrder: "Busy (Active Order)",
     goOnline: "Go Online",
     performance: "Delivery Performance",
@@ -51,10 +51,10 @@ const translations = {
     completed: "Completed",
     noCompleted: "No Completed Deliveries Yet",
     noCompletedDesc: "Delivered orders will appear here in your daily log.",
-    delivered: "Delivered ✅",
-    langLabel: "🌐 اردو",
-    themeLight: "☀️ Light",
-    themeDark: "🌙 Dark"
+    delivered: "Delivered",
+    langLabel: "اردو",
+    themeLight: "Light",
+    themeDark: "Dark"
   },
   ur: {
     portalTitle: "رائڈر پورٹل",
@@ -69,15 +69,15 @@ const translations = {
     liveStudentAlert: "طالب علم کی لائیو اطلاع",
     headingOut: "آ رہا ہے",
     statusWaiting: "دکاندار کے کھانا تیار کرنے کا انتظار...",
-    statusPreparing: "دکاندار کھانا تیار کر رہا ہے 🍳",
-    statusReady: "🍔 کھانا تیار ہے — ابھی پک اپ کریں!",
-    statusPickedUp: "🛵 کھانا لے لیا! طالب علم کی لوکیشن کی طرف جاری",
-    statusArrived: "📍 لوکیشن پر پہنچ گئے! طالب علم کو گھنٹی بج رہی ہے...",
-    btnPickedUp: "🍔 کھانا لے لیا — کھانا تیار ہے!",
-    btnWaitingReady: "⏳ دکاندار کے تیار کرنے کا انتظار...",
-    btnFoodPickedUp: "✅ کھانا اٹھا لیا گیا",
-    btnMarkArrived: "📍 لوکیشن پر پہنچ گئے",
-    btnComplete: "✅ ڈیلیوری مکمل کریں",
+    statusPreparing: "دکاندار کھانا تیار کر رہا ہے",
+    statusReady: "کھانا تیار ہے — ابھی پک اپ کریں!",
+    statusPickedUp: "کھانا لے لیا! طالب علم کی لوکیشن کی طرف جاری",
+    statusArrived: "لوکیشن پر پہنچ گئے! طالب علم کو گھنٹی بج رہی ہے...",
+    btnPickedUp: "کھانا لے لیا — کھانا تیار ہے!",
+    btnWaitingReady: "دکاندار کے تیار کرنے کا انتظار...",
+    btnFoodPickedUp: "کھانا اٹھا لیا گیا",
+    btnMarkArrived: "لوکیشن پر پہنچ گئے",
+    btnComplete: "ڈیلیوری مکمل کریں",
     readyForDeliveries: "ڈیلیوری کے لیے تیار",
     readyDesc: "کمانے کے لیے نیچے سے دستیاب آرڈر ٹکٹ منتخب کریں۔",
     onlineReady: "آن لائن اور تیار",
@@ -90,7 +90,7 @@ const translations = {
     noTicketsDesc: "جب دکاندار آرڈر تیار کریں گے، تو نئے ٹکٹ خود بخود یہاں ظاہر ہوں گے۔",
     deliverTo: "پتہ",
     deliveryReward: "ڈیلیوری معاوضہ",
-    acceptOrder: "آرڈر قبول کریں ➔",
+    acceptOrder: "آرڈر قبول کریں",
     busyOrder: "مصروف (جاری آرڈر)",
     goOnline: "آن لائن ہوں",
     performance: "ڈیلیوری کی کارکردگی",
@@ -101,10 +101,10 @@ const translations = {
     completed: "مکمل",
     noCompleted: "آج ابھی تک کوئی ڈیلیوری مکمل نہیں ہوئی",
     noCompletedDesc: "مکمل شدہ آرڈرز آپ کے لاگ میں یہاں ظاہر ہوں گے۔",
-    delivered: "ڈیلیور ہو گیا ✅",
-    langLabel: "🌐 English",
-    themeLight: "☀️ روشن",
-    themeDark: "🌙 ڈارک"
+    delivered: "ڈیلیور ہو گیا",
+    langLabel: "English",
+    themeLight: "روشن",
+    themeDark: "ڈارک"
   }
 };
 
@@ -269,10 +269,8 @@ export default function RiderMarketplace() {
 
   useEffect(() => {
     fetchTickets();
-    // Attempt push notification registration for rider if not already subscribed
     setupPushNotifications();
 
-    // Setup Socket connection to 'riders' room with resilient transports
     const socket = io(SOCKET_URL, {
       transports: ["websocket", "polling"],
       reconnection: true,
@@ -293,27 +291,24 @@ export default function RiderMarketplace() {
     });
     joinRiderRooms();
 
-    // Handle incoming ticket broadcast from vendors
     socket.on("new_ticket", (data) => {
       if (!activeClaimedOrderRef.current) {
         playNotificationSound();
-        showToast(`🚀 New Order Ticket: ${data.orderId}${data.urgent ? " — URGENT: Food Ready!" : ""}`, "info");
+        showToast(`New Order Ticket: ${data.orderId}${data.urgent ? " — URGENT: Food Ready!" : ""}`, "info");
         fetchTickets();
       }
     });
 
-    // Handle ticket claimed by another rider
     socket.on("ticket_accepted", ({ orderId }) => {
       setTickets((prev) => prev.filter((t) => t.orderId !== orderId));
     });
 
-    // Handle vendor cancellation (clears active order if it matches & removes from tickets pool)
     socket.on("ticket_cancelled", ({ orderId, reason, message }) => {
       setTickets((prev) => prev.filter((t) => t.orderId !== orderId));
       setActiveClaimedOrder((prev) => {
         if (prev?.orderId === orderId) {
           playNotificationSound();
-          showToast(`⚠️ Order ${orderId} was cancelled by the vendor.${reason ? ` Reason: ${reason}` : ""}`, "error");
+          showToast(`Order ${orderId} was cancelled by the vendor.${reason ? ` Reason: ${reason}` : ""}`, "error");
           localStorage.removeItem("active_claimed_order");
           return null;
         }
@@ -322,31 +317,28 @@ export default function RiderMarketplace() {
       fetchTickets();
     });
 
-    // Vendor marked order as Ready for Pickup — broadcast to riders
     socket.on("order_ready_for_pickup", (data) => {
       playNotificationSound();
-      showToast(`🍱 Order #${data.orderId} is READY for pickup at ${data.restaurantName || "the canteen"}! Pick it up now!`, "info");
+      showToast(`Order #${data.orderId} is READY for pickup at ${data.restaurantName || "the canteen"}! Pick it up now!`, "info");
       setActiveClaimedOrder((prev) =>
         prev?.orderId === data.orderId ? { ...prev, status: "ready" } : prev
       );
       fetchTickets();
     });
 
-    // Handle arrival nudge from student
     socket.on("student_nudge_arrival", (data) => {
       playNotificationSound();
-      showToast(`🏃‍♂️ Student Nudge: ${data.message || "Student is on their way to pick up the order!"}`, "warning");
+      showToast(`Student Nudge: ${data.message || "Student is on their way to pick up the order!"}`, "warning");
       setStudentComingAlert(data);
     });
 
-    // Handle status updates from backend (cancelled / completed)
     socket.on("order_status_update", (data) => {
       if (data.status === "cancelled") {
         setTickets((prev) => prev.filter((t) => t.orderId !== data.orderId));
         setActiveClaimedOrder((prev) => {
           if (prev?.orderId === data.orderId) {
             playNotificationSound();
-            showToast(`⚠️ Order ${data.orderId} was cancelled.${data.reason ? ` Reason: ${data.reason}` : ""}`, "error");
+            showToast(`Order ${data.orderId} was cancelled.${data.reason ? ` Reason: ${data.reason}` : ""}`, "error");
             localStorage.removeItem("active_claimed_order");
             return null;
           }
@@ -354,7 +346,6 @@ export default function RiderMarketplace() {
         });
         fetchTickets();
       } else if (data.status === "completed") {
-        // Handles stale-state recovery: if backend confirms completion, clear the active panel
         setActiveClaimedOrder((prev) => {
           if (prev && (!data.orderId || prev.orderId === data.orderId)) {
             setCompletedDeliveries((cPrev) => [
@@ -364,7 +355,7 @@ export default function RiderMarketplace() {
               },
               ...cPrev
             ]);
-            showToast(`🎉 Order ${prev.orderId} confirmed delivered!`, "info");
+            showToast(`Order ${prev.orderId} confirmed delivered!`, "info");
             localStorage.removeItem("active_claimed_order");
             return null;
           }
@@ -374,14 +365,13 @@ export default function RiderMarketplace() {
       }
     });
 
-    // BroadcastChannel listener for instant cross-tab notification
     let channel;
     try {
       channel = new BroadcastChannel("campus_connect_orders");
       channel.onmessage = (event) => {
         if (event.data && (event.data.type === "student_nudge_arrival" || event.data.status === "student_coming")) {
           playNotificationSound();
-          showToast(`🏃‍♂️ Student Nudge: ${event.data.message || "Student is coming to pick up food!"}`, "warning");
+          showToast(`Student Nudge: ${event.data.message || "Student is coming to pick up food!"}`, "warning");
           setStudentComingAlert({ message: event.data.message || "Student is on their way to pick up the order!" });
         }
       };
@@ -401,7 +391,6 @@ export default function RiderMarketplace() {
 
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Claim a Ticket (Step 1)
   const handleAcceptTicket = async (orderId) => {
     if (isProcessing || activeClaimedOrder) return;
     try {
@@ -414,7 +403,7 @@ export default function RiderMarketplace() {
       );
 
       if (res.data?.success) {
-        showToast(`✅ Claimed Order ${orderId}! Wait for vendor to mark it ready.`, "info");
+        showToast(`Claimed Order ${orderId}! Wait for vendor to mark it ready.`, "info");
         const claimedOrder = res.data.order;
         setActiveClaimedOrder({
           ...claimedOrder,
@@ -425,13 +414,12 @@ export default function RiderMarketplace() {
       }
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to accept ticket";
-      showToast(`❌ ${errMsg}`, "error");
+      showToast(errMsg, "error");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Mark Order as Picked Up (Step 2 — after vendor marks 'ready')
   const handleMarkPickedUp = async (orderId) => {
     if (isProcessing) return;
     try {
@@ -444,18 +432,17 @@ export default function RiderMarketplace() {
       );
 
       if (res.data?.success) {
-        showToast(`🛵 Order ${orderId} picked up! Now en route to student.`, "info");
+        showToast(`Order ${orderId} picked up! Now en route to student.`, "info");
         setActiveClaimedOrder(prev => ({ ...prev, status: "picked_up" }));
       }
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to mark picked up";
-      showToast(`❌ ${errMsg}`, "error");
+      showToast(errMsg, "error");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Mark Order as Arrived (Step 3)
   const handleMarkArrived = async (orderId) => {
     if (isProcessing) return;
     try {
@@ -468,18 +455,17 @@ export default function RiderMarketplace() {
       );
 
       if (res.data?.success) {
-        showToast(`📍 Arrival alert sent to student for order ${orderId}!`, "info");
+        showToast(`Arrival alert sent to student for order ${orderId}!`, "info");
         setActiveClaimedOrder(prev => ({ ...prev, status: "arrived" }));
       }
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to mark arrival";
-      showToast(`❌ ${errMsg}`, "error");
+      showToast(errMsg, "error");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Complete Delivery (Step 4)
   const handleCompleteOrder = async (orderId) => {
     if (isProcessing) return;
     try {
@@ -492,14 +478,14 @@ export default function RiderMarketplace() {
       );
 
       if (res.data?.success) {
-        showToast(`🎉 Order ${orderId} delivered! Great job!`, "info");
+        showToast(`Order ${orderId} delivered! Great job!`, "info");
         setActiveClaimedOrder(null);
         fetchTickets();
         fetchRiderHistory();
       }
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to complete delivery";
-      showToast(`❌ ${errMsg}`, "error");
+      showToast(errMsg, "error");
     } finally {
       setIsProcessing(false);
     }
@@ -508,21 +494,18 @@ export default function RiderMarketplace() {
   return (
     <div className={`h-full overflow-y-auto min-h-screen flex flex-col relative pb-10 transition-colors duration-300 ${isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-800"
       } ${lang === "ur" ? "font-urdu" : "font-sans"}`}>
-      {/* Toast popup notification */}
       {toast && (
         <div className="fixed top-20 right-4 sm:right-6 z-[9999] bg-[#0a2342] text-white px-5 py-3 rounded-2xl shadow-2xl font-black text-xs border border-slate-700 animate-slide-down flex items-center gap-2 max-w-sm">
           <span>{toast.msg}</span>
         </div>
       )}
 
-      {/* Top Navigation Header */}
       <header className={`border-b sticky top-0 z-40 backdrop-blur-md px-3 sm:px-8 py-2 sm:py-3 shadow-sm transition-colors duration-300 ${isDark ? "bg-slate-900/90 border-slate-800 text-white" : "bg-white border-slate-200/80 text-slate-800"
         }`}>
         <div className="flex flex-wrap items-center justify-between gap-2 max-w-7xl mx-auto">
-          {/* Left Branding & Welcome */}
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-cyan-50 border border-cyan-200 text-[#00c2cb] flex items-center justify-center text-base sm:text-xl font-black shadow-inner shrink-0">
-              🛵
+              <i className="fa-solid fa-motorcycle" />
             </div>
             <div>
               <h1 className={`text-xs xs:text-sm sm:text-lg font-black tracking-tight leading-none whitespace-nowrap ${isDark ? "text-white" : "text-[#0a2342]"
@@ -535,9 +518,7 @@ export default function RiderMarketplace() {
             </div>
           </div>
 
-          {/* Language, Theme, Online & Logout Controls */}
           <div className="flex items-center gap-1.5 flex-wrap justify-end">
-            {/* Language Switcher Button */}
             <button
               onClick={toggleLanguage}
               className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-[10px] sm:text-xs font-black transition-all cursor-pointer border ${isDark
@@ -546,11 +527,10 @@ export default function RiderMarketplace() {
                 }`}
               title="Switch Language / زبان تبدیل کریں"
             >
-              <span className="sm:hidden">{lang === "en" ? "🌐 اردو" : "🌐 EN"}</span>
+              <i className="fa-solid fa-globe mr-1" />
               <span className="hidden sm:inline">{t.langLabel}</span>
             </button>
 
-            {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
               className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-[10px] sm:text-xs font-black transition-all cursor-pointer border ${isDark
@@ -559,11 +539,10 @@ export default function RiderMarketplace() {
                 }`}
               title="Toggle Light/Dark Theme"
             >
-              <span className="sm:hidden">{isDark ? "☀️" : "🌙"}</span>
+              <i className={`fa-solid ${isDark ? "fa-sun" : "fa-moon"} mr-1`} />
               <span className="hidden sm:inline">{isDark ? t.themeLight : t.themeDark}</span>
             </button>
 
-            {/* Online Status Button */}
             <button
               onClick={() => setIsOnline(!isOnline)}
               className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-[10px] sm:text-xs font-black transition-all cursor-pointer border ${isOnline
@@ -573,10 +552,8 @@ export default function RiderMarketplace() {
             >
               <span className={`w-2 h-2 rounded-full ${isOnline ? "bg-emerald-500 animate-ping" : "bg-rose-500"}`}></span>
               <span className="hidden sm:inline">{isOnline ? t.online : t.offline}</span>
-              <span className="sm:hidden">{isOnline ? (lang === "ur" ? "آن لائن" : "ON") : (lang === "ur" ? "آف" : "OFF")}</span>
             </button>
 
-            {/* Logout Button */}
             <button
               onClick={handleLogout}
               className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-[10px] sm:text-xs font-black transition-all cursor-pointer border ${isDark
@@ -590,21 +567,19 @@ export default function RiderMarketplace() {
         </div>
       </header>
 
-      {/* Toast System Alert Bar */}
       {message && (
         <div className="bg-cyan-50 border-b border-cyan-200 px-4 sm:px-6 py-2.5 text-xs font-black text-cyan-900 flex items-center justify-between">
           <span>{message}</span>
-          <button onClick={() => setMessage(null)} className="text-cyan-600 hover:text-cyan-900 font-bold text-sm cursor-pointer border-none bg-none">✕</button>
+          <button onClick={() => setMessage(null)} className="text-cyan-600 hover:text-cyan-900 font-bold text-xs cursor-pointer border-none bg-none p-1">
+            <i className="fa-solid fa-xmark" />
+          </button>
         </div>
       )}
 
-      {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-3.5 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
 
-        {/* Left Column: Active Delivery & Ticket Feed */}
         <div className="lg:col-span-2 space-y-4 sm:space-y-6">
 
-          {/* ── ACTIVE CLAIMED ORDER CARD ── */}
           {activeClaimedOrder ? (
             <div className={`rounded-3xl p-4 sm:p-6 border-2 border-[#00c2cb] shadow-xl relative overflow-hidden transition-colors ${isDark ? "bg-slate-900 border-[#00c2cb]" : "bg-white border-[#00c2cb]"
               }`}>
@@ -614,7 +589,7 @@ export default function RiderMarketplace() {
 
               <div className="flex items-start gap-3.5 sm:gap-4 mb-4 sm:mb-5 pt-2">
                 <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-xl sm:text-3xl shrink-0 text-[#00c2cb]">
-                  📦
+                  <i className="fa-solid fa-box" />
                 </div>
                 <div>
                   <span className="text-[9.5px] sm:text-[10px] font-black uppercase text-slate-400 tracking-wider">{t.orderId}</span>
@@ -627,7 +602,6 @@ export default function RiderMarketplace() {
                 </div>
               </div>
 
-              {/* Order Info Bar */}
               <div className={`rounded-2xl p-3.5 sm:p-4 border mb-4 sm:mb-5 flex flex-wrap items-center justify-between gap-2.5 text-xs ${isDark ? "bg-slate-800/80 border-slate-700 text-slate-200" : "bg-slate-50 border-slate-200/80 text-slate-700"
                 }`}>
                 <div className="flex items-center gap-2 font-bold">
@@ -639,11 +613,10 @@ export default function RiderMarketplace() {
                 </div>
               </div>
 
-              {/* Live Student Coming Alert Badge */}
               {studentComingAlert && activeClaimedOrder?.status === "arrived" && (
                 <div className="mb-4 sm:mb-5 p-3.5 sm:p-4 rounded-2xl bg-emerald-600 text-white font-black text-xs shadow-md animate-pulse flex items-center justify-between gap-3 border border-emerald-400">
                   <div className="flex items-center gap-2.5 sm:gap-3">
-                    <span className="text-xl sm:text-2xl">🏃</span>
+                    <i className="fa-solid fa-person-running text-xl sm:text-2xl" />
                     <div>
                       <div className="uppercase tracking-widest text-[8.5px] sm:text-[9px] text-emerald-200 font-black">{t.liveStudentAlert}</div>
                       <div className="text-[11px] sm:text-xs text-white font-black mt-0.5">{studentComingAlert.message || "Student is on their way to pick up the order!"}</div>
@@ -722,7 +695,7 @@ export default function RiderMarketplace() {
               }`}>
               <div className="flex items-center gap-3.5 min-w-0">
                 <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center text-lg sm:text-xl font-bold shrink-0">
-                  ⚡
+                  <i className="fa-solid fa-bolt" />
                 </div>
                 <div className="min-w-0">
                   <h3 className={`text-sm sm:text-base font-black m-0 whitespace-nowrap ${isDark ? "text-white" : "text-[#0a2342]"}`}>{t.readyForDeliveries}</h3>
@@ -741,8 +714,9 @@ export default function RiderMarketplace() {
             <div className={`flex flex-wrap items-center justify-between gap-2.5 sm:gap-4 mb-3 border-b pb-3 ${isDark ? "border-slate-800" : "border-slate-100"
               }`}>
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className={`text-sm sm:text-base font-black m-0 ${isDark ? "text-white" : "text-[#0a2342]"}`}>
-                  🍔 {t.readyTickets}
+                <h3 className={`text-sm sm:text-base font-black m-0 flex items-center gap-2 ${isDark ? "text-white" : "text-[#0a2342]"}`}>
+                  <i className="fa-solid fa-ticket text-amber-500" />
+                  <span>{t.readyTickets}</span>
                 </h3>
                 <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-[#00c2cb] text-[10px] sm:text-xs font-black border border-cyan-500/20 whitespace-nowrap">
                   {tickets.length} {t.ticketsAvailable}
@@ -751,10 +725,11 @@ export default function RiderMarketplace() {
 
               <button
                 onClick={fetchTickets}
-                className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer border shrink-0 ${isDark ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border-slate-700" : "bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200"
+                className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer border shrink-0 flex items-center gap-1.5 ${isDark ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border-slate-700" : "bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200"
                   }`}
               >
-                🔄 {t.refresh}
+                <i className="fa-solid fa-arrows-rotate text-xs" />
+                <span>{t.refresh}</span>
               </button>
             </div>
             <p className="text-[11px] sm:text-xs font-bold text-slate-400 mb-4">
@@ -768,7 +743,9 @@ export default function RiderMarketplace() {
             ) : tickets.length === 0 ? (
               <div className={`py-10 text-center border-2 border-dashed rounded-3xl px-4 ${isDark ? "border-slate-800" : "border-slate-200"
                 }`}>
-                <div className="text-3xl sm:text-4xl mb-2">🛵</div>
+                <div className="w-16 h-16 rounded-full bg-cyan-500/10 text-[#00c2cb] flex items-center justify-center text-3xl mb-2 mx-auto">
+                  <i className="fa-solid fa-motorcycle" />
+                </div>
                 <h4 className={`text-xs font-black ${isDark ? "text-white" : "text-[#0a2342]"}`}>{t.noTickets}</h4>
                 <p className="text-[11px] font-bold text-slate-400 mt-1 max-w-xs mx-auto">{t.noTicketsDesc}</p>
               </div>
@@ -787,11 +764,12 @@ export default function RiderMarketplace() {
                           ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 animate-pulse"
                           : "bg-amber-500/10 text-amber-500 border-amber-500/20"
                           }`}>
-                          {tItem.status === "ready" || tItem.urgent ? "FOOD READY FOR PICKUP 🍱" : "IN PREPARATION 🍳"}
+                          {tItem.status === "ready" || tItem.urgent ? "FOOD READY FOR PICKUP" : "IN PREPARATION"}
                         </span>
                       </div>
                       <p className="text-[11px] sm:text-xs font-bold text-slate-400 mt-1">
-                        📍 {t.deliverTo}: <span className={`font-black ${isDark ? "text-cyan-300" : "text-[#0a2342]"}`}>{tItem.deliveryDestination || tItem.deliveryLocation || "Campus Gate"}</span>
+                        <i className="fa-solid fa-location-dot text-[#00c2cb] text-[10px] mr-1" />
+                        {t.deliverTo}: <span className={`font-black ${isDark ? "text-cyan-300" : "text-[#0a2342]"}`}>{tItem.deliveryDestination || tItem.deliveryLocation || "Campus Gate"}</span>
                       </p>
                     </div>
 
@@ -828,7 +806,8 @@ export default function RiderMarketplace() {
           <div className={`rounded-3xl p-5 sm:p-6 border shadow-sm transition-colors ${isDark ? "bg-slate-900 border-slate-800 text-slate-100" : "bg-white border-slate-200/80 text-slate-800"
             }`}>
             <h3 className={`text-sm font-black mb-4 flex items-center gap-2 ${isDark ? "text-white" : "text-[#0a2342]"}`}>
-              <span>📊 {t.performance}</span>
+              <i className="fa-solid fa-chart-line text-cyan-400" />
+              <span>{t.performance}</span>
             </h3>
 
             <div className="grid grid-cols-2 gap-3 mb-4">
@@ -840,7 +819,7 @@ export default function RiderMarketplace() {
                 <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{t.rating}</div>
                 <div className="text-2xl font-black text-amber-400 mt-1 flex items-center gap-1">
                   <span>4.9</span>
-                  <span className="text-base">⭐</span>
+                  <i className="fa-solid fa-star text-amber-400 text-sm" />
                 </div>
               </div>
             </div>
@@ -864,7 +843,8 @@ export default function RiderMarketplace() {
             <div className={`flex items-center justify-between mb-4 border-b pb-3 ${isDark ? "border-slate-800" : "border-slate-100"
               }`}>
               <h3 className={`text-sm sm:text-base font-black m-0 flex items-center gap-2 ${isDark ? "text-white" : "text-[#0a2342]"}`}>
-                <span>📜 {t.history}</span>
+                <i className="fa-solid fa-clock-rotate-left text-slate-400" />
+                <span>{t.history}</span>
               </h3>
               <span className={`text-[10px] sm:text-[11px] font-black px-2.5 py-0.5 rounded-full border whitespace-nowrap ${isDark ? "bg-slate-800 text-slate-400 border-slate-700" : "bg-slate-100 text-slate-500 border-slate-200"
                 }`}>
@@ -875,7 +855,9 @@ export default function RiderMarketplace() {
             {completedDeliveries.length === 0 ? (
               <div className={`py-8 text-center border-2 border-dashed rounded-2xl ${isDark ? "border-slate-800" : "border-slate-200"
                 }`}>
-                <div className="text-3xl mb-1.5">📜</div>
+                <div className="w-14 h-14 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-2xl mb-2 mx-auto">
+                  <i className="fa-solid fa-clock-rotate-left" />
+                </div>
                 <h4 className={`text-xs font-black m-0 ${isDark ? "text-white" : "text-[#0a2342]"}`}>{t.noCompleted}</h4>
                 <p className="text-[11px] font-bold text-slate-400 mt-1 m-0">{t.noCompletedDesc}</p>
               </div>
@@ -892,7 +874,8 @@ export default function RiderMarketplace() {
                         </span>
                       </div>
                       <div className="text-[10px] font-bold text-slate-400 mt-0.5 truncate">
-                        📍 {item.deliveryLocation || "Campus Delivery Point"} • {item.completedAt || "Just now"}
+                        <i className="fa-solid fa-location-dot text-[#00c2cb] text-[10px] mr-1" />
+                        {item.deliveryLocation || "Campus Delivery Point"} • {item.completedAt || "Just now"}
                       </div>
                     </div>
                     <span className="text-[10px] sm:text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 whitespace-nowrap shrink-0">

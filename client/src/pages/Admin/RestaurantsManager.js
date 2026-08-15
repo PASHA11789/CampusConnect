@@ -220,7 +220,9 @@ const RestaurantsManager = () => {
           <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h2 className="text-[16px] font-black text-[#0a2342]">Onboard New Vendor</h2>
-              <button onClick={() => setIsCreateModalOpen(false)} className="text-slate-400 hover:text-slate-600">✕</button>
+              <button onClick={() => setIsCreateModalOpen(false)} className="text-slate-400 hover:text-slate-600 border-none bg-transparent cursor-pointer p-1">
+                <i className="fa-solid fa-xmark text-sm" />
+              </button>
             </div>
             <form onSubmit={handleCreateRestaurant} className="p-6 flex flex-col gap-4">
 
@@ -257,7 +259,7 @@ const RestaurantsManager = () => {
                 </div>
               </div>
 
-              <button type="submit" className="mt-4 w-full py-3 rounded-xl bg-[#0a2342] text-white text-[13px] font-bold hover:bg-[#00c2cb] transition-colors">Onboard Vendor</button>
+              <button type="submit" className="mt-4 w-full py-3 rounded-xl bg-[#0a2342] text-white text-[13px] font-bold hover:bg-[#00c2cb] transition-colors border-none cursor-pointer">Onboard Vendor</button>
             </form>
           </div>
         </div>
@@ -271,7 +273,9 @@ const RestaurantsManager = () => {
           <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-blue-50/50">
               <h2 className="text-[16px] font-black text-blue-800">Edit Restaurant Details</h2>
-              <button onClick={() => setIsEditRestaurantModalOpen(false)} className="text-slate-400 hover:text-slate-600">✕</button>
+              <button onClick={() => setIsEditRestaurantModalOpen(false)} className="text-slate-400 hover:text-slate-600 border-none bg-transparent cursor-pointer p-1">
+                <i className="fa-solid fa-xmark text-sm" />
+              </button>
             </div>
             <form onSubmit={handleEditRestaurant} className="p-6 flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">

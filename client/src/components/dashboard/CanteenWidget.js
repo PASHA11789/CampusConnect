@@ -60,7 +60,8 @@ const CanteenWidget = () => {
           onClick={() => navigate('/canteen', { state: { viewAll: true } })}
           className="bg-transparent border-none text-[12px] text-[#071A35] no-underline font-extrabold transition-all duration-200 hover:text-[#2563EB] cursor-pointer flex items-center gap-1"
         >
-          View all ➔
+          <span>View all</span>
+          <i className="fa-solid fa-arrow-right text-[10px]" />
         </button>
       </div>
 
@@ -69,7 +70,9 @@ const CanteenWidget = () => {
           <div className="col-span-4 py-8 text-center text-xs font-bold text-[#211A24]/50">Loading canteen eateries...</div>
         ) : restaurants.length === 0 ? (
           <div className="col-span-4 py-8 text-center border-2 border-dashed border-slate-200 rounded-3xl p-6 bg-white">
-            <div className="text-3xl mb-2">🍽️</div>
+            <div className="text-3xl mb-2 text-slate-300">
+              <i className="fa-solid fa-utensils text-2xl text-slate-300" />
+            </div>
             <h4 className="text-sm font-black text-[#071A35]">No Active Canteen Eateries</h4>
             <p className="text-xs font-semibold text-slate-400 mt-1">Check back soon when a canteen vendor goes online!</p>
           </div>

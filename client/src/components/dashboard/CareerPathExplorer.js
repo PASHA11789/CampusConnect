@@ -36,8 +36,8 @@ const CareerPathExplorer = ({ careers = [], onThreadClick }) => {
       {/* Header */}
       <div className="flex justify-between items-center w-full pb-3 border-b border-[#E8E1D5] mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-[#2563EB]/10 text-[#2563EB] flex items-center justify-center font-bold text-sm">
-            💼
+          <div className="w-8 h-8 rounded-full bg-[#2563EB]/10 text-[#2563EB] flex items-center justify-center font-bold text-xs">
+            <i className="fa-solid fa-briefcase" />
           </div>
           <h4 className="text-[13.5px] font-black text-[#071A35] uppercase tracking-wider m-0">{t('Career & Alumni Hub')}</h4>
         </div>
@@ -45,7 +45,8 @@ const CareerPathExplorer = ({ careers = [], onThreadClick }) => {
           onClick={() => navigate('/career')}
           className="bg-transparent border-none text-[11px] font-extrabold text-[#2563EB] hover:text-[#071A35] transition-colors cursor-pointer flex items-center gap-1"
         >
-          {t('View all ➔')}
+          <span>{t('View all')}</span>
+          <i className="fa-solid fa-arrow-right text-[10px]" />
         </button>
       </div>
 
@@ -76,7 +77,7 @@ const CareerPathExplorer = ({ careers = [], onThreadClick }) => {
                   {i === 0 ? 'by TechSoft (Lahore)' : 'by Senior Alumni'}
                 </span>
                 <div className="flex items-center gap-1 text-[9px] font-extrabold text-[#071A35]">
-                  <span>💬</span>
+                  <i className="fa-solid fa-comments text-xs" />
                   <span>{repliesCount} {repliesCount === 1 ? 'reply' : 'replies'}</span>
                 </div>
               </div>

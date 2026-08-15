@@ -7,6 +7,7 @@ import { io } from "socket.io-client";
 // Layout Components
 import Sidebar from "../../components/layout/Sidebar";
 import Topbar from "../../components/layout/Topbar";
+import AnimatedSelect from "../../components/common/AnimatedSelect";
 
 const t = (s) => s;
 
@@ -160,7 +161,7 @@ export default function LostFound() {
       const socket = io(SOCKET_URL);
 
       socket.on("connect", () => {
-        console.log("⚡ Connected to Lost & Found socket updates");
+        console.log("[Socket] Connected to Lost & Found socket updates");
         socket.emit("join_room", "Campus");
         socket.emit("join_user_room", user._id);
       });
@@ -642,8 +643,11 @@ export default function LostFound() {
         {/* Floating Toast Notification Popup */}
         {toast && (
           <div className="fixed top-16 right-3 left-3 sm:left-auto sm:right-6 sm:max-w-sm z-[9999] bg-[#0a2342] text-white px-4 py-3 rounded-2xl shadow-2xl font-bold text-xs border border-slate-700 animate-slide-down flex items-center gap-3">
-            <span className="text-base">
-              {toast.type === "success" ? "✅" : toast.type === "error" ? "❌" : toast.type === "warning" ? "⚠️" : "ℹ️"}
+            <span className="text-base flex items-center justify-center">
+              {toast.type === "success" && <i className="fa-solid fa-circle-check text-emerald-400" />}
+              {toast.type === "error" && <i className="fa-solid fa-circle-xmark text-rose-400" />}
+              {toast.type === "warning" && <i className="fa-solid fa-triangle-exclamation text-amber-400" />}
+              {toast.type === "info" && <i className="fa-solid fa-circle-info text-[#00c2cb]" />}
             </span>
             <span className="leading-snug">{toast.message}</span>
           </div>
@@ -676,9 +680,10 @@ export default function LostFound() {
                   setNewItemType("LOST");
                   setIsModalOpen(true);
                 }}
-                className="flex-1 sm:flex-none bg-white/10 hover:bg-white/20 text-white font-extrabold px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-[11.5px] sm:text-[12px] border border-white/20 transition-all cursor-pointer text-center"
+                className="flex-1 sm:flex-none bg-white/10 hover:bg-white/20 text-white font-extrabold px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-[11.5px] sm:text-[12px] border border-white/20 transition-all cursor-pointer text-center flex items-center justify-center gap-1.5"
               >
-                <span>➕ Report Lost</span>
+                <i className="fa-solid fa-plus text-xs" />
+                <span>Report Lost</span>
               </button>
 
               <button
@@ -689,7 +694,7 @@ export default function LostFound() {
                 }}
                 className="flex-1 sm:flex-none bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] font-black px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-[11.5px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center justify-center gap-1.5 hover:scale-105 active:scale-95 border-none"
               >
-                <span>+</span>
+                <i className="fa-solid fa-plus text-xs" />
                 <span>Report Found</span>
               </button>
             </div>
@@ -700,7 +705,7 @@ export default function LostFound() {
             
             {/* Search Input Bar */}
             <div className="relative flex-1 min-w-[260px]">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+              <i className="fa-solid fa-magnifying-glass text-xs text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center" />
               <input
                 type="text"
                 placeholder="Search items (e.g. wallet, phone, keys...)"
@@ -711,56 +716,68 @@ export default function LostFound() {
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm("")}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-bold"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-bold border-none bg-transparent cursor-pointer"
                 >
-                  ✕
+                  <i className="fa-solid fa-xmark" />
                 </button>
               )}
             </div>
 
             {/* Filter Row — horizontally scrollable on mobile */}
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5 md:pb-0 md:justify-end">
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="shrink-0 px-3 py-2 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] text-[11px] sm:text-xs font-extrabold text-[#071A35] focus:outline-none focus:ring-2 focus:ring-[#071A35]/20 cursor-pointer"
-              >
-                <option value="All">All Categories</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Books & Notes">Books & Notes</option>
-                <option value="Accessories">Accessories</option>
-                <option value="Clothing">Clothing</option>
-                <option value="Keys & Cards">Keys & Cards</option>
-                <option value="Others">Others</option>
-              </select>
+              <div className="w-[145px] shrink-0">
+                <AnimatedSelect
+                  size="sm"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  options={[
+                    { value: "All", label: "All Categories" },
+                    { value: "Electronics", label: "Electronics" },
+                    { value: "Books & Notes", label: "Books & Notes" },
+                    { value: "Accessories", label: "Accessories" },
+                    { value: "Clothing", label: "Clothing" },
+                    { value: "Keys & Cards", label: "Keys & Cards" },
+                    { value: "Others", label: "Others" }
+                  ]}
+                  buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[11px] sm:text-xs font-extrabold text-[#071A35] rounded-full py-1.5 px-3"
+                />
+              </div>
 
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="shrink-0 px-3 py-2 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] text-[11px] sm:text-xs font-extrabold text-[#071A35] focus:outline-none focus:ring-2 focus:ring-[#071A35]/20 cursor-pointer"
-              >
-                <option value="ALL">All Status</option>
-                <option value="Open">Open</option>
-                <option value="At Office">At Office</option>
-                <option value="Claimed">Claimed</option>
-              </select>
+              <div className="w-[115px] shrink-0">
+                <AnimatedSelect
+                  size="sm"
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  options={[
+                    { value: "ALL", label: "All Status" },
+                    { value: "Open", label: "Open" },
+                    { value: "At Office", label: "At Office" },
+                    { value: "Claimed", label: "Claimed" }
+                  ]}
+                  buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[11px] sm:text-xs font-extrabold text-[#071A35] rounded-full py-1.5 px-3"
+                />
+              </div>
 
               {/* Date Filter Dropdown */}
-              <select
-                value={dateFilterMode}
-                onChange={(e) => setDateFilterMode(e.target.value)}
-                className={`shrink-0 px-3 py-2 rounded-full border text-[11px] sm:text-xs font-extrabold focus:outline-none focus:ring-2 focus:ring-[#071A35]/20 cursor-pointer transition-colors ${
-                  dateFilterMode !== "ALL"
-                    ? "bg-[#071A35] text-white border-[#071A35]"
-                    : "bg-[#FAF7F0] text-[#071A35] border-[#E8E1D5]"
-                }`}
-              >
-                <option value="ALL">All Dates</option>
-                <option value="today">📅 Published Today</option>
-                <option value="yesterday">📅 Published Yesterday</option>
-                <option value="this_week">📅 Past 7 Days</option>
-                <option value="custom">📅 Specific Date...</option>
-              </select>
+              <div className="w-[140px] shrink-0">
+                <AnimatedSelect
+                  size="sm"
+                  value={dateFilterMode}
+                  onChange={(e) => setDateFilterMode(e.target.value)}
+                  options={[
+                    { value: "ALL", label: "All Dates" },
+                    { value: "today", label: "Published Today" },
+                    { value: "yesterday", label: "Published Yesterday" },
+                    { value: "this_week", label: "Past 7 Days" },
+                    { value: "custom", label: "Custom Range" }
+                  ]}
+                  buttonClassName={`text-[11px] sm:text-xs font-extrabold rounded-full py-1.5 px-3 transition-colors ${
+                    dateFilterMode !== "ALL"
+                      ? "bg-[#071A35] text-white border-[#071A35]"
+                      : "bg-[#FAF7F0] text-[#071A35] border-[#E8E1D5]"
+                  }`}
+                />
+              </div>
 
               {/* Specific Date Picker Input */}
               {dateFilterMode === "custom" && (
@@ -777,7 +794,7 @@ export default function LostFound() {
                       className="ml-1 text-slate-400 hover:text-red-500 text-xs font-black cursor-pointer border-none bg-transparent"
                       title="Clear custom date"
                     >
-                      ✕
+                      <i className="fa-solid fa-xmark" />
                     </button>
                   )}
                 </div>
@@ -792,9 +809,9 @@ export default function LostFound() {
                   setDateFilterMode("ALL");
                   setSelectedCustomDate("");
                 }}
-                className="shrink-0 px-3 py-2 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] text-[11px] sm:text-xs font-extrabold text-[#211A24]/70 hover:bg-[#F3EEE4] hover:text-[#071A35] transition-all flex items-center gap-1 cursor-pointer"
+                className="shrink-0 px-3 py-2 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] text-[11px] sm:text-xs font-extrabold text-[#211A24]/70 hover:bg-[#F3EEE4] hover:text-[#071A35] transition-all flex items-center gap-1.5 cursor-pointer"
               >
-                <span>⚙️</span>
+                <i className="fa-solid fa-rotate-left text-xs" />
                 <span>Reset</span>
               </button>
             </div>
@@ -831,33 +848,37 @@ export default function LostFound() {
 
             {/* Sort & View toggles */}
             <div className="flex items-center gap-2 shrink-0">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-transparent border-none text-[11px] font-extrabold text-[#071A35] focus:outline-none cursor-pointer hidden sm:block"
-              >
-                <option value="latest">Latest</option>
-                <option value="oldest">Oldest</option>
-              </select>
+              <div className="w-[100px] hidden sm:block">
+                <AnimatedSelect
+                  size="sm"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  options={[
+                    { value: "latest", label: "Latest" },
+                    { value: "oldest", label: "Oldest" }
+                  ]}
+                  buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[11px] font-extrabold text-[#071A35] py-1 px-2.5 rounded-lg"
+                />
+              </div>
 
               <div className="flex items-center gap-0.5 bg-[#FAF7F0] border border-[#E8E1D5] p-0.5 rounded-lg">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-1.5 rounded-md text-xs transition-all ${
-                    viewMode === "grid" ? "bg-[#071A35] text-white shadow-sm" : "text-slate-500"
+                  className={`p-1.5 rounded-md text-xs transition-all flex items-center justify-center cursor-pointer border-none ${
+                    viewMode === "grid" ? "bg-[#071A35] text-white shadow-sm" : "text-slate-500 bg-transparent"
                   }`}
                   title="Grid View"
                 >
-                  ⊞
+                  <i className="fa-solid fa-grip text-xs" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-1.5 rounded-md text-xs transition-all ${
-                    viewMode === "list" ? "bg-[#071A35] text-white shadow-sm" : "text-slate-500"
+                  className={`p-1.5 rounded-md text-xs transition-all flex items-center justify-center cursor-pointer border-none ${
+                    viewMode === "list" ? "bg-[#071A35] text-white shadow-sm" : "text-slate-500 bg-transparent"
                   }`}
                   title="List View"
                 >
-                  ☰
+                  <i className="fa-solid fa-list text-xs" />
                 </button>
               </div>
             </div>
@@ -872,12 +893,12 @@ export default function LostFound() {
             {loading ? (
               <div className="py-24 text-center text-slate-400 font-bold text-xs animate-pulse flex flex-col items-center justify-center gap-3">
                 <div className="w-8 h-8 border-3 border-slate-200 border-t-[#2563eb] rounded-full animate-spin"></div>
-                <span>Fetching lost & found items...</span>
+                <span>Fetching lost &amp; found items...</span>
               </div>
             ) : filteredItems.length === 0 ? (
               <div className="py-20 px-6 rounded-2xl bg-white border border-slate-200/80 text-center shadow-sm max-w-md mx-auto flex flex-col items-center justify-center">
-                <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center text-3xl mb-3">
-                  📦
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center text-2xl text-slate-400 mb-3">
+                  <i className="fa-solid fa-box-open" />
                 </div>
                 <h3 className="text-base font-bold text-slate-900">No Items Found</h3>
                 <p className="text-xs text-slate-500 mt-1 max-w-xs leading-relaxed">
@@ -895,7 +916,7 @@ export default function LostFound() {
                     setFilterStatus("ALL");
                     setSelectedTab("recent");
                   }}
-                  className="mt-4 px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-[#1d4ed8] transition-all cursor-pointer"
+                  className="mt-4 px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-[#1d4ed8] transition-all cursor-pointer border-none"
                 >
                   Reset All Filters
                 </button>
@@ -908,12 +929,12 @@ export default function LostFound() {
 
                   // Category icon & gradient theme mapping
                   const getCategoryGraphic = (cat) => {
-                    if (cat === "Electronics") return { icon: "💻", gradient: "from-sky-100 via-blue-50 to-[#FAF7F0]" };
-                    if (cat === "Books & Notes") return { icon: "📚", gradient: "from-emerald-100 via-teal-50 to-[#FAF7F0]" };
-                    if (cat === "Accessories") return { icon: "👛", gradient: "from-purple-100 via-pink-50 to-[#FAF7F0]" };
-                    if (cat === "Clothing") return { icon: "👕", gradient: "from-rose-100 via-orange-50 to-[#FAF7F0]" };
-                    if (cat === "Keys & Cards") return { icon: "🔑", gradient: "from-amber-100 via-yellow-50 to-[#FAF7F0]" };
-                    return { icon: item.type === "LOST" ? "🔎" : "🎁", gradient: "from-slate-100 via-sky-50 to-[#FAF7F0]" };
+                    if (cat === "Electronics") return { iconClass: "fa-solid fa-laptop text-sky-600", gradient: "from-sky-100 via-blue-50 to-[#FAF7F0]" };
+                    if (cat === "Books & Notes") return { iconClass: "fa-solid fa-book-bookmark text-emerald-600", gradient: "from-emerald-100 via-teal-50 to-[#FAF7F0]" };
+                    if (cat === "Accessories") return { iconClass: "fa-solid fa-bag-shopping text-purple-600", gradient: "from-purple-100 via-pink-50 to-[#FAF7F0]" };
+                    if (cat === "Clothing") return { iconClass: "fa-solid fa-shirt text-rose-600", gradient: "from-rose-100 via-orange-50 to-[#FAF7F0]" };
+                    if (cat === "Keys & Cards") return { iconClass: "fa-solid fa-key text-amber-600", gradient: "from-amber-100 via-yellow-50 to-[#FAF7F0]" };
+                    return { iconClass: item.type === "LOST" ? "fa-solid fa-magnifying-glass text-slate-600" : "fa-solid fa-gift text-[#00c2cb]", gradient: "from-slate-100 via-sky-50 to-[#FAF7F0]" };
                   };
 
                   const graphic = getCategoryGraphic(item.category);
@@ -941,8 +962,8 @@ export default function LostFound() {
                           </div>
                         ) : (
                           <div className={`w-full h-full bg-gradient-to-br ${graphic.gradient} flex flex-col items-center justify-center relative`}>
-                            <div className="w-16 h-16 rounded-2xl bg-white/80 backdrop-blur-md shadow-sm border border-white/60 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
-                              {graphic.icon}
+                            <div className="w-16 h-16 rounded-2xl bg-white/80 backdrop-blur-md shadow-sm border border-white/60 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">
+                              <i className={graphic.iconClass} />
                             </div>
                           </div>
                         )}
@@ -956,7 +977,7 @@ export default function LostFound() {
                                 : "bg-emerald-500/90 text-white border-emerald-400/30"
                             }`}
                           >
-                            <span>{item.type === "LOST" ? "🔴" : "🟢"}</span>
+                            <i className={`fa-solid fa-circle text-[8px] ${item.type === "LOST" ? "text-rose-200" : "text-emerald-200"}`} />
                             <span>{item.type === "LOST" ? "Lost" : "Found"}</span>
                           </span>
                         </div>
@@ -964,12 +985,12 @@ export default function LostFound() {
                         {/* Save / Bookmark Button */}
                         <button
                           onClick={(e) => toggleSaveItem(e, item._id)}
-                          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-xs shadow-md transition-all ${
+                          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-xs shadow-md transition-all border-none cursor-pointer ${
                             isSaved ? "text-blue-600 font-bold scale-110" : "text-slate-400 hover:text-slate-700"
                           }`}
                           title={isSaved ? "Saved" : "Save item"}
                         >
-                          {isSaved ? "🔖" : "🏷️"}
+                          <i className={`fa-solid ${isSaved ? "fa-bookmark text-blue-600" : "fa-tag"}`} />
                         </button>
                       </div>
 
@@ -993,8 +1014,8 @@ export default function LostFound() {
                                 {item.category}
                               </span>
                             )}
-                            <div className="text-[11px] font-bold text-slate-500 flex items-center gap-1 truncate max-w-[170px]">
-                              <span>📍</span>
+                            <div className="text-[11px] font-bold text-slate-500 flex items-center gap-1.5 truncate max-w-[170px]">
+                              <i className="fa-solid fa-location-dot text-slate-400 text-xs" />
                               <span className="truncate">{item.location || "Campus Grounds"}</span>
                             </div>
                           </div>
@@ -1002,7 +1023,10 @@ export default function LostFound() {
 
                         {/* Footer Info Bar */}
                         <div className="text-[10.5px] font-semibold text-slate-400 pt-2.5 border-t border-[#E8E1D5] flex items-center justify-between">
-                          <span>⏱️ {formatDate(item.createdAt)}</span>
+                          <span className="flex items-center gap-1">
+                            <i className="fa-regular fa-clock text-[10px]" />
+                            <span>{formatDate(item.createdAt)}</span>
+                          </span>
                           <span
                             className={`font-black px-2 py-0.5 rounded-md text-[10px] ${
                               item.status === "Returned" || item.status === "Claimed"
@@ -1045,10 +1069,10 @@ export default function LostFound() {
                         />
                       ) : null}
                       <span
-                        className="text-xl items-center justify-center"
+                        className="text-base items-center justify-center"
                         style={{ display: item.image ? "none" : "flex" }}
                       >
-                        {item.type === "LOST" ? "🔴" : "🟢"}
+                        <i className={`fa-solid fa-circle text-xs ${item.type === "LOST" ? "text-rose-500" : "text-emerald-500"}`} />
                       </span>
                     </div>
 
@@ -1071,11 +1095,13 @@ export default function LostFound() {
 
                       {/* Location + Time — inline on sm, stacked on xs if needed */}
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-0.5 truncate max-w-[120px] sm:max-w-none">
-                          📍 <span className="truncate">{item.location}</span>
+                        <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1 truncate max-w-[120px] sm:max-w-none">
+                          <i className="fa-solid fa-location-dot text-[10px]" />
+                          <span className="truncate">{item.location}</span>
                         </span>
-                        <span className="text-[10px] font-semibold text-slate-400 shrink-0">
-                          ⏱️ {formatDate(item.createdAt)}
+                        <span className="text-[10px] font-semibold text-slate-400 shrink-0 flex items-center gap-1">
+                          <i className="fa-regular fa-clock text-[10px]" />
+                          <span>{formatDate(item.createdAt)}</span>
                         </span>
                       </div>
                     </div>
@@ -1106,13 +1132,14 @@ export default function LostFound() {
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 rounded-full text-xs font-extrabold border transition-all ${
+                  className={`px-4 py-2 rounded-full text-xs font-extrabold border transition-all flex items-center gap-1.5 ${
                     currentPage === 1
                       ? "bg-[#FAF7F0] border-[#E8E1D5] text-[#211A24]/30 cursor-not-allowed"
                       : "bg-white border-[#E8E1D5] text-[#071A35] hover:bg-[#F3EEE4] cursor-pointer shadow-sm"
                   }`}
                 >
-                  ← Prev
+                  <i className="fa-solid fa-arrow-left text-[10px]" />
+                  <span>Prev</span>
                 </button>
 
                 {/* Page Number Buttons */}
@@ -1154,13 +1181,14 @@ export default function LostFound() {
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-full text-xs font-extrabold border transition-all ${
+                  className={`px-4 py-2 rounded-full text-xs font-extrabold border transition-all flex items-center gap-1.5 ${
                     currentPage === totalPages
                       ? "bg-[#FAF7F0] border-[#E8E1D5] text-[#211A24]/30 cursor-not-allowed"
                       : "bg-white border-[#E8E1D5] text-[#071A35] hover:bg-[#F3EEE4] cursor-pointer shadow-sm"
                   }`}
                 >
-                  Next →
+                  <span>Next</span>
+                  <i className="fa-solid fa-arrow-right text-[10px]" />
                 </button>
 
                 {/* Page Info */}
@@ -1187,9 +1215,9 @@ export default function LostFound() {
                 </div>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:text-[#0a2342] hover:bg-slate-200 flex items-center justify-center text-xs font-bold cursor-pointer transition-colors shrink-0"
+                  className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:text-[#0a2342] hover:bg-slate-200 flex items-center justify-center text-xs font-bold cursor-pointer transition-colors shrink-0 border-none"
                 >
-                  ✕
+                  <i className="fa-solid fa-xmark" />
                 </button>
               </div>
 
@@ -1204,24 +1232,26 @@ export default function LostFound() {
                     <button
                       type="button"
                       onClick={() => setNewItemType("LOST")}
-                      className={`py-2 rounded-full text-[11px] font-black transition-all cursor-pointer ${
+                      className={`py-2 rounded-full text-[11px] font-black transition-all cursor-pointer border-none flex items-center justify-center gap-1.5 ${
                         newItemType === "LOST"
                           ? "bg-rose-600 text-white shadow-sm"
-                          : "text-slate-600 hover:text-[#0a2342]"
+                          : "text-slate-600 hover:text-[#0a2342] bg-transparent"
                       }`}
                     >
-                      🔴 I Lost Something
+                      <i className="fa-solid fa-circle text-[8px]" />
+                      <span>I Lost Something</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setNewItemType("FOUND")}
-                      className={`py-2 rounded-full text-[11px] font-black transition-all cursor-pointer ${
+                      className={`py-2 rounded-full text-[11px] font-black transition-all cursor-pointer border-none flex items-center justify-center gap-1.5 ${
                         newItemType === "FOUND"
                           ? "bg-emerald-600 text-white shadow-sm"
-                          : "text-slate-600 hover:text-[#0a2342]"
+                          : "text-slate-600 hover:text-[#0a2342] bg-transparent"
                       }`}
                     >
-                      🟢 I Found Something
+                      <i className="fa-solid fa-circle text-[8px]" />
+                      <span>I Found Something</span>
                     </button>
                   </div>
 
@@ -1243,18 +1273,19 @@ export default function LostFound() {
                     <label className="block text-[10px] font-black uppercase text-slate-500 tracking-wider mb-1">
                       Category *
                     </label>
-                    <select
+                    <AnimatedSelect
                       value={itemCategory}
                       onChange={(e) => setItemCategory(e.target.value)}
-                      className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-[#0a2342] focus:outline-none focus:border-[#2563eb] cursor-pointer"
-                    >
-                      <option value="Electronics">Electronics</option>
-                      <option value="Books & Notes">Books &amp; Notes</option>
-                      <option value="Accessories">Accessories</option>
-                      <option value="Clothing">Clothing</option>
-                      <option value="Keys & Cards">Keys &amp; Cards</option>
-                      <option value="Others">Others</option>
-                    </select>
+                      options={[
+                        { value: "Electronics", label: "Electronics", iconClass: "fa-solid fa-laptop" },
+                        { value: "Books & Notes", label: "Books & Notes", iconClass: "fa-solid fa-book" },
+                        { value: "Accessories", label: "Accessories", iconClass: "fa-solid fa-wallet" },
+                        { value: "Clothing", label: "Clothing", iconClass: "fa-solid fa-shirt" },
+                        { value: "Keys & Cards", label: "Keys & Cards", iconClass: "fa-solid fa-key" },
+                        { value: "Others", label: "Others", iconClass: "fa-solid fa-box" }
+                      ]}
+                      buttonClassName="bg-slate-50 border-slate-200 text-xs font-bold text-[#0a2342] py-2.5 px-3 rounded-xl"
+                    />
                   </div>
 
                   <div>
@@ -1324,16 +1355,23 @@ export default function LostFound() {
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2 rounded-full bg-slate-100 text-slate-600 font-bold text-[11px] hover:bg-slate-200 cursor-pointer transition-colors"
+                    className="px-4 py-2 rounded-full bg-slate-100 text-slate-600 font-bold text-[11px] hover:bg-slate-200 cursor-pointer transition-colors border-none"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-5 py-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-black text-[11px] shadow-md transition-all disabled:opacity-50 cursor-pointer"
+                    className="px-5 py-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-black text-[11px] shadow-md transition-all disabled:opacity-50 cursor-pointer border-none flex items-center gap-1.5"
                   >
-                    {isSubmitting ? "Submitting..." : "📢 Broadcast Report"}
+                    {isSubmitting ? (
+                      <span>Submitting...</span>
+                    ) : (
+                      <>
+                        <i className="fa-solid fa-bullhorn text-xs" />
+                        <span>Broadcast Report</span>
+                      </>
+                    )}
                   </button>
                 </div>
 
@@ -1364,9 +1402,9 @@ export default function LostFound() {
 
                 <button
                   onClick={handleCloseDetail}
-                  className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-[#0a2342] hover:bg-slate-200 flex items-center justify-center text-sm font-bold cursor-pointer transition-colors"
+                  className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-[#0a2342] hover:bg-slate-200 flex items-center justify-center text-sm font-bold cursor-pointer transition-colors border-none"
                 >
-                  ✕
+                  <i className="fa-solid fa-xmark" />
                 </button>
               </div>
 
@@ -1379,7 +1417,7 @@ export default function LostFound() {
                   </div>
                 ) : (
                   <div className="w-full h-36 rounded-2xl bg-slate-100 border border-slate-200 flex flex-col items-center justify-center text-slate-400">
-                    <span className="text-4xl mb-1">{selectedItem.type === "LOST" ? "🔴" : "🟢"}</span>
+                    <i className={`fa-solid fa-circle text-2xl mb-1 ${selectedItem.type === "LOST" ? "text-rose-500" : "text-emerald-500"}`} />
                     <span className="text-xs font-bold">No photo attached</span>
                   </div>
                 )}
@@ -1394,33 +1432,48 @@ export default function LostFound() {
                 {/* Location Specs Box */}
                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-500 font-bold">📍 Location:</span>
+                    <span className="text-slate-500 font-bold flex items-center gap-1">
+                      <i className="fa-solid fa-location-dot text-slate-400" />
+                      <span>Location:</span>
+                    </span>
                     <span className="text-[#0a2342] font-black">{selectedItem.location || "Campus Point"}</span>
                   </div>
 
                   {selectedItem.surrenderedAt && (
                     <div className="flex items-center gap-2 text-[#2563eb]">
-                      <span className="font-bold">🏢 Surrendered Office:</span>
+                      <span className="font-bold flex items-center gap-1">
+                        <i className="fa-solid fa-building-shield" />
+                        <span>Surrendered Office:</span>
+                      </span>
                       <span className="font-black">{selectedItem.surrenderedAt}</span>
                     </div>
                   )}
 
                   {selectedItem.foundLocation && (
                     <div className="flex items-center gap-2 text-emerald-700">
-                      <span className="font-bold">🤝 Found Location:</span>
+                      <span className="font-bold flex items-center gap-1">
+                        <i className="fa-solid fa-handshake" />
+                        <span>Found Location:</span>
+                      </span>
                       <span className="font-black">{selectedItem.foundLocation}</span>
                     </div>
                   )}
 
                   {selectedItem.submittedTo && (
                     <div className="flex items-center gap-2 text-[#2563eb]">
-                      <span className="font-bold">🛡️ Submitted To:</span>
+                      <span className="font-bold flex items-center gap-1">
+                        <i className="fa-solid fa-shield-halved" />
+                        <span>Submitted To:</span>
+                      </span>
                       <span className="font-black">{selectedItem.submittedTo}</span>
                     </div>
                   )}
 
                   <div className="flex items-center gap-2 text-slate-400 text-[11px] pt-1">
-                    <span>⏱️ Date Reported:</span>
+                    <span className="flex items-center gap-1">
+                      <i className="fa-regular fa-clock" />
+                      <span>Date Reported:</span>
+                    </span>
                     <span>{formatDate(selectedItem.createdAt)}</span>
                   </div>
                 </div>
@@ -1450,9 +1503,10 @@ export default function LostFound() {
                   <button
                     onClick={() => handleDeleteItem(selectedItem._id)}
                     disabled={deletingIds.has(selectedItem._id)}
-                    className="px-3 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-[11px] font-bold transition-all cursor-pointer shrink-0"
+                    className="px-3 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-[11px] font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1.5"
                   >
-                    {deletingIds.has(selectedItem._id) ? "Deleting..." : "🗑️ Delete"}
+                    <i className="fa-solid fa-trash-can text-xs" />
+                    <span>{deletingIds.has(selectedItem._id) ? "Deleting..." : "Delete"}</span>
                   </button>
                 )}
 
@@ -1464,9 +1518,10 @@ export default function LostFound() {
                         setClaimTargetItem(selectedItem);
                         setIsClaimModalOpen(true);
                       }}
-                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[11px] sm:text-xs shadow-sm transition-all cursor-pointer whitespace-nowrap"
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[11px] sm:text-xs shadow-sm transition-all cursor-pointer whitespace-nowrap border-none flex items-center gap-1.5"
                     >
-                      🤝 I Found This!
+                      <i className="fa-solid fa-handshake text-xs" />
+                      <span>I Found This!</span>
                     </button>
                   )}
 
@@ -1475,9 +1530,10 @@ export default function LostFound() {
                     <button
                       onClick={() => handleResolveItem(selectedItem._id)}
                       disabled={resolvingIds.has(selectedItem._id)}
-                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-black text-[11px] sm:text-xs shadow-sm transition-all disabled:opacity-50 cursor-pointer whitespace-nowrap"
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-black text-[11px] sm:text-xs shadow-sm transition-all disabled:opacity-50 cursor-pointer whitespace-nowrap border-none flex items-center gap-1.5"
                     >
-                      {resolvingIds.has(selectedItem._id) ? "Updating..." : "✅ Mark Reunited"}
+                      <i className="fa-solid fa-circle-check text-xs" />
+                      <span>{resolvingIds.has(selectedItem._id) ? "Updating..." : "Mark Reunited"}</span>
                     </button>
                   )}
                 </div>
@@ -1500,9 +1556,9 @@ export default function LostFound() {
                 </div>
                 <button
                   onClick={() => setIsClaimModalOpen(false)}
-                  className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:text-[#0a2342] flex items-center justify-center text-xs font-bold cursor-pointer transition-colors"
+                  className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:text-[#0a2342] flex items-center justify-center text-xs font-bold cursor-pointer transition-colors border-none"
                 >
-                  ✕
+                  <i className="fa-solid fa-xmark" />
                 </button>
               </div>
 
@@ -1541,14 +1597,14 @@ export default function LostFound() {
                   <button
                     type="button"
                     onClick={() => setIsClaimModalOpen(false)}
-                    className="px-4 py-2 rounded-full bg-slate-100 text-slate-600 font-bold text-xs hover:bg-slate-200 cursor-pointer transition-colors"
+                    className="px-4 py-2 rounded-full bg-slate-100 text-slate-600 font-bold text-xs hover:bg-slate-200 cursor-pointer transition-colors border-none"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isClaimSubmitting}
-                    className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition-all disabled:opacity-50 cursor-pointer"
+                    className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition-all disabled:opacity-50 cursor-pointer border-none"
                   >
                     {isClaimSubmitting ? "Notifying Owner..." : "Submit Found Report"}
                   </button>

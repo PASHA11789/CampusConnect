@@ -15,15 +15,15 @@ const STEPS = [
 ];
 
 const STATUS_MESSAGES = {
-  pending:    { emoji: "⏳", text: "Waiting for the vendor to accept your order..." },
-  accepted:   { emoji: "✅", text: "Order accepted! Kitchen is preparing your meal." },
-  preparing:  { emoji: "🍳", text: "Your food is being freshly prepared!" },
-  ready:      { emoji: "🍱", text: "Food is ready! Rider is picking it up now." },
-  picked_up:  { emoji: "🛵", text: "Your order is on its way to your location!" },
-  on_the_way: { emoji: "🛵", text: "Your order is on its way to your location!" },
-  arrived:    { emoji: "📍", text: "Your rider has arrived at the location!" },
-  completed:  { emoji: "🎉", text: "Delivered! Enjoy your meal." },
-  cancelled:  { emoji: "❌", text: "Your order was cancelled. We're sorry for the inconvenience." },
+  pending:    { icon: "fa-solid fa-hourglass-half", text: "Waiting for the vendor to accept your order..." },
+  accepted:   { icon: "fa-solid fa-circle-check", text: "Order accepted! Kitchen is preparing your meal." },
+  preparing:  { icon: "fa-solid fa-fire-burner", text: "Your food is being freshly prepared!" },
+  ready:      { icon: "fa-solid fa-box-open", text: "Food is ready! Rider is picking it up now." },
+  picked_up:  { icon: "fa-solid fa-motorcycle", text: "Your order is on its way to your location!" },
+  on_the_way: { icon: "fa-solid fa-motorcycle", text: "Your order is on its way to your location!" },
+  arrived:    { icon: "fa-solid fa-location-dot", text: "Your rider has arrived at the location!" },
+  completed:  { icon: "fa-solid fa-champagne-glasses", text: "Delivered! Enjoy your meal." },
+  cancelled:  { icon: "fa-solid fa-circle-xmark", text: "Your order was cancelled. We're sorry for the inconvenience." },
 };
 
 export default function OrderTracker({
@@ -185,7 +185,7 @@ export default function OrderTracker({
       );
 
       if (res.data?.success) {
-        setNudgeStatus("🔔 Nudge sent to vendor!");
+        setNudgeStatus("Nudge sent to vendor!");
         setCooldown(180); // 3 minutes
       }
     } catch (err) {
@@ -207,7 +207,7 @@ export default function OrderTracker({
         type: "student_nudge_arrival",
         nudgeType: "student_coming",
         orderId: orderId,
-        message: `🏃‍♂️ Student is heading to collect Order ${orderId} — they're on their way!`
+        message: `Student is heading to collect Order ${orderId} — they're on their way!`
       });
       channel.close();
     } catch (_) {}
@@ -225,14 +225,24 @@ export default function OrderTracker({
 
   const handleNudgeRiderArrival = async () => {
     try {
-      setRiderNudgeSent(true);
+      const channel = new BroadcastChannel("campus_connect_orders");
+      channel.postMessage({
+        type: "student_nudge_arrival",
+        nudgeType: "arrival_ack",
+        orderId: orderId,
+        message: `Student acknowledged arrival for Order ${orderId}.`
+      });
+      channel.close();
+    } catch (_) {}
+
+    try {
       const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-      await axios.post(`/api/orders/${orderId}/nudge-rider`, {}, {
+      await axios.post(`/api/orders/${orderId}/nudge-rider`, { type: "arrival_ack" }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setTimeout(() => setRiderNudgeSent(false), 6000);
+      setRiderNudgeSent(true);
     } catch (err) {
-      console.error("Error nudging rider on arrival:", err);
+      console.error("Error nudging rider arrival:", err);
     }
   };
 
@@ -248,13 +258,13 @@ export default function OrderTracker({
             className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 text-xs font-black transition-all flex items-center justify-center cursor-pointer border border-slate-200/60 z-20"
             title="Close Tracker"
           >
-            ✕
+            <i className="fa-solid fa-xmark text-xs" />
           </button>
 
           {/* Modal Header */}
           <div className="mb-4 sm:mb-5 text-center">
             <div className="mx-auto mb-2 sm:mb-2.5 flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-[#071A35] text-[#00c2cb] text-lg sm:text-xl shadow-xs border border-[#00c2cb]/30">
-              🛵
+              <i className="fa-solid fa-motorcycle text-lg" />
             </div>
             <h3 className="text-base sm:text-lg font-black text-[#0a2342] tracking-tight">Order Status Tracker</h3>
             <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 mt-0.5">Live progression updates for your food order</p>
@@ -286,7 +296,7 @@ export default function OrderTracker({
                           : "bg-white text-slate-400 border-2 border-slate-200"
                       }`}
                     >
-                      {isCompleted && idx < currentStep ? "✓" : idx + 1}
+                      {isCompleted && idx < currentStep ? <i className="fa-solid fa-check text-[10px]" /> : idx + 1}
                     </div>
                     <span className={`text-[9px] sm:text-[10px] font-black mt-1 sm:mt-1.5 ${isCurrent ? "text-[#0a2342]" : "text-slate-400"}`}>
                       {step.label}
@@ -300,7 +310,9 @@ export default function OrderTracker({
           {/* Rider Arrived Special Alert Banner */}
           {liveStatus === "arrived" && (
             <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white text-center shadow-lg border-2 border-amber-300 animate-pulse">
-              <div className="text-3xl mb-1">📍</div>
+              <div className="text-2xl mb-1 text-amber-200">
+                <i className="fa-solid fa-location-dot" />
+              </div>
               <p className="text-xs font-black uppercase tracking-wider text-amber-200">
                 Rider has arrived at delivery location!
               </p>
@@ -312,7 +324,8 @@ export default function OrderTracker({
                   onClick={handleNotifyRiderComing}
                   className="px-4 py-2 bg-white text-rose-700 hover:bg-rose-50 rounded-xl text-xs font-black shadow-md cursor-pointer transition-all active:scale-95 flex items-center gap-1.5 border border-amber-200"
                 >
-                  🏃 {riderNudgeSent ? "Rider Notified!" : "I'm Coming to Pick Up! (Notify Rider)"}
+                  <i className="fa-solid fa-person-running text-xs mr-1" />
+                  <span>{riderNudgeSent ? "Rider Notified!" : "I'm Coming to Pick Up! (Notify Rider)"}</span>
                 </button>
               </div>
             </div>
@@ -321,7 +334,9 @@ export default function OrderTracker({
           {/* Status Message Card */}
           {liveStatus === "cancelled" ? (
             <div className="mb-4 p-3 sm:p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-center animate-fade-in">
-              <div className="text-lg sm:text-xl mb-0.5">❌</div>
+              <div className="text-lg sm:text-xl mb-0.5 text-rose-500">
+                <i className="fa-solid fa-circle-xmark" />
+              </div>
               <p className="text-xs font-black text-rose-700">Order Cancelled</p>
               <p className="text-[10px] text-rose-600 mt-0.5 leading-relaxed font-semibold">
                 {cancelMessage || `Your order from ${restaurantName} was cancelled.`}
@@ -329,7 +344,9 @@ export default function OrderTracker({
             </div>
           ) : (
             <div className="mb-4 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-[#071A35] via-[#0a2342] to-[#0079c2] text-white text-center shadow-md border border-white/10">
-              <div className="text-lg sm:text-xl mb-1">{STATUS_MESSAGES[liveStatus]?.emoji || "⏳"}</div>
+              <div className="text-lg sm:text-xl mb-1 text-[#00c2cb]">
+                <i className={STATUS_MESSAGES[liveStatus]?.icon || "fa-solid fa-hourglass-half"} />
+              </div>
               <p className="text-[11px] sm:text-[11.5px] font-black tracking-wide text-[#00c2cb]">{STATUS_MESSAGES[liveStatus]?.text || "Processing your order..."}</p>
             </div>
           )}
@@ -360,8 +377,9 @@ export default function OrderTracker({
           {/* ARRIVAL NUDGE OPTION FOR STUDENT */}
           {liveStatus === "arrived" && (
             <div className="mb-4 p-3 sm:p-3.5 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col gap-2 items-center text-center animate-pulse">
-              <div className="flex items-center gap-1 text-amber-900 font-extrabold text-xs">
-                <span>📍 Rider Has Arrived at Location!</span>
+              <div className="flex items-center gap-1.5 text-amber-900 font-extrabold text-xs">
+                <i className="fa-solid fa-location-dot text-amber-600" />
+                <span>Rider Has Arrived at Location!</span>
               </div>
               <p className="text-[10px] sm:text-[11px] text-amber-700 font-medium leading-tight">
                 {arrivalMessage || "Your delivery rider is waiting at the campus meetup point."}
@@ -371,15 +389,17 @@ export default function OrderTracker({
                 disabled={riderNudgeSent}
                 className="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-2 px-4 rounded-xl text-xs transition-all shadow-sm active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-60 border-none"
               >
-                <span>🏃‍♂️ Nudge Rider: "I'm on my way!"</span>
+                <i className="fa-solid fa-person-running" />
+                <span>Nudge Rider: "I'm on my way!"</span>
               </button>
             </div>
           )}
 
           {/* Nudge Feedback */}
           {nudgeStatus && (
-            <p className="text-[10.5px] font-bold text-emerald-600 mb-3 animate-fade-in">
-              {nudgeStatus}
+            <p className="text-[10.5px] font-bold text-emerald-600 mb-3 animate-fade-in flex items-center justify-center gap-1.5">
+              <i className="fa-solid fa-circle-check text-emerald-500" />
+              <span>{nudgeStatus}</span>
             </p>
           )}
 
@@ -394,7 +414,8 @@ export default function OrderTracker({
                   : "bg-amber-500 hover:bg-amber-600 text-white cursor-pointer"
                   }`}
               >
-                🔔 {cooldown > 0 ? `Vendor Nudge Cooldown (${cooldown}s)` : "Nudge Vendor for Update"}
+                <i className="fa-solid fa-bell text-xs" />
+                <span>{cooldown > 0 ? `Vendor Nudge Cooldown (${cooldown}s)` : "Nudge Vendor for Update"}</span>
               </button>
             )}
 
@@ -421,9 +442,16 @@ export default function OrderTracker({
                   }
                 }}
                 disabled={isCancelling}
-                className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl sm:rounded-2xl text-xs font-black transition-all cursor-pointer border border-rose-200"
+                className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl sm:rounded-2xl text-xs font-black transition-all cursor-pointer border border-rose-200 flex items-center justify-center gap-1.5"
               >
-                {isCancelling ? "Cancelling Order..." : "❌ Cancel Order"}
+                {isCancelling ? (
+                  "Cancelling Order..."
+                ) : (
+                  <>
+                    <i className="fa-solid fa-xmark text-xs" />
+                    <span>Cancel Order</span>
+                  </>
+                )}
               </button>
             )}
 
@@ -433,7 +461,8 @@ export default function OrderTracker({
               rel="noreferrer"
               className="w-full py-2.5 sm:py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black tracking-wider uppercase flex items-center justify-center gap-2 shadow-xs transition-all duration-300 no-underline"
             >
-              💬 Track on WhatsApp
+              <i className="fa-brands fa-whatsapp text-sm" />
+              <span>Track on WhatsApp</span>
             </a>
 
             <button

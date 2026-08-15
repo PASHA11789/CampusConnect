@@ -118,7 +118,8 @@ export default function DiscussionReplyBubble({
                           onReplyClick(targetParentId, authorName);
                         }}
                       >
-                        💬 {t('Reply')}
+                        <i className="fa-solid fa-reply text-xs text-slate-500" />
+                        <span>{t('Reply')}</span>
                       </button>
                       {isReplyOwner && (
                         <>
@@ -132,7 +133,8 @@ export default function DiscussionReplyBubble({
                               setEditingReplyId(replyKey);
                             }}
                           >
-                            ✏️ {t('Edit')}
+                            <i className="fa-solid fa-pen-to-square text-xs text-slate-500" />
+                            <span>{t('Edit')}</span>
                           </button>
                           <button
                             type="button"
@@ -143,7 +145,8 @@ export default function DiscussionReplyBubble({
                               setDeletingReplyId(replyKey);
                             }}
                           >
-                            🗑️ {t('Delete')}
+                            <i className="fa-solid fa-trash-can text-xs text-red-500" />
+                            <span>{t('Delete')}</span>
                           </button>
                         </>
                       )}
@@ -156,7 +159,8 @@ export default function DiscussionReplyBubble({
                             onReport('reply', replyKey);
                           }}
                         >
-                          🛡️ {t('Report')}
+                          <i className="fa-solid fa-shield-halved text-xs text-slate-500" />
+                          <span>{t('Report')}</span>
                         </button>
                       )}
                     </>
@@ -204,7 +208,7 @@ export default function DiscussionReplyBubble({
                 </div>
               ) : (
                 <>
-                  {isFlagged && <span className="inline-block text-[9.5px] font-extrabold text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded-full mb-1.5 uppercase">⚠️ {t('Flagged')}</span>}
+                  {isFlagged && <span className="inline-flex items-center gap-1 text-[9.5px] font-extrabold text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded-full mb-1.5 uppercase"><i className="fa-solid fa-triangle-exclamation text-[9px]" /> {t('Flagged')}</span>}
                   <p className="whitespace-pre-wrap leading-relaxed">{reply.content}</p>
 
                   {reply.image && (

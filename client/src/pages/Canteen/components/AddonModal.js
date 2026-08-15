@@ -26,9 +26,9 @@ export default function AddonModal({
             </div>
             <button
               onClick={() => setCustomizingItem(null)}
-              className="h-9 w-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 text-xl font-bold flex items-center justify-center transition-colors cursor-pointer border-none"
+              className="h-9 w-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 text-sm font-bold flex items-center justify-center transition-colors cursor-pointer border-none"
             >
-              ×
+              <i className="fa-solid fa-xmark" />
             </button>
           </div>
 

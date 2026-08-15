@@ -27,7 +27,9 @@ export default function DiscussionThreadListPane({
     if (!filteredThreads || filteredThreads.length === 0) {
       return (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-center p-10 text-center">
-          <span className="text-[40px] mb-4">📭</span>
+          <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3 text-slate-400">
+            <i className="fa-solid fa-inbox text-2xl" />
+          </div>
           <h3 className="text-[16px] font-bold text-[#0a2342] mb-1">{t("No career paths found")}</h3>
           <p className="text-[13px] text-slate-500">{t("Be the first to share an opportunity or ask for mentorship!")}</p>
         </div>
@@ -145,7 +147,9 @@ export default function DiscussionThreadListPane({
         )
       ) : (
         <div className="flex flex-col items-center justify-center py-12 px-6 text-center bg-white border-2 border-dashed border-[#E8E1D5] rounded-2xl w-full col-span-full shadow-xs">
-          <span className="text-[36px] mb-2.5 animate-bounce">💬</span>
+          <div className="w-12 h-12 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center mb-2.5 text-[#00c2cb]">
+            <i className="fa-solid fa-comments text-2xl" />
+          </div>
           <h3 className="text-[14.5px] font-black text-[#071A35] mb-1">{t("No discussions found")}</h3>
           <p className="text-[12px] text-slate-500 font-medium max-w-[280px]">{t("Be the first to share an idea or start a conversation with fellow students!")}</p>
         </div>
@@ -154,21 +158,23 @@ export default function DiscussionThreadListPane({
       {totalPages > 1 && (
         <div className="flex justify-between items-center py-2.5 px-1 border-t border-slate-200 mt-2.5">
           <button 
-            className="bg-white border-[1.5px] border-slate-200 text-slate-500 font-bold text-[11.5px] py-1.5 px-3 rounded-lg cursor-pointer transition-all duration-200 flex items-center gap-1 hover:enabled:bg-slate-50 hover:enabled:text-[#0a2342] hover:enabled:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed" 
+            className="bg-white border-[1.5px] border-slate-200 text-slate-500 font-bold text-[11.5px] py-1.5 px-3 rounded-lg cursor-pointer transition-all duration-200 flex items-center gap-1.5 hover:enabled:bg-slate-50 hover:enabled:text-[#0a2342] hover:enabled:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed" 
             disabled={currentPage === 1}
             onClick={() => onPageChange(prev => Math.max(1, prev - 1))}
           >
-            ← {t('Prev')}
+            <i className="fa-solid fa-arrow-left text-[10px]" />
+            <span>{t('Prev')}</span>
           </button>
           <span className="text-[12px] font-bold text-slate-500">
             {currentPage} / {totalPages}
           </span>
           <button 
-            className="bg-white border-[1.5px] border-slate-200 text-slate-500 font-bold text-[11.5px] py-1.5 px-3 rounded-lg cursor-pointer transition-all duration-200 flex items-center gap-1 hover:enabled:bg-slate-50 hover:enabled:text-[#0a2342] hover:enabled:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed" 
+            className="bg-white border-[1.5px] border-slate-200 text-slate-500 font-bold text-[11.5px] py-1.5 px-3 rounded-lg cursor-pointer transition-all duration-200 flex items-center gap-1.5 hover:enabled:bg-slate-50 hover:enabled:text-[#0a2342] hover:enabled:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed" 
             disabled={currentPage === totalPages}
             onClick={() => onPageChange(prev => Math.min(totalPages, prev + 1))}
           >
-            {t('Next')} →
+            <span>{t('Next')}</span>
+            <i className="fa-solid fa-arrow-right text-[10px]" />
           </button>
         </div>
       )}

@@ -32,8 +32,6 @@ const Login = () => {
             setupPushNotifications();
             if (response.data.role === 'alumni') {
                 navigate('/career');
-            } else if (response.data.role === 'campus_admin') {
-                navigate('/admin/users');
             } else {
                 navigate('/dashboard');
             }
@@ -150,8 +148,8 @@ const Login = () => {
                                         </>
                                     ) : (
                                         <>
-                                            Sign In
-                                            <span className="transform transition-transform duration-300 group-hover:translate-x-1">→</span>
+                                            <span>Sign In</span>
+                                            <i className="fa-solid fa-arrow-right text-xs transform transition-transform duration-300 group-hover:translate-x-1" />
                                         </>
                                     )}
                                 </span>

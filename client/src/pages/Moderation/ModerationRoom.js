@@ -519,7 +519,8 @@ export default function ModerationRoom() {
               disabled={isLoading}
               className="bg-[#00c2cb] hover:bg-[#00a8b5] text-white font-black px-4 sm:px-5 py-2.5 sm:py-3 rounded-full text-[12px] sm:text-[12.5px] transition-all cursor-pointer shadow-md flex items-center gap-2 shrink-0 z-10 hover:scale-105 active:scale-95 border-none disabled:opacity-50"
             >
-              <span className={`text-sm ${isLoading ? 'animate-spin' : ''}`}>🔄</span> Refresh Queue
+              <i className={`fa-solid fa-arrows-rotate text-sm ${isLoading ? 'animate-spin' : ''}`} />
+              <span>Refresh Queue</span>
             </button>
           </div>
 
@@ -530,7 +531,7 @@ export default function ModerationRoom() {
                 id: "forums",
                 label: "Flagged Posts",
                 count: reportedForums.length + reportedCareers.length + flaggedReplies.length,
-                icon: "💬",
+                iconClass: "fa-solid fa-comments",
                 colorBg: "bg-rose-500/10",
                 colorText: "text-rose-600"
               },
@@ -538,7 +539,7 @@ export default function ModerationRoom() {
                 id: "petitions",
                 label: "Pending Petitions",
                 count: queue.petitions?.length || 0,
-                icon: "📋",
+                iconClass: "fa-solid fa-clipboard-list",
                 colorBg: "bg-[#00c2cb]/15",
                 colorText: "text-[#00a8b5]"
               },
@@ -546,7 +547,7 @@ export default function ModerationRoom() {
                 id: "lostfound",
                 label: "Lost & Found",
                 count: queue.lostFound?.length || 0,
-                icon: "🔍",
+                iconClass: "fa-solid fa-magnifying-glass",
                 colorBg: "bg-emerald-500/10",
                 colorText: "text-emerald-600"
               },
@@ -554,7 +555,7 @@ export default function ModerationRoom() {
                 id: "oldUnclaimed",
                 label: "Old Unclaimed",
                 count: queue.oldUnclaimed?.length || 0,
-                icon: "🧹",
+                iconClass: "fa-solid fa-broom",
                 colorBg: "bg-amber-500/10",
                 colorText: "text-amber-600"
               },
@@ -562,7 +563,7 @@ export default function ModerationRoom() {
                 id: "profileReports",
                 label: "User Reports",
                 count: queue.profileReports?.length || 0,
-                icon: "👤",
+                iconClass: "fa-solid fa-user-shield",
                 colorBg: "bg-purple-500/10",
                 colorText: "text-purple-600"
               },
@@ -570,7 +571,7 @@ export default function ModerationRoom() {
                 id: "complaints",
                 label: "Complaints",
                 count: queue.complaints?.length || 0,
-                icon: "💡",
+                iconClass: "fa-solid fa-lightbulb",
                 colorBg: "bg-amber-500/10",
                 colorText: "text-amber-600"
               }
@@ -592,7 +593,7 @@ export default function ModerationRoom() {
                       isSelected ? "bg-white/10 text-white" : `${cat.colorBg} ${cat.colorText}`
                     }`}
                   >
-                    {cat.icon}
+                    <i className={cat.iconClass} />
                   </div>
                   <div className="flex flex-col text-left min-w-0">
                     <span className={`text-[19px] font-black leading-none ${isSelected ? "text-white" : "text-[#071A35]"}`}>
@@ -624,7 +625,8 @@ export default function ModerationRoom() {
                   <div className="flex flex-col gap-3.5">
                     <div className="flex items-center justify-between">
                       <h3 className="text-[14.5px] font-black text-[#071A35] uppercase tracking-wide flex items-center gap-2">
-                        📁 Reported Discussion Threads ({reportedForums.length})
+                        <i className="fa-solid fa-folder-open text-[#00c2cb]" />
+                        <span>Reported Discussion Threads ({reportedForums.length})</span>
                       </h3>
                     </div>
 
@@ -648,31 +650,35 @@ export default function ModerationRoom() {
                                 {thread.author?._id && (
                                   <button
                                     onClick={() => setProfileModalUserId(thread.author._id)}
-                                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1"
+                                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5"
                                     title="View Author Profile"
                                   >
-                                    👤 Author Profile
+                                    <i className="fa-solid fa-user text-xs" />
+                                    <span>Author Profile</span>
                                   </button>
                                 )}
                                 <button
                                   onClick={() => setInspectItem({ type: 'forum_thread', title: thread.title, content: thread.content, author: thread.author, createdAt: thread.createdAt, reportedBy: thread.reportedBy, id: thread._id })}
-                                  className="bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1"
+                                  className="bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5"
                                 >
-                                  👁️ Inspect Content
+                                  <i className="fa-solid fa-eye text-xs" />
+                                  <span>Inspect Content</span>
                                 </button>
                                 <button
                                   disabled={actioningId === thread._id}
                                   onClick={() => handleRestoreThread(thread._id)}
-                                  className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1"
+                                  className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                                 >
-                                  ✅ Keep
+                                  <i className="fa-solid fa-circle-check text-xs" />
+                                  <span>Keep</span>
                                 </button>
                                 <button
                                   disabled={actioningId === thread._id}
                                   onClick={() => handleDeleteThread(thread._id, false)}
-                                  className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1"
+                                  className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                                 >
-                                  🗑️ Delete
+                                  <i className="fa-solid fa-trash-can text-xs" />
+                                  <span>Delete</span>
                                 </button>
                               </div>
                             </div>
@@ -686,7 +692,8 @@ export default function ModerationRoom() {
 
                             {thread.reportedBy && thread.reportedBy.length > 0 && (
                               <div className="text-[11px] font-extrabold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-lg w-fit flex items-center gap-1.5">
-                                ⚠️ Reported by community ({thread.reportedBy.length} report)
+                                <i className="fa-solid fa-triangle-exclamation text-amber-600" />
+                                <span>Reported by community ({thread.reportedBy.length} report)</span>
                               </div>
                             )}
                           </div>
@@ -694,7 +701,7 @@ export default function ModerationRoom() {
                       </div>
                     ) : (
                       <div className="bg-white border border-[#E8E1D5] rounded-2xl p-8 text-center text-slate-400 font-bold shadow-xs">
-                        ✨ No reported discussion threads in the queue.
+                        No reported discussion threads in the queue.
                       </div>
                     )}
                   </div>
@@ -702,7 +709,8 @@ export default function ModerationRoom() {
                   {/* Flagged Career Threads */}
                   <div className="flex flex-col gap-3.5">
                     <h3 className="text-[14.5px] font-black text-[#071A35] uppercase tracking-wide flex items-center gap-2">
-                      💼 Reported Career Threads ({reportedCareers.length})
+                      <i className="fa-solid fa-briefcase text-purple-600" />
+                      <span>Reported Career Threads ({reportedCareers.length})</span>
                     </h3>
 
                     {reportedCareers.length > 0 ? (
@@ -725,31 +733,35 @@ export default function ModerationRoom() {
                                 {thread.author?._id && (
                                   <button
                                     onClick={() => setProfileModalUserId(thread.author._id)}
-                                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1"
+                                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5"
                                     title="View Author Profile"
                                   >
-                                    👤 Author Profile
+                                    <i className="fa-solid fa-user text-xs" />
+                                    <span>Author Profile</span>
                                   </button>
                                 )}
                                 <button
                                   onClick={() => setInspectItem({ type: 'career_thread', title: thread.title, content: thread.content, author: thread.author, createdAt: thread.createdAt, reportedBy: thread.reportedBy, id: thread._id })}
-                                  className="bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1"
+                                  className="bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5"
                                 >
-                                  👁️ Inspect Content
+                                  <i className="fa-solid fa-eye text-xs" />
+                                  <span>Inspect Content</span>
                                 </button>
                                 <button
                                   disabled={actioningId === thread._id}
                                   onClick={() => handleRestoreCareerThread(thread._id)}
-                                  className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1"
+                                  className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                                 >
-                                  ✅ Keep
+                                  <i className="fa-solid fa-circle-check text-xs" />
+                                  <span>Keep</span>
                                 </button>
                                 <button
                                   disabled={actioningId === thread._id}
                                   onClick={() => handleDeleteThread(thread._id, true)}
-                                  className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1"
+                                  className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                                 >
-                                  🗑️ Delete
+                                  <i className="fa-solid fa-trash-can text-xs" />
+                                  <span>Delete</span>
                                 </button>
                               </div>
                             </div>
@@ -763,7 +775,8 @@ export default function ModerationRoom() {
 
                             {thread.reportedBy && thread.reportedBy.length > 0 && (
                               <div className="text-[11px] font-extrabold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-lg w-fit flex items-center gap-1.5">
-                                ⚠️ Reported by community ({thread.reportedBy.length} report)
+                                <i className="fa-solid fa-triangle-exclamation text-amber-600" />
+                                <span>Reported by community ({thread.reportedBy.length} report)</span>
                               </div>
                             )}
                           </div>
@@ -771,7 +784,7 @@ export default function ModerationRoom() {
                       </div>
                     ) : (
                       <div className="bg-white border border-[#E8E1D5] rounded-2xl p-8 text-center text-slate-400 font-bold shadow-xs">
-                        ✨ No reported career threads in the queue.
+                        No reported career threads in the queue.
                       </div>
                     )}
                   </div>
@@ -779,7 +792,8 @@ export default function ModerationRoom() {
                   {/* Flagged Comments & Replies */}
                   <div className="flex flex-col gap-3.5">
                     <h3 className="text-[14.5px] font-black text-[#071A35] uppercase tracking-wide flex items-center gap-2">
-                      💬 Reported Comments &amp; Replies ({flaggedReplies.length})
+                      <i className="fa-solid fa-comments text-[#00c2cb]" />
+                      <span>Reported Comments &amp; Replies ({flaggedReplies.length})</span>
                     </h3>
 
                     {flaggedReplies.length > 0 ? (
@@ -802,31 +816,35 @@ export default function ModerationRoom() {
                                 {reply.author?._id && (
                                   <button
                                     onClick={() => setProfileModalUserId(reply.author._id)}
-                                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1"
+                                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5"
                                     title="View Comment Author Profile"
                                   >
-                                    👤 Author Profile
+                                    <i className="fa-solid fa-user text-xs" />
+                                    <span>Author Profile</span>
                                   </button>
                                 )}
                                 <button
                                   onClick={() => setInspectItem({ type: type === 'forum_reply' ? 'Forum Comment' : 'Career Comment', title: threadTitle, content: reply.content, author: reply.author, createdAt: reply.createdAt, reportedBy: reply.reportedBy, id: reply._id, threadId: threadId })}
-                                  className="bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1"
+                                  className="bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5"
                                 >
-                                  👁️ Inspect Comment
+                                  <i className="fa-solid fa-eye text-xs" />
+                                  <span>Inspect Comment</span>
                                 </button>
                                 <button
                                   disabled={actioningId === reply._id}
                                   onClick={() => handleRestoreReply(threadId, reply._id, type)}
-                                  className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1"
+                                  className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                                 >
-                                  ✅ Keep
+                                  <i className="fa-solid fa-circle-check text-xs" />
+                                  <span>Keep</span>
                                 </button>
                                 <button
                                   disabled={actioningId === reply._id}
                                   onClick={() => handleDeleteReply(threadId, reply._id, type)}
-                                  className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1"
+                                  className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                                 >
-                                  🗑️ Delete
+                                  <i className="fa-solid fa-trash-can text-xs" />
+                                  <span>Delete</span>
                                 </button>
                               </div>
                             </div>
@@ -842,7 +860,8 @@ export default function ModerationRoom() {
 
                             {reply.reportedBy && reply.reportedBy.length > 0 && (
                               <div className="text-[11px] font-extrabold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-lg w-fit flex items-center gap-1.5">
-                                ⚠️ Reported by community ({reply.reportedBy.length} report)
+                                <i className="fa-solid fa-triangle-exclamation text-amber-600" />
+                                <span>Reported by community ({reply.reportedBy.length} report)</span>
                               </div>
                             )}
                           </div>
@@ -850,7 +869,7 @@ export default function ModerationRoom() {
                       </div>
                     ) : (
                       <div className="bg-white border border-[#E8E1D5] rounded-2xl p-8 text-center text-slate-400 font-bold shadow-xs">
-                        ✨ No reported comments or replies in the queue.
+                        No reported comments or replies in the queue.
                       </div>
                     )}
                   </div>
@@ -862,7 +881,8 @@ export default function ModerationRoom() {
               {activeTab === "petitions" && (
                 <div className="flex flex-col gap-4">
                   <h3 className="text-[14.5px] font-black text-[#071A35] uppercase tracking-wide flex items-center gap-2">
-                    📋 Petitions Awaiting Review ({queue.petitions.length})
+                    <i className="fa-solid fa-clipboard-list text-[#00c2cb]" />
+                    <span>Petitions Awaiting Review ({queue.petitions.length})</span>
                   </h3>
 
                   {queue.petitions.length > 0 ? (
@@ -882,39 +902,44 @@ export default function ModerationRoom() {
                                   Created by <strong className="text-[#071A35]">{petition.creator?.registeration_number || petition.creator?.name}</strong> • {formatDate(petition.createdAt)}
                                 </span>
                               </div>
-                              <span className="text-[11px] text-[#00a8b5] font-black uppercase">
-                                🎯 Target Milestone: {petition.milestone ? `${petition.milestone} signatures required` : "Open Goal"}
+                              <span className="text-[11px] text-[#00a8b5] font-black uppercase flex items-center gap-1.5">
+                                <i className="fa-solid fa-bullseye text-[#00a8b5]" />
+                                <span>Target Milestone: {petition.milestone ? `${petition.milestone} signatures required` : "Open Goal"}</span>
                               </span>
                             </div>
                             <div className="flex items-center gap-2 shrink-0 flex-wrap">
                               {petition.creator?._id && (
                                 <button
                                   onClick={() => setProfileModalUserId(petition.creator._id)}
-                                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1"
+                                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5"
                                   title="View Creator Profile"
                                 >
-                                  👤 Creator Profile
+                                  <i className="fa-solid fa-user text-xs" />
+                                  <span>Creator Profile</span>
                                 </button>
                               )}
                               <button
                                 onClick={() => setInspectItem({ type: 'petition', title: petition.title, content: petition.description, author: petition.creator, createdAt: petition.createdAt, level: petition.level, milestone: petition.milestone, id: petition._id })}
-                                className="bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1"
+                                className="bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5"
                               >
-                                👁️ Inspect Petition
+                                <i className="fa-solid fa-eye text-xs" />
+                                <span>Inspect Petition</span>
                               </button>
                               <button
                                 disabled={actioningId === petition._id}
                                 onClick={() => handleModeratePetition(petition._id, "Approve")}
-                                className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] px-3.5 py-1.5 rounded-xl text-[11.5px] font-black uppercase tracking-wider transition-all shadow-sm border-none cursor-pointer flex items-center gap-1"
+                                className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] px-3.5 py-1.5 rounded-xl text-[11.5px] font-black uppercase tracking-wider transition-all shadow-sm border-none cursor-pointer flex items-center gap-1.5"
                               >
-                                ✅ Approve
+                                <i className="fa-solid fa-circle-check text-xs" />
+                                <span>Approve</span>
                               </button>
                               <button
                                 disabled={actioningId === petition._id}
                                 onClick={() => handleModeratePetition(petition._id, "Reject")}
-                                className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1"
+                                className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                               >
-                                ❌ Reject
+                                <i className="fa-solid fa-circle-xmark text-xs" />
+                                <span>Reject</span>
                               </button>
                             </div>
                           </div>
@@ -930,7 +955,9 @@ export default function ModerationRoom() {
                     </div>
                   ) : (
                     <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-12 text-center text-slate-400 font-bold shadow-xs flex flex-col items-center gap-2">
-                      <span className="text-3xl">🎉</span>
+                      <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-1">
+                        <i className="fa-solid fa-circle-check" />
+                      </div>
                       <span>No petitions awaiting moderation approval!</span>
                     </div>
                   )}
@@ -941,7 +968,8 @@ export default function ModerationRoom() {
               {activeTab === "lostfound" && (
                 <div className="flex flex-col gap-4">
                   <h3 className="text-[14.5px] font-black text-[#071A35] uppercase tracking-wide flex items-center gap-2">
-                    🔍 Lost &amp; Found Items Awaiting Review ({queue.lostFound?.length || 0})
+                    <i className="fa-solid fa-magnifying-glass text-emerald-600" />
+                    <span>Lost &amp; Found Items Awaiting Review ({queue.lostFound?.length || 0})</span>
                   </h3>
 
                   {queue.lostFound && queue.lostFound.length > 0 ? (
@@ -964,8 +992,9 @@ export default function ModerationRoom() {
                                   Reported by <strong className="text-[#071A35]">{item.reporter?.registeration_number || item.reporter?.name}</strong> • {formatDate(item.createdAt)}
                                 </span>
                               </div>
-                              <span className="text-[11.5px] text-slate-600 font-bold">
-                                📍 Location: <span className="text-[#071A35]">{item.location}</span> {item.surrenderedAt ? `• Surrendered at: ${item.surrenderedAt}` : ""}
+                              <span className="text-[11.5px] text-slate-600 font-bold flex items-center gap-1.5">
+                                <i className="fa-solid fa-location-dot text-slate-400" />
+                                <span>Location: <strong className="text-[#071A35]">{item.location}</strong> {item.surrenderedAt ? `• Surrendered at: ${item.surrenderedAt}` : ""}</span>
                               </span>
                             </div>
 
@@ -973,31 +1002,35 @@ export default function ModerationRoom() {
                               {item.reporter?._id && (
                                 <button
                                   onClick={() => setProfileModalUserId(item.reporter._id)}
-                                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1"
+                                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5"
                                   title="View Reporter Profile"
                                 >
-                                  👤 Reporter Profile
+                                  <i className="fa-solid fa-user text-xs" />
+                                  <span>Reporter Profile</span>
                                 </button>
                               )}
                               <button
                                 onClick={() => setInspectItem({ type: 'Lost & Found', title: item.itemName, content: item.description, author: item.reporter, createdAt: item.createdAt, location: item.location, image: item.image, id: item._id })}
-                                className="bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1"
+                                className="bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5"
                               >
-                                👁️ Inspect Details
+                                <i className="fa-solid fa-eye text-xs" />
+                                <span>Inspect Details</span>
                               </button>
                               <button
                                 disabled={actioningId === item._id}
                                 onClick={() => handleModerateLostFound(item._id, "Approve")}
-                                className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] px-3.5 py-1.5 rounded-xl text-[11.5px] font-black uppercase tracking-wider transition-all shadow-sm border-none cursor-pointer flex items-center gap-1"
+                                className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] px-3.5 py-1.5 rounded-xl text-[11.5px] font-black uppercase tracking-wider transition-all shadow-sm border-none cursor-pointer flex items-center gap-1.5"
                               >
-                                ✅ Approve
+                                <i className="fa-solid fa-circle-check text-xs" />
+                                <span>Approve</span>
                               </button>
                               <button
                                 disabled={actioningId === item._id}
                                 onClick={() => handleModerateLostFound(item._id, "Reject")}
-                                className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1"
+                                className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                               >
-                                ❌ Reject
+                                <i className="fa-solid fa-circle-xmark text-xs" />
+                                <span>Reject</span>
                               </button>
                             </div>
                           </div>
@@ -1022,7 +1055,9 @@ export default function ModerationRoom() {
                     </div>
                   ) : (
                     <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-12 text-center text-slate-400 font-bold shadow-xs flex flex-col items-center gap-2">
-                      <span className="text-3xl">🎉</span>
+                      <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-1">
+                        <i className="fa-solid fa-circle-check" />
+                      </div>
                       <span>No Lost &amp; Found items awaiting moderation approval.</span>
                     </div>
                   )}
@@ -1034,7 +1069,8 @@ export default function ModerationRoom() {
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-1 text-left">
                     <h3 className="text-[14.5px] font-black text-[#071A35] uppercase tracking-wide flex items-center gap-2">
-                      🧹 Unclaimed Posts Older than 10 Days ({queue.oldUnclaimed?.length || 0})
+                      <i className="fa-solid fa-broom text-amber-600" />
+                      <span>Unclaimed Posts Older than 10 Days ({queue.oldUnclaimed?.length || 0})</span>
                     </h3>
                     <p className="text-[12px] font-semibold text-slate-500 m-0">
                       These unclaimed Lost &amp; Found items have been open for over 10 days. You can purge old listings to maintain a clean directory.
@@ -1062,12 +1098,14 @@ export default function ModerationRoom() {
                                   <span className="text-[11.5px] text-slate-500 font-bold">
                                     Reported by <strong className="text-[#071A35]">{item.reporter?.registeration_number || item.reporter?.name}</strong> • {formatDate(item.createdAt)}
                                   </span>
-                                  <span className="text-[10.5px] font-black px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-                                    ⏳ {ageInDays} days active
+                                  <span className="text-[10.5px] font-black px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1">
+                                    <i className="fa-regular fa-clock text-[10px]" />
+                                    <span>{ageInDays} days active</span>
                                   </span>
                                 </div>
-                                <span className="text-[11.5px] text-slate-600 font-bold">
-                                  📍 Location: <span className="text-[#071A35]">{item.location}</span>
+                                <span className="text-[11.5px] text-slate-600 font-bold flex items-center gap-1.5">
+                                  <i className="fa-solid fa-location-dot text-slate-400" />
+                                  <span>Location: <strong className="text-[#071A35]">{item.location}</strong></span>
                                 </span>
                               </div>
 
@@ -1075,10 +1113,11 @@ export default function ModerationRoom() {
                                 {item.reporter?._id && (
                                   <button
                                     onClick={() => setProfileModalUserId(item.reporter._id)}
-                                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1"
+                                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5"
                                     title="View Reporter Profile"
                                   >
-                                    👤 Reporter Profile
+                                    <i className="fa-solid fa-user text-xs" />
+                                    <span>Reporter Profile</span>
                                   </button>
                                 )}
                                 <button
@@ -1086,7 +1125,8 @@ export default function ModerationRoom() {
                                   onClick={() => handleDeleteOldUnclaimed(item._id)}
                                   className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2 rounded-xl text-[12px] font-extrabold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5 shrink-0"
                                 >
-                                  🗑️ Purge &amp; Delete
+                                  <i className="fa-solid fa-trash-can text-xs" />
+                                  <span>Purge &amp; Delete</span>
                                 </button>
                               </div>
                             </div>
@@ -1112,7 +1152,9 @@ export default function ModerationRoom() {
                     </div>
                   ) : (
                     <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-12 text-center text-slate-400 font-bold shadow-xs flex flex-col items-center gap-2">
-                      <span className="text-3xl">🧹</span>
+                      <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-1">
+                        <i className="fa-solid fa-broom" />
+                      </div>
                       <span>No unclaimed items older than 10 days in the system.</span>
                     </div>
                   )}
@@ -1143,8 +1185,9 @@ export default function ModerationRoom() {
                             {/* Top Header Badges & Date */}
                             <div className="flex items-center justify-between gap-2 flex-wrap min-w-0">
                               <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                                <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-rose-100 text-rose-700 shrink-0">
-                                  🚨 Profile Report
+                                <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-rose-100 text-rose-700 shrink-0 flex items-center gap-1">
+                                  <i className="fa-solid fa-triangle-exclamation text-[10px]" />
+                                  <span>Profile Report</span>
                                 </span>
                                 <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 max-w-full truncate">
                                   {report.reason || "Guidelines Violation"}
@@ -1171,9 +1214,10 @@ export default function ModerationRoom() {
                               {report.targetUser?._id && (
                                 <button
                                   onClick={() => setProfileModalUserId(report.targetUser._id)}
-                                  className="text-[11px] font-extrabold text-[#071A35] hover:text-[#00c2cb] bg-white border border-[#E8E1D5] px-3 py-1.5 rounded-xl cursor-pointer shadow-2xs transition-colors shrink-0"
+                                  className="text-[11px] font-extrabold text-[#071A35] hover:text-[#00c2cb] bg-white border border-[#E8E1D5] px-3 py-1.5 rounded-xl cursor-pointer shadow-2xs transition-colors shrink-0 flex items-center gap-1"
                                 >
-                                  👤 Profile
+                                  <i className="fa-solid fa-user text-xs" />
+                                  <span>Profile</span>
                                 </button>
                               )}
                             </div>
@@ -1200,9 +1244,10 @@ export default function ModerationRoom() {
                                 {report.reportedBy._id && (
                                   <button
                                     onClick={() => setProfileModalUserId(report.reportedBy._id)}
-                                    className="text-[10.5px] font-bold text-[#00a8b5] hover:underline border-none bg-transparent p-0 cursor-pointer shrink-0"
+                                    className="text-[10.5px] font-bold text-[#00a8b5] hover:underline border-none bg-transparent p-0 cursor-pointer shrink-0 flex items-center gap-1"
                                   >
-                                    🔍 Reporter Profile
+                                    <i className="fa-solid fa-magnifying-glass text-[10px]" />
+                                    <span>Reporter Profile</span>
                                   </button>
                                 )}
                               </div>
@@ -1215,17 +1260,19 @@ export default function ModerationRoom() {
                               <button
                                 onClick={() => handleSanitizeAndWarnUser(report.targetUser._id, report._id)}
                                 disabled={actioningId === report._id}
-                                className="flex-1 py-2 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-[11px] font-black uppercase tracking-wider transition-all disabled:opacity-50 border-none cursor-pointer text-center whitespace-nowrap"
+                                className="flex-1 py-2 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-[11px] font-black uppercase tracking-wider transition-all disabled:opacity-50 border-none cursor-pointer text-center whitespace-nowrap flex items-center justify-center gap-1"
                               >
-                                🚨 Reset &amp; Warn
+                                <i className="fa-solid fa-triangle-exclamation text-xs" />
+                                <span>Reset &amp; Warn</span>
                               </button>
                             )}
                             <button
                               onClick={() => handleModerateProfileReport(report._id, "Approve")}
                               disabled={actioningId === report._id}
-                              className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-black uppercase tracking-wider transition-all disabled:opacity-50 border-none cursor-pointer text-center whitespace-nowrap"
+                              className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-black uppercase tracking-wider transition-all disabled:opacity-50 border-none cursor-pointer text-center whitespace-nowrap flex items-center justify-center gap-1"
                             >
-                              ✅ Resolve
+                              <i className="fa-solid fa-circle-check text-xs" />
+                              <span>Resolve</span>
                             </button>
                             <button
                               onClick={() => handleModerateProfileReport(report._id, "Reject")}
@@ -1240,7 +1287,9 @@ export default function ModerationRoom() {
                     </div>
                   ) : (
                     <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-12 text-center text-slate-400 font-bold shadow-xs flex flex-col items-center gap-2">
-                      <span className="text-3xl">🛡️</span>
+                      <div className="w-12 h-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-xl mb-1">
+                        <i className="fa-solid fa-shield-halved" />
+                      </div>
                       <span>No pending user profile violation reports.</span>
                     </div>
                   )}
@@ -1267,10 +1316,11 @@ export default function ModerationRoom() {
                           <div className="flex flex-col gap-3 min-w-0">
                             <div className="flex items-center justify-between gap-2 flex-wrap min-w-0">
                               <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                                <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shrink-0 ${
+                                <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1 ${
                                   item.type === 'suggestion' ? 'bg-cyan-100 text-cyan-800' : 'bg-amber-100 text-amber-800'
                                 }`}>
-                                  {item.type === 'suggestion' ? '💡 Suggestion' : '⚠️ Complaint'}
+                                  <i className={`fa-solid ${item.type === 'suggestion' ? 'fa-lightbulb' : 'fa-triangle-exclamation'} text-[10px]`} />
+                                  <span>{item.type === 'suggestion' ? 'Suggestion' : 'Complaint'}</span>
                                 </span>
                                 <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 max-w-full truncate">
                                   {item.category || 'General'}
@@ -1290,8 +1340,9 @@ export default function ModerationRoom() {
                             <p className="text-[13px] font-medium text-slate-700 m-0 line-clamp-3 leading-relaxed break-words min-w-0 max-w-full">{item.description}</p>
 
                             {item.targetDepartment && (
-                              <span className="text-[11.5px] font-extrabold text-[#00c2cb] bg-[#071A35]/5 px-3 py-1 rounded-xl w-fit max-w-full break-words min-w-0">
-                                🏢 Target Department: {item.targetDepartment}
+                              <span className="text-[11.5px] font-extrabold text-[#00c2cb] bg-[#071A35]/5 px-3 py-1 rounded-xl w-fit max-w-full break-words min-w-0 flex items-center gap-1.5">
+                                <i className="fa-solid fa-building-columns text-xs" />
+                                <span>Target Department: {item.targetDepartment}</span>
                               </span>
                             )}
 
@@ -1300,7 +1351,7 @@ export default function ModerationRoom() {
                               <div className="flex items-center gap-2 min-w-0">
                                 <div className="w-8 h-8 rounded-full bg-[#071A35] text-[#00c2cb] flex items-center justify-center font-black text-[11px] shrink-0 overflow-hidden border border-[#E8E1D5]">
                                   {item.isAnonymous ? (
-                                    <span>👤</span>
+                                    <i className="fa-solid fa-user-secret text-xs" />
                                   ) : item.submittedBy?.avatar ? (
                                     <img src={item.submittedBy.avatar} alt="Avatar" className="w-full h-full object-cover" />
                                   ) : (
@@ -1319,9 +1370,10 @@ export default function ModerationRoom() {
                               {!item.isAnonymous && item.submittedBy?._id && (
                                 <button
                                   onClick={() => setProfileModalUserId(item.submittedBy._id)}
-                                  className="text-[10.5px] font-bold text-[#071A35] hover:text-[#00c2cb] bg-slate-100 px-2.5 py-1 rounded-lg border-none cursor-pointer shrink-0"
+                                  className="text-[10.5px] font-bold text-[#071A35] hover:text-[#00c2cb] bg-slate-100 px-2.5 py-1 rounded-lg border-none cursor-pointer shrink-0 flex items-center gap-1"
                                 >
-                                  👤 Profile
+                                  <i className="fa-solid fa-user text-[10px]" />
+                                  <span>Profile</span>
                                 </button>
                               )}
                             </div>
@@ -1338,21 +1390,23 @@ export default function ModerationRoom() {
                                 createdAt: item.createdAt,
                                 id: item._id
                               })}
-                              className="flex-1 py-2 px-3 bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer text-center"
+                              className="flex-1 py-2 px-3 bg-[#071A35]/5 hover:bg-[#071A35]/10 text-[#071A35] border border-[#071A35]/20 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer text-center flex items-center justify-center gap-1"
                             >
-                              👁️ Inspect
+                              <i className="fa-solid fa-eye text-xs" />
+                              <span>Inspect</span>
                             </button>
                             <button
                               disabled={actioningId === item._id}
                               onClick={() => handleModerateComplaint(item._id, "Approve")}
-                              className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-black uppercase tracking-wider transition-all disabled:opacity-50 border-none cursor-pointer text-center"
+                              className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-black uppercase tracking-wider transition-all disabled:opacity-50 border-none cursor-pointer text-center flex items-center justify-center gap-1"
                             >
-                              ✅ Resolve
+                              <i className="fa-solid fa-circle-check text-xs" />
+                              <span>Resolve</span>
                             </button>
                             <button
                               disabled={actioningId === item._id}
                               onClick={() => handleModerateComplaint(item._id, "Reject")}
-                              className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold transition-all disabled:opacity-50 border-none cursor-pointer text-center"
+                              className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold transition-all disabled:opacity-50 border-none cursor-pointer text-center shrink-0"
                             >
                               Dismiss
                             </button>
@@ -1362,7 +1416,9 @@ export default function ModerationRoom() {
                     </div>
                   ) : (
                     <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-12 text-center text-slate-400 font-bold shadow-xs flex flex-col items-center gap-2">
-                      <span className="text-3xl">💡</span>
+                      <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-1">
+                        <i className="fa-solid fa-lightbulb" />
+                      </div>
                       <span>No pending campus suggestions or complaints.</span>
                     </div>
                   )}
@@ -1389,11 +1445,11 @@ export default function ModerationRoom() {
               toast.type === 'success' ? 'border-l-4 border-l-[#00c2cb]' :
                 'border-l-4 border-l-[#071A35]'
           }`}>
-          <div className="text-[18px] mt-0.5">
-            {toast.type === 'warning' && <span>⚠️</span>}
-            {toast.type === 'error' && <span>❌</span>}
-            {toast.type === 'success' && <span>✅</span>}
-            {toast.type === 'info' && <span>ℹ️</span>}
+          <div className="text-[16px] mt-0.5">
+            {toast.type === 'warning' && <i className="fa-solid fa-triangle-exclamation text-amber-500" />}
+            {toast.type === 'error' && <i className="fa-solid fa-circle-xmark text-rose-500" />}
+            {toast.type === 'success' && <i className="fa-solid fa-circle-check text-emerald-500" />}
+            {toast.type === 'info' && <i className="fa-solid fa-circle-info text-[#00c2cb]" />}
           </div>
           <div className="flex-1 flex flex-col gap-0.5 text-left">
             <strong className="text-[13px] font-black text-[#071A35]">
@@ -1403,7 +1459,9 @@ export default function ModerationRoom() {
             </strong>
             <p className="text-[12px] font-semibold text-slate-600 leading-normal m-0">{toast.message}</p>
           </div>
-          <button className="text-[18px] text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1" onClick={() => setToast(null)}>×</button>
+          <button className="text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1 p-1 text-xs" onClick={() => setToast(null)}>
+            <i className="fa-solid fa-xmark" />
+          </button>
         </div>
       )}
 
@@ -1412,7 +1470,7 @@ export default function ModerationRoom() {
         <div className="fixed inset-0 bg-[#071A35]/65 backdrop-blur-sm z-[4000] flex items-center justify-center p-4 animate-modal-fade-in" onClick={() => setDeleteConfirm({ isOpen: false, type: null, targetId: null, extraId: null })}>
           <div className="bg-white rounded-3xl max-w-md w-full border border-[#E8E1D5] shadow-2xl overflow-hidden animate-modal-slide-in text-left" onClick={(e) => e.stopPropagation()}>
             <div className="bg-[#071A35] px-6 py-4 flex items-center gap-3 text-white">
-              <span className="text-xl">⚠️</span>
+              <i className="fa-solid fa-triangle-exclamation text-amber-400 text-lg" />
               <h3 className="text-base font-black text-white m-0">Confirm Delete Action</h3>
             </div>
 
@@ -1447,10 +1505,12 @@ export default function ModerationRoom() {
           <div className="bg-white rounded-3xl max-w-2xl w-full border border-[#E8E1D5] shadow-2xl overflow-hidden animate-modal-slide-in text-left flex flex-col max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
             <div className="bg-[#071A35] px-6 py-4 flex justify-between items-center text-white border-b border-[#071A35]">
               <div className="flex items-center gap-3">
-                <span className="text-xl">👁️</span>
+                <i className="fa-solid fa-eye text-[#00c2cb] text-lg" />
                 <h3 className="text-base font-black text-white m-0">Inspect &amp; Verify Moderation Item</h3>
               </div>
-              <button onClick={() => setInspectItem(null)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20">✕</button>
+              <button onClick={() => setInspectItem(null)} className="w-8 h-8 rounded-full bg-white/10 text-white/80 hover:text-white flex items-center justify-center border border-white/20 cursor-pointer">
+                <i className="fa-solid fa-xmark text-xs" />
+              </button>
             </div>
 
             <div className="p-6 flex flex-col gap-4 bg-[#FAF7F0]/60 overflow-y-auto">
@@ -1482,7 +1542,8 @@ export default function ModerationRoom() {
                       onClick={() => setProfileModalUserId(inspectItem.author._id)}
                       className="bg-[#071A35] hover:bg-[#00c2cb] hover:text-[#071A35] text-white px-3.5 py-1.5 rounded-xl text-[11.5px] font-extrabold transition-all cursor-pointer border-none flex items-center gap-1.5"
                     >
-                      👤 Visit User Profile
+                      <i className="fa-solid fa-user text-xs" />
+                      <span>Visit User Profile</span>
                     </button>
                   )}
                 </div>
@@ -1499,7 +1560,10 @@ export default function ModerationRoom() {
                   </p>
                 )}
                 {inspectItem.location && (
-                  <span className="text-[11.5px] text-slate-500 font-bold pt-1">📍 Location: {inspectItem.location}</span>
+                  <span className="text-[11.5px] text-slate-500 font-bold pt-1 flex items-center gap-1">
+                    <i className="fa-solid fa-location-dot text-slate-400" />
+                    <span>Location: {inspectItem.location}</span>
+                  </span>
                 )}
                 {inspectItem.image && (
                   <img src={inspectItem.image} alt="Reported Attachment" className="w-full max-h-60 object-cover rounded-xl border border-slate-200 mt-2" />
@@ -1509,7 +1573,10 @@ export default function ModerationRoom() {
               {/* Report Context */}
               {inspectItem.reportedBy && inspectItem.reportedBy.length > 0 && (
                 <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl flex flex-col gap-1 text-left">
-                  <strong className="text-[12px] font-black text-amber-800">⚠️ Community Reports ({inspectItem.reportedBy.length})</strong>
+                  <strong className="text-[12px] font-black text-amber-800 flex items-center gap-1.5">
+                    <i className="fa-solid fa-triangle-exclamation text-amber-600" />
+                    <span>Community Reports ({inspectItem.reportedBy.length})</span>
+                  </strong>
                   <span className="text-[11.5px] font-semibold text-amber-700">Users have flagged this content for review. Please verify against campus guidelines.</span>
                 </div>
               )}
@@ -1534,7 +1601,8 @@ export default function ModerationRoom() {
                   }}
                   className="bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm border-none cursor-pointer flex items-center gap-1.5"
                 >
-                  🔗 Open &amp; Inspect Live on Page
+                  <i className="fa-solid fa-arrow-up-right-from-square text-xs" />
+                  <span>Open &amp; Inspect Live on Page</span>
                 </button>
               )}
               <button

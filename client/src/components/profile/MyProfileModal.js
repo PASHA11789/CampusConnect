@@ -132,8 +132,8 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
 
           {/* Header Content */}
           <div className="relative z-10 flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-lg sm:text-xl shadow-inner text-[#00c2cb] shrink-0">
-              👤
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-sm sm:text-base shadow-inner text-[#00c2cb] shrink-0">
+              <i className="fa-solid fa-user" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -211,7 +211,7 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
               <div className="bg-white border border-[#E8E1D5] rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm text-left">
                 <div className="flex items-center gap-2 mb-3 sm:mb-4 pb-2 sm:pb-2.5 border-b border-slate-100">
                   <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-[#00c2cb]/10 text-[#00c2cb] flex items-center justify-center text-xs font-black shrink-0">
-                    🎓
+                    <i className="fa-solid fa-graduation-cap" />
                   </div>
                   <h4 className="text-[13px] sm:text-[14px] font-black text-[#0a2342]">Academic Information</h4>
                 </div>
@@ -265,7 +265,7 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
               <div className="bg-white border border-[#E8E1D5] rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col text-left h-full">
                 <div className="flex items-center gap-2.5 mb-4 sm:mb-5 pb-2.5 sm:pb-3 border-b border-slate-100">
                   <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#071A35]/5 text-[#071A35] flex items-center justify-center text-xs sm:text-sm font-black border border-[#071A35]/10 shrink-0">
-                    ⚙️
+                    <i className="fa-solid fa-gear" />
                   </div>
                   <div>
                     <h3 className="text-[15px] sm:text-[16px] font-black text-[#0a2342]">Profile Settings</h3>
@@ -296,7 +296,7 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
                         <span className="text-[9.5px] sm:text-[10px] text-slate-400 font-normal">Displayed on profile & activities</span>
                       </label>
                       <div className="relative flex items-center">
-                        <span className="absolute left-3.5 text-slate-400 text-sm">👤</span>
+                        <i className="fa-solid fa-user absolute left-3.5 text-slate-400 text-xs" />
                         <input
                           type="text"
                           value={name}
@@ -332,7 +332,8 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
                         </p>
                         {isNameHidden && (
                           <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[10px] sm:text-[10.5px] font-bold">
-                            <span>🔒</span> Public Identity set to Registration Number
+                            <i className="fa-solid fa-lock text-xs text-amber-700" />
+                            <span>Public Identity set to Registration Number</span>
                           </div>
                         )}
                       </div>

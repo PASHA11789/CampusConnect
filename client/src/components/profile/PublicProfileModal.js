@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { getInitials } from '../../utils/helpers';
+import AnimatedSelect from '../common/AnimatedSelect';
+
+const REPORT_REASONS = [
+  { value: "Profile_Violation", label: "Inappropriate/Vulgar Name or Avatar", iconClass: "fa-solid fa-user-xmark" },
+  { value: "Forum_Violation", label: "Forum Violation / Abusive Behavior", iconClass: "fa-solid fa-triangle-exclamation" },
+  { value: "Petition_Violation", label: "Petition Spam or Violation", iconClass: "fa-solid fa-file-circle-exclamation" },
+  { value: "Other", label: "Other Policy Violation", iconClass: "fa-solid fa-circle-info" }
+];
 
 const PublicProfileModal = ({ isOpen, onClose, userId, currentUser }) => {
   const [profile, setProfile] = useState(null);
@@ -111,8 +119,8 @@ const PublicProfileModal = ({ isOpen, onClose, userId, currentUser }) => {
             </div>
           ) : reportSuccess ? (
             <div className="bg-emerald-50 text-emerald-600 p-6 rounded-xl text-[13px] font-bold border border-emerald-100 flex flex-col items-center gap-3 text-center">
-              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-[24px]">
-                ✅
+              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-xl">
+                <i className="fa-solid fa-circle-check text-emerald-600" />
               </div>
               User has been successfully reported to moderation.
             </div>
@@ -131,16 +139,12 @@ const PublicProfileModal = ({ isOpen, onClose, userId, currentUser }) => {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-[11px] font-black text-slate-500 uppercase tracking-wide">Reason</label>
-                <select 
+                <AnimatedSelect 
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-[13px] font-semibold rounded-xl px-4 py-3 focus:outline-none focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/10"
-                >
-                  <option value="Profile_Violation">Inappropriate/Vulgar Name or Avatar</option>
-                  <option value="Forum_Violation">Forum Violation</option>
-                  <option value="Petition_Violation">Petition Violation</option>
-                  <option value="Other">Other</option>
-                </select>
+                  options={REPORT_REASONS}
+                  buttonClassName="bg-slate-50 border-slate-200 text-slate-800 text-[13px] font-semibold rounded-xl py-3 px-4"
+                />
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -157,14 +161,14 @@ const PublicProfileModal = ({ isOpen, onClose, userId, currentUser }) => {
                 <button
                   type="button"
                   onClick={() => setReportView(false)}
-                  className="px-5 py-2.5 rounded-full text-[12px] font-bold text-slate-500 hover:bg-slate-100 transition-colors"
+                  className="px-5 py-2.5 rounded-full text-[12px] font-bold text-slate-500 hover:bg-slate-100 transition-colors border-none bg-transparent cursor-pointer"
                 >
                   Back
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2.5 rounded-full text-[12px] font-bold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-full text-[12px] font-bold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2 border-none cursor-pointer"
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Report'}
                 </button>
@@ -173,7 +177,7 @@ const PublicProfileModal = ({ isOpen, onClose, userId, currentUser }) => {
           ) : (
             /* Profile View */
             <div className="flex flex-col items-center text-center gap-4">
-              <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-[#00c2cb] to-[#0079c2] p-[3px] shadow-lg">
+              <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-[#00c2cb] to-[#071A35] p-[3px] shadow-lg">
                 {hasNoAvatar ? (
                   <div className="w-full h-full rounded-full bg-[#0a2342] flex items-center justify-center text-[32px] font-black text-[#00c2cb] border-4 border-white">
                     {getInitials(profile?.displayName)}
@@ -202,12 +206,13 @@ const PublicProfileModal = ({ isOpen, onClose, userId, currentUser }) => {
                 <div className="w-full mt-4 pt-4 border-t border-slate-100 flex flex-col gap-2">
                   <button
                     onClick={() => setReportView(true)}
-                    className="w-full py-3 rounded-xl text-[12px] font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors border border-red-100 flex items-center justify-center gap-2"
+                    className="w-full py-3 rounded-xl text-[12px] font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors border border-red-100 flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    🛡️ Report User
+                    <i className="fa-solid fa-shield-halved text-xs text-red-500" />
+                    <span>Report User</span>
                   </button>
                 </div>
-              )}
+              )}     
             </div>
           )}
         </div>

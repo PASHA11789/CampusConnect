@@ -15,7 +15,8 @@ export const PetitionsWidget = ({ petitions = [] }) => {
           onClick={() => navigate("/petitions")}
           className="bg-white/10 hover:bg-white/20 border border-white/10 text-[#00c2cb] text-[11px] font-extrabold px-3 py-1 rounded-full transition-all duration-200 cursor-pointer shrink-0 flex items-center gap-1 shadow-sm"
         >
-          View all ✨
+          <span>View all</span>
+          <i className="fa-solid fa-arrow-right text-[10px]" />
         </button>
       </div>
 
@@ -51,34 +52,34 @@ export const PetitionsWidget = ({ petitions = [] }) => {
                 <div className="flex items-center gap-2 mb-0.5 relative">
                   {isClassLevel ? (
                     <div className="relative group/tag">
-                      <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
-                        <span>✨</span> CLASS • HIGH PRIORITY
+                      <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105">
+                        <i className="fa-solid fa-star text-[9px]" /> CLASS • HIGH PRIORITY
                       </span>
                       {/* Hover Tooltip */}
                       <div className="absolute left-0 bottom-full mb-1.5 hidden group-hover/tag:flex flex-col bg-[#071A35] text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg shadow-xl border border-white/20 whitespace-nowrap z-30 animate-fade-in pointer-events-none">
-                        <span>✨ Class Level Petition (High Priority)</span>
+                        <span className="flex items-center gap-1"><i className="fa-solid fa-star text-[10px] text-[#00c2cb]" /> Class Level Petition (High Priority)</span>
                         <span className="text-[8.5px] text-white/70 font-semibold">Targeted to your class members</span>
                       </div>
                     </div>
                   ) : isDeptLevel ? (
                     <div className="relative group/tag">
-                      <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
-                        <span>🏢</span> DEPT • MEDIUM PRIORITY
+                      <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105">
+                        <i className="fa-solid fa-building text-[9px]" /> DEPT • MEDIUM PRIORITY
                       </span>
                       {/* Hover Tooltip */}
                       <div className="absolute left-0 bottom-full mb-1.5 hidden group-hover/tag:flex flex-col bg-[#071A35] text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg shadow-xl border border-white/20 whitespace-nowrap z-30 animate-fade-in pointer-events-none">
-                        <span>🏢 Department Level Petition</span>
+                        <span className="flex items-center gap-1"><i className="fa-solid fa-building text-[10px] text-[#00c2cb]" /> Department Level Petition</span>
                         <span className="text-[8.5px] text-white/70 font-semibold">Targeted to department peers</span>
                       </div>
                     </div>
                   ) : (
                     <div className="relative group/tag">
-                      <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-white/20 text-white/90 shadow-xs border border-white/20 flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
-                        <span>🎓</span> CAMPUS PETITION
+                      <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest uppercase bg-white/20 text-white/90 shadow-xs border border-white/20 flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105">
+                        <i className="fa-solid fa-graduation-cap text-[9px]" /> CAMPUS PETITION
                       </span>
                       {/* Hover Tooltip */}
                       <div className="absolute left-0 bottom-full mb-1.5 hidden group-hover/tag:flex flex-col bg-[#071A35] text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg shadow-xl border border-white/20 whitespace-nowrap z-30 animate-fade-in pointer-events-none">
-                        <span>🎓 Campus-wide Petition</span>
+                        <span className="flex items-center gap-1"><i className="fa-solid fa-graduation-cap text-[10px] text-[#00c2cb]" /> Campus-wide Petition</span>
                         <span className="text-[8.5px] text-white/70 font-semibold">Open for all campus members</span>
                       </div>
                     </div>
@@ -118,7 +119,7 @@ export const PetitionsWidget = ({ petitions = [] }) => {
         }) : (
           <div className="flex flex-col items-center justify-center py-6 px-4 text-center my-auto">
             <div className="w-12 h-12 rounded-full bg-white/10 text-[#00c2cb] flex items-center justify-center text-xl mb-3 shadow-inner border border-white/10">
-              📋
+              <i className="fa-solid fa-clipboard-list text-lg text-[#00c2cb]" />
             </div>
             <p className="text-[13px] font-extrabold text-white mb-1 m-0">No active petitions</p>
             <p className="text-[10px] text-white/70 font-semibold max-w-[200px] leading-relaxed">
@@ -133,7 +134,7 @@ export const PetitionsWidget = ({ petitions = [] }) => {
         onClick={() => navigate('/petitions', { state: { openModal: true } })}
         className="mt-3 w-full bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-2.5 rounded-full text-[12px] font-extrabold transition-all border-none cursor-pointer shadow-md flex items-center justify-center gap-1.5"
       >
-        <span>+</span> Create a Petition
+        <i className="fa-solid fa-plus text-xs" /> Create a Petition
       </button>
     </div>
   );

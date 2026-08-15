@@ -54,6 +54,10 @@ module.exports = {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-3px)' },
         },
+        dropdownOpen: {
+          '0%': { opacity: '0', transform: 'scale(0.96) translateY(-6px)' },
+          '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+        },
       },
       animation: {
         'slide-down': 'dbSlideDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both',
@@ -61,6 +65,7 @@ module.exports = {
         'fade-in': 'fadeIn 0.8s ease-out forwards',
         'modal-fade-in': 'modalFadeIn 0.25s ease-out forwards',
         'modal-slide-in': 'modalSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'dropdown-open': 'dropdownOpen 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         'blob': 'blob 7s infinite alternate',
         'shimmer': 'shimmer 2s infinite',
         'float': 'float 6s ease-in-out infinite',

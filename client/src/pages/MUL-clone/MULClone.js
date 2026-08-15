@@ -70,12 +70,12 @@ const MULClone = () => {
 
   return (
     <div
-      className="min-h-screen min-h-[100dvh] w-full flex flex-col items-center justify-end relative bg-cover bg-center bg-no-repeat font-sans overflow-x-hidden p-3 pb-5 sm:pb-8"
+      className="min-h-screen min-h-[100dvh] w-full flex flex-col items-center justify-start sm:justify-center relative bg-cover bg-center bg-no-repeat font-sans overflow-x-hidden p-4 pt-8 sm:p-6"
       style={{ backgroundImage: `url(${mulBg})` }}>
       {/* <div className="absolute inset-0 bg-black/15 z-10"></div> */}
 
       {/* Main Wrapper */}
-      <div className="relative z-20 flex flex-col items-center w-full max-w-[320px] mx-auto box-border transition-all">
+      <div className="relative z-20 flex flex-col items-center w-full max-w-[320px] mx-auto box-border transition-all my-auto sm:my-0">
         {/* Main Card */}
         <div className="w-full bg-white rounded shadow-2xl overflow-hidden border border-gray-100/80">
           {/* Top Light Gray Header */}

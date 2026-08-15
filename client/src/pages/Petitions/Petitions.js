@@ -9,6 +9,7 @@ import Sidebar from "../../components/layout/Sidebar";
 import Topbar from "../../components/layout/Topbar";
 import PublicProfileModal from "../../components/profile/PublicProfileModal";
 import MyProfileModal from "../../components/profile/MyProfileModal";
+import AnimatedSelect from "../../components/common/AnimatedSelect";
 
 const t = (s) => s;
 
@@ -275,7 +276,7 @@ export default function Petitions() {
       const socket = io(SOCKET_URL);
 
       socket.on("connect", () => {
-        console.log("⚡ Connected to petitions updates socket");
+        console.log("[Socket] Connected to petitions updates socket");
 
         // Join scope rooms
         socket.emit("join_room", "Campus");
@@ -793,7 +794,7 @@ export default function Petitions() {
                 <div className="relative z-10 bg-white rounded-2xl sm:rounded-[1.5rem] border border-[#E8E1D5] p-3.5 sm:p-4 flex flex-col gap-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
                   {/* Search Input */}
                   <div className="relative flex items-center w-full">
-                    <span className="absolute left-4 text-slate-400 text-sm">🔍</span>
+                    <i className="fa-solid fa-magnifying-glass absolute left-4 text-slate-400 text-sm" />
                     <input
                       type="text"
                       placeholder={t("Search petitions, keywords, or level...")}
@@ -859,26 +860,28 @@ export default function Petitions() {
                                 {/* Scope Level Priority Tag with Hover Tooltip */}
                                 <div className="relative group/tag">
                                   {petition.level === "Class" ? (
-                                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
-                                      <span>✨</span> CLASS • HIGH PRIORITY
+                                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105">
+                                      <i className="fa-solid fa-star text-[9px]" /> CLASS • HIGH PRIORITY
                                     </span>
                                   ) : petition.level === "Department" ? (
-                                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
-                                      <span>🏢</span> DEPT • MEDIUM PRIORITY
+                                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105">
+                                      <i className="fa-solid fa-building text-[9px]" /> DEPT • MEDIUM PRIORITY
                                     </span>
                                   ) : (
-                                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1 cursor-pointer transition-transform hover:scale-105">
-                                      <span>🎓</span> CAMPUS
+                                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105">
+                                      <i className="fa-solid fa-graduation-cap text-[9px]" /> CAMPUS
                                     </span>
                                   )}
                                   {/* Tooltip on Hover */}
                                   <div className="absolute left-0 bottom-full mb-1.5 hidden group-hover/tag:flex flex-col bg-[#071A35] text-white text-[10px] font-bold px-3 py-1.5 rounded-xl shadow-xl border border-white/20 whitespace-nowrap z-30 animate-fade-in pointer-events-none">
-                                    <span>
-                                      {petition.level === "Class"
-                                        ? "✨ Class Level Petition (High Priority)"
-                                        : petition.level === "Department"
-                                        ? "🏢 Department Level Petition (Medium Priority)"
-                                        : "🎓 Campus Level Petition"}
+                                    <span className="flex items-center gap-1">
+                                      {petition.level === "Class" ? (
+                                        <><i className="fa-solid fa-star text-[10px] text-[#00c2cb]" /> Class Level Petition (High Priority)</>
+                                      ) : petition.level === "Department" ? (
+                                        <><i className="fa-solid fa-building text-[10px] text-[#00c2cb]" /> Department Level Petition (Medium Priority)</>
+                                      ) : (
+                                        <><i className="fa-solid fa-graduation-cap text-[10px] text-[#00c2cb]" /> Campus Level Petition</>
+                                      )}
                                     </span>
                                     <span className="text-[8.5px] text-white/70 font-semibold">
                                       {petition.level === "Class"
@@ -966,7 +969,7 @@ export default function Petitions() {
                                     className="flex-1 bg-emerald-50 text-emerald-600 border border-emerald-200 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold flex items-center justify-center gap-1.5 cursor-not-allowed"
                                   >
                                     <i className="fa-solid fa-check text-xs flex items-center justify-center" />
-                                    {t("✓ Signed")}
+                                    {t("Signed")}
                                   </button>
                                 ) : (
                                   <button
@@ -1125,7 +1128,7 @@ export default function Petitions() {
 
               <div className="relative z-10 flex items-center gap-2.5 sm:gap-3">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-base sm:text-lg text-[#00c2cb] shrink-0">
-                  📜
+                  <i className="fa-solid fa-file-signature text-base sm:text-lg text-[#00c2cb]" />
                 </div>
                 <div className="flex flex-col min-w-0">
                   <h2 className="text-base sm:text-xl font-black text-white leading-tight truncate">
@@ -1142,7 +1145,7 @@ export default function Petitions() {
                 className="relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 text-white/90 hover:text-white border border-white/20 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shrink-0 ml-2"
                 onClick={() => setIsCreateModalOpen(false)}
               >
-                ✕
+                <i className="fa-solid fa-xmark text-sm" />
               </button>
             </div>
 
@@ -1176,21 +1179,16 @@ export default function Petitions() {
                     <label className="text-[11px] sm:text-[12px] font-extrabold text-[#071A35]">
                       {t("Scope")} <span className="text-red-500">*</span>
                     </label>
-                    <div className="relative">
-                      <select
-                        required
-                        className="w-full bg-white border border-[#E8E1D5] rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-[12.5px] font-semibold text-[#211A24] focus:outline-none focus:border-[#071A35] appearance-none cursor-pointer"
-                        value={newLevel}
-                        onChange={(e) => setNewLevel(e.target.value)}
-                      >
-                        <option value="Class">{t("Class")}</option>
-                        <option value="Department">{t("Department")}</option>
-                        <option value="Campus">{t("Campus")}</option>
-                      </select>
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#211A24]/50">
-                        <i className="fa-solid fa-chevron-down text-xs flex items-center justify-center" />
-                      </div>
-                    </div>
+                    <AnimatedSelect
+                      value={newLevel}
+                      onChange={(e) => setNewLevel(e.target.value)}
+                      options={[
+                        { value: "Class", label: t("Class"), iconClass: "fa-solid fa-chalkboard-user" },
+                        { value: "Department", label: t("Department"), iconClass: "fa-solid fa-building" },
+                        { value: "Campus", label: t("Campus"), iconClass: "fa-solid fa-building-columns" }
+                      ]}
+                      buttonClassName="bg-white border-[#E8E1D5] rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-[12.5px] font-semibold text-[#211A24]"
+                    />
                   </div>
 
                   {/* Target Milestone field */}
@@ -1282,7 +1280,7 @@ export default function Petitions() {
                           }}
                         />
                         <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#071A35]/10 text-[#071A35] flex items-center justify-center text-sm sm:text-base mb-1 group-hover:scale-110 transition-transform">
-                          🖼️
+                          <i className="fa-solid fa-image text-sm sm:text-base text-[#071A35]" />
                         </div>
                         <p className="text-xs sm:text-[12px] font-bold text-[#071A35] m-0 mb-0.5">
                           {t("Drag & Drop image here, or")} <span className="text-[#00c2cb] underline">{t("Browse Device")}</span>
@@ -1352,7 +1350,7 @@ export default function Petitions() {
               <div className="relative z-10 flex flex-col gap-1.5 sm:gap-2 min-w-0 flex-1 pr-4 sm:pr-8">
                 <div className="flex items-center gap-2 flex-wrap">
                   <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-base sm:text-lg shadow-inner text-[#00c2cb] shrink-0">
-                    📜
+                    <i className="fa-solid fa-file-signature text-base sm:text-lg text-[#00c2cb]" />
                   </div>
                   <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
                     <span className="px-2 sm:px-2.5 py-0.5 rounded-full text-[9px] sm:text-[9.5px] font-black bg-white/10 text-[#00c2cb] uppercase tracking-widest border border-white/10 shrink-0">
@@ -1588,8 +1586,8 @@ export default function Petitions() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Lock Icon */}
-            <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 border border-red-200 flex items-center justify-center text-3xl shadow-inner">
-              🔒
+            <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 border border-red-200 flex items-center justify-center text-2xl shadow-inner">
+              <i className="fa-solid fa-lock text-2xl" />
             </div>
 
             <div className="bg-red-100 text-red-700 text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full border border-red-200">
@@ -1621,11 +1619,11 @@ export default function Petitions() {
       {/* ── TOAST NOTIFICATION ── */}
       {toast && (
         <div className={`fixed top-24 right-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl z-[3000] flex gap-3 w-[360px] animate-modal-slide-in ${toast.type === 'warning' ? 'border-l-4 border-l-amber-500' : toast.type === 'error' ? 'border-l-4 border-l-red-500' : toast.type === 'success' ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-[#00c2cb]'}`}>
-          <div className="text-[18px] mt-0.5">
-            {toast.type === 'warning' && <span>⚠️</span>}
-            {toast.type === 'error' && <span>❌</span>}
-            {toast.type === 'success' && <span>✅</span>}
-            {toast.type === 'info' && <span>ℹ️</span>}
+          <div className="text-[18px] mt-0.5 flex items-center justify-center">
+            {toast.type === 'warning' && <i className="fa-solid fa-triangle-exclamation text-amber-500 text-base" />}
+            {toast.type === 'error' && <i className="fa-solid fa-circle-xmark text-red-500 text-base" />}
+            {toast.type === 'success' && <i className="fa-solid fa-circle-check text-emerald-500 text-base" />}
+            {toast.type === 'info' && <i className="fa-solid fa-circle-info text-[#00c2cb] text-base" />}
           </div>
           <div className="flex-1 flex flex-col gap-0.5">
             <strong className="text-[13px] font-black text-[#0a2342]">
@@ -1635,7 +1633,9 @@ export default function Petitions() {
             </strong>
             <p className="text-[12px] text-slate-500 leading-normal">{toast.message}</p>
           </div>
-          <button className="text-[18px] text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1" onClick={() => setToast(null)}>×</button>
+          <button className="text-[14px] text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1 flex items-center justify-center" onClick={() => setToast(null)}>
+            <i className="fa-solid fa-xmark" />
+          </button>
         </div>
       )}
 
@@ -1649,16 +1649,16 @@ export default function Petitions() {
           >
             <div className="flex items-center justify-between pb-3 border-b border-[#E8E1D5]">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center text-lg shrink-0">
-                  🚩
+                <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center text-sm shrink-0">
+                  <i className="fa-solid fa-flag text-rose-600" />
                 </div>
                 <div>
                   <h3 className="text-[15px] font-black text-[#071A35] m-0">Report Petition</h3>
                   <span className="text-[10.5px] font-semibold text-slate-500">Send for campus moderator safety review</span>
                 </div>
               </div>
-              <button onClick={closeReportModal} className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-base cursor-pointer border-none">
-                ✕
+              <button onClick={closeReportModal} className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs cursor-pointer border-none">
+                <i className="fa-solid fa-xmark" />
               </button>
             </div>
 
@@ -1737,8 +1737,8 @@ export default function Petitions() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-red-500/10 text-red-600 flex items-center justify-center text-xl shrink-0">
-                🗑️
+              <div className="w-10 h-10 rounded-2xl bg-red-500/10 text-red-600 flex items-center justify-center text-sm shrink-0">
+                <i className="fa-solid fa-trash-can text-red-600 text-base" />
               </div>
               <div>
                 <h3 className="text-[16px] font-black text-[#071A35] m-0">Delete Petition?</h3>

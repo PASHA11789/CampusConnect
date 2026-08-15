@@ -144,13 +144,13 @@ export default function Dashboard() {
       };
 
       socket.on("connect", () => {
-        console.log("⚡ Connected to live updates socket");
+        console.log("[Socket] Connected to live updates socket");
         joinRooms();
       });
       joinRooms();
 
       socket.on("new_petition_published", (newPetition) => {
-        console.log("⚡ New petition received via socket:", newPetition);
+        console.log("[Socket] New petition received via socket:", newPetition);
         if (newPetition && checkHasAccess(newPetition, user)) {
           setDashboardData((prevData) => {
             const exists = prevData.petitions.some((p) => p._id === newPetition._id);
@@ -181,7 +181,7 @@ export default function Dashboard() {
       });
 
       socket.on("petition_signed", (data) => {
-        console.log("⚡ Petition signature update received via socket:", data);
+        console.log("[Socket] Petition signature update received via socket:", data);
         if (data && data.petitionId) {
           setDashboardData((prevData) => {
             // Remove if no longer active (e.g. Under Review)
@@ -211,7 +211,7 @@ export default function Dashboard() {
       });
 
       socket.on("new_forum_thread", (data) => {
-        console.log("⚡ New forum thread received via socket:", data);
+        console.log("[Socket] New forum thread received via socket:", data);
         if (data && data.thread) {
           setDashboardData((prevData) => {
             // Check if thread already exists to avoid duplicates
@@ -230,7 +230,7 @@ export default function Dashboard() {
       });
 
       socket.on("new_reply", (data) => {
-        console.log("⚡ New reply received via socket:", data);
+        console.log("[Socket] New reply received via socket:", data);
         if (data && data.threadId) {
           setDashboardData((prevData) => ({
             ...prevData,
@@ -242,7 +242,7 @@ export default function Dashboard() {
       });
 
       socket.on("disconnect", () => {
-        console.log("❌ Disconnected from live updates socket");
+        console.log("[Socket] Disconnected from live updates socket");
       });
 
       return () => {

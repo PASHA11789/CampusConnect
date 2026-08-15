@@ -160,8 +160,9 @@ export default function BusRoutes() {
               <p className="text-[11.5px] sm:text-[12px] text-white/70 font-semibold m-0 max-w-[550px] leading-relaxed">{t("Track campus shuttle services, timelines, and live status.")}</p>
             </div>
             <div className="flex items-center gap-2 shrink-0 z-10">
-              <span className="text-[11px] font-extrabold text-white bg-[#00c2cb] px-4 py-2 rounded-full shadow-sm">
-                🚌 Shuttle Active
+              <span className="text-[11px] font-extrabold text-white bg-[#00c2cb] px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5">
+                <i className="fa-solid fa-bus text-xs" />
+                <span>Shuttle Active</span>
               </span>
             </div>
           </div>
@@ -180,7 +181,7 @@ export default function BusRoutes() {
                     placeholder="Search stop name (e.g. Ichra)..."
                     className="w-full bg-[#FAF7F0] border border-[#E8E1D5] text-slate-800 text-[12px] sm:text-[12.5px] font-semibold rounded-xl pl-9 pr-4 py-2.5 sm:py-3 focus:outline-none focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/10 transition-all placeholder:text-slate-400"
                   />
-                  <span className="absolute left-3 top-2.5 sm:top-3 text-slate-400 text-[13px] sm:text-[14px]">🔍</span>
+                  <i className="fa-solid fa-magnifying-glass absolute left-3 top-3 sm:top-3.5 text-slate-400 text-[12px]" />
                 </div>
 
                 {/* Search Results list */}
@@ -230,8 +231,10 @@ export default function BusRoutes() {
                       >
                         <div className="flex flex-col gap-1 min-w-0">
                           <span className="text-[12.5px] sm:text-[13px] font-extrabold leading-snug">{route.displayName}</span>
-                          <span className={`text-[10px] font-semibold mt-0.5 ${isSelected ? "text-slate-300" : "text-slate-400"} truncate`}>
-                            {route.stops[0].name} ➔ {route.stops[route.stops.length - 1].name}
+                          <span className={`text-[10px] font-semibold mt-0.5 ${isSelected ? "text-slate-300" : "text-slate-400"} truncate flex items-center gap-1`}>
+                            <span>{route.stops[0].name}</span>
+                            <i className="fa-solid fa-arrow-right text-[8.5px]" />
+                            <span>{route.stops[route.stops.length - 1].name}</span>
                           </span>
                         </div>
 
@@ -262,21 +265,21 @@ export default function BusRoutes() {
 
                 <div className="flex flex-col gap-2.5 pt-2 border-t border-white/15 text-[11px] font-bold text-white/90 z-10">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="text-[14px] text-[#00c2cb] shrink-0">📞</span>
+                    <i className="fa-solid fa-phone text-[13px] text-[#00c2cb] shrink-0" />
                     <div className="min-w-0">
                       <span className="text-[8.5px] sm:text-[9px] text-[#00c2cb] block font-bold leading-none">CONTACT NUMBERS</span>
                       <strong className="text-white text-[11px] sm:text-[11.5px] font-black block truncate">0301-2312584 | 0300-4697574</strong>
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="text-[14px] text-[#00c2cb] shrink-0">✉️</span>
+                    <i className="fa-solid fa-envelope text-[13px] text-[#00c2cb] shrink-0" />
                     <div className="min-w-0">
                       <span className="text-[8.5px] sm:text-[9px] text-[#00c2cb] block font-bold leading-none">EMAIL ADDRESS</span>
                       <strong className="text-white text-[11px] sm:text-[11.5px] font-black block truncate">talha.admin@mul.edu.pk</strong>
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="text-[14px] text-[#00c2cb] shrink-0">🏢</span>
+                    <i className="fa-solid fa-building text-[13px] text-[#00c2cb] shrink-0" />
                     <div className="min-w-0">
                       <span className="text-[8.5px] sm:text-[9px] text-[#00c2cb] block font-bold leading-none">VISIT AT</span>
                       <strong className="text-white text-[11px] sm:text-[11.5px] font-black block truncate">Administration Office, MUL</strong>

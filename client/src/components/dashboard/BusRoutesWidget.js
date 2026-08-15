@@ -11,8 +11,8 @@ export const BusRoutesWidget = () => {
       {/* Header */}
       <div className="flex justify-between items-center w-full pb-3 border-b border-[#E8E1D5] mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-[#071A35] text-white flex items-center justify-center font-bold text-sm">
-            🚌
+          <div className="w-8 h-8 rounded-full bg-[#071A35] text-white flex items-center justify-center font-bold text-xs">
+            <i className="fa-solid fa-bus text-xs" />
           </div>
           <h4 className="text-[13.5px] font-black text-[#071A35] uppercase tracking-wider m-0">{t('Bus Routes & Live Map')}</h4>
         </div>
@@ -20,7 +20,8 @@ export const BusRoutesWidget = () => {
           onClick={() => navigate('/bus-routes')}
           className="bg-transparent border-none text-[11px] font-extrabold text-[#071A35] hover:text-[#2563EB] transition-colors cursor-pointer flex items-center gap-1"
         >
-          {t('View Live Map ➔')}
+          <span>{t('View Live Map')}</span>
+          <i className="fa-solid fa-arrow-right text-[10px]" />
         </button>
       </div>
 
@@ -42,7 +43,7 @@ export const BusRoutesWidget = () => {
             onClick={() => navigate('/bus-routes')}
             className="bg-[#071A35] hover:bg-[#0D2A42] text-white text-[10px] font-extrabold py-1.5 px-3 rounded-full shadow-md border-none transition-all duration-200 cursor-pointer flex items-center gap-1.5"
           >
-            <span>📍</span> {t('Open Campus Map')}
+            <i className="fa-solid fa-location-dot text-xs text-[#00c2cb]" /> {t('Open Campus Map')}
           </button>
         </div>
       </div>

@@ -12,8 +12,8 @@ export const LostFoundWidget = ({ items = [] }) => {
       {/* Header */}
       <div className="flex items-center pb-2.5 border-b border-[#E8E1D5]">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-[#00c2cb] text-[#071A35] text-base font-black flex items-center justify-center shadow-sm shrink-0">
-            🔍
+          <div className="w-9 h-9 rounded-full bg-[#00c2cb] text-[#071A35] text-sm font-black flex items-center justify-center shadow-sm shrink-0">
+            <i className="fa-solid fa-magnifying-glass" />
           </div>
           <div className="flex flex-col text-left leading-tight">
             <h4 className="text-[13.5px] font-black text-[#071A35] uppercase tracking-wider m-0">Lost &amp; Found Hub</h4>
@@ -28,8 +28,8 @@ export const LostFoundWidget = ({ items = [] }) => {
         {/* Section 1: Lost Items (Soft Lavender / Violet) */}
         <div className="bg-[#E2DEFC]/70 border border-[#DCD9F7] rounded-2xl p-3.5 flex items-center justify-between gap-3 text-left shadow-xs transition-all hover:border-[#00c2cb]/60">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-white text-[#071A35] flex items-center justify-center text-lg shrink-0 shadow-xs border border-white">
-              🔍
+            <div className="w-10 h-10 rounded-xl bg-white text-[#071A35] flex items-center justify-center text-sm shrink-0 shadow-xs border border-white">
+              <i className="fa-solid fa-magnifying-glass" />
             </div>
             <div className="flex flex-col min-w-0">
               <span className="text-[13.5px] font-black text-[#071A35] leading-snug">Lost Items</span>
@@ -40,17 +40,18 @@ export const LostFoundWidget = ({ items = [] }) => {
           </div>
           <button
             onClick={() => navigate('/lost-found', { state: { filterType: 'LOST', selectedTab: 'lost' } })}
-            className="px-4 py-1.5 rounded-full text-[11px] font-black text-[#071A35] bg-white hover:bg-slate-50 transition-all cursor-pointer shadow-xs border border-white shrink-0"
+            className="px-4 py-1.5 rounded-full text-[11px] font-black text-[#071A35] bg-white hover:bg-slate-50 transition-all cursor-pointer shadow-xs border border-white shrink-0 flex items-center gap-1"
           >
-            View ➔
+            <span>View</span>
+            <i className="fa-solid fa-arrow-right text-[9px]" />
           </button>
         </div>
 
         {/* Section 2: Found Items (Dark Navy & Cyan) */}
         <div className="bg-[#071A35] text-white border border-[#071A35] rounded-2xl p-3.5 flex items-center justify-between gap-3 text-left shadow-sm transition-all hover:border-[#00c2cb]/60">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-lg shrink-0 border border-white/10">
-              🤝
+            <div className="w-10 h-10 rounded-xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-sm shrink-0 border border-white/10">
+              <i className="fa-solid fa-handshake" />
             </div>
             <div className="flex flex-col min-w-0">
               <span className="text-[13.5px] font-black text-[#00c2cb] leading-snug">Found Items</span>
@@ -61,9 +62,10 @@ export const LostFoundWidget = ({ items = [] }) => {
           </div>
           <button
             onClick={() => navigate('/lost-found', { state: { filterType: 'FOUND', selectedTab: 'found' } })}
-            className="px-4 py-1.5 rounded-full text-[11px] font-black text-white bg-[#00c2cb] hover:bg-[#00a8b5] transition-all cursor-pointer shadow-sm border-none shrink-0"
+            className="px-4 py-1.5 rounded-full text-[11px] font-black text-white bg-[#00c2cb] hover:bg-[#00a8b5] transition-all cursor-pointer shadow-sm border-none shrink-0 flex items-center gap-1"
           >
-            View ➔
+            <span>View</span>
+            <i className="fa-solid fa-arrow-right text-[9px]" />
           </button>
         </div>
 

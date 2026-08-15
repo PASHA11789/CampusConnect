@@ -62,7 +62,7 @@ export default function ShowCareerProfileModal({
         <div className="bg-[#071A35] px-4 sm:px-6 py-4 sm:py-5 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center text-[18px] border border-white/10 shrink-0">
-              🎓
+              <i className="fa-solid fa-graduation-cap" />
             </div>
             <div className="flex flex-col min-w-0">
               <h2 className="text-[17px] font-black text-white tracking-tight m-0 truncate">
@@ -78,7 +78,7 @@ export default function ShowCareerProfileModal({
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-all border-none cursor-pointer shrink-0 ml-2"
           >
-            ✕
+            <i className="fa-solid fa-xmark" />
           </button>
         </div>
 

@@ -713,7 +713,7 @@ export default function Career() {
             <div className="flex items-center gap-3 shrink-0 w-full md:w-auto">
               {/* Search Container */}
               <div className="relative flex items-center w-full md:w-[240px] shadow-xs shrink-0">
-                <span className="absolute left-3.5 text-slate-400 text-xs">🔍</span>
+                <i className="fa-solid fa-magnifying-glass absolute left-3.5 text-slate-400 text-xs" />
                 <input
                   type="text"
                   placeholder={t("Search jobs, companies...")}
@@ -779,7 +779,7 @@ export default function Career() {
                       className="absolute top-2 right-2 bg-slate-900/70 hover:bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold transition-all border-none cursor-pointer"
                       onClick={() => setPostImage("")}
                     >
-                      ✕
+                      <i className="fa-solid fa-xmark text-xs" />
                     </button>
                   </div>
                 )}
@@ -793,7 +793,8 @@ export default function Career() {
                         setIsCreateOpen(true);
                       }}
                     >
-                      <span>💼</span> {t("Job Post")}
+                      <i className="fa-solid fa-briefcase text-xs text-emerald-600" />
+                      <span>{t("Job Post")}</span>
                     </button>
                     <button
                       className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/60 hover:bg-blue-100/70 text-blue-700 text-[11px] sm:text-xs font-semibold cursor-pointer transition-colors whitespace-nowrap shrink-0"
@@ -802,7 +803,8 @@ export default function Career() {
                         setIsCreateOpen(true);
                       }}
                     >
-                      <span>💬</span> {t("General Discussion")}
+                      <i className="fa-solid fa-comments text-xs text-blue-600" />
+                      <span>{t("General Discussion")}</span>
                     </button>
                     <button
                       className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-purple-200 bg-purple-50/60 hover:bg-purple-100/70 text-purple-700 text-[11px] sm:text-xs font-semibold cursor-pointer transition-colors whitespace-nowrap shrink-0"
@@ -811,7 +813,8 @@ export default function Career() {
                         setIsCreateOpen(true);
                       }}
                     >
-                      <span>🎓</span> {t("Internship")}
+                      <i className="fa-solid fa-graduation-cap text-xs text-purple-600" />
+                      <span>{t("Internship")}</span>
                     </button>
                   </div>
 
@@ -823,13 +826,13 @@ export default function Career() {
                         title="Attach Image"
                         onClick={() => mediaInputRef.current?.click()}
                       >
-                        <span>📷</span>
+                        <i className="fa-regular fa-image text-sm" />
                         <span>{t("Image")}</span>
                       </button>
                     </div>
 
                     <button
-                      className="bg-[#071A35] hover:bg-[#102A4A] text-white py-1.5 px-5 rounded-full text-xs font-bold cursor-pointer transition-all shadow-sm"
+                      className="bg-[#071A35] hover:bg-[#102A4A] text-white py-1.5 px-5 rounded-full text-xs font-bold cursor-pointer transition-all shadow-sm border-none"
                       onClick={() => {
                         setCategory("general_discussion");
                         setIsCreateOpen(true);
@@ -845,7 +848,9 @@ export default function Career() {
               <div className="flex flex-col gap-4">
                 {filteredThreads.length === 0 ? (
                   <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-8 sm:p-12 text-center text-slate-500 flex flex-col items-center gap-3 shadow-xs">
-                    <div className="w-12 h-12 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center text-xl">🔍</div>
+                    <div className="w-12 h-12 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center text-lg text-slate-400">
+                      <i className="fa-solid fa-magnifying-glass" />
+                    </div>
                     <p className="font-extrabold text-sm text-[#071A35]">{t("No career posts found.")}</p>
                     <p className="text-xs text-slate-400">{t("Be the first to share an opportunity or start a discussion!")}</p>
                   </div>
@@ -886,8 +891,9 @@ export default function Career() {
                                   {authorName}
                                 </span>
                                 {authorRole === "alumni" && (
-                                  <span className="text-[9px] sm:text-[9.5px] font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200 uppercase tracking-wider">
-                                    🎓 Alumni
+                                  <span className="text-[9px] sm:text-[9.5px] font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200 uppercase tracking-wider flex items-center gap-1">
+                                    <i className="fa-solid fa-graduation-cap text-[9px]" />
+                                    <span>Alumni</span>
                                   </span>
                                 )}
                               </div>
@@ -929,18 +935,21 @@ export default function Career() {
                         {/* METADATA PILLS */}
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pt-0.5">
                           {post.location && (
-                            <span className="flex items-center gap-1 text-[10.5px] sm:text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
-                              <span>📍</span> {post.location}
+                            <span className="flex items-center gap-1.5 text-[10.5px] sm:text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
+                              <i className="fa-solid fa-location-dot text-[#00c2cb] text-[10px]" />
+                              <span>{post.location}</span>
                             </span>
                           )}
                           {post.jobType && (
-                            <span className="flex items-center gap-1 text-[10.5px] sm:text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
-                              <span>💼</span> {post.jobType}
+                            <span className="flex items-center gap-1.5 text-[10.5px] sm:text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
+                              <i className="fa-solid fa-briefcase text-slate-500 text-[10px]" />
+                              <span>{post.jobType}</span>
                             </span>
                           )}
                           {post.qualification && (
-                            <span className="flex items-center gap-1 text-[10.5px] sm:text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
-                              <span>🎓</span> {post.qualification}
+                            <span className="flex items-center gap-1.5 text-[10.5px] sm:text-[11px] font-bold text-slate-600 bg-[#FAF7F0] border border-[#E8E1D5] px-2.5 py-1 rounded-full">
+                              <i className="fa-solid fa-graduation-cap text-slate-500 text-[10px]" />
+                              <span>{post.qualification}</span>
                             </span>
                           )}
                         </div>
@@ -951,21 +960,22 @@ export default function Career() {
                             <button
                               type="button"
                               onClick={() => setExpandedThreadId(isExpanded ? null : post._id)}
-                              className={`flex items-center gap-1 sm:gap-1.5 border-none bg-transparent cursor-pointer transition-colors px-1.5 sm:px-2 py-1 rounded-lg text-[11px] sm:text-xs ${isExpanded ? "bg-[#00c2cb]/10 text-[#0079c2] font-black" : "hover:bg-slate-100 hover:text-slate-700"
+                              className={`flex items-center gap-1.5 border-none bg-transparent cursor-pointer transition-colors px-1.5 sm:px-2 py-1 rounded-lg text-[11px] sm:text-xs ${isExpanded ? "bg-[#00c2cb]/10 text-[#0079c2] font-black" : "hover:bg-slate-100 hover:text-slate-700"
                                 }`}
                             >
-                              <span>💬</span>
+                              <i className="fa-regular fa-comment text-xs" />
                               <span>{post.replies?.length || 0} {post.replies?.length === 1 ? "Comment" : "Comments"}</span>
                             </button>
 
                             <button
                               type="button"
-                              className={`flex items-center gap-1 sm:gap-1.5 border-none bg-transparent cursor-pointer transition-colors text-[11px] sm:text-xs ${post.isLiked ? "text-[#0079c2] font-extrabold" : "hover:text-slate-700"
+                              className={`flex items-center gap-1.5 border-none bg-transparent cursor-pointer transition-colors text-[11px] sm:text-xs ${post.isLiked ? "text-[#0079c2] font-extrabold" : "hover:text-slate-700"
                                 }`}
                               onClick={() => toggleLikePost(post._id)}
                               title={post.isLiked ? "Unlike" : "Like"}
                             >
-                              <span>👍</span> {post.likesCount || 0}
+                              <i className={`${post.isLiked ? "fa-solid text-[#0079c2]" : "fa-regular"} fa-thumbs-up text-xs`} />
+                              <span>{post.likesCount || 0}</span>
                             </button>
 
                             <BookmarkButton
@@ -982,10 +992,10 @@ export default function Career() {
                           <button
                             type="button"
                             onClick={() => setExpandedThreadId(isExpanded ? null : post._id)}
-                            className="flex items-center gap-1 text-[11px] sm:text-xs font-black text-[#071A35] hover:text-[#0079c2] transition-colors border-none bg-transparent cursor-pointer shrink-0 ml-auto sm:ml-0"
+                            className="flex items-center gap-1.5 text-[11px] sm:text-xs font-black text-[#071A35] hover:text-[#0079c2] transition-colors border-none bg-transparent cursor-pointer shrink-0 ml-auto sm:ml-0"
                           >
                             <span>{isExpanded ? t("Collapse") : t("Join Discussion")}</span>
-                            <span>{isExpanded ? "▲" : "▼"}</span>
+                            <i className={`fa-solid ${isExpanded ? "fa-chevron-up" : "fa-chevron-down"} text-[9px]`} />
                           </button>
                         </div>
 
@@ -994,7 +1004,7 @@ export default function Career() {
                           <div className="mt-3 pt-3 border-t border-slate-100 flex flex-col gap-3 animate-fade-in text-left">
                             <div className="flex justify-between items-center px-1">
                               <h4 className="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5 m-0">
-                                <span>💬</span>
+                                <i className="fa-solid fa-comments text-xs text-slate-400" />
                                 <span>{t("Comments")}</span>
                                 <span className="bg-[#00c2cb]/15 text-[#0079c2] px-2 py-0.2 rounded-full text-[10px] font-extrabold border border-[#00c2cb]/20">
                                   {post.replies?.length || 0}
@@ -1047,8 +1057,9 @@ export default function Career() {
                                   );
                                 })
                               ) : (
-                                <div className="bg-[#F0F2F5] border border-dashed border-slate-200 rounded-2xl p-3 text-center text-slate-500 text-xs font-semibold">
-                                  💬 {t("No comments yet. Be the first to comment!")}
+                                <div className="bg-[#F0F2F5] border border-dashed border-slate-200 rounded-2xl p-3 text-center text-slate-500 text-xs font-semibold flex items-center justify-center gap-1.5">
+                                  <i className="fa-regular fa-comment text-slate-400" />
+                                  <span>{t("No comments yet. Be the first to comment!")}</span>
                                 </div>
                               )}
                             </div>
@@ -1094,7 +1105,7 @@ export default function Career() {
               <div className="flex justify-center pt-2 pb-6">
                 <button className="flex items-center gap-2 bg-white border border-[#E8E1D5] text-[#071A35] hover:bg-[#FAF7F0] text-xs font-extrabold px-6 py-2.5 rounded-full shadow-xs transition-all cursor-pointer">
                   <span>{t("Load More Posts")}</span>
-                  <span>↓</span>
+                  <i className="fa-solid fa-arrow-down text-xs" />
                 </button>
               </div>
             </div>
@@ -1271,10 +1282,10 @@ export default function Career() {
             <p className="text-xs text-slate-500 leading-normal">{toast.message}</p>
           </div>
           <button
-            className="text-lg text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1"
+            className="text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1 p-1 text-xs"
             onClick={() => setToast(null)}
           >
-            ×
+            <i className="fa-solid fa-xmark" />
           </button>
         </div>
       )}

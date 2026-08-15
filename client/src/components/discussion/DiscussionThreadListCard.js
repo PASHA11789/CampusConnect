@@ -51,8 +51,8 @@ export default function DiscussionThreadListCard({
               {post.author?.name}
             </span>
           </div>
-          <div className="flex items-center gap-1 text-slate-400 text-[11px] font-medium">
-            <span>💬</span> {post.replies?.length || 0}
+          <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-medium">
+            <i className="fa-solid fa-comments text-xs" /> <span>{post.replies?.length || 0}</span>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
+import AnimatedSelect from '../common/AnimatedSelect';
 
 const CATEGORIES = [
   "Academics",
@@ -11,6 +12,13 @@ const CATEGORIES = [
   "Hostel",
   "Security",
   "Other",
+];
+
+const PRIORITY_OPTIONS = [
+  { value: "Low", label: "Low Priority", badge: "Low" },
+  { value: "Medium", label: "Medium Priority", badge: "Med" },
+  { value: "High", label: "High Priority", badge: "High" },
+  { value: "Urgent", label: "Urgent Issue", badge: "Urgent" }
 ];
 
 const CreateComplaintModal = ({ isOpen, onClose, user, onSuccess }) => {
@@ -89,7 +97,9 @@ const CreateComplaintModal = ({ isOpen, onClose, user, onSuccess }) => {
         {/* Modal Header */}
         <div className="bg-[#071A35] px-6 py-4 flex items-center justify-between text-white border-b border-[#071A35]">
           <div className="flex items-center gap-2.5">
-            <span className="text-xl">{type === 'suggestion' ? '💡' : '📢'}</span>
+            <span className="text-xl flex items-center justify-center">
+              {type === 'suggestion' ? <i className="fa-solid fa-lightbulb text-amber-400" /> : <i className="fa-solid fa-bullhorn text-[#00c2cb]" />}
+            </span>
             <div>
               <h2 className="text-[16px] font-black text-white m-0 leading-tight">
                 Submit Campus Feedback
@@ -103,7 +113,7 @@ const CreateComplaintModal = ({ isOpen, onClose, user, onSuccess }) => {
             onClick={onClose}
             className="text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full w-7 h-7 flex items-center justify-center border-none cursor-pointer transition-colors"
           >
-            ✕
+            <i className="fa-solid fa-xmark text-sm" />
           </button>
         </div>
 
@@ -125,7 +135,8 @@ const CreateComplaintModal = ({ isOpen, onClose, user, onSuccess }) => {
                     : 'bg-transparent text-slate-600 hover:text-slate-900'
                 }`}
               >
-                💡 Suggestion
+                <i className="fa-solid fa-lightbulb text-xs" />
+                <span>Suggestion</span>
               </button>
               <button
                 type="button"
@@ -136,7 +147,8 @@ const CreateComplaintModal = ({ isOpen, onClose, user, onSuccess }) => {
                     : 'bg-transparent text-slate-600 hover:text-slate-900'
                 }`}
               >
-                ⚠️ Complaint
+                <i className="fa-solid fa-triangle-exclamation text-xs" />
+                <span>Complaint</span>
               </button>
             </div>
           </div>
@@ -162,31 +174,22 @@ const CreateComplaintModal = ({ isOpen, onClose, user, onSuccess }) => {
               <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
                 Category
               </label>
-              <select
+              <AnimatedSelect
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-white border border-[#E8E1D5] text-[#071A35] text-[12.5px] font-bold rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#00c2cb]"
-              >
-                {CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
+                options={CATEGORIES}
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
                 Priority
               </label>
-              <select
+              <AnimatedSelect
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
-                className="w-full bg-white border border-[#E8E1D5] text-[#071A35] text-[12.5px] font-bold rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#00c2cb]"
-              >
-                <option value="Low">Low Priority</option>
-                <option value="Medium">Medium Priority</option>
-                <option value="High">High Priority</option>
-                <option value="Urgent">Urgent Issue</option>
-              </select>
+                options={PRIORITY_OPTIONS}
+              />
             </div>
           </div>
 
@@ -235,13 +238,15 @@ const CreateComplaintModal = ({ isOpen, onClose, user, onSuccess }) => {
 
           {/* Alert messages */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl text-[12px] font-extrabold text-center">
-              ⚠️ {error}
+            <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl text-[12px] font-extrabold text-center flex items-center justify-center gap-1.5">
+              <i className="fa-solid fa-triangle-exclamation" />
+              <span>{error}</span>
             </div>
           )}
           {successMsg && (
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 p-3 rounded-xl text-[12px] font-extrabold text-center flex items-center justify-center gap-2">
-              ✅ {successMsg}
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 p-3 rounded-xl text-[12px] font-extrabold text-center flex items-center justify-center gap-1.5">
+              <i className="fa-solid fa-circle-check text-emerald-600" />
+              <span>{successMsg}</span>
             </div>
           )}
 

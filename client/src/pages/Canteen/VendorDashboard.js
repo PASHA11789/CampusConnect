@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
 import { SOCKET_URL } from "../../utils/helpers";
+import AnimatedSelect from "../../components/common/AnimatedSelect";
 
 export default function VendorDashboard() {
   const navigate = useNavigate();
@@ -225,17 +226,17 @@ export default function VendorDashboard() {
       setOrders(prev => [mapped, ...prev]);
       setNewNotifications(prev => prev + 1);
       playNotificationSound();
-      showToast(`🆕 New order received from ${newOrder.student?.name || "Student"}! 🍔`, "success");
+      showToast(`New order received from ${newOrder.student?.name || "Student"}!`, "success");
     });
 
     socket.on("order_nudge", (data) => {
       playNotificationSound();
-      showToast(`🔔 Nudge Alert! Student is asking for update on Order ${data.orderId}`, "warning");
+      showToast(`Nudge Alert! Student is asking for update on Order ${data.orderId}`, "warning");
     });
 
     // Rider accepted a ticket
     socket.on("rider_accepted_order", (data) => {
-      showToast(`🛵 Rider accepted Order ${data.orderId}! (${data.riderName || "Rider"})`, "info");
+      showToast(`Rider accepted Order ${data.orderId}! (${data.riderName || "Rider"})`, "info");
       setOrders(prev => prev.map(o =>
         o.orderId === data.orderId ? { ...o, riderName: data.riderName } : o
       ));
@@ -257,16 +258,16 @@ export default function VendorDashboard() {
         )
       );
       if (data.status === "picked_up") {
-        showToast(`🛵 Rider picked up Order ${targetId}! En route to student.`, "info");
+        showToast(`Rider picked up Order ${targetId}! En route to student.`, "info");
       } else if (data.status === "arrived") {
-        showToast(`📍 Rider arrived with Order ${targetId}!`, "info");
+        showToast(`Rider arrived with Order ${targetId}!`, "info");
       }
     });
 
     socket.on("order_completed_by_rider", (data) => {
       const targetId = data?.orderId;
       playNotificationSound();
-      showToast(`🎉 Order ${targetId || ""} delivered & completed by rider!`, "success");
+      showToast(`Order ${targetId || ""} delivered & completed by rider!`, "success");
       setOrders(prev =>
         prev.map(o =>
           o.orderId === targetId ? { ...o, status: "completed" } : o
@@ -293,16 +294,16 @@ export default function VendorDashboard() {
         playNotificationSound();
 
         const messages = {
-          accepted: `✅ Order ${orderId} accepted! Rider ticket dispatched to marketplace.`,
-          preparing: `🍳 Order ${orderId} is now being prepared.`,
-          ready: `🍔 Order ${orderId} is ready! Rider has been alerted.`,
-          cancelled: `❌ Order ${orderId} has been cancelled.`
+          accepted: `Order ${orderId} accepted! Rider ticket dispatched to marketplace.`,
+          preparing: `Order ${orderId} is now being prepared.`,
+          ready: `Order ${orderId} is ready! Rider has been alerted.`,
+          cancelled: `Order ${orderId} has been cancelled.`
         };
         showToast(messages[newStatus] || `Order ${orderId} updated to: ${newStatus}`, newStatus === "cancelled" ? "error" : "success");
       }
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to update order status";
-      showToast(`❌ ${errMsg}`, "error");
+      showToast(errMsg, "error");
       console.error(err);
     }
   };
@@ -345,12 +346,12 @@ export default function VendorDashboard() {
           prev.map(o => (o.orderId === targetOrderId || o.id === targetOrderId ? { ...o, status: "cancelled" } : o))
         );
         playNotificationSound();
-        showToast(`❌ Order ${targetOrderId} cancelled immediately. Student and rider notified.`, "error");
+        showToast(`Order ${targetOrderId} cancelled immediately. Student and rider notified.`, "error");
         setCancelModalOrder(null);
       }
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to cancel order";
-      showToast(`❌ ${errMsg}`, "error");
+      showToast(errMsg, "error");
       console.error(err);
     } finally {
       setIsCancellingOrder(false);
@@ -494,7 +495,7 @@ export default function VendorDashboard() {
         });
 
         if (res.data.success) {
-          showToast("Delivery Rider updated successfully! ✅", "success");
+          showToast("Delivery Rider updated successfully!", "success");
           fetchDashboardData(token);
         }
       } else {
@@ -510,7 +511,7 @@ export default function VendorDashboard() {
         });
 
         if (res.data.success) {
-          showToast("New Delivery Rider created successfully! 🎉", "success");
+          showToast("New Delivery Rider created successfully!", "success");
           fetchDashboardData(token);
         }
       }
@@ -530,7 +531,7 @@ export default function VendorDashboard() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.data.success) {
-        showToast("Rider account deleted from database. 🗑️", "info");
+        showToast("Rider account deleted from database.", "info");
         fetchDashboardData(token);
       }
     } catch (err) {
@@ -617,7 +618,7 @@ export default function VendorDashboard() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (data.success) {
-        showToast("Vendor profile & restaurant details updated in database! 🎨", "success");
+        showToast("Vendor profile & restaurant details updated in database!", "success");
         fetchDashboardData(token);
       }
     } catch (err) {
@@ -635,7 +636,7 @@ export default function VendorDashboard() {
       });
       if (data.success) {
         setRestaurantOpen(data.isActive);
-        showToast(`Restaurant is now ${data.isActive ? "Open" : "Closed"}! 🏪`, "success");
+        showToast(`Restaurant is now ${data.isActive ? "Open" : "Closed"}!`, "success");
       }
     } catch (err) {
       console.error(err);
@@ -702,23 +703,25 @@ export default function VendorDashboard() {
           <nav className="px-3 space-y-1">
             <button
               onClick={() => setActiveSection("dashboard")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "dashboard"
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 border-none cursor-pointer ${activeSection === "dashboard"
                 ? "bg-[#fff1f2] text-[#e2725b]"
-                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342] bg-transparent"
                 }`}
             >
-              <span>🏠</span> Dashboard
+              <i className="fa-solid fa-gauge text-xs" />
+              <span>Dashboard</span>
             </button>
 
             <button
               onClick={() => setActiveSection("orders")}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "orders"
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 border-none cursor-pointer ${activeSection === "orders"
                 ? "bg-[#fff1f2] text-[#e2725b]"
-                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342] bg-transparent"
                 }`}
             >
               <span className="flex items-center gap-3">
-                <span>🛍️</span> Orders
+                <i className="fa-solid fa-bag-shopping text-xs" />
+                <span>Orders</span>
               </span>
               {activeOrdersCount > 0 && (
                 <span className="bg-[#e2725b] text-white text-[9px] font-black px-2 py-0.5 rounded-full">
@@ -729,42 +732,46 @@ export default function VendorDashboard() {
 
             <button
               onClick={() => setActiveSection("menu")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "menu"
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 border-none cursor-pointer ${activeSection === "menu"
                 ? "bg-[#fff1f2] text-[#e2725b]"
-                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342] bg-transparent"
                 }`}
             >
-              <span>🍴</span> Menu Management
+              <i className="fa-solid fa-utensils text-xs" />
+              <span>Menu Management</span>
             </button>
 
             <button
               onClick={() => setActiveSection("riders")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "riders"
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 border-none cursor-pointer ${activeSection === "riders"
                 ? "bg-[#fff1f2] text-[#e2725b]"
-                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342] bg-transparent"
                 }`}
             >
-              <span>🛵</span> Delivery Riders
+              <i className="fa-solid fa-motorcycle text-xs" />
+              <span>Delivery Riders</span>
             </button>
 
             <button
               onClick={() => setActiveSection("profile")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "profile"
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 border-none cursor-pointer ${activeSection === "profile"
                 ? "bg-[#fff1f2] text-[#e2725b]"
-                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342] bg-transparent"
                 }`}
             >
-              <span>👤</span> Profile
+              <i className="fa-solid fa-user text-xs" />
+              <span>Profile</span>
             </button>
 
             <button
               onClick={() => setActiveSection("settings")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 ${activeSection === "settings"
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold transition-all duration-200 border-none cursor-pointer ${activeSection === "settings"
                 ? "bg-[#fff1f2] text-[#e2725b]"
-                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342] bg-transparent"
                 }`}
             >
-              <span>⚙️</span> Settings
+              <i className="fa-solid fa-gear text-xs" />
+              <span>Settings</span>
             </button>
           </nav>
         </div>
@@ -773,9 +780,10 @@ export default function VendorDashboard() {
         <div className="px-3 border-t border-slate-50 pt-4">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold text-rose-500 hover:bg-rose-50/50 transition-all duration-200"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[12.5px] font-extrabold text-rose-500 hover:bg-rose-50/50 transition-all duration-200 border-none bg-transparent cursor-pointer"
           >
-            <span>🚪</span> Logout
+            <i className="fa-solid fa-right-from-bracket text-xs" />
+            <span>Logout</span>
           </button>
         </div>
       </aside>
@@ -799,20 +807,20 @@ export default function VendorDashboard() {
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-xl font-black text-slate-400 p-1 hover:text-slate-600 border-none bg-none"
+                  className="text-lg font-black text-slate-400 p-1 hover:text-slate-600 border-none bg-none cursor-pointer"
                 >
-                  ✕
+                  <i className="fa-solid fa-xmark" />
                 </button>
               </div>
 
               <nav className="space-y-1">
                 {[
-                  { id: "dashboard", icon: "🏠", label: "Dashboard" },
-                  { id: "orders", icon: "🛍️", label: "Orders", badge: activeOrdersCount },
-                  { id: "menu", icon: "🍴", label: "Menu Management" },
-                  { id: "riders", icon: "🛵", label: "Delivery Riders" },
-                  { id: "profile", icon: "👤", label: "Profile" },
-                  { id: "settings", icon: "⚙️", label: "Settings" }
+                  { id: "dashboard", icon: "fa-solid fa-gauge", label: "Dashboard" },
+                  { id: "orders", icon: "fa-solid fa-bag-shopping", label: "Orders", badge: activeOrdersCount },
+                  { id: "menu", icon: "fa-solid fa-utensils", label: "Menu Management" },
+                  { id: "riders", icon: "fa-solid fa-motorcycle", label: "Delivery Riders" },
+                  { id: "profile", icon: "fa-solid fa-user", label: "Profile" },
+                  { id: "settings", icon: "fa-solid fa-gear", label: "Settings" }
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -820,11 +828,12 @@ export default function VendorDashboard() {
                       setActiveSection(item.id);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-extrabold transition-all cursor-pointer ${activeSection === item.id ? "bg-[#fff1f2] text-[#e2725b]" : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342]"
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-extrabold transition-all cursor-pointer border-none ${activeSection === item.id ? "bg-[#fff1f2] text-[#e2725b]" : "text-slate-500 hover:bg-slate-50 hover:text-[#0a2342] bg-transparent"
                       }`}
                   >
                     <span className="flex items-center gap-3">
-                      <span>{item.icon}</span> {item.label}
+                      <i className={`${item.icon} text-xs`} />
+                      <span>{item.label}</span>
                     </span>
                     {item.badge > 0 && (
                       <span className="bg-[#e2725b] text-white text-[9px] font-black px-2 py-0.5 rounded-full">
@@ -839,9 +848,10 @@ export default function VendorDashboard() {
             <div className="pt-4 border-t border-slate-50">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-extrabold text-rose-500 hover:bg-rose-50/50 transition-all"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-extrabold text-rose-500 hover:bg-rose-50/50 transition-all border-none bg-transparent cursor-pointer"
               >
-                <span>🚪</span> Logout
+                <i className="fa-solid fa-right-from-bracket text-xs" />
+                <span>Logout</span>
               </button>
             </div>
           </aside>
@@ -856,13 +866,13 @@ export default function VendorDashboard() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2.5 rounded-xl bg-white border border-slate-200/80 text-[#0a2342] text-lg shrink-0 shadow-sm hover:bg-slate-100 active:scale-95 cursor-pointer transition-all"
+              className="md:hidden p-2.5 rounded-xl bg-white border border-slate-200/80 text-[#0a2342] text-sm shrink-0 shadow-sm hover:bg-slate-100 active:scale-95 cursor-pointer transition-all flex items-center justify-center"
               title="Toggle Menu"
             >
-              {isMobileMenuOpen ? "✕" : "☰"}
+              <i className={`fa-solid ${isMobileMenuOpen ? "fa-xmark" : "fa-bars"}`} />
             </button>
             <div>
-              <p className="text-[10px] font-bold text-slate-400 leading-tight">Good afternoon, {vendorUser.name} 👋</p>
+              <p className="text-[10px] font-bold text-slate-400 leading-tight">Good afternoon, {vendorUser.name}</p>
               <h2 className="text-base sm:text-xl font-black text-[#0a2342] mt-0.5 capitalize leading-tight">
                 {activeSection === "dashboard" ? "Dashboard" : activeSection.replace("-", " ")}
               </h2>
@@ -911,32 +921,38 @@ export default function VendorDashboard() {
               <div className="grid grid-cols-4 gap-5 max-lg:grid-cols-2 max-sm:grid-cols-1">
                 {/* Orders Today */}
                 <div className="bg-white border border-slate-100 p-5 rounded-3xl flex items-center gap-4.5 shadow-sm">
-                  <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-xl shadow-sm shrink-0">
-                    🛍️
+                  <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-lg shadow-sm shrink-0">
+                    <i className="fa-solid fa-bag-shopping" />
                   </div>
                   <div>
                     <span className="text-[10px] font-extrabold text-slate-400 block uppercase">Today's Orders</span>
                     <span className="text-2xl font-black text-[#0a2342] block mt-0.5">{todayOrders}</span>
-                    <span className="text-[9px] font-bold text-emerald-600 block mt-0.5">↑ 20% vs yesterday</span>
+                    <span className="text-[9px] font-bold text-emerald-600 block mt-0.5 flex items-center gap-1">
+                      <i className="fa-solid fa-arrow-trend-up text-[9px]" />
+                      <span>20% vs yesterday</span>
+                    </span>
                   </div>
                 </div>
 
                 {/* Today's Revenue */}
                 <div className="bg-white border border-slate-100 p-5 rounded-3xl flex items-center gap-4.5 shadow-sm">
-                  <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-600 text-xl shadow-sm shrink-0">
-                    🪙
+                  <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-600 text-lg shadow-sm shrink-0">
+                    <i className="fa-solid fa-coins" />
                   </div>
                   <div>
                     <span className="text-[10px] font-extrabold text-slate-400 block uppercase">Today's Revenue</span>
                     <span className="text-xl font-black text-[#0a2342] block mt-1">Rs. {todayRevenue.toLocaleString()}</span>
-                    <span className="text-[9px] font-bold text-orange-600 block mt-0.5">↑ 18% vs yesterday</span>
+                    <span className="text-[9px] font-bold text-orange-600 block mt-0.5 flex items-center gap-1">
+                      <i className="fa-solid fa-arrow-trend-up text-[9px]" />
+                      <span>18% vs yesterday</span>
+                    </span>
                   </div>
                 </div>
 
                 {/* Total Orders */}
                 <div className="bg-white border border-slate-100 p-5 rounded-3xl flex items-center gap-4.5 shadow-sm">
-                  <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 text-xl shadow-sm shrink-0">
-                    📝
+                  <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 text-lg shadow-sm shrink-0">
+                    <i className="fa-solid fa-receipt" />
                   </div>
                   <div>
                     <span className="text-[10px] font-extrabold text-slate-400 block uppercase">Total Orders</span>
@@ -947,13 +963,16 @@ export default function VendorDashboard() {
 
                 {/* Avg Rating */}
                 <div className="bg-white border border-slate-100 p-5 rounded-3xl flex items-center gap-4.5 shadow-sm">
-                  <div className="w-12 h-12 bg-yellow-50/70 rounded-2xl flex items-center justify-center text-yellow-600 text-xl shadow-sm shrink-0">
-                    ⭐
+                  <div className="w-12 h-12 bg-yellow-50/70 rounded-2xl flex items-center justify-center text-yellow-600 text-lg shadow-sm shrink-0">
+                    <i className="fa-solid fa-star" />
                   </div>
                   <div>
                     <span className="text-[10px] font-extrabold text-slate-400 block uppercase">Avg. Rating</span>
                     <span className="text-2xl font-black text-[#0a2342] block mt-0.5">5.0</span>
-                    <span className="text-[9px] font-bold text-yellow-600 block mt-0.5">★ Top Rated Eatery</span>
+                    <span className="text-[9px] font-bold text-yellow-600 block mt-0.5">
+                      <i className="fa-solid fa-star text-[9px] mr-1 text-amber-500" />
+                      Top Rated Eatery
+                    </span>
                   </div>
                 </div>
               </div>
@@ -968,8 +987,8 @@ export default function VendorDashboard() {
                   <div className="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm overflow-hidden">
                     <div className="flex items-center justify-between mb-5">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-lg font-black">
-                          🛍️
+                        <div className="w-9 h-9 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm font-black">
+                          <i className="fa-solid fa-bag-shopping" />
                         </div>
                         <div>
                           <h3 className="text-[14px] font-black text-[#0a2342] uppercase tracking-wide">
@@ -982,15 +1001,18 @@ export default function VendorDashboard() {
                       </div>
                       <button
                         onClick={() => setActiveSection("orders")}
-                        className="text-teal-600 text-[11px] font-black hover:text-teal-700 bg-teal-50 px-3.5 py-1.5 rounded-full transition-colors"
+                        className="text-teal-600 text-[11px] font-black hover:text-teal-700 bg-teal-50 px-3.5 py-1.5 rounded-full transition-colors flex items-center gap-1.5 border-none cursor-pointer"
                       >
-                        View All Orders ({orders.length}) →
+                        <span>View All Orders ({orders.length})</span>
+                        <i className="fa-solid fa-arrow-right text-[10px]" />
                       </button>
                     </div>
 
                     {activeOrdersList.length === 0 ? (
                       <div className="text-center py-10 bg-slate-50/60 rounded-2xl border border-dashed border-slate-200">
-                        <div className="text-3xl mb-2">🤷‍♂️</div>
+                        <div className="text-3xl mb-2 text-slate-300">
+                          <i className="fa-solid fa-inbox" />
+                        </div>
                         <p className="text-xs font-bold text-slate-500">No active recent orders</p>
                         <p className="text-[10px] text-slate-400 mt-0.5">Orders placed by students will appear here in real-time</p>
                       </div>
@@ -1032,11 +1054,18 @@ export default function VendorDashboard() {
                                   </span>
                                 </div>
                                 <p className="text-[11px] font-medium text-slate-400 mt-1 truncate">
-                                  📦 {order.items}
+                                  <i className="fa-solid fa-box text-slate-400 text-[10px] mr-1" />
+                                  {order.items}
                                 </p>
                                 <div className="text-[10px] font-semibold text-slate-400 mt-0.5 flex items-center gap-3 flex-wrap">
-                                  <span>⏰ {order.time}</span>
-                                  <span>📍 {order.location || "Campus Main Gate"}</span>
+                                  <span>
+                                    <i className="fa-regular fa-clock text-[10px] mr-1" />
+                                    {order.time}
+                                  </span>
+                                  <span>
+                                    <i className="fa-solid fa-location-dot text-[#00c2cb] text-[10px] mr-1" />
+                                    {order.location || "Campus Main Gate"}
+                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -1054,64 +1083,71 @@ export default function VendorDashboard() {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   title="Contact Customer on WhatsApp"
-                                  className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors text-xs font-bold flex items-center gap-1"
+                                  className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors text-xs font-bold flex items-center gap-1.5"
                                 >
-                                  💬 <span className="hidden sm:inline">WhatsApp</span>
+                                  <i className="fa-brands fa-whatsapp text-sm" />
+                                  <span className="hidden sm:inline">WhatsApp</span>
                                 </a>
 
-                                {/* STAGE 1: New/Pending → Accept or Reject */}
+                                {/* STAGE 1: New/Pending - Accept or Reject */}
                                 {order.status === "pending" && (
                                   <>
                                     <button
                                       onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "accepted")}
-                                      className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer"
+                                      className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer flex items-center gap-1 border-none"
                                     >
-                                      ✅ Accept
+                                      <i className="fa-solid fa-check" />
+                                      <span>Accept</span>
                                     </button>
                                     <button
                                       onClick={() => handleOpenCancelModal(order)}
-                                      className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100"
+                                      className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100 flex items-center gap-1"
                                       title="Reject order"
                                     >
-                                      ❌ Reject
+                                      <i className="fa-solid fa-xmark" />
+                                      <span>Reject</span>
                                     </button>
                                   </>
                                 )}
 
-                                {/* STAGE 2: Accepted → Mark Preparing + Cancel */}
+                                {/* STAGE 2: Accepted - Mark Preparing + Cancel */}
                                 {order.status === "accepted" && (
                                   <>
                                     <button
                                       onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "preparing")}
-                                      className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-1 cursor-pointer"
+                                      className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-1 cursor-pointer border-none"
                                     >
-                                      🍳 Mark Preparing
+                                      <i className="fa-solid fa-fire-burner" />
+                                      <span>Mark Preparing</span>
                                     </button>
                                     <button
                                       onClick={() => handleOpenCancelModal(order)}
-                                      className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100"
+                                      className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100 flex items-center gap-1"
                                       title="Cancel order"
                                     >
-                                      ❌ Cancel
+                                      <i className="fa-solid fa-xmark" />
+                                      <span>Cancel</span>
                                     </button>
                                   </>
                                 )}
 
-                                {/* STAGE 3: Preparing → Mark Ready + Cancel */}
+                                {/* STAGE 3: Preparing - Mark Ready + Cancel */}
                                 {order.status === "preparing" && (
                                   <>
                                     <button
                                       onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "ready")}
-                                      className="px-3 py-2 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-1 cursor-pointer"
+                                      className="px-3 py-2 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-1.5 cursor-pointer border-none"
                                     >
-                                      🍔 Ready for Pickup!
+                                      <i className="fa-solid fa-box-open" />
+                                      <span>Ready for Pickup!</span>
                                     </button>
                                     <button
                                       onClick={() => handleOpenCancelModal(order)}
-                                      className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100"
+                                      className="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100 flex items-center gap-1"
                                       title="Cancel order"
                                     >
-                                      ❌ Cancel
+                                      <i className="fa-solid fa-xmark" />
+                                      <span>Cancel</span>
                                     </button>
                                   </>
                                 )}
@@ -1119,15 +1155,17 @@ export default function VendorDashboard() {
                                 {/* STAGE 4: Ready — waiting for rider pickup + Cancel */}
                                 {order.status === "ready" && (
                                   <>
-                                    <span className="px-2.5 py-1.5 bg-cyan-50 text-cyan-700 rounded-xl text-[10px] font-black uppercase tracking-wider animate-pulse border border-cyan-200">
-                                      🛵 Awaiting Rider
+                                    <span className="px-2.5 py-1.5 bg-cyan-50 text-cyan-700 rounded-xl text-[10px] font-black uppercase tracking-wider animate-pulse border border-cyan-200 flex items-center gap-1">
+                                      <i className="fa-solid fa-motorcycle" />
+                                      <span>Awaiting Rider</span>
                                     </span>
                                     <button
                                       onClick={() => handleOpenCancelModal(order)}
-                                      className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100"
+                                      className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100 flex items-center gap-1"
                                       title="Cancel order"
                                     >
-                                      ❌ Cancel
+                                      <i className="fa-solid fa-xmark" />
+                                      <span>Cancel</span>
                                     </button>
                                   </>
                                 )}
@@ -1135,15 +1173,17 @@ export default function VendorDashboard() {
                                 {/* STAGE 5: Rider picked up + Cancel */}
                                 {order.status === "picked_up" && (
                                   <>
-                                    <span className="px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded-xl text-[10px] font-black uppercase tracking-wider border border-blue-200">
-                                      🛵 En Route
+                                    <span className="px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded-xl text-[10px] font-black uppercase tracking-wider border border-blue-200 flex items-center gap-1">
+                                      <i className="fa-solid fa-motorcycle" />
+                                      <span>En Route</span>
                                     </span>
                                     <button
                                       onClick={() => handleOpenCancelModal(order)}
-                                      className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100"
+                                      className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100 flex items-center gap-1"
                                       title="Cancel order"
                                     >
-                                      ❌ Cancel
+                                      <i className="fa-solid fa-xmark" />
+                                      <span>Cancel</span>
                                     </button>
                                   </>
                                 )}
@@ -1151,30 +1191,34 @@ export default function VendorDashboard() {
                                 {/* STAGE 6: Arrived + Cancel */}
                                 {order.status === "arrived" && (
                                   <>
-                                    <span className="px-2.5 py-1.5 bg-purple-50 text-purple-700 rounded-xl text-[10px] font-black uppercase tracking-wider animate-pulse border border-purple-200">
-                                      📍 Rider Arrived
+                                    <span className="px-2.5 py-1.5 bg-purple-50 text-purple-700 rounded-xl text-[10px] font-black uppercase tracking-wider animate-pulse border border-purple-200 flex items-center gap-1">
+                                      <i className="fa-solid fa-location-dot" />
+                                      <span>Rider Arrived</span>
                                     </span>
                                     <button
                                       onClick={() => handleOpenCancelModal(order)}
-                                      className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100"
+                                      className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-rose-100 flex items-center gap-1"
                                       title="Cancel order"
                                     >
-                                      ❌ Cancel
+                                      <i className="fa-solid fa-xmark" />
+                                      <span>Cancel</span>
                                     </button>
                                   </>
                                 )}
 
                                 {/* STAGE 7: Completed */}
                                 {order.status === "completed" && (
-                                  <span className="px-2.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl text-[10px] font-black uppercase tracking-wider border border-emerald-200">
-                                    ✅ Delivered
+                                  <span className="px-2.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl text-[10px] font-black uppercase tracking-wider border border-emerald-200 flex items-center gap-1">
+                                    <i className="fa-solid fa-circle-check" />
+                                    <span>Delivered</span>
                                   </span>
                                 )}
 
                                 {/* Terminal: Cancelled */}
                                 {order.status === "cancelled" && (
-                                  <span className="px-2.5 py-1.5 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider border border-rose-200">
-                                    ❌ Cancelled
+                                  <span className="px-2.5 py-1.5 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider border border-rose-200 flex items-center gap-1">
+                                    <i className="fa-solid fa-circle-xmark" />
+                                    <span>Cancelled</span>
                                   </span>
                                 )}
                               </div>
@@ -1246,17 +1290,17 @@ export default function VendorDashboard() {
                                 <div className="flex items-center justify-center gap-3">
                                   <button
                                     onClick={() => handleEditItemClick(item)}
-                                    className="text-slate-400 hover:text-teal-600 transition-colors text-sm"
+                                    className="text-slate-400 hover:text-teal-600 transition-colors text-sm border-none bg-transparent cursor-pointer"
                                     title="Edit"
                                   >
-                                    ✏️
+                                    <i className="fa-solid fa-pen text-xs" />
                                   </button>
                                   <button
                                     onClick={() => handleDeleteItem(item.id)}
-                                    className="text-slate-400 hover:text-rose-600 transition-colors text-sm"
+                                    className="text-slate-400 hover:text-rose-600 transition-colors text-sm border-none bg-transparent cursor-pointer"
                                     title="Delete"
                                   >
-                                    🗑️
+                                    <i className="fa-solid fa-trash-can text-xs" />
                                   </button>
                                 </div>
                               </td>
@@ -1269,9 +1313,10 @@ export default function VendorDashboard() {
                     <div className="mt-4.5 pt-4.5 border-t border-slate-50 text-center">
                       <button
                         onClick={() => setActiveSection("menu")}
-                        className="text-teal-600 text-[11px] font-black hover:text-teal-700 transition-colors"
+                        className="text-teal-600 text-[11px] font-black hover:text-teal-700 transition-colors flex items-center justify-center gap-1 mx-auto border-none bg-transparent cursor-pointer"
                       >
-                        View all menu items →
+                        <span>View all menu items</span>
+                        <i className="fa-solid fa-arrow-right text-[10px]" />
                       </button>
                     </div>
                   </div>
@@ -1289,7 +1334,9 @@ export default function VendorDashboard() {
                     <div className="space-y-4.5">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="p-2 bg-purple-50 text-purple-600 rounded-xl text-sm shrink-0">🛍️</span>
+                          <span className="p-2 bg-purple-50 text-purple-600 rounded-xl text-sm shrink-0 flex items-center justify-center">
+                            <i className="fa-solid fa-bag-shopping" />
+                          </span>
                           <span className="text-xs font-bold text-slate-500">Orders Received</span>
                         </div>
                         <span className="text-sm font-black text-[#0a2342]">{todayOrders}</span>
@@ -1297,7 +1344,9 @@ export default function VendorDashboard() {
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="p-2 bg-orange-50 text-orange-600 rounded-xl text-sm shrink-0">🪙</span>
+                          <span className="p-2 bg-orange-50 text-orange-600 rounded-xl text-sm shrink-0 flex items-center justify-center">
+                            <i className="fa-solid fa-coins" />
+                          </span>
                           <span className="text-xs font-bold text-slate-500">Revenue</span>
                         </div>
                         <span className="text-sm font-black text-[#0a2342]">Rs. {todayRevenue.toLocaleString()}</span>
@@ -1305,7 +1354,9 @@ export default function VendorDashboard() {
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="p-2 bg-yellow-50 text-yellow-600 rounded-xl text-sm shrink-0">🏷️</span>
+                          <span className="p-2 bg-yellow-50 text-yellow-600 rounded-xl text-sm shrink-0 flex items-center justify-center">
+                            <i className="fa-solid fa-tag" />
+                          </span>
                           <span className="text-xs font-bold text-slate-500">Items Sold</span>
                         </div>
                         <span className="text-sm font-black text-[#0a2342]">
@@ -1315,7 +1366,9 @@ export default function VendorDashboard() {
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="p-2 bg-teal-50 text-teal-600 rounded-xl text-sm shrink-0">👥</span>
+                          <span className="p-2 bg-teal-50 text-teal-600 rounded-xl text-sm shrink-0 flex items-center justify-center">
+                            <i className="fa-solid fa-users" />
+                          </span>
                           <span className="text-xs font-bold text-slate-500">Customers</span>
                         </div>
                         <span className="text-sm font-black text-[#0a2342]">
@@ -1345,7 +1398,7 @@ export default function VendorDashboard() {
 
                     <button
                       onClick={handleToggleRestaurantOpen}
-                      className="w-full py-3 border border-teal-600 text-teal-600 hover:bg-teal-50 bg-white rounded-xl text-xs font-extrabold transition-all duration-300"
+                      className="w-full py-3 border border-teal-600 text-teal-600 hover:bg-teal-50 bg-white rounded-xl text-xs font-extrabold transition-all duration-300 cursor-pointer"
                     >
                       Update Status
                     </button>
@@ -1361,9 +1414,10 @@ export default function VendorDashboard() {
                     </p>
                     <button
                       onClick={() => showToast("Connecting to CampusConnect Canteen Support...", "info")}
-                      className="w-full py-3 border border-teal-600 text-teal-600 hover:bg-teal-50 bg-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all duration-300"
+                      className="w-full py-3 border border-teal-600 text-teal-600 hover:bg-teal-50 bg-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer"
                     >
-                      <span>📞</span> Contact Support
+                      <i className="fa-solid fa-phone text-xs" />
+                      <span>Contact Support</span>
                     </button>
                   </div>
 
@@ -1391,12 +1445,13 @@ export default function VendorDashboard() {
                 <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-2xl">
                   <button
                     onClick={() => setOrderSubTab("active")}
-                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${orderSubTab === "active"
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 border-none ${orderSubTab === "active"
                       ? "bg-white text-[#0a2342] shadow-sm"
-                      : "text-slate-500 hover:text-slate-800"
+                      : "text-slate-500 hover:text-slate-800 bg-transparent"
                       }`}
                   >
-                    <span>⚡ Active Queue</span>
+                    <i className="fa-solid fa-bolt text-xs text-amber-500" />
+                    <span>Active Queue</span>
                     <span className="bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full text-[9px]">
                       {activeOrdersCount}
                     </span>
@@ -1404,12 +1459,13 @@ export default function VendorDashboard() {
 
                   <button
                     onClick={() => setOrderSubTab("completed")}
-                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${orderSubTab === "completed"
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 border-none ${orderSubTab === "completed"
                       ? "bg-white text-[#0a2342] shadow-sm"
-                      : "text-slate-500 hover:text-slate-800"
+                      : "text-slate-500 hover:text-slate-800 bg-transparent"
                       }`}
                   >
-                    <span>🎉 Today Completed Orders</span>
+                    <i className="fa-solid fa-circle-check text-xs text-emerald-500" />
+                    <span>Today Completed Orders</span>
                     <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[9px]">
                       {completedOrdersList.length}
                     </span>
@@ -1417,12 +1473,13 @@ export default function VendorDashboard() {
 
                   <button
                     onClick={() => setOrderSubTab("cancelled")}
-                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${orderSubTab === "cancelled"
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 border-none ${orderSubTab === "cancelled"
                       ? "bg-white text-[#0a2342] shadow-sm"
-                      : "text-slate-500 hover:text-slate-800"
+                      : "text-slate-500 hover:text-slate-800 bg-transparent"
                       }`}
                   >
-                    <span>❌ Cancelled Orders</span>
+                    <i className="fa-solid fa-circle-xmark text-xs text-rose-500" />
+                    <span>Cancelled Orders</span>
                     <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-[9px]">
                       {cancelledOrdersList.length}
                     </span>
@@ -1437,7 +1494,15 @@ export default function VendorDashboard() {
                 if (displayedOrders.length === 0) {
                   return (
                     <div className="py-12 border-2 border-dashed border-slate-200 rounded-3xl text-center">
-                      <div className="text-4xl mb-2">{orderSubTab === "active" ? "⚡" : orderSubTab === "completed" ? "🎉" : "❌"}</div>
+                      <div className="text-4xl mb-2 text-slate-300">
+                        {orderSubTab === "active" ? (
+                          <i className="fa-solid fa-bolt text-amber-500" />
+                        ) : orderSubTab === "completed" ? (
+                          <i className="fa-solid fa-circle-check text-emerald-500" />
+                        ) : (
+                          <i className="fa-solid fa-circle-xmark text-rose-500" />
+                        )}
+                      </div>
                       <h4 className="text-xs font-black text-[#0a2342]">
                         {orderSubTab === "active" ? "No Active Orders In Queue" : orderSubTab === "completed" ? "No Completed Orders Yet Today" : "No Cancelled Orders"}
                       </h4>
@@ -1486,8 +1551,9 @@ export default function VendorDashboard() {
                                 </span>
                               </div>
 
-                              <p className="text-xs font-semibold text-slate-500 mt-1">
-                                📍 Delivery Location: <span className="font-extrabold text-[#0a2342]">{order.location}</span>
+                              <p className="text-xs font-semibold text-slate-500 mt-1 flex items-center gap-1">
+                                <i className="fa-solid fa-location-dot text-[#00c2cb] text-[10px]" />
+                                <span>Delivery Location: <span className="font-extrabold text-[#0a2342]">{order.location}</span></span>
                               </p>
                               <p className="text-[10px] font-semibold text-slate-400 mt-0.5">
                                 Placed: {order.time} | Phone: {order.phone}
@@ -1523,59 +1589,66 @@ export default function VendorDashboard() {
                               rel="noopener noreferrer"
                               className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center justify-center gap-2 shadow-sm transition-colors"
                             >
-                              💬 Contact Customer
+                              <i className="fa-brands fa-whatsapp text-sm" />
+                              <span>Contact Customer</span>
                             </a>
 
-                            {/* STAGE 1: New/Pending → Accept or Reject */}
+                            {/* STAGE 1: New/Pending - Accept or Reject */}
                             {order.status === "pending" && (
                               <div className="flex gap-2">
                                 <button
                                   onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "accepted")}
-                                  className="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                                  className="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer border-none flex items-center justify-center gap-1"
                                 >
-                                  ✅ Accept Order
+                                  <i className="fa-solid fa-check" />
+                                  <span>Accept Order</span>
                                 </button>
                                 <button
                                   onClick={() => handleOpenCancelModal(order)}
-                                  className="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100"
+                                  className="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100 flex items-center justify-center gap-1"
                                 >
-                                  ❌ Reject
+                                  <i className="fa-solid fa-xmark" />
+                                  <span>Reject</span>
                                 </button>
                               </div>
                             )}
 
-                            {/* STAGE 2: Accepted → Mark Preparing + Cancel */}
+                            {/* STAGE 2: Accepted - Mark Preparing + Cancel */}
                             {order.status === "accepted" && (
                               <div className="flex gap-2">
                                 <button
                                   onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "preparing")}
-                                  className="flex-1 py-2.5 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                                  className="flex-1 py-2.5 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer border-none flex items-center justify-center gap-1"
                                 >
-                                  🍳 Mark Preparing
+                                  <i className="fa-solid fa-fire-burner" />
+                                  <span>Mark Preparing</span>
                                 </button>
                                 <button
                                   onClick={() => handleOpenCancelModal(order)}
-                                  className="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100"
+                                  className="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100 flex items-center justify-center gap-1"
                                 >
-                                  ❌ Cancel
+                                  <i className="fa-solid fa-xmark" />
+                                  <span>Cancel</span>
                                 </button>
                               </div>
                             )}
 
-                            {/* STAGE 3: Preparing → Mark Ready + Cancel */}
+                            {/* STAGE 3: Preparing - Mark Ready + Cancel */}
                             {order.status === "preparing" && (
                               <div className="flex gap-2">
                                 <button
                                   onClick={() => handleUpdateOrderStatus(order.orderId || order.id, "ready")}
-                                  className="flex-1 py-2.5 px-4 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                                  className="flex-1 py-2.5 px-4 bg-[#0a2342] hover:bg-[#123e75] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm cursor-pointer border-none flex items-center justify-center gap-1.5"
                                 >
-                                  🍔 Ready for Pickup!
+                                  <i className="fa-solid fa-box-open" />
+                                  <span>Ready for Pickup!</span>
                                 </button>
                                 <button
                                   onClick={() => handleOpenCancelModal(order)}
-                                  className="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100"
+                                  className="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100 flex items-center justify-center gap-1"
                                 >
-                                  ❌ Cancel
+                                  <i className="fa-solid fa-xmark" />
+                                  <span>Cancel</span>
                                 </button>
                               </div>
                             )}
@@ -1583,14 +1656,16 @@ export default function VendorDashboard() {
                             {/* STAGE 4: Ready — awaiting rider pickup + Cancel */}
                             {order.status === "ready" && (
                               <div className="flex flex-col gap-1.5">
-                                <span className="text-[10px] font-black text-cyan-700 bg-cyan-50 px-3 py-2 rounded-xl text-center border border-cyan-200 animate-pulse">
-                                  🛵 Awaiting Rider Pickup
+                                <span className="text-[10px] font-black text-cyan-700 bg-cyan-50 px-3 py-2 rounded-xl text-center border border-cyan-200 animate-pulse flex items-center justify-center gap-1">
+                                  <i className="fa-solid fa-motorcycle" />
+                                  <span>Awaiting Rider Pickup</span>
                                 </span>
                                 <button
                                   onClick={() => handleOpenCancelModal(order)}
                                   className="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100 flex items-center justify-center gap-1"
                                 >
-                                  ❌ Cancel Order
+                                  <i className="fa-solid fa-xmark" />
+                                  <span>Cancel Order</span>
                                 </button>
                               </div>
                             )}
@@ -1598,14 +1673,16 @@ export default function VendorDashboard() {
                             {/* STAGE 5: Rider picked up + Cancel */}
                             {order.status === "picked_up" && (
                               <div className="flex flex-col gap-1.5">
-                                <span className="text-[10px] font-black text-blue-700 bg-blue-50 px-3 py-2 rounded-xl text-center border border-blue-200">
-                                  🛵 En Route to Student
+                                <span className="text-[10px] font-black text-blue-700 bg-blue-50 px-3 py-2 rounded-xl text-center border border-blue-200 flex items-center justify-center gap-1">
+                                  <i className="fa-solid fa-motorcycle" />
+                                  <span>En Route to Student</span>
                                 </span>
                                 <button
                                   onClick={() => handleOpenCancelModal(order)}
                                   className="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100 flex items-center justify-center gap-1"
                                 >
-                                  ❌ Cancel Order
+                                  <i className="fa-solid fa-xmark" />
+                                  <span>Cancel Order</span>
                                 </button>
                               </div>
                             )}
@@ -1613,29 +1690,33 @@ export default function VendorDashboard() {
                             {/* STAGE 6: Rider arrived + Cancel */}
                             {order.status === "arrived" && (
                               <div className="flex flex-col gap-1.5">
-                                <span className="text-[10px] font-black text-purple-700 bg-purple-50 px-3 py-2 rounded-xl text-center border border-purple-200 animate-pulse">
-                                  📍 Rider Arrived at Location
+                                <span className="text-[10px] font-black text-purple-700 bg-purple-50 px-3 py-2 rounded-xl text-center border border-purple-200 animate-pulse flex items-center justify-center gap-1">
+                                  <i className="fa-solid fa-location-dot" />
+                                  <span>Rider Arrived at Location</span>
                                 </span>
                                 <button
                                   onClick={() => handleOpenCancelModal(order)}
                                   className="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-rose-100 flex items-center justify-center gap-1"
                                 >
-                                  ❌ Cancel Order
+                                  <i className="fa-solid fa-xmark" />
+                                  <span>Cancel Order</span>
                                 </button>
                               </div>
                             )}
 
                             {/* STAGE 7: Completed */}
                             {order.status === "completed" && (
-                              <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-2 rounded-xl text-center border border-emerald-200">
-                                🎉 Order Completed & Delivered
+                              <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-2 rounded-xl text-center border border-emerald-200 flex items-center justify-center gap-1">
+                                <i className="fa-solid fa-circle-check" />
+                                <span>Order Completed &amp; Delivered</span>
                               </span>
                             )}
 
                             {/* Terminal: Cancelled */}
                             {order.status === "cancelled" && (
-                              <span className="text-[10px] font-black text-rose-600 bg-rose-50 px-3 py-2 rounded-xl text-center border border-rose-200">
-                                ❌ Order Cancelled
+                              <span className="text-[10px] font-black text-rose-600 bg-rose-50 px-3 py-2 rounded-xl text-center border border-rose-200 flex items-center justify-center gap-1">
+                                <i className="fa-solid fa-circle-xmark" />
+                                <span>Order Cancelled</span>
                               </span>
                             )}
                           </div>
@@ -1732,7 +1813,8 @@ export default function VendorDashboard() {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-100">
                 <div>
                   <h3 className="text-[14px] font-black text-[#0a2342] uppercase tracking-wide flex items-center gap-2">
-                    <span>🛵 Delivery Riders Portal & Access</span>
+                    <i className="fa-solid fa-motorcycle text-teal-600" />
+                    <span>Delivery Riders Portal &amp; Access</span>
                   </h3>
                   <p className="text-[10px] font-bold text-slate-400 mt-1">
                     Manage delivery riders affiliated with {selectedRestaurant}. Create, edit, or remove riders for your fleet.
@@ -1745,7 +1827,8 @@ export default function VendorDashboard() {
                     onClick={handleOpenAddRiderModal}
                     className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-black px-5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer border-none"
                   >
-                    <span>➕ Add New Rider</span>
+                    <i className="fa-solid fa-plus text-xs" />
+                    <span>Add New Rider</span>
                   </button>
                 </div>
               </div>
@@ -1753,7 +1836,9 @@ export default function VendorDashboard() {
               {/* Rider Cards Grid */}
               {registeredRiders.length === 0 ? (
                 <div className="py-12 border-2 border-dashed border-slate-200 rounded-3xl text-center">
-                  <div className="text-4xl mb-2">🛵</div>
+                  <div className="w-16 h-16 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-3xl mb-3 mx-auto">
+                    <i className="fa-solid fa-motorcycle" />
+                  </div>
                   <h4 className="text-xs font-black text-[#0a2342]">No Registered Riders Yet</h4>
                   <p className="text-[11px] font-bold text-slate-400 mt-1 max-w-sm mx-auto mb-4">
                     Click "Add New Rider" above to onboard delivery riders for {selectedRestaurant}.
@@ -1761,9 +1846,10 @@ export default function VendorDashboard() {
                   <button
                     type="button"
                     onClick={handleOpenAddRiderModal}
-                    className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-black px-5 py-2.5 rounded-xl transition-all shadow-md border-none cursor-pointer"
+                    className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-black px-5 py-2.5 rounded-xl transition-all shadow-md border-none cursor-pointer flex items-center gap-1.5 mx-auto"
                   >
-                    ➕ Add Rider Now
+                    <i className="fa-solid fa-plus text-xs" />
+                    <span>Add Rider Now</span>
                   </button>
                 </div>
               ) : (
@@ -1789,23 +1875,28 @@ export default function VendorDashboard() {
 
                       <div className="text-[10px] font-bold text-slate-500 bg-white p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
                         <span>Vehicle: {rider.vehicle || "Motorcycle"}</span>
-                        <span className="text-amber-500 font-black">⭐ 5.0</span>
+                        <span className="text-amber-500 font-black flex items-center gap-1">
+                          <i className="fa-solid fa-star text-xs" />
+                          <span>5.0</span>
+                        </span>
                       </div>
 
                       <div className="flex items-center gap-2 pt-1 border-t border-slate-200/60">
                         <button
                           type="button"
                           onClick={() => handleOpenEditRiderModal(rider)}
-                          className="flex-1 py-2 bg-white hover:bg-slate-100 text-[#0a2342] rounded-xl text-[10.5px] font-black transition-colors flex items-center justify-center gap-1 cursor-pointer border border-slate-200"
+                          className="flex-1 py-2 bg-white hover:bg-slate-100 text-[#0a2342] rounded-xl text-[10.5px] font-black transition-colors flex items-center justify-center gap-1.5 cursor-pointer border border-slate-200"
                         >
-                          <span>✏️</span> Edit
+                          <i className="fa-solid fa-pen text-xs" />
+                          <span>Edit</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDeleteRider(rider.id || idx)}
-                          className="py-2 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10.5px] font-black transition-colors flex items-center justify-center gap-1 cursor-pointer border border-rose-100"
+                          className="py-2 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10.5px] font-black transition-colors flex items-center justify-center gap-1.5 cursor-pointer border border-rose-100"
                         >
-                          <span>🗑️</span> Delete
+                          <i className="fa-solid fa-trash-can text-xs" />
+                          <span>Delete</span>
                         </button>
                       </div>
                     </div>
@@ -1845,9 +1936,10 @@ export default function VendorDashboard() {
                       <button
                         type="button"
                         onClick={() => document.getElementById("vendor-avatar-upload").click()}
-                        className="text-xs font-bold text-teal-600 hover:underline border-none bg-none cursor-pointer"
+                        className="text-xs font-bold text-teal-600 hover:underline border-none bg-none cursor-pointer flex items-center gap-1"
                       >
-                        📁 Upload Photo
+                        <i className="fa-solid fa-arrow-up-from-bracket text-xs" />
+                        <span>Upload Photo</span>
                       </button>
                     </div>
                   </div>
@@ -1935,7 +2027,7 @@ export default function VendorDashboard() {
 
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-[#0a2342] hover:bg-[#e2725b] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-md transition-colors"
+                  className="px-6 py-3 bg-[#0a2342] hover:bg-[#e2725b] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-md transition-colors border-none cursor-pointer"
                 >
                   Save Profile Info
                 </button>
@@ -1988,11 +2080,11 @@ export default function VendorDashboard() {
       {/* ── MOBILE BOTTOM NAVIGATION BAR ── */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1.5 flex justify-around items-center shadow-lg">
         {[
-          { id: "dashboard", icon: "🏠", label: "Dashboard" },
-          { id: "orders", icon: "🛍️", label: "Orders", badge: activeOrdersCount },
-          { id: "menu", icon: "🍴", label: "Menu" },
-          { id: "riders", icon: "🛵", label: "Riders" },
-          { id: "profile", icon: "👤", label: "Profile" }
+          { id: "dashboard", icon: "fa-solid fa-gauge", label: "Dashboard" },
+          { id: "orders", icon: "fa-solid fa-bag-shopping", label: "Orders", badge: activeOrdersCount },
+          { id: "menu", icon: "fa-solid fa-utensils", label: "Menu" },
+          { id: "riders", icon: "fa-solid fa-motorcycle", label: "Riders" },
+          { id: "profile", icon: "fa-solid fa-user", label: "Profile" }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -2000,8 +2092,8 @@ export default function VendorDashboard() {
             className={`relative flex flex-col items-center py-1 px-3 rounded-xl transition-all border-none bg-none cursor-pointer ${activeSection === tab.id ? "text-[#e2725b] font-black" : "text-slate-400 font-bold"
               }`}
           >
-            <span className="text-base">{tab.icon}</span>
-            <span className="text-[9.5px] mt-0.5">{tab.label}</span>
+            <i className={`${tab.icon} text-base`} />
+            <span className="text-[9.5px] mt-1">{tab.label}</span>
             {tab.badge > 0 && (
               <span className="absolute -top-1 right-1 bg-[#e2725b] text-white text-[8px] font-black px-1.5 py-0.2 rounded-full">
                 {tab.badge}
@@ -2021,9 +2113,9 @@ export default function VendorDashboard() {
               </h3>
               <button
                 onClick={() => setIsMenuModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-lg font-black"
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black text-slate-500 hover:bg-slate-200 border-none cursor-pointer"
               >
-                ×
+                <i className="fa-solid fa-xmark" />
               </button>
             </div>
 
@@ -2090,14 +2182,15 @@ export default function VendorDashboard() {
                 <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1.5">
                   Status
                 </label>
-                <select
+                <AnimatedSelect
                   value={itemStatus}
                   onChange={(e) => setItemStatus(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
-                >
-                  <option value="Active">Active / Available</option>
-                  <option value="Inactive">Inactive / Out of stock</option>
-                </select>
+                  options={[
+                    { value: "Active", label: "Active / Available", iconClass: "fa-solid fa-circle-check" },
+                    { value: "Inactive", label: "Inactive / Out of stock", iconClass: "fa-solid fa-circle-xmark" }
+                  ]}
+                  buttonClassName="bg-slate-50 border-slate-200 text-xs font-bold text-[#0a2342] py-2.5 px-3.5 rounded-xl"
+                />
               </div>
 
               <div>
@@ -2142,13 +2235,13 @@ export default function VendorDashboard() {
                 <button
                   type="button"
                   onClick={() => setIsMenuModalOpen(false)}
-                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-black uppercase tracking-wider text-[#0a2342]"
+                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-black uppercase tracking-wider text-[#0a2342] border-none cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm"
+                  className="flex-1 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm border-none cursor-pointer"
                 >
                   Save Item
                 </button>
@@ -2168,9 +2261,9 @@ export default function VendorDashboard() {
               </h3>
               <button
                 onClick={() => setIsRiderModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-lg font-black cursor-pointer border-none"
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black text-slate-500 hover:bg-slate-200 cursor-pointer border-none"
               >
-                ×
+                <i className="fa-solid fa-xmark" />
               </button>
             </div>
 
@@ -2223,31 +2316,33 @@ export default function VendorDashboard() {
                   <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1.5">
                     Vehicle Type
                   </label>
-                  <select
+                  <AnimatedSelect
                     value={riderFormVehicle}
                     onChange={(e) => setRiderFormVehicle(e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
-                  >
-                    <option value="Motorcycle">Motorcycle 🏍️</option>
-                    <option value="Electric Scooter">Electric Scooter 🛴</option>
-                    <option value="Bicycle">Bicycle 🚲</option>
-                    <option value="Scooter">Scooter 🛵</option>
-                  </select>
+                    options={[
+                      { value: "Motorcycle", label: "Motorcycle", iconClass: "fa-solid fa-motorcycle" },
+                      { value: "Electric Scooter", label: "Electric Scooter", iconClass: "fa-solid fa-bolt" },
+                      { value: "Bicycle", label: "Bicycle", iconClass: "fa-solid fa-bicycle" },
+                      { value: "Scooter", label: "Scooter", iconClass: "fa-solid fa-motorcycle" }
+                    ]}
+                    buttonClassName="bg-slate-50 border-slate-200 text-xs font-bold text-[#0a2342] py-2.5 px-3.5 rounded-xl"
+                  />
                 </div>
 
                 <div>
                   <label className="block text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1.5">
                     Rider Status
                   </label>
-                  <select
+                  <AnimatedSelect
                     value={riderFormStatus}
                     onChange={(e) => setRiderFormStatus(e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#0a2342] focus:outline-none focus:border-teal-500"
-                  >
-                    <option value="Online">Online / Active</option>
-                    <option value="Offline">Offline</option>
-                    <option value="Busy">Busy (Delivering)</option>
-                  </select>
+                    options={[
+                      { value: "Online", label: "Online / Active", iconClass: "fa-solid fa-circle-check" },
+                      { value: "Offline", label: "Offline", iconClass: "fa-solid fa-circle-minus" },
+                      { value: "Busy", label: "Busy (Delivering)", iconClass: "fa-solid fa-person-running" }
+                    ]}
+                    buttonClassName="bg-slate-50 border-slate-200 text-xs font-bold text-[#0a2342] py-2.5 px-3.5 rounded-xl"
+                  />
                 </div>
               </div>
 
@@ -2308,8 +2403,8 @@ export default function VendorDashboard() {
             {/* Header Badge */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center text-xl shadow-xs">
-                  🛑
+                <div className="w-11 h-11 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center text-lg shadow-xs">
+                  <i className="fa-solid fa-ban text-rose-600" />
                 </div>
                 <div>
                   <h3 className="text-base font-black text-[#0a2342] tracking-tight">Cancel Food Order</h3>
@@ -2321,7 +2416,7 @@ export default function VendorDashboard() {
                 disabled={isCancellingOrder}
                 className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 text-xs font-black transition-all flex items-center justify-center cursor-pointer border-none"
               >
-                ✕
+                <i className="fa-solid fa-xmark" />
               </button>
             </div>
 
@@ -2345,7 +2440,7 @@ export default function VendorDashboard() {
 
             {/* Warning Callout */}
             <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 mb-5 flex items-start gap-3 text-rose-700">
-              <span className="text-lg shrink-0">⚠️</span>
+              <i className="fa-solid fa-triangle-exclamation text-base mt-0.5 shrink-0 text-rose-600" />
               <p className="text-[11px] font-bold leading-relaxed m-0">
                 Cancelling will <strong>immediately close this delivery pipeline</strong>. Automated cancel notifications will be sent to the student and any assigned rider.
               </p>
@@ -2420,7 +2515,7 @@ export default function VendorDashboard() {
                   </>
                 ) : (
                   <>
-                    <span>🛑</span>
+                    <i className="fa-solid fa-ban text-sm" />
                     <span>Cancel Order</span>
                   </>
                 )}
@@ -2433,11 +2528,11 @@ export default function VendorDashboard() {
       {/* ── TOAST NOTIFICATION ── */}
       {toast && (
         <div className={`fixed top-24 right-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl z-[3000] flex gap-3 w-[360px] animate-modal-slide-in ${toast.type === 'warning' ? 'border-l-4 border-l-amber-500' : toast.type === 'error' ? 'border-l-4 border-l-red-500' : toast.type === 'success' ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-[#00c2cb]'}`}>
-          <div className="text-[18px] mt-0.5">
-            {toast.type === 'warning' && <span>⚠️</span>}
-            {toast.type === 'error' && <span>❌</span>}
-            {toast.type === 'success' && <span>✅</span>}
-            {toast.type === 'info' && <span>ℹ️</span>}
+          <div className="text-[16px] mt-0.5">
+            {toast.type === 'warning' && <i className="fa-solid fa-triangle-exclamation text-amber-500" />}
+            {toast.type === 'error' && <i className="fa-solid fa-circle-xmark text-rose-500" />}
+            {toast.type === 'success' && <i className="fa-solid fa-circle-check text-emerald-500" />}
+            {toast.type === 'info' && <i className="fa-solid fa-circle-info text-[#00c2cb]" />}
           </div>
           <div className="flex-1 flex flex-col gap-0.5">
             <strong className="text-[13px] font-black text-[#0a2342]">
@@ -2447,7 +2542,9 @@ export default function VendorDashboard() {
             </strong>
             <p className="text-[12px] text-slate-500 leading-normal">{toast.message}</p>
           </div>
-          <button className="text-[18px] text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1" onClick={() => setToast(null)}>×</button>
+          <button className="text-slate-400 cursor-pointer border-none bg-none hover:text-slate-600 leading-none h-fit -mt-1 p-1 text-xs" onClick={() => setToast(null)}>
+            <i className="fa-solid fa-xmark" />
+          </button>
         </div>
       )}
     </div>

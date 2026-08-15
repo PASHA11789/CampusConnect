@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import axios from "axios";
+import AnimatedSelect from "../../components/common/AnimatedSelect";
 
 export default function PartnerRegister() {
   const navigate = useNavigate();
@@ -158,7 +159,7 @@ export default function PartnerRegister() {
           <div className="flex-1 flex flex-col relative z-10">
             {/* Logo */}
             <div className="flex items-center gap-2 mb-3.5 sm:mb-5">
-              {!isVendor && <span className="text-xl sm:text-2xl">🛵</span>}
+              {!isVendor && <i className="fa-solid fa-motorcycle text-lg text-[#00c2cb]" />}
               <span className="text-base sm:text-lg font-black tracking-tight text-white">
                 Campus<span className={isVendor ? "text-[#e2725b]" : "text-[#00c2cb]"}>Connect</span>
               </span>
@@ -198,7 +199,8 @@ export default function PartnerRegister() {
                     : "bg-transparent text-slate-400 hover:text-white"
                 }`}
               >
-                🍳 Vendor
+                <i className="fa-solid fa-utensils text-xs" />
+                <span>Vendor</span>
               </button>
               <button
                 type="button"
@@ -209,7 +211,8 @@ export default function PartnerRegister() {
                     : "bg-transparent text-slate-400 hover:text-white"
                 }`}
               >
-                🛵 Rider
+                <i className="fa-solid fa-motorcycle text-xs" />
+                <span>Rider</span>
               </button>
             </div>
 
@@ -218,14 +221,18 @@ export default function PartnerRegister() {
               {isVendor ? (
                 <>
                   <div className="flex items-start gap-2.5 sm:gap-3 bg-white/5 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border border-white/5">
-                    <div className="p-1.5 bg-orange-500/20 text-orange-400 rounded-lg text-sm shrink-0">🚀</div>
+                    <div className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center text-xs shrink-0">
+                      <i className="fa-solid fa-bolt" />
+                    </div>
                     <div>
                       <h3 className="text-[11px] sm:text-xs font-black text-white">Instant Setup</h3>
                       <p className="text-[9.5px] sm:text-[10px] font-semibold text-slate-400 mt-0.5">Register and list menu items instantly.</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2.5 sm:gap-3 bg-white/5 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border border-white/5">
-                    <div className="p-1.5 bg-teal-500/20 text-teal-300 rounded-lg text-sm shrink-0">🤝</div>
+                    <div className="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-300 flex items-center justify-center text-xs shrink-0">
+                      <i className="fa-solid fa-users" />
+                    </div>
                     <div>
                       <h3 className="text-[11px] sm:text-xs font-black text-white">Campus Reach</h3>
                       <p className="text-[9.5px] sm:text-[10px] font-semibold text-slate-400 mt-0.5">Connect directly with students and faculty.</p>
@@ -235,14 +242,18 @@ export default function PartnerRegister() {
               ) : (
                 <>
                   <div className="flex items-start gap-2.5 sm:gap-3 bg-white/5 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border border-white/5">
-                    <div className="p-1.5 bg-cyan-500/20 text-cyan-300 rounded-lg text-sm shrink-0">⚡</div>
+                    <div className="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-xs shrink-0">
+                      <i className="fa-solid fa-clock" />
+                    </div>
                     <div>
                       <h3 className="text-[11px] sm:text-xs font-black text-white">Flexible Shifts</h3>
                       <p className="text-[9.5px] sm:text-[10px] font-semibold text-slate-400 mt-0.5">Deliver food whenever you are free between classes.</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2.5 sm:gap-3 bg-white/5 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border border-white/5">
-                    <div className="p-1.5 bg-emerald-500/20 text-emerald-300 rounded-lg text-sm shrink-0">💵</div>
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs shrink-0">
+                      <i className="fa-solid fa-money-bill-wave" />
+                    </div>
                     <div>
                       <h3 className="text-[11px] sm:text-xs font-black text-white">Fast Payouts</h3>
                       <p className="text-[9.5px] sm:text-[10px] font-semibold text-slate-400 mt-0.5">Earn cash per order and track daily earnings.</p>
@@ -273,7 +284,7 @@ export default function PartnerRegister() {
 
             {error && (
               <div className="mb-3 sm:mb-4 p-2.5 sm:p-3 bg-red-500/10 border border-red-500/30 rounded-xl sm:rounded-2xl text-red-400 text-[11px] sm:text-xs font-bold flex items-center gap-2">
-                <span>⚠️</span>
+                <i className="fa-solid fa-triangle-exclamation" />
                 <span>{error}</span>
               </div>
             )}
@@ -368,17 +379,19 @@ export default function PartnerRegister() {
                     <label className="text-[10px] sm:text-[11px] font-black text-slate-300 uppercase tracking-wider">
                       Vehicle Type <span className="text-red-400">*</span>
                     </label>
-                    <select
+                    <AnimatedSelect
                       name="vehicleType"
                       value={formData.vehicleType}
                       onChange={handleChange}
-                      className="w-full bg-slate-900/90 border border-slate-700 text-white text-xs sm:text-sm font-semibold rounded-xl px-3 py-2 sm:py-2.5 focus:outline-none focus:border-[#00c2cb] focus:ring-2 focus:ring-[#00c2cb]/20 transition-all"
-                    >
-                      <option value="Motorcycle">Motorcycle</option>
-                      <option value="Bicycle">Bicycle</option>
-                      <option value="Scooter">Scooter</option>
-                      <option value="On Foot">On Foot / Walker</option>
-                    </select>
+                      options={[
+                        { value: "Motorcycle", label: "Motorcycle", iconClass: "fa-solid fa-motorcycle" },
+                        { value: "Bicycle", label: "Bicycle", iconClass: "fa-solid fa-bicycle" },
+                        { value: "Scooter", label: "Scooter", iconClass: "fa-solid fa-motorcycle" },
+                        { value: "On Foot", label: "On Foot / Walker", iconClass: "fa-solid fa-person-walking" }
+                      ]}
+                      buttonClassName="bg-slate-900/90 border-slate-700 text-white text-xs sm:text-sm font-semibold rounded-xl py-2 sm:py-2.5 px-3"
+                      dropdownClassName="bg-slate-900 border-slate-700 text-white"
+                    />
                   </div>
 
                   <div className="space-y-1">
@@ -452,10 +465,13 @@ export default function PartnerRegister() {
                 {loading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Registering Account...
+                    <span>Registering Account...</span>
                   </>
                 ) : (
-                  `Register as ${isVendor ? "Vendor" : "Rider"} →`
+                  <>
+                    <span>Register as {isVendor ? "Vendor" : "Rider"}</span>
+                    <i className="fa-solid fa-arrow-right text-xs" />
+                  </>
                 )}
               </button>
             </form>

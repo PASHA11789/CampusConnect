@@ -48,7 +48,9 @@ export default function CheckoutCart({
         {/* Cart Items List */}
         {cart.length === 0 ? (
           <div className="rounded-[20px] bg-[#00c2cb]/5 border border-[#00c2cb]/20 p-6 text-center shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-            <div className="text-3xl mb-1.5 animate-pulse">🛒</div>
+            <div className="w-12 h-12 rounded-full bg-[#00c2cb]/10 text-[#00c2cb] flex items-center justify-center text-xl mx-auto mb-2">
+              <i className="fa-solid fa-cart-shopping" />
+            </div>
             <p className="text-[10.5px] font-bold text-slate-400">Your cart is empty.</p>
           </div>
         ) : (
@@ -87,7 +89,7 @@ export default function CheckoutCart({
                   <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg p-0.5">
                     <button
                       onClick={() => handleAdjustQty(item.id, -1)}
-                      className="h-5 w-5 rounded bg-slate-50 font-black text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center text-xs focus:outline-none"
+                      className="h-5 w-5 rounded bg-slate-50 font-black text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center text-xs focus:outline-none border-none"
                     >
                       -
                     </button>
@@ -96,7 +98,7 @@ export default function CheckoutCart({
                     </span>
                     <button
                       onClick={() => handleAdjustQty(item.id, 1)}
-                      className="h-5 w-5 rounded bg-slate-50 font-black text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center text-xs focus:outline-none"
+                      className="h-5 w-5 rounded bg-slate-50 font-black text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center text-xs focus:outline-none border-none"
                     >
                       +
                     </button>
@@ -108,10 +110,10 @@ export default function CheckoutCart({
                     </span>
                     <button
                       onClick={() => handleAdjustQty(item.id, -item.qty)}
-                      className="text-slate-400 hover:text-rose-500 transition-colors cursor-pointer bg-transparent border-none focus:outline-none text-xs"
+                      className="text-slate-400 hover:text-rose-500 transition-colors cursor-pointer bg-transparent border-none focus:outline-none text-xs flex items-center justify-center p-1"
                       title="Delete item"
                     >
-                      🗑️
+                      <i className="fa-solid fa-trash-can text-xs" />
                     </button>
                   </div>
                 </div>
@@ -123,18 +125,16 @@ export default function CheckoutCart({
         {/* Contact details */}
         {cart.length > 0 && (
           <div className="mt-4 flex flex-col gap-1.5">
-            <label htmlFor="canteen-student-phone" className="text-[9px] font-black uppercase text-[#0a2342] tracking-wider">
-              WhatsApp Contact Phone *
+            <label htmlFor="checkout-phone-input" className="text-[10px] font-extrabold uppercase tracking-widest text-[#0a2342]">
+              Phone Number (Required)
             </label>
             <input
-              id="canteen-student-phone"
-              name="studentPhone"
+              id="checkout-phone-input"
               type="tel"
-              required
-              value={studentPhone || ""}
+              value={studentPhone}
               onChange={(e) => setStudentPhone(e.target.value)}
               placeholder="e.g. 03001234567"
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-[#0a2342] outline-none focus:bg-white focus:border-[#00c2cb] focus:ring-4 focus:ring-[#00c2cb]/15 transition-all duration-300 placeholder-slate-400 shadow-xs"
+              className="w-full rounded-xl border border-slate-200/80 bg-slate-50 px-3.5 py-2.5 text-xs font-semibold text-[#0a2342] placeholder:text-slate-400 focus:border-[#00c2cb] focus:outline-none focus:ring-4 focus:ring-[#00c2cb]/15 transition-all"
             />
           </div>
         )}
@@ -154,7 +154,7 @@ export default function CheckoutCart({
           />
           <button
             type="submit"
-            className="rounded-xl bg-[#0a2342] hover:bg-[#00c2cb] hover:text-slate-950 px-4 text-xs font-black text-white transition-colors duration-300 cursor-pointer shadow-xs focus:outline-none"
+            className="rounded-xl bg-[#0a2342] hover:bg-[#00c2cb] hover:text-slate-950 px-4 text-xs font-black text-white transition-colors duration-300 cursor-pointer shadow-xs focus:outline-none border-none"
           >
             Apply
           </button>
@@ -220,16 +220,16 @@ export default function CheckoutCart({
         <button
           onClick={handleCheckout}
           disabled={cart.length === 0 || !studentPhone || !studentPhone.trim()}
-          className={`mt-4 w-full rounded-[18px] py-3.5 text-xs font-black tracking-widest uppercase text-white transition-all duration-300 shadow-md cursor-pointer focus:outline-none flex items-center justify-center gap-2 ${cart.length > 0 && studentPhone && studentPhone.trim()
+          className={`mt-4 w-full rounded-[18px] py-3.5 text-xs font-black tracking-widest uppercase text-white transition-all duration-300 shadow-md cursor-pointer focus:outline-none flex items-center justify-center gap-2 border-none ${cart.length > 0 && studentPhone && studentPhone.trim()
               ? "bg-gradient-to-r from-[#071A35] via-[#0a2342] to-[#0079c2] hover:from-[#0a2342] hover:to-[#00c2cb] shadow-[0_6px_20px_rgba(0,121,194,0.3)] scale-[1.01]"
               : "bg-[#0a2342] disabled:cursor-not-allowed disabled:opacity-50"
             }`}
         >
-          <span>🚀 Place Order</span>
+          <i className="fa-solid fa-bolt text-amber-400 text-xs" />
+          <span>Place Order</span>
           {cart.length > 0 && <span>(Rs. {cartTotal})</span>}
         </button>
       </div>
-
 
     </aside>
   );

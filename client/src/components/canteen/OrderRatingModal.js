@@ -47,8 +47,8 @@ export default function OrderRatingModal({ orderId, onClose, onSubmitSuccess }) 
 
         {submitted ? (
           <div className="py-8 text-center space-y-3">
-            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto animate-bounce">
-              🌟
+            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto animate-bounce">
+              <i className="fa-solid fa-star text-amber-400" />
             </div>
             <h3 className="text-xl font-extrabold text-[#0a2342]">Thank You for Your Feedback!</h3>
             <p className="text-xs text-slate-500 font-medium">Your ratings help improve canteen food & rider service.</p>
@@ -57,22 +57,25 @@ export default function OrderRatingModal({ orderId, onClose, onSubmitSuccess }) 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
-                <span className="text-[10px] font-extrabold tracking-widest text-[#00c2cb] uppercase">ORDER DELIVERED 🎉</span>
+                <span className="text-[10px] font-extrabold tracking-widest text-[#00c2cb] uppercase flex items-center gap-1.5">
+                  <span>ORDER DELIVERED</span>
+                  <i className="fa-solid fa-circle-check text-emerald-500" />
+                </span>
                 <h3 className="text-xl font-extrabold text-[#0a2342]">Rate Your Experience</h3>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-700 font-bold flex items-center justify-center text-xs cursor-pointer"
+                className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-700 font-bold flex items-center justify-center text-xs cursor-pointer border-none"
               >
-                ✕
+                <i className="fa-solid fa-xmark text-sm" />
               </button>
             </div>
 
             {/* RESTAURANT RATING */}
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
               <label className="block text-xs font-bold text-[#0a2342] mb-2 flex items-center gap-2">
-                <span>🍔</span> Rate Canteen / Restaurant Food Quality
+                <i className="fa-solid fa-utensils text-amber-500" /> Rate Canteen / Restaurant Food Quality
               </label>
               <div className="flex items-center justify-center gap-2 py-1">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -80,9 +83,9 @@ export default function OrderRatingModal({ orderId, onClose, onSubmitSuccess }) 
                     key={`res-${star}`}
                     type="button"
                     onClick={() => setRestaurantRating(star)}
-                    className="text-2xl transition-transform hover:scale-125 cursor-pointer focus:outline-none"
+                    className="text-2xl transition-transform hover:scale-125 cursor-pointer focus:outline-none bg-transparent border-none p-1"
                   >
-                    {star <= restaurantRating ? "⭐" : "⚪"}
+                    <i className={`fa-star ${star <= restaurantRating ? "fa-solid text-amber-400" : "fa-regular text-slate-300"}`} />
                   </button>
                 ))}
               </div>
@@ -91,7 +94,7 @@ export default function OrderRatingModal({ orderId, onClose, onSubmitSuccess }) 
             {/* RIDER RATING */}
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
               <label className="block text-xs font-bold text-[#0a2342] mb-2 flex items-center gap-2">
-                <span>🛵</span> Rate Delivery Rider Speed & Service
+                <i className="fa-solid fa-motorcycle text-indigo-500" /> Rate Delivery Rider Speed & Service
               </label>
               <div className="flex items-center justify-center gap-2 py-1">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -99,9 +102,9 @@ export default function OrderRatingModal({ orderId, onClose, onSubmitSuccess }) 
                     key={`rider-${star}`}
                     type="button"
                     onClick={() => setRiderRating(star)}
-                    className="text-2xl transition-transform hover:scale-125 cursor-pointer focus:outline-none"
+                    className="text-2xl transition-transform hover:scale-125 cursor-pointer focus:outline-none bg-transparent border-none p-1"
                   >
-                    {star <= riderRating ? "⭐" : "⚪"}
+                    <i className={`fa-star ${star <= riderRating ? "fa-solid text-amber-400" : "fa-regular text-slate-300"}`} />
                   </button>
                 ))}
               </div>
@@ -126,16 +129,17 @@ export default function OrderRatingModal({ orderId, onClose, onSubmitSuccess }) 
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs cursor-pointer transition-all"
+                className="px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs cursor-pointer transition-all border-none"
               >
                 Skip
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#00c2cb] to-[#0079c2] hover:opacity-95 text-white font-extrabold text-xs shadow-lg shadow-cyan-500/20 transition-all cursor-pointer disabled:opacity-50"
+                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#00c2cb] to-[#0079c2] hover:opacity-95 text-white font-extrabold text-xs shadow-lg shadow-cyan-500/20 transition-all cursor-pointer disabled:opacity-50 border-none flex items-center gap-1.5"
               >
-                {submitting ? "Submitting..." : "Submit Review ⭐"}
+                <span>{submitting ? "Submitting..." : "Submit Review"}</span>
+                {!submitting && <i className="fa-solid fa-paper-plane text-xs ml-1" />}
               </button>
             </div>
           </form>

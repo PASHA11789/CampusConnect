@@ -96,12 +96,12 @@ export default function DiscussionRepliesPane({
     const getCareerCategoryBadge = (cat) => {
       switch (cat) {
         case "job_opportunity":
-          return { label: t("💼 Job Opportunity"), bg: "bg-[#00c2cb]/20 text-[#00c2cb] border-[#00c2cb]/40" };
+          return { label: t("Job Opportunity"), icon: "fa-solid fa-briefcase", bg: "bg-[#00c2cb]/20 text-[#00c2cb] border-[#00c2cb]/40" };
         case "mentorship_qa":
-          return { label: t("🤝 Mentorship Q&A"), bg: "bg-purple-400/20 text-purple-300 border-purple-400/30" };
+          return { label: t("Mentorship Q&A"), icon: "fa-solid fa-handshake", bg: "bg-purple-400/20 text-purple-300 border-purple-400/30" };
         case "general_discussion":
         default:
-          return { label: t("💬 General Discussion"), bg: "bg-[#00c2cb]/20 text-[#00c2cb] border-[#00c2cb]/30" };
+          return { label: t("General Discussion"), icon: "fa-solid fa-comments", bg: "bg-[#00c2cb]/20 text-[#00c2cb] border-[#00c2cb]/30" };
       }
     };
     const categoryBadge = getCareerCategoryBadge(activeThread.category);
@@ -112,8 +112,9 @@ export default function DiscussionRepliesPane({
         <div className="bg-gradient-to-r from-[#071A35] via-[#0a2342] to-[#0d2a42] p-5 sm:p-6 border-b border-white/10 flex justify-between items-start sticky top-0 z-20 shadow-md">
           <div className="flex-1 min-w-0 pr-4">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <span className={`px-3 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider border ${categoryBadge.bg}`}>
-                {categoryBadge.label}
+              <span className={`px-3 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider border flex items-center gap-1.5 ${categoryBadge.bg}`}>
+                <i className={`${categoryBadge.icon} text-[10px]`} />
+                <span>{categoryBadge.label}</span>
               </span>
             </div>
 
@@ -138,8 +139,8 @@ export default function DiscussionRepliesPane({
                 >
                   {authorName}
                 </span>
-                <span className="text-[11px] text-white/70 font-semibold mt-1 flex items-center gap-1">
-                  <span>📅</span>
+                <span className="text-[11px] text-white/70 font-semibold mt-1 flex items-center gap-1.5">
+                  <i className="fa-solid fa-calendar text-[10px]" />
                   <span>{new Date(activeThread.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>
                 </span>
               </div>
@@ -171,7 +172,8 @@ export default function DiscussionRepliesPane({
                       }}
                       className="w-full text-left bg-none border-none px-4 py-2.5 text-xs font-bold cursor-pointer flex items-center gap-2.5 transition-all hover:bg-slate-50 text-slate-700"
                     >
-                      <span>👤</span> {t("View Profile")}
+                      <i className="fa-solid fa-user text-xs text-slate-500" />
+                      <span>{t("View Profile")}</span>
                     </button>
                     <button
                       type="button"
@@ -181,7 +183,8 @@ export default function DiscussionRepliesPane({
                       }}
                       className="w-full text-left bg-none border-none px-4 py-2.5 text-xs font-bold cursor-pointer flex items-center gap-2.5 transition-all hover:bg-red-50 text-red-600 border-t border-slate-100"
                     >
-                      <span>🛡️</span> {t("Report Post")}
+                      <i className="fa-solid fa-shield-halved text-xs text-red-500" />
+                      <span>{t("Report Post")}</span>
                     </button>
                   </div>
                 </div>
@@ -193,7 +196,7 @@ export default function DiscussionRepliesPane({
               className="w-9 h-9 rounded-full bg-white/10 hover:bg-red-500/20 hover:text-red-400 text-white flex items-center justify-center transition-all border border-white/15 cursor-pointer shadow-xs hover:rotate-90 duration-300 text-sm font-bold"
               title="Close Drawer"
             >
-              ✕
+              <i className="fa-solid fa-xmark text-sm" />
             </button>
           </div>
         </div>
@@ -221,7 +224,7 @@ export default function DiscussionRepliesPane({
           <div className="pt-1">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                <span>💬</span>
+                <i className="fa-solid fa-comments text-xs" />
                 <span>{t("Replies")}</span>
                 <span className="bg-[#00c2cb]/15 text-[#0079c2] px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border border-[#00c2cb]/20">
                   {activeThread.replies?.length || 0}
@@ -287,7 +290,8 @@ export default function DiscussionRepliesPane({
                                 }}
                                 className="w-full text-left bg-none border-none px-3.5 py-2 text-xs font-semibold cursor-pointer flex items-center gap-2 transition-all hover:bg-slate-50 text-slate-700"
                               >
-                                <span>👤</span> {t("View Profile")}
+                                <i className="fa-solid fa-user text-xs text-slate-500" />
+                                <span>{t("View Profile")}</span>
                               </button>
                               <button
                                 type="button"
@@ -297,7 +301,8 @@ export default function DiscussionRepliesPane({
                                 }}
                                 className="w-full text-left bg-none border-none px-3.5 py-2 text-xs font-semibold cursor-pointer flex items-center gap-2 transition-all hover:bg-red-50 text-red-600 border-t border-slate-100"
                               >
-                                <span>🛡️</span> {t("Report Comment")}
+                                <i className="fa-solid fa-shield-halved text-xs text-red-500" />
+                                <span>{t("Report Comment")}</span>
                               </button>
                             </div>
                           </div>
@@ -314,7 +319,7 @@ export default function DiscussionRepliesPane({
 
               {(!activeThread.replies || activeThread.replies.length === 0) && (
                 <div className="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center flex flex-col items-center justify-center gap-2 text-slate-400 font-semibold">
-                  <span className="text-3xl">💬</span>
+                  <i className="fa-solid fa-comments text-2xl text-slate-300 mb-1" />
                   <span className="text-xs text-slate-500 font-bold">{t("No replies yet. Be the first to join the conversation!")}</span>
                 </div>
               )}
@@ -351,7 +356,10 @@ export default function DiscussionRepliesPane({
                 {isSubmittingReply ? (
                   <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                 ) : (
-                  <span>{t("Post Reply →")}</span>
+                  <>
+                    <span>{t("Post Reply")}</span>
+                    <i className="fa-solid fa-paper-plane text-[10px]" />
+                  </>
                 )}
               </button>
             </div>
@@ -380,7 +388,8 @@ export default function DiscussionRepliesPane({
             if (onClose) onClose();
           }}
         >
-          ← {t("Back to list")}
+          <i className="fa-solid fa-arrow-left text-[11px]" />
+          <span>{t("Back to list")}</span>
         </button>
       </div>
 
@@ -428,7 +437,8 @@ export default function DiscussionRepliesPane({
                                 onEditThread(activeThread);
                               }}
                             >
-                              ✏️ {t('Edit')}
+                              <i className="fa-solid fa-pen-to-square text-xs text-slate-500" />
+                              <span>{t('Edit')}</span>
                             </button>
                             <button
                               type="button"
@@ -438,7 +448,8 @@ export default function DiscussionRepliesPane({
                                 onDeleteThread(activeThread._id);
                               }}
                             >
-                              🗑️ {t('Delete')}
+                              <i className="fa-solid fa-trash-can text-xs text-red-500" />
+                              <span>{t('Delete')}</span>
                             </button>
                           </>
                         ) : (
@@ -450,7 +461,8 @@ export default function DiscussionRepliesPane({
                               onReportContent('thread', activeThread._id);
                             }}
                           >
-                            🛡️ {t('Report')}
+                            <i className="fa-solid fa-shield-halved text-xs text-slate-500" />
+                            <span>{t('Report')}</span>
                           </button>
                         )}
                       </div>
@@ -579,7 +591,7 @@ export default function DiscussionRepliesPane({
                   })()
                 ) : (
                   <div className="flex flex-col items-center justify-center py-8 px-4 text-center bg-white/40 border-2 border-dashed border-slate-300/40 rounded-xl">
-                    <span className="text-[24px] mb-2">💬</span>
+                    <i className="fa-solid fa-comments text-xl text-slate-400 mb-1" />
                     <p className="text-[12px] text-slate-500 font-medium">{t('No replies yet. Start the conversation!')}</p>
                   </div>
                 )}
@@ -599,7 +611,7 @@ export default function DiscussionRepliesPane({
                   className="bg-transparent border-none text-slate-400 hover:text-slate-600 cursor-pointer text-xs font-bold p-0.5 leading-none"
                   onClick={() => setReplyingTo(null)}
                 >
-                  ✕
+                  <i className="fa-solid fa-xmark text-xs" />
                 </button>
               </div>
             )}
@@ -621,7 +633,7 @@ export default function DiscussionRepliesPane({
                   className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-md border-none cursor-pointer transition-transform hover:scale-110"
                   title="Remove Image"
                 >
-                  ✕
+                  <i className="fa-solid fa-xmark text-[9px]" />
                 </button>
               </div>
             )}
@@ -644,15 +656,15 @@ export default function DiscussionRepliesPane({
                 }}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-bold text-[#0a2342] flex items-center gap-1">
-                    <span>📷</span> {t("Attach Photo to Reply")}
+                  <span className="text-[11px] font-bold text-[#0a2342] flex items-center gap-1.5">
+                    <i className="fa-solid fa-camera text-xs" /> <span>{t("Attach Photo to Reply")}</span>
                   </span>
                   <button
                     type="button"
                     className="text-slate-400 hover:text-slate-600 text-xs font-bold border-none bg-transparent cursor-pointer"
                     onClick={() => setShowImageInput(false)}
                   >
-                    ✕
+                    <i className="fa-solid fa-xmark" />
                   </button>
                 </div>
 
@@ -663,9 +675,9 @@ export default function DiscussionRepliesPane({
                       const input = document.getElementById("reply-file-input");
                       if (input) input.click();
                     }}
-                    className="bg-[#00c2cb] hover:bg-[#071A35] text-slate-950 hover:text-white border-none text-[11px] font-extrabold px-3 py-1.5 rounded-lg cursor-pointer transition-colors shrink-0 flex items-center gap-1 shadow-xs"
+                    className="bg-[#00c2cb] hover:bg-[#071A35] text-slate-950 hover:text-white border-none text-[11px] font-extrabold px-3 py-1.5 rounded-lg cursor-pointer transition-colors shrink-0 flex items-center gap-1.5 shadow-xs"
                   >
-                    <span>📁</span> {t("Select from Device")}
+                    <i className="fa-solid fa-folder-open text-xs" /> <span>{t("Select from Device")}</span>
                   </button>
 
                   <input
@@ -710,13 +722,13 @@ export default function DiscussionRepliesPane({
               <button
                 type="button"
                 onClick={() => setShowImageInput(!showImageInput)}
-                className={`h-[42px] w-[42px] rounded-xl text-base border border-slate-200/90 transition-all cursor-pointer shrink-0 flex items-center justify-center ${replyImage || showImageInput
+                className={`h-[42px] w-[42px] rounded-xl text-sm border border-slate-200/90 transition-all cursor-pointer shrink-0 flex items-center justify-center ${replyImage || showImageInput
                     ? "bg-[#00c2cb]/10 text-[#00c2cb] border-[#00c2cb]/40 font-bold"
                     : "bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700"
                   }`}
                 title={t("Attach photo to reply")}
               >
-                📷
+                <i className="fa-solid fa-camera" />
               </button>
 
               <button
@@ -735,7 +747,9 @@ export default function DiscussionRepliesPane({
         </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center select-none text-slate-350">
-          <span className="text-[44px] mb-2.5">💬</span>
+          <div className="w-14 h-14 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center mb-2.5 text-[#00c2cb]">
+            <i className="fa-solid fa-comments text-2xl" />
+          </div>
           <h4 className="text-[13.5px] font-extrabold text-[#0a2342] mb-1">{t('Select a discussion thread')}</h4>
           <p className="text-[11.5px] text-slate-400 font-medium max-w-[220px]">{t('Choose a topic from the sidebar list to see the full conversation.')}</p>
         </div>

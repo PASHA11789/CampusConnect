@@ -51,12 +51,12 @@ export default function MenuBoard({
           {categories.length > 0 && (
             <button
               onClick={() => setSelectedCategory(categories[0].name)}
-              className={`h-10 rounded-full px-5 text-xs font-extrabold tracking-wide transition-all duration-300 border whitespace-nowrap focus:outline-none cursor-pointer flex items-center justify-center gap-1.5 hover:-translate-y-1 hover:shadow-lg shrink-0 z-10 ${selectedCategory === categories[0].name
+              className={`h-10 rounded-full px-5 text-xs font-extrabold tracking-wide transition-all duration-300 border whitespace-nowrap focus:outline-none cursor-pointer flex items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-lg shrink-0 z-10 ${selectedCategory === categories[0].name
                 ? "bg-[#071A35] border-[#071A35] text-white shadow-md shadow-[#071A35]/20"
                 : "bg-white border-slate-200 text-slate-700 hover:text-[#071A35] hover:bg-slate-50 hover:border-slate-300"
                 }`}
             >
-              <span className="text-sm">{categories[0].icon}</span>
+              <i className={`${categories[0].iconClass || "fa-solid fa-utensils"} text-xs`} />
               <span>{categories[0].name}</span>
             </button>
           )}
@@ -70,12 +70,12 @@ export default function MenuBoard({
                   <button
                     key={`${cat.name}-${idx}`}
                     onClick={() => setSelectedCategory(cat.name)}
-                    className={`h-10 rounded-full px-5 text-xs font-extrabold tracking-wide transition-all duration-300 border whitespace-nowrap focus:outline-none cursor-pointer flex items-center justify-center gap-1.5 hover:-translate-y-1 hover:shadow-lg shrink-0 ${isSelected
+                    className={`h-10 rounded-full px-5 text-xs font-extrabold tracking-wide transition-all duration-300 border whitespace-nowrap focus:outline-none cursor-pointer flex items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-lg shrink-0 ${isSelected
                       ? "bg-[#071A35] border-[#071A35] text-white shadow-md shadow-[#071A35]/20"
                       : "bg-white border-slate-200 text-slate-700 hover:text-[#071A35] hover:bg-slate-50 hover:border-slate-300"
                       }`}
                   >
-                    <span className="text-sm">{cat.icon}</span>
+                    <i className={`${cat.iconClass || "fa-solid fa-utensils"} text-xs`} />
                     <span>{cat.name}</span>
                   </button>
                 );
@@ -114,7 +114,6 @@ export default function MenuBoard({
 
               // Determine spice level dynamically
               const isSpicy = item.name.toLowerCase().match(/(biryani|zinger|spicy|tikka|kabab|karahi|shami|chilli)/);
-              const spiceLabel = isSpicy ? "🌶️ Spicy" : "🥬 Mild";
 
               // Check if in cart
               const cartItem = cart.find((ci) => ci._id === itemId || ci.id === itemId || ci.name === item.name);
@@ -143,14 +142,15 @@ export default function MenuBoard({
                   {/* Details */}
                   <div className="flex flex-col gap-1.5 min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
-                      <h4 className="text-[13px] sm:text-[14px] font-black text-[#0a2342] leading-tight group-hover:text-[#0079c2] transition-colors line-clamp-2">
+                      <h4 className="text-[13px] sm:text-[14px] font-black text-[#0a2342] leading-tight group-hover:text-[#0079c2] transition-colors line-clamp-2 m-0">
                         {item.name}
                       </h4>
-                      <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[8px] font-extrabold border shrink-0 mt-0.5 ${isSpicy
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[8.5px] font-extrabold border shrink-0 mt-0.5 ${isSpicy
                         ? "bg-red-50 border-red-100 text-red-600"
                         : "bg-emerald-50 border-emerald-100 text-emerald-600"
                         }`}>
-                        {spiceLabel}
+                        {isSpicy ? <i className="fa-solid fa-pepper-hot text-[9px] text-red-500" /> : <i className="fa-solid fa-leaf text-[9px] text-emerald-500" />}
+                        <span>{isSpicy ? "Spicy" : "Mild"}</span>
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-500 font-medium line-clamp-2 leading-snug">
@@ -190,7 +190,7 @@ export default function MenuBoard({
                         className="bg-[#071A35] hover:bg-[#00c2cb] text-white hover:text-slate-950 border-none py-1.5 px-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl active:scale-95 flex items-center gap-1 shrink-0"
                       >
                         <span>Add</span>
-                        <span>+</span>
+                        <i className="fa-solid fa-plus text-[9px]" />
                       </button>
                     )}
                   </div>
@@ -199,7 +199,9 @@ export default function MenuBoard({
             })
           ) : (
             <div className="p-10 text-center bg-white border border-dashed border-slate-200 rounded-[24px] flex flex-col items-center justify-center col-span-full">
-              <span className="text-[32px] mb-2">🍽️</span>
+              <div className="w-14 h-14 rounded-full bg-[#00c2cb]/10 text-[#00c2cb] flex items-center justify-center text-2xl mb-2">
+                <i className="fa-solid fa-utensils" />
+              </div>
               <h4 className="text-[13px] font-bold text-[#0a2342] mb-1">
                 No items found in this category
               </h4>

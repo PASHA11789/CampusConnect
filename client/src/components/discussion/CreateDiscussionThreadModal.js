@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import AnimatedSelect from "../common/AnimatedSelect";
 
 const processImageFile = (file, callback) => {
   if (!file) return;
@@ -73,7 +74,7 @@ export default function CreateDiscussionThreadModal({
           <div className="bg-[#071A35] px-5 sm:px-7 py-4 sm:py-5 flex justify-between items-center border-b border-white/10 shrink-0">
             <div className="text-left flex items-center gap-3">
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-[16px] sm:text-[18px] border border-white/10 shrink-0">
-                💼
+                <i className="fa-solid fa-briefcase" />
               </div>
               <div className="flex flex-col">
                 <h2 className="text-[16px] sm:text-[18px] font-black text-white tracking-tight m-0">{t("Create Career Path")}</h2>
@@ -84,7 +85,7 @@ export default function CreateDiscussionThreadModal({
               onClick={onCancel}
               className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-all border-none cursor-pointer shrink-0 ml-2"
             >
-              ✕
+              <i className="fa-solid fa-xmark" />
             </button>
           </div>
 
@@ -106,25 +107,16 @@ export default function CreateDiscussionThreadModal({
 
               <div className="flex flex-col gap-2">
                 <label className="text-[11.5px] font-black text-[#071A35] uppercase tracking-wider ml-1">{t("Category")}</label>
-                <div className="relative">
-                  <select 
-                    className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-2xl px-4 py-3 text-[13px] font-bold text-[#071A35] focus:outline-none focus:border-[#071A35] focus:bg-white focus:ring-4 focus:ring-[#071A35]/10 transition-all appearance-none cursor-pointer"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                  >
-                    <option value="general_discussion">{t("💬 General Discussion")}</option>
-                    <option value="mentorship_qa">{t("🤝 Mentorship Q&A")}</option>
-                    <option 
-                      value="job_opportunity" 
-                      disabled={!isAlumni}
-                    >
-                      {t("💼 Job Opportunity")} {!isAlumni && t("(Alumni Only)")}
-                    </option>
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#071A35]/50 text-[10px]">
-                    ▼
-                  </div>
-                </div>
+                <AnimatedSelect
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  options={[
+                    { value: "general_discussion", label: t("General Discussion"), iconClass: "fa-solid fa-comments" },
+                    { value: "mentorship_qa", label: t("Mentorship Q&A"), iconClass: "fa-solid fa-graduation-cap" },
+                    ...(isAlumni ? [{ value: "job_opportunity", label: t("Job Opportunity"), iconClass: "fa-solid fa-briefcase" }] : [])
+                  ]}
+                  buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] rounded-2xl py-3 px-4 text-[13px] font-bold text-[#071A35]"
+                />
               </div>
 
               <div className="flex flex-col gap-2">
@@ -161,7 +153,7 @@ export default function CreateDiscussionThreadModal({
               {t("Cancel")}
             </button>
             <button 
-              type="submit"
+              type="submit" 
               form="create-career-form"
               disabled={isSubmitting}
               className="px-7 py-2.5 rounded-full text-[12.5px] font-black text-[#071A35] bg-[#00c2cb] hover:bg-[#00a8b5] transition-all cursor-pointer shadow-md border-none flex items-center gap-2 disabled:opacity-50"
@@ -190,7 +182,7 @@ export default function CreateDiscussionThreadModal({
         <div className="bg-[#071A35] px-4 sm:px-7 py-4 sm:py-5 flex justify-between items-center border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-[16px] sm:text-[18px] border border-white/10 shrink-0">
-              {isEditing ? "✏️" : "💬"}
+              {isEditing ? <i className="fa-solid fa-pen-to-square" /> : <i className="fa-solid fa-comments" />}
             </div>
             <div className="flex flex-col text-left">
               <h3 className="text-[18px] font-black text-white tracking-tight m-0 leading-tight">
@@ -255,7 +247,7 @@ export default function CreateDiscussionThreadModal({
               {/* Tag Preset Category Pills */}
               <div className="flex flex-col gap-2 p-3 bg-[#FAF7F0] border border-[#E8E1D5] rounded-2xl">
                 <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
-                  <span className="text-[10px] font-bold text-slate-400 shrink-0">🏛️ Depts:</span>
+                  <span className="text-[10px] font-bold text-slate-400 shrink-0 flex items-center gap-1"><i className="fa-solid fa-building-columns text-[#00c2cb]" /> {t("Depts:")}</span>
                   {["BSCS", "BSSE", "BSIT", "BSDS", "BSCYBER"].map(tag => {
                     const isSelected = (tags || []).includes(tag);
                     return (
@@ -282,7 +274,7 @@ export default function CreateDiscussionThreadModal({
                 </div>
 
                 <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
-                  <span className="text-[10px] font-bold text-slate-400 shrink-0">📚 Academic:</span>
+                  <span className="text-[10px] font-bold text-slate-400 shrink-0 flex items-center gap-1"><i className="fa-solid fa-book-open text-[#00c2cb]" /> {t("Academic:")}</span>
                   {["FYP", "Midterms", "Finals", "StudyGroup", "Assignments"].map(tag => {
                     const isSelected = (tags || []).includes(tag);
                     return (
@@ -309,7 +301,7 @@ export default function CreateDiscussionThreadModal({
                 </div>
 
                 <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
-                  <span className="text-[10px] font-bold text-slate-400 shrink-0">👥 Societies:</span>
+                  <span className="text-[10px] font-bold text-slate-400 shrink-0 flex items-center gap-1"><i className="fa-solid fa-users text-[#00c2cb]" /> {t("Societies:")}</span>
                   {["DataScienceSociety", "CyberSecurityClub", "SoftwareEngSociety", "SportsClub"].map(tag => {
                     const isSelected = (tags || []).includes(tag);
                     return (
@@ -336,7 +328,7 @@ export default function CreateDiscussionThreadModal({
                 </div>
 
                 <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-                  <span className="text-[10px] font-bold text-slate-400 shrink-0">⚡ Issues & General:</span>
+                  <span className="text-[10px] font-bold text-slate-400 shrink-0 flex items-center gap-1"><i className="fa-solid fa-bolt text-[#00c2cb]" /> {t("Issues & General:")}</span>
                   {["CampusWifi", "LibraryHours", "CanteenFeedback", "Advice", "Freshers"].map(tag => {
                     const isSelected = (tags || []).includes(tag);
                     return (
@@ -371,9 +363,9 @@ export default function CreateDiscussionThreadModal({
                     <button
                       type="button"
                       onClick={() => setTags((tags || []).filter((_, i) => i !== idx))}
-                      className="hover:text-red-300 border-none bg-transparent cursor-pointer text-[10px]"
+                      className="hover:text-red-300 border-none bg-transparent cursor-pointer text-[10px] flex items-center"
                     >
-                      ✕
+                      <i className="fa-solid fa-xmark" />
                     </button>
                   </span>
                 ))}
@@ -412,9 +404,10 @@ export default function CreateDiscussionThreadModal({
                   <button
                     type="button"
                     onClick={() => setPostImage("")}
-                    className="absolute top-3 right-3 bg-red-500 hover:bg-red-600 text-white rounded-full px-3 py-1 text-[11px] font-bold shadow-lg border-none cursor-pointer flex items-center gap-1 transition-transform hover:scale-105"
+                    className="absolute top-3 right-3 bg-red-500 hover:bg-red-600 text-white rounded-full px-3 py-1 text-[11px] font-bold shadow-lg border-none cursor-pointer flex items-center gap-1.5 transition-transform hover:scale-105"
                   >
-                    <span>✕</span> {t("Remove Photo")}
+                    <i className="fa-solid fa-xmark text-xs" />
+                    <span>{t("Remove Photo")}</span>
                   </button>
                 </div>
               ) : (
@@ -447,8 +440,8 @@ export default function CreateDiscussionThreadModal({
                         }
                       }}
                     />
-                    <div className="w-10 h-10 rounded-full bg-[#00c2cb]/10 text-[#00c2cb] flex items-center justify-center text-lg mb-2 group-hover:scale-110 transition-transform">
-                      🖼️
+                    <div className="w-10 h-10 rounded-full bg-[#00c2cb]/10 text-[#00c2cb] flex items-center justify-center text-base mb-2 group-hover:scale-110 transition-transform">
+                      <i className="fa-regular fa-image" />
                     </div>
                     <p className="text-[12.5px] font-bold text-[#071A35] m-0 mb-1">
                       {t("Drag & Drop image here, or")} <span className="text-[#00c2cb] underline">{t("Browse Device")}</span>

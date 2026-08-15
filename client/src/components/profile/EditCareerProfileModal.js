@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import AnimatedSelect from "../common/AnimatedSelect";
 
 export default function EditCareerProfileModal({
   isOpen,
@@ -12,6 +13,13 @@ export default function EditCareerProfileModal({
   const [localBio, setLocalBio] = useState(bio || "");
   const [localDept, setLocalDept] = useState(department || "");
   const [localSkills, setLocalSkills] = useState(skills || []);
+
+  const SKILL_LEVEL_OPTIONS = [
+    { value: "Beginner", label: t("Beginner") },
+    { value: "Intermediate", label: t("Intermediate") },
+    { value: "Advanced", label: t("Advanced") },
+    { value: "Expert", label: t("Expert") }
+  ];
 
   useEffect(() => {
     if (isOpen) {
@@ -83,7 +91,7 @@ export default function EditCareerProfileModal({
         <div className="bg-[#071A35] px-4 sm:px-6 py-3.5 sm:py-5 flex justify-between items-center border-b border-white/10 shrink-0">
           <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-[16px] sm:text-[18px] border border-white/10 shrink-0">
-              💼
+              <i className="fa-solid fa-briefcase" />
             </div>
             <div className="flex flex-col min-w-0">
               <h2 className="text-base sm:text-[17px] font-black text-white tracking-tight m-0 truncate">{t("Edit Career Profile & Skills")}</h2>
@@ -95,7 +103,7 @@ export default function EditCareerProfileModal({
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-all border-none cursor-pointer shrink-0 ml-2"
           >
-            ✕
+            <i className="fa-solid fa-xmark" />
           </button>
         </div>
 
@@ -131,10 +139,11 @@ export default function EditCareerProfileModal({
               <label className="text-[11px] sm:text-xs font-black text-slate-800 uppercase tracking-wider">{t("Skills & Levels")}</label>
               <button
                 type="button"
-                className="text-xs font-bold text-[#00c2cb] hover:text-[#009da5] hover:underline flex items-center gap-1 cursor-pointer bg-none border-none"
+                className="text-xs font-bold text-[#00c2cb] hover:text-[#009da5] hover:underline flex items-center gap-1.5 cursor-pointer bg-none border-none"
                 onClick={handleAddSkill}
               >
-                <span>+</span> {t("Add Skill")}
+                <i className="fa-solid fa-plus text-[10px]" />
+                <span>{t("Add Skill")}</span>
               </button>
             </div>
 
@@ -152,24 +161,21 @@ export default function EditCareerProfileModal({
                       onChange={(e) => handleSkillNameChange(index, e.target.value)}
                       required
                     />
-                    <div className="flex items-center gap-1.5 shrink-0 ml-auto sm:ml-0">
-                      <select
-                        className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c2cb] cursor-pointer"
+                    <div className="flex items-center gap-1.5 shrink-0 ml-auto sm:ml-0 min-w-[130px]">
+                      <AnimatedSelect
+                        size="sm"
                         value={formatSkillLevel(skill.level)}
                         onChange={(e) => handleSkillLevelChange(index, e.target.value)}
-                      >
-                        <option value="Beginner">{t("Beginner")}</option>
-                        <option value="Intermediate">{t("Intermediate")}</option>
-                        <option value="Advanced">{t("Advanced")}</option>
-                        <option value="Expert">{t("Expert")}</option>
-                      </select>
+                        options={SKILL_LEVEL_OPTIONS}
+                        buttonClassName="bg-white border-slate-200 rounded-lg py-1.5 px-2.5 text-xs font-bold text-slate-800"
+                      />
                       <button
                         type="button"
-                        className="text-slate-400 hover:text-red-500 p-1 text-sm border-none bg-transparent cursor-pointer transition-colors shrink-0"
+                        className="text-slate-400 hover:text-red-500 p-1 text-sm border-none bg-transparent cursor-pointer transition-colors shrink-0 flex items-center justify-center"
                         onClick={() => handleRemoveSkill(index)}
                         title="Remove Skill"
                       >
-                        🗑️
+                        <i className="fa-solid fa-trash-can text-xs" />
                       </button>
                     </div>
                   </div>

@@ -78,8 +78,8 @@ export default function RestaurantList({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
                 
                 {/* Rating Badge */}
-                <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 text-[10.5px] font-extrabold text-[#0a2342] shadow-md border border-slate-100 z-10">
-                  <span className="text-amber-500">★</span>
+                <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 text-[10.5px] font-extrabold text-[#0a2342] shadow-md border border-slate-100 z-10">
+                  <i className="fa-solid fa-star text-amber-400 text-[10px]" />
                   <span>{displayInfo.rating}</span>
                 </div>
 
@@ -105,8 +105,9 @@ export default function RestaurantList({
                 </p>
 
                 <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2.5">
-                  <span className="text-[10px] font-extrabold text-slate-600 flex items-center gap-1">
-                    🛵 {displayInfo.prepTime}
+                  <span className="text-[10px] font-extrabold text-slate-600 flex items-center gap-1.5">
+                    <i className="fa-solid fa-motorcycle text-indigo-500 text-xs" />
+                    <span>{displayInfo.prepTime}</span>
                   </span>
                   <span className={`rounded-full border px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider ${
                     displayInfo.status === "Open" 

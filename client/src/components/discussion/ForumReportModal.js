@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
 const REPORT_REASONS = [
-  { value: 'Spam',           label: '🚫 Spam or Advertising',   desc: 'Repetitive, promotional or off-topic content' },
-  { value: 'Harassment',    label: '😡 Harassment or Bullying', desc: 'Personal attacks, threats or abusive language' },
-  { value: 'Hate_Speech',   label: '⚠️ Hate Speech',           desc: 'Discriminatory language targeting any group' },
-  { value: 'Misinformation',label: '❌ False Information',     desc: 'Deliberately misleading or fake content' },
-  { value: 'Inappropriate', label: '🔞 Inappropriate Content',  desc: 'Sexually explicit or graphic material' },
-  { value: 'Other',         label: '📝 Other',                  desc: 'Something else not listed above' },
+  { value: 'Spam',           icon: 'fa-solid fa-ban text-rose-500',             label: 'Spam or Advertising',   desc: 'Repetitive, promotional or off-topic content' },
+  { value: 'Harassment',    icon: 'fa-solid fa-face-angry text-amber-500',     label: 'Harassment or Bullying', desc: 'Personal attacks, threats or abusive language' },
+  { value: 'Hate_Speech',   icon: 'fa-solid fa-triangle-exclamation text-amber-500', label: 'Hate Speech',           desc: 'Discriminatory language targeting any group' },
+  { value: 'Misinformation',icon: 'fa-solid fa-circle-xmark text-rose-500',    label: 'False Information',     desc: 'Deliberately misleading or fake content' },
+  { value: 'Inappropriate', icon: 'fa-solid fa-circle-exclamation text-red-600', label: 'Inappropriate Content',  desc: 'Sexually explicit or graphic material' },
+  { value: 'Other',         icon: 'fa-solid fa-pen-to-square text-slate-500',  label: 'Other',                  desc: 'Something else not listed above' },
 ];
 
 const ForumReportModal = ({ isOpen, onClose, onConfirm, type = 'thread', isSubmitting = false }) => {
@@ -45,7 +45,9 @@ const ForumReportModal = ({ isOpen, onClose, onConfirm, type = 'thread', isSubmi
         <div className="h-1 w-full bg-gradient-to-r from-red-500 to-orange-400 shrink-0" />
         <div className="px-5 py-3.5 border-b border-slate-100 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-2.5">
-            <span className="text-[20px]">🚩</span>
+            <div className="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center text-rose-500">
+              <i className="fa-solid fa-flag text-sm" />
+            </div>
             <div>
               <h2 className="text-[14.5px] font-black text-[#0a2342] leading-none">
                 Report {type === 'thread' ? 'Thread' : 'Comment'}
@@ -89,7 +91,10 @@ const ForumReportModal = ({ isOpen, onClose, onConfirm, type = 'thread', isSubmi
                       style={{ accentColor: '#ef4444' }}
                     />
                     <div className="flex flex-col leading-snug">
-                      <span className="text-[11.5px] font-bold text-[#0a2342]">{r.label}</span>
+                      <span className="text-[11.5px] font-bold text-[#0a2342] flex items-center gap-1.5">
+                        <i className={`${r.icon} text-xs`} />
+                        <span>{r.label}</span>
+                      </span>
                       <span className="text-[10px] text-slate-400 font-medium">{r.desc}</span>
                     </div>
                   </label>

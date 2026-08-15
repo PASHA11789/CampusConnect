@@ -88,8 +88,8 @@ const DisciplinaryWarningModal = () => {
         
         {/* Aggressive Red Header */}
         <div className="bg-gradient-to-r from-red-600 to-rose-700 px-6 py-5 flex items-center gap-3.5 text-white">
-          <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-2xl animate-pulse shrink-0 border border-white/20">
-            🚨
+          <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl animate-pulse shrink-0 border border-white/20">
+            <i className="fa-solid fa-triangle-exclamation" />
           </div>
           <div className="flex flex-col text-left">
             <span className="text-[10.5px] font-black tracking-widest uppercase bg-black/20 px-2.5 py-0.5 rounded-full w-fit mb-1 border border-white/10">
@@ -118,8 +118,9 @@ const DisciplinaryWarningModal = () => {
               <span>Issued By: <strong className="text-[#071A35]">{warning.issuedBy || "Joint Mod Office"}</strong></span>
               <span>{warning.issuedAt ? new Date(warning.issuedAt).toLocaleDateString() : 'Today'}</span>
             </div>
-            <p className="m-0 pt-2 text-slate-700 leading-normal">
-              ⚠️ Please maintain appropriate campus decorum. Further policy violations may result in account suspension and referral to the Academic Disciplinary Board.
+            <p className="m-0 pt-2 text-slate-700 leading-normal flex items-start gap-1.5">
+              <i className="fa-solid fa-triangle-exclamation text-amber-500 text-xs mt-0.5 shrink-0" />
+              <span>Please maintain appropriate campus decorum. Further policy violations may result in account suspension and referral to the Academic Disciplinary Board.</span>
             </p>
           </div>
 
