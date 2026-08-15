@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/MUL-Logo.png';
 import mulVideo from './A place where character rises in every direction.Admissions Open – Minhaj University Lahore – Fa.mp4';
 import ibnKhaldunImg from '../../assets/ibn_e_khaldun.jpg';
+import groupDiscussionImg from '../../assets/group_discussion.png';
 
 /* ─────────────────────────────────────────────
    FontAwesome 6 Icons
@@ -351,7 +352,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 cc-reveal opacity-0 translate-y-8 transition-all duration-500 delay-100">
             <div className="group rounded-2xl sm:rounded-3xl overflow-hidden relative h-[260px] sm:h-[320px] shadow-sm border border-[#E8E1D5] cc-page-cursor-none">
-              <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80" alt="Group Discussions" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103" />
+              <img src={groupDiscussionImg} alt="Group Discussions" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103" />
               <div className="absolute inset-0 bg-[#071A35]/65 flex flex-col justify-end p-6 sm:p-8">
                 <span className="text-white font-black text-[16px] sm:text-[18px]">Group Discussions</span>
               </div>
@@ -363,7 +364,7 @@ export default function Home() {
               </div>
             </div>
             <div className="group rounded-2xl sm:rounded-3xl overflow-hidden relative h-[260px] sm:h-[320px] shadow-sm border border-[#E8E1D5] cc-page-cursor-none">
-              <img src="https://images.unsplash.com/photo-1531545514256-b1400bc00f31?auto=format&fit=crop&w=800&q=80" alt="Peer Networking" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103" />
+              <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80" alt="Peer Networking" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103" />
               <div className="absolute inset-0 bg-[#071A35]/65 flex flex-col justify-end p-6 sm:p-8">
                 <span className="text-white font-black text-[16px] sm:text-[18px]">Peer Networking</span>
               </div>
