@@ -16,7 +16,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
   const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
   const [filter, setFilter] = useState('all'); // 'all' or 'unread'
   const [subView, setSubView] = useState(null); // null, 'petitions', 'forums', 'others'
-
+  const [isOnline, setIsOnline] = useState(() => typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [showRestoredToast, setShowRestoredToast] = useState(false);
 
   const getCanteenNotifications = () => {
     return notifications.filter(notif => {
@@ -106,8 +107,14 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
         }
       };
 
-      socket.on("connect", joinUser);
-      joinUser();
+      socket.on("connect", () => {
+        setIsOnline(true);
+        joinUser();
+      });
+
+      socket.on("disconnect", () => {
+        setIsOnline(false);
+      });
 
       socket.on("new_notification", (notif) => {
         if (notif) {
@@ -121,6 +128,29 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
       };
     }
   }, [user]);
+
+  // Window Network Connection Listeners
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      setShowRestoredToast(true);
+      if (typeof fetchNotifications === 'function') fetchNotifications();
+      setTimeout(() => setShowRestoredToast(false), 4000);
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      setShowRestoredToast(false);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Click outside to close dropdown
   useEffect(() => {
@@ -255,316 +285,333 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
   const showFallback = isDefaultAvatar || imageError;
 
   return (
-    <header className="bg-white rounded-full border border-[#E8E1D5] shadow-[0_8px_30px_rgba(7,26,53,0.06)] px-3 sm:px-6 py-2 sm:py-2.5 mx-2 sm:mx-8 mt-2 sm:mt-5 mb-2 flex items-center justify-between sticky top-3 z-[100] animate-slide-down">
-      {/* Mobile Menu Toggle */}
-      <div className="flex items-center gap-1.5 sm:gap-2">
-        <button
-          onClick={onToggleSidebar}
-          className="md:hidden p-1.5 text-[#071A35] hover:bg-[#FAF7F0] rounded-full transition-colors border-none bg-transparent cursor-pointer shrink-0"
-          title="Toggle Menu"
-        >
-          <i className="fa-solid fa-bars text-lg text-[#071A35] flex items-center justify-center" />
-        </button>
-      </div>
+    <>
+      {/* ── Network Connection Lost Floating Banner ── */}
+      {!isOnline && (
+        <div className="fixed top-0 left-0 right-0 z-[99999] bg-amber-500 text-slate-950 px-4 py-2 text-xs font-black text-center flex items-center justify-center gap-2 shadow-xl animate-pulse">
+          <i className="fa-solid fa-wifi-slash text-sm" />
+          <span>Connection Lost — Internet connection dropped. Live updates paused. Attempting to reconnect...</span>
+          <i className="fa-solid fa-rotate text-xs animate-spin" />
+        </div>
+      )}
 
-      <div className="flex items-center gap-2.5 sm:gap-3.5">
+      {/* ── Connection Restored Toast Notice ── */}
+      {showRestoredToast && (
+        <div className="fixed top-4 right-4 sm:right-6 z-[99999] bg-emerald-600 text-white px-4 py-2.5 rounded-2xl shadow-2xl font-black text-xs border border-emerald-400 flex items-center gap-2.5 animate-slide-down">
+          <i className="fa-solid fa-circle-check text-sm text-emerald-200" />
+          <span>Connection Restored! Live updates are active.</span>
+        </div>
+      )}
 
-        {/* Notification Bell */}
-        <div className="relative notification-bell-container flex items-center">
-
-          {/* Sliding Sub-Bells (Four Balls: Orders, Petitions, Forums, Others) */}
-          <div
-            className={`absolute flex items-center gap-2 transition-all duration-300 ease-out z-[99] max-md:top-full max-md:left-1/2 max-md:mt-2.5 max-md:bg-white/95 max-md:backdrop-blur-md max-md:p-2 max-md:rounded-full max-md:shadow-xl max-md:border max-md:border-[#E8E1D5] md:right-full md:top-1/2 md:mr-2.5 ${isOpen
-                ? "opacity-100 scale-100 max-md:-translate-x-1/2 max-md:translate-y-0 md:translate-x-0 md:-translate-y-1/2"
-                : "opacity-0 scale-90 pointer-events-none max-md:-translate-x-1/2 max-md:-translate-y-2 md:translate-x-10 md:-translate-y-1/2"
-              }`}
-          >
-            {/* Canteen / Food Orders Ball */}
-            <div className="group relative">
-              <button
-                onClick={() => setSubView('canteen')}
-                title="Canteen Orders & Delivery Notifications"
-                className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'canteen'
-                    ? "bg-[#00c2cb] text-[#071A35] border-[#00c2cb] font-bold"
-                    : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
-                  }`}
-              >
-                <i className="fa-solid fa-burger text-xs group-hover:scale-110 transition-transform flex items-center justify-center" />
-                {unreadCanteen > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
-                    {unreadCanteen}
-                  </span>
-                )}
-              </button>
-              {/* Tooltip */}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
-                Canteen Orders
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
-              </div>
-            </div>
-
-            {/* Petitions Ball */}
-            <div className="group relative">
-              <button
-                onClick={() => setSubView('petitions')}
-                title="Petitions Notifications"
-                className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'petitions'
-                    ? "bg-[#2563EB] text-white border-[#2563EB]"
-                    : "bg-[#FAF7F0] text-[#2563EB] border-[#E8E1D5] hover:bg-[#F3EEE4]"
-                  }`}
-              >
-                <i className="fa-solid fa-file-signature text-xs group-hover:scale-110 transition-transform flex items-center justify-center" />
-                {unreadPetitions > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
-                    {unreadPetitions}
-                  </span>
-                )}
-              </button>
-              {/* Tooltip */}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
-                Petitions
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
-              </div>
-            </div>
-
-            {/* Forums Ball */}
-            <div className="group relative">
-              <button
-                onClick={() => setSubView('forums')}
-                title="Forums Notifications"
-                className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'forums'
-                    ? "bg-[#DCD9F7] text-[#071A35] border-[#DCD9F7] font-bold"
-                    : "bg-[#FAF7F0] text-[#071A35] border-[#E8E1D5] hover:bg-[#F3EEE4]"
-                  }`}
-              >
-                <i className="fa-solid fa-comments text-xs group-hover:scale-110 transition-transform flex items-center justify-center" />
-                {unreadForums > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
-                    {unreadForums}
-                  </span>
-                )}
-              </button>
-              {/* Tooltip */}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
-                Forums
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
-              </div>
-            </div>
-
-            {/* Others Ball */}
-            <div className="group relative">
-              <button
-                onClick={() => setSubView('others')}
-                title="Other Notifications"
-                className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'others'
-                    ? "bg-[#00c2cb] text-[#071A35] border-[#00c2cb]"
-                    : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
-                  }`}
-              >
-                <i className="fa-solid fa-bell text-xs group-hover:animate-bell-ring transition-transform flex items-center justify-center" />
-                {unreadOthers > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
-                    {unreadOthers}
-                  </span>
-                )}
-              </button>
-              {/* Tooltip */}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
-                Others
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Main Bell Button */}
+      <header className="bg-white rounded-full border border-[#E8E1D5] shadow-[0_8px_30px_rgba(7,26,53,0.06)] px-3 sm:px-6 py-2 sm:py-2.5 mx-2 sm:mx-8 mt-2 sm:mt-5 mb-2 flex items-center justify-between sticky top-3 z-[100] animate-slide-down">
+        {/* Mobile Menu Toggle */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <button
-            onClick={() => {
-              setIsOpen(!isOpen);
-              setSubView(null);
-            }}
-            className={`relative w-9 h-9 rounded-full transition-all duration-200 cursor-pointer border flex items-center justify-center ${isOpen
-                ? "bg-[#2563EB]/15 border-[#2563EB] text-[#2563EB]"
-                : "bg-white hover:bg-slate-50 border-[#E8E1D5] text-[#071A35]"
-              }`}
-            title="Notifications"
+            onClick={onToggleSidebar}
+            className="md:hidden p-1.5 text-[#071A35] hover:bg-[#FAF7F0] rounded-full transition-colors border-none bg-transparent cursor-pointer shrink-0"
+            title="Toggle Menu"
           >
-            <i className="fa-solid fa-bell text-sm flex items-center justify-center" />
-
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#2563EB] text-white text-[8px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white animate-pulse shadow-sm">
-                {unreadCount}
-              </span>
-            )}
+            <i className="fa-solid fa-bars text-lg text-[#071A35] flex items-center justify-center" />
           </button>
+        </div>
 
-          {/* Dropdown Panel (Only renders when subView is active) */}
-          {isOpen && subView !== null && (
+        <div className="flex items-center gap-2.5 sm:gap-3.5">
+          {/* Notification Bell */}
+          <div className="relative notification-bell-container flex items-center">
+            {/* Sliding Sub-Bells (Four Balls: Orders, Petitions, Forums, Others) */}
             <div
-              onClick={(e) => e.stopPropagation()}
-              className="md:absolute md:right-0 md:top-full md:mt-3 md:w-80 max-md:fixed max-md:top-[128px] max-md:left-3 max-md:right-3 max-md:w-auto max-md:max-w-sm max-md:mx-auto bg-white/95 backdrop-blur-lg border border-slate-200/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] z-[999] overflow-hidden animate-modal-slide-in flex flex-col"
+              className={`absolute flex items-center gap-2 transition-all duration-300 ease-out z-[99] max-md:top-full max-md:left-1/2 max-md:mt-2.5 max-md:bg-white/95 max-md:backdrop-blur-md max-md:p-2 max-md:rounded-full max-md:shadow-xl max-md:border max-md:border-[#E8E1D5] md:right-full md:top-1/2 md:mr-2.5 ${isOpen
+                  ? "opacity-100 scale-100 max-md:-translate-x-1/2 max-md:translate-y-0 md:translate-x-0 md:-translate-y-1/2"
+                  : "opacity-0 scale-90 pointer-events-none max-md:-translate-x-1/2 max-md:-translate-y-2 md:translate-x-10 md:-translate-y-1/2"
+                }`}
             >
-              <div className="flex flex-col flex-1">
-                {/* Category Details View Header */}
-                <div className="px-4 pt-3 pb-2 flex items-center justify-between border-b border-slate-100 bg-slate-50/20">
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => setSubView(null)}
-                      className="text-[#2563EB] hover:text-[#071A35] text-[11px] font-black border-none bg-none cursor-pointer flex items-center gap-1.5 transition-colors"
-                    >
-                      <i className="fa-solid fa-arrow-left text-[10px]" />
-                      <span>Back</span>
-                    </button>
-                    <span className="text-[11px] font-black text-[#071A35] uppercase tracking-wider">
-                      {subView === 'canteen' ? 'Canteen Orders' : subView === 'petitions' ? 'Petitions' : subView === 'forums' ? 'Forums' : 'Others'}
+              {/* Canteen / Food Orders Ball */}
+              <div className="group relative">
+                <button
+                  onClick={() => setSubView('canteen')}
+                  title="Canteen Orders & Delivery Notifications"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'canteen'
+                      ? "bg-[#00c2cb] text-[#071A35] border-[#00c2cb] font-bold"
+                      : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
+                    }`}
+                >
+                  <i className="fa-solid fa-burger text-xs group-hover:scale-110 transition-transform flex items-center justify-center" />
+                  {unreadCanteen > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                      {unreadCanteen}
                     </span>
-                  </div>
-                  {unreadCount > 0 && (
-                    <button
-                      onClick={handleMarkAllAsRead}
-                      className="text-[10px] font-bold text-[#2563EB] hover:text-[#071A35] border-none bg-none cursor-pointer transition-colors"
-                    >
-                      Mark all read
-                    </button>
                   )}
+                </button>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                  Canteen Orders
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
                 </div>
+              </div>
 
-                {/* Filter Tabs for selected category */}
-                <div className="flex gap-2 px-4 pt-2 border-b border-slate-100 pb-2 bg-slate-50/20">
-                  <button
-                    onClick={() => setFilter('all')}
-                    className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${filter === 'all'
-                      ? 'bg-[#071A35] text-white border-[#071A35]'
-                      : 'bg-transparent text-slate-500 border-transparent hover:text-[#071A35]'
-                      }`}
-                  >
-                    All ({getCategoryNotifications().length})
-                  </button>
-                  <button
-                    onClick={() => setFilter('unread')}
-                    className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${filter === 'unread'
-                      ? 'bg-[#071A35] text-white border-[#071A35]'
-                      : 'bg-transparent text-slate-500 border-transparent hover:text-[#071A35]'
-                      }`}
-                  >
-                    Unread ({getCategoryNotifications().filter(n => !n.isRead).length})
-                  </button>
-                </div>
-
-                {/* List Container */}
-                <div className="max-h-64 overflow-y-auto scrollbar-none p-1 flex flex-col gap-0.5">
-                  {filteredNotifications.length > 0 ? (
-                    filteredNotifications.map((notif) => (
-                      <div
-                        key={notif._id}
-                        onClick={() => handleMarkAsRead(notif)}
-                        className={`p-2.5 rounded-2xl flex gap-3 transition-all duration-200 cursor-pointer hover:bg-slate-50 items-start ${!notif.isRead
-                          ? "bg-[#2563EB]/5 border border-[#2563EB]/10"
-                          : "bg-transparent border border-transparent"
-                          }`}
-                      >
-                        {/* Icon */}
-                        {getNotificationIcon(notif.type, notif)}
-
-                        {/* Message Content */}
-                        <div className="flex-1 flex flex-col gap-0.5 text-left">
-                          <p className={`text-[12px] leading-relaxed ${!notif.isRead ? "text-slate-800 font-bold" : "text-slate-500 font-normal"
-                            }`}>
-                            {notif.message}
-                          </p>
-                          <span className="text-[9px] text-slate-400 font-semibold flex items-center gap-1 mt-0.5">
-                            <i className="fa-solid fa-clock text-[10px] text-slate-400 flex items-center justify-center" />
-                            {formatDate(notif.createdAt)}
-                          </span>
-                        </div>
-
-                        {/* Unread dot */}
-                        {!notif.isRead && (
-                          <div className="flex items-center self-center">
-                            <div className="w-1.5 h-1.5 bg-[#2563EB] rounded-full shrink-0 animate-pulse" />
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="py-10 px-6 text-center text-slate-400 font-bold text-[12px] flex flex-col items-center justify-center gap-2.5">
-                      <div className="w-11 h-11 rounded-full bg-slate-50 flex items-center justify-center text-slate-350 shadow-inner">
-                        <i className="fa-solid fa-bell text-[18px] text-slate-400 flex items-center justify-center" />
-                      </div>
-                      <span className="text-slate-500">All caught up!</span>
-                      <p className="text-[10px] text-slate-400 font-semibold max-w-[180px] leading-normal">
-                        {filter === 'unread' ? "You have no unread notifications." : "No new notifications yet."}
-                      </p>
-                    </div>
+              {/* Petitions Ball */}
+              <div className="group relative">
+                <button
+                  onClick={() => setSubView('petitions')}
+                  title="Petitions Notifications"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'petitions'
+                      ? "bg-[#2563EB] text-white border-[#2563EB]"
+                      : "bg-[#FAF7F0] text-[#2563EB] border-[#E8E1D5] hover:bg-[#F3EEE4]"
+                    }`}
+                >
+                  <i className="fa-solid fa-file-signature text-xs group-hover:scale-110 transition-transform flex items-center justify-center" />
+                  {unreadPetitions > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                      {unreadPetitions}
+                    </span>
                   )}
+                </button>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                  Petitions
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
+                </div>
+              </div>
+
+              {/* Forums Ball */}
+              <div className="group relative">
+                <button
+                  onClick={() => setSubView('forums')}
+                  title="Forums Notifications"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'forums'
+                      ? "bg-[#DCD9F7] text-[#071A35] border-[#DCD9F7] font-bold"
+                      : "bg-[#FAF7F0] text-[#071A35] border-[#E8E1D5] hover:bg-[#F3EEE4]"
+                    }`}
+                >
+                  <i className="fa-solid fa-comments text-xs group-hover:scale-110 transition-transform flex items-center justify-center" />
+                  {unreadForums > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                      {unreadForums}
+                    </span>
+                  )}
+                </button>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                  Forums
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
+                </div>
+              </div>
+
+              {/* Others Ball */}
+              <div className="group relative">
+                <button
+                  onClick={() => setSubView('others')}
+                  title="Other Notifications"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'others'
+                      ? "bg-[#00c2cb] text-[#071A35] border-[#00c2cb]"
+                      : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
+                    }`}
+                >
+                  <i className="fa-solid fa-bell text-xs group-hover:animate-bell-ring transition-transform flex items-center justify-center" />
+                  {unreadOthers > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94B3D] text-white text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse">
+                      {unreadOthers}
+                    </span>
+                  )}
+                </button>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+                  Others
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
                 </div>
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Suggestion & Complaint Button */}
-        <div className="group relative">
-          <button
-            onClick={() => setIsComplaintModalOpen(true)}
-            className="w-9 h-9 rounded-full bg-[#FAF7F0] hover:bg-[#F3EEE4] text-[#071A35] border border-[#E8E1D5] hover:border-[#00c2cb] transition-all duration-200 cursor-pointer shadow-sm hover:shadow active:scale-95 flex items-center justify-center"
-            title="Submit Suggestion or Complaint"
-          >
-            <i className="fa-solid fa-comment-dots text-[#071A35] group-hover:text-[#00c2cb] transition-colors text-sm flex items-center justify-center" />
-          </button>
-          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
-            Submit Feedback
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
-          </div>
-        </div>
+            {/* Main Bell Button */}
+            <button
+              onClick={() => {
+                setIsOpen(!isOpen);
+                setSubView(null);
+              }}
+              className={`relative w-9 h-9 rounded-full transition-all duration-200 cursor-pointer border flex items-center justify-center ${isOpen
+                  ? "bg-[#2563EB]/15 border-[#2563EB] text-[#2563EB]"
+                  : "bg-white hover:bg-slate-50 border-[#E8E1D5] text-[#071A35]"
+                }`}
+              title="Notifications"
+            >
+              <i className="fa-solid fa-bell text-sm flex items-center justify-center" />
 
-        {/* User Info and Avatar */}
-        <button
-          onClick={() => setIsMyProfileOpen(true)}
-          className="flex items-center gap-2 sm:gap-3 bg-[#FAF7F0] hover:bg-[#F3EEE4] p-1 sm:px-3.5 sm:py-1.5 rounded-full border border-[#E8E1D5] hover:border-[#D5CDBF] transition-all duration-200 cursor-pointer shadow-sm hover:shadow active:scale-98 group border-none"
-          title="Click to view My Profile & Digital ID"
-        >
-          <div className="hidden sm:flex flex-col items-end text-right">
-            <span className="text-[12.5px] font-extrabold text-[#071A35] leading-tight group-hover:text-[#2563EB] transition-colors">{user?.name || ''}</span>
-            <span className="text-[9.5px] text-[#211A24]/60 font-semibold leading-tight">{user?.registeration_number || user?.registration_no || ''}</span>
-          </div>
-          <div className="relative w-9 h-9 rounded-full bg-[#DCD9F7] p-[1.5px] transition-transform duration-200 group-hover:scale-105 shadow-sm flex items-center justify-center shrink-0">
-            {showFallback ? (
-              <span className="w-full h-full rounded-full bg-[#DCD9F7] flex items-center justify-center text-[12px] font-extrabold text-[#071A35]">{getInitials(user?.name)}</span>
-            ) : (
-              <img
-                src={avatar}
-                alt="Avatar"
-                className="w-full h-full rounded-full object-cover block bg-white"
-                onError={() => setImageError(true)}
-              />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#2563EB] text-white text-[8px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white animate-pulse shadow-sm">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Dropdown Panel (Only renders when subView is active) */}
+            {isOpen && subView !== null && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="md:absolute md:right-0 md:top-full md:mt-3 md:w-80 max-md:fixed max-md:top-[128px] max-md:left-3 max-md:right-3 max-md:w-auto max-md:max-w-sm max-md:mx-auto bg-white/95 backdrop-blur-lg border border-slate-200/60 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] z-[999] overflow-hidden animate-modal-slide-in flex flex-col"
+              >
+                <div className="flex flex-col flex-1">
+                  {/* Category Details View Header */}
+                  <div className="px-4 pt-3 pb-2 flex items-center justify-between border-b border-slate-100 bg-slate-50/20">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setSubView(null)}
+                        className="text-[#2563EB] hover:text-[#071A35] text-[11px] font-black border-none bg-none cursor-pointer flex items-center gap-1.5 transition-colors"
+                      >
+                        <i className="fa-solid fa-arrow-left text-[10px]" />
+                        <span>Back</span>
+                      </button>
+                      <span className="text-[11px] font-black text-[#071A35] uppercase tracking-wider">
+                        {subView === 'canteen' ? 'Canteen Orders' : subView === 'petitions' ? 'Petitions' : subView === 'forums' ? 'Forums' : 'Others'}
+                      </span>
+                    </div>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={handleMarkAllAsRead}
+                        className="text-[10px] font-bold text-[#2563EB] hover:text-[#071A35] border-none bg-none cursor-pointer transition-colors"
+                      >
+                        Mark all read
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Filter Tabs for selected category */}
+                  <div className="flex gap-2 px-4 pt-2 border-b border-slate-100 pb-2 bg-slate-50/20">
+                    <button
+                      onClick={() => setFilter('all')}
+                      className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${filter === 'all'
+                        ? 'bg-[#071A35] text-white border-[#071A35]'
+                        : 'bg-transparent text-slate-500 border-transparent hover:text-[#071A35]'
+                        }`}
+                    >
+                      All ({getCategoryNotifications().length})
+                    </button>
+                    <button
+                      onClick={() => setFilter('unread')}
+                      className={`px-3 py-1 rounded-full text-[10px] font-extrabold cursor-pointer border transition-all duration-150 ${filter === 'unread'
+                        ? 'bg-[#071A35] text-white border-[#071A35]'
+                        : 'bg-transparent text-slate-500 border-transparent hover:text-[#071A35]'
+                        }`}
+                    >
+                      Unread ({getCategoryNotifications().filter(n => !n.isRead).length})
+                    </button>
+                  </div>
+
+                  {/* List Container */}
+                  <div className="max-h-64 overflow-y-auto scrollbar-none p-1 flex flex-col gap-0.5">
+                    {filteredNotifications.length > 0 ? (
+                      filteredNotifications.map((notif) => (
+                        <div
+                          key={notif._id}
+                          onClick={() => handleMarkAsRead(notif)}
+                          className={`p-2.5 rounded-2xl flex gap-3 transition-all duration-200 cursor-pointer hover:bg-slate-50 items-start ${!notif.isRead
+                            ? "bg-[#2563EB]/5 border border-[#2563EB]/10"
+                            : "bg-transparent border border-transparent"
+                            }`}
+                        >
+                          {/* Icon */}
+                          {getNotificationIcon(notif.type, notif)}
+
+                          {/* Message Content */}
+                          <div className="flex-1 flex flex-col gap-0.5 text-left">
+                            <p className={`text-[12px] leading-relaxed ${!notif.isRead ? "text-slate-800 font-bold" : "text-slate-500 font-normal"
+                              }`}>
+                              {notif.message}
+                            </p>
+                            <span className="text-[9px] text-slate-400 font-semibold flex items-center gap-1 mt-0.5">
+                              <i className="fa-solid fa-clock text-[10px] text-slate-400 flex items-center justify-center" />
+                              {formatDate(notif.createdAt)}
+                            </span>
+                          </div>
+
+                          {/* Unread dot */}
+                          {!notif.isRead && (
+                            <div className="flex items-center self-center">
+                              <div className="w-1.5 h-1.5 bg-[#2563EB] rounded-full shrink-0 animate-pulse" />
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="py-10 px-6 text-center text-slate-400 font-bold text-[12px] flex flex-col items-center justify-center gap-2.5">
+                        <div className="w-11 h-11 rounded-full bg-slate-50 flex items-center justify-center text-slate-350 shadow-inner">
+                          <i className="fa-solid fa-bell text-[18px] text-slate-400 flex items-center justify-center" />
+                        </div>
+                        <span className="text-slate-500">All caught up!</span>
+                        <p className="text-[10px] text-slate-400 font-semibold max-w-[180px] leading-normal">
+                          {filter === 'unread' ? "You have no unread notifications." : "No new notifications yet."}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
-        </button>
-      </div>
-      <MyProfileModal
-        isOpen={isMyProfileOpen}
-        onClose={() => setIsMyProfileOpen(false)}
-        user={user}
-        onUpdateUser={(updatedUser) => {
-          if (setUser) {
-            setUser(updatedUser);
-          }
-          // Update local session storage
-          const userStr = sessionStorage.getItem("user");
-          if (userStr) {
-            try {
-              const parsed = JSON.parse(userStr);
-              sessionStorage.setItem("user", JSON.stringify({ ...parsed, ...updatedUser }));
-            } catch (e) { }
-          }
-        }}
-      />
-      <CreateComplaintModal
-        isOpen={isComplaintModalOpen}
-        onClose={() => setIsComplaintModalOpen(false)}
-        user={user}
-      />
-    </header>
+
+          {/* Suggestion & Complaint Button */}
+          <div className="group relative">
+            <button
+              onClick={() => setIsComplaintModalOpen(true)}
+              className="w-9 h-9 rounded-full bg-[#FAF7F0] hover:bg-[#F3EEE4] text-[#071A35] border border-[#E8E1D5] hover:border-[#00c2cb] transition-all duration-200 cursor-pointer shadow-sm hover:shadow active:scale-95 flex items-center justify-center"
+              title="Submit Suggestion or Complaint"
+            >
+              <i className="fa-solid fa-comment-dots text-[#071A35] group-hover:text-[#00c2cb] transition-colors text-sm flex items-center justify-center" />
+            </button>
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-[#071A35] text-white text-[8px] font-black py-0.5 px-2 rounded-md whitespace-nowrap shadow-md z-[1000]">
+              Submit Feedback
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-[#071A35]"></div>
+            </div>
+          </div>
+
+          {/* User Info and Avatar */}
+          <button
+            onClick={() => setIsMyProfileOpen(true)}
+            className="flex items-center gap-2 sm:gap-3 bg-[#FAF7F0] hover:bg-[#F3EEE4] p-1 sm:px-3.5 sm:py-1.5 rounded-full border border-[#E8E1D5] hover:border-[#D5CDBF] transition-all duration-200 cursor-pointer shadow-sm hover:shadow active:scale-98 group border-none"
+            title="Click to view My Profile & Digital ID"
+          >
+            <div className="hidden sm:flex flex-col items-end text-right">
+              <span className="text-[12.5px] font-extrabold text-[#071A35] leading-tight group-hover:text-[#2563EB] transition-colors">{user?.name || ''}</span>
+              <span className="text-[9.5px] text-[#211A24]/60 font-semibold leading-tight">{user?.registeration_number || user?.registration_no || ''}</span>
+            </div>
+            <div className="relative w-9 h-9 rounded-full bg-[#DCD9F7] p-[1.5px] transition-transform duration-200 group-hover:scale-105 shadow-sm flex items-center justify-center shrink-0">
+              {showFallback ? (
+                <span className="w-full h-full rounded-full bg-[#DCD9F7] flex items-center justify-center text-[12px] font-extrabold text-[#071A35]">{getInitials(user?.name)}</span>
+              ) : (
+                <img
+                  src={avatar}
+                  alt="Avatar"
+                  className="w-full h-full rounded-full object-cover block bg-white"
+                  onError={() => setImageError(true)}
+                />
+              )}
+            </div>
+          </button>
+        </div>
+
+        <MyProfileModal
+          isOpen={isMyProfileOpen}
+          onClose={() => setIsMyProfileOpen(false)}
+          user={user}
+          onUpdateUser={(updatedUser) => {
+            if (setUser) {
+              setUser(updatedUser);
+            }
+            // Update local session storage
+            const userStr = sessionStorage.getItem("user");
+            if (userStr) {
+              try {
+                const parsed = JSON.parse(userStr);
+                sessionStorage.setItem("user", JSON.stringify({ ...parsed, ...updatedUser }));
+              } catch (e) { }
+            }
+          }}
+        />
+        {/* Complaint Modal */}
+        {isComplaintModalOpen && (
+          <CreateComplaintModal
+            isOpen={isComplaintModalOpen}
+            onClose={() => setIsComplaintModalOpen(false)}
+            user={user}
+          />
+        )}
+      </header>
+    </>
   );
 };
 
