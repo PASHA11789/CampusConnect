@@ -11,7 +11,7 @@ export const getDashboardSummary = async (req, res) => {
   try {
     const classString = req.user ? `${req.user.program}-${req.user.department}-${req.user.semester}-${req.user.section}` : "";
     let petitionQuery = { status: "Active", isHidden: false };
-    if (req.user && req.user.role !== "admin" && req.user.role !== "campus_admin") {
+    if (req.user && req.user.role !== "campus_admin") {
       petitionQuery.$or = [
         { level: "Campus" },
         { level: "Department", targetGroup: req.user.department },

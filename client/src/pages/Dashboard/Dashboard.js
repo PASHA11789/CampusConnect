@@ -39,7 +39,7 @@ export default function Dashboard() {
 
   const checkHasAccess = (p, currentUser) => {
     if (!currentUser || !p) return false;
-    if (currentUser.role === "admin" || currentUser.role === "campus_admin") return true;
+    if (currentUser.role === "campus_admin") return true;
     const creatorId = p.creator?._id || p.creator;
     if (creatorId && currentUser._id && creatorId.toString() === currentUser._id.toString()) return true;
     if (p.level === "Campus") return true;

@@ -128,7 +128,7 @@ export const getAllComplaints = async (req, res) => {
     const total = await Complaint.countDocuments(query);
 
     // Sanitize anonymous submissions for general users if not admin/mod
-    const isStaff = ["admin", "campus_admin", "student_mod"].includes(req.user.role);
+    const isStaff = ["campus_admin", "student_mod"].includes(req.user.role);
 
     const formattedComplaints = complaints.map((c) => {
       const obj = c.toObject();
@@ -195,7 +195,7 @@ export const getComplaintById = async (req, res) => {
       return res.status(404).json({ message: "Complaint or suggestion not found." });
     }
 
-    const isStaff = ["admin", "campus_admin", "student_mod"].includes(req.user.role);
+    const isStaff = ["campus_admin", "student_mod"].includes(req.user.role);
     const obj = complaint.toObject();
 
     if (obj.isAnonymous && !isStaff && req.user._id.toString() !== obj.submittedBy?._id?.toString()) {
@@ -226,7 +226,7 @@ export const updateComplaintStatus = async (req, res) => {
   try {
     const { status, priority, response } = req.body;
 
-    if (!["admin", "campus_admin", "student_mod"].includes(req.user.role)) {
+    if (!["campus_admin", "student_mod"].includes(req.user.role)) {
       return res.status(403).json({ message: "Access denied. Only moderators and admins can address complaints." });
     }
 
@@ -298,7 +298,7 @@ export const pingAdminsForComplaint = async (req, res) => {
   try {
     const { reason = "High severity issue requiring campus admin intervention." } = req.body;
 
-    if (!["admin", "campus_admin", "student_mod"].includes(req.user.role)) {
+    if (!["campus_admin", "student_mod"].includes(req.user.role)) {
       return res.status(403).json({ message: "Only moderators or admins can escalate items." });
     }
 
@@ -319,7 +319,7 @@ export const pingAdminsForComplaint = async (req, res) => {
     await complaint.save();
 
     // Fetch all admins & campus admins
-    const admins = await User.find({ role: { $in: ["admin", "campus_admin"] } }).select("_id email name");
+    const admins = await User.find({ role: "campus_admin" }).select("_id email name");
 
     const notifications = admins.map((adminUser) => ({
       recipient: adminUser._id,
@@ -413,7 +413,7 @@ export const deleteComplaint = async (req, res) => {
     }
 
     const isOwner = complaint.submittedBy.toString() === req.user._id.toString();
-    const isAdmin = ["admin", "campus_admin"].includes(req.user.role);
+    const isAdmin = req.user.role === "campus_admin";
 
     if (!isOwner && !isAdmin) {
       return res.status(403).json({ message: "Not authorized to delete this item." });

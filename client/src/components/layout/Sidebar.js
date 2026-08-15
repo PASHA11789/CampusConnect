@@ -34,7 +34,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   } catch (e) {
     console.error("Failed to parse user session in Sidebar", e);
   }
-  const isMod = user?.role === 'admin' || user?.role === 'student_mod' || user?.role === 'campus_admin';
+  const isMod = user?.role === 'student_mod' || user?.role === 'campus_admin';
   const isCampusAdmin = user?.role === 'campus_admin';
   const isActive = (path) => location.pathname === path;
 

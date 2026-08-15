@@ -6,7 +6,7 @@ const safeError = (error) =>
 
 export const hasPetitionAccess = (petition, user) => {
   if (!user) return false;
-  if (user.role === "admin" || user.role === "campus_admin") return true;
+  if (user.role === "campus_admin") return true;
   if (petition.creator && (petition.creator._id || petition.creator).toString() === user._id.toString()) return true;
   if (petition.level === "Campus") return true;
   if (petition.level === "Department" && petition.targetGroup === user.department) return true;
@@ -20,7 +20,7 @@ export const getPetitions = async (req, res) => {
     const classString = `${req.user.program}-${req.user.department}-${req.user.semester}-${req.user.section}`;
     let queryObj = {};
 
-    if (req.user.role !== "admin" && req.user.role !== "campus_admin") {
+    if (req.user.role !== "campus_admin") {
       queryObj = {
         status: { $in: ["Active", "Under Review", "Resolved", "Closed"] },
         isHidden: false,
@@ -243,7 +243,7 @@ export const signPetition = async (req, res) => {
 
 export const moderatePetition = async (req, res) => {
   try {
-    if (req.user.role !== 'admin' && req.user.role !== 'student_mod' && req.user.role !== 'campus_admin') {
+    if (req.user.role !== 'student_mod' && req.user.role !== 'campus_admin') {
       return res.status(403).json({ message: "Not authorized to moderate" });
     }
 
@@ -340,7 +340,7 @@ export const deletePetition = async (req, res) => {
     }
 
     const isCreator = petition.creator && (petition.creator._id || petition.creator).toString() === req.user._id.toString();
-    const isModOrAdmin = req.user.role === "admin" || req.user.role === "campus_admin" || req.user.role === "student_mod";
+    const isModOrAdmin = req.user.role === "campus_admin" || req.user.role === "student_mod";
 
     if (!isCreator && !isModOrAdmin) {
       return res.status(403).json({ success: false, message: "Not authorized to delete this petition" });

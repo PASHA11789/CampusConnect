@@ -47,7 +47,7 @@ export const getPublicProfile = async (req, res) => {
       : targetUser.name;
 
     // A user can only see other people's custom images if that user has posted a public post or comment in Forum, Petition, or Career paths (Mods/Admins can always see them)
-    const isStaffOrMod = req.user && (req.user.role === 'admin' || req.user.role === 'campus_admin' || req.user.role === 'student_mod');
+    const isStaffOrMod = req.user && (req.user.role === 'campus_admin' || req.user.role === 'student_mod');
     const targetHasPublicActivity = await checkUserHasPublicActivity(targetUser._id);
     const viewerHasPublicActivity = req.user ? await checkUserHasPublicActivity(req.user._id) : false;
     const canSeeImages = isStaffOrMod || targetHasPublicActivity || viewerHasPublicActivity;
@@ -153,7 +153,7 @@ export const subscribePushNotification = async (req, res) => {
 // @access  Mod / Admin
 export const warnUser = async (req, res) => {
   try {
-    if (req.user.role !== 'admin' && req.user.role !== 'campus_admin' && req.user.role !== 'student_mod') {
+    if (req.user.role !== 'campus_admin' && req.user.role !== 'student_mod') {
       return res.status(403).json({ message: "Not authorized to issue warnings" });
     }
 

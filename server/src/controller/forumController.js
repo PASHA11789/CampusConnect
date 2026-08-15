@@ -215,7 +215,7 @@ export const deleteForumThread = async (req, res) => {
   try {
     const thread = await Forum.findById(req.params.id)
     if (!thread) return res.status(404).json({ message: "Thread not found" })
-    if (thread.author.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'student_mod' && req.user.role !== 'campus_admin') {
+    if (thread.author.toString() !== req.user._id.toString() && req.user.role !== 'student_mod' && req.user.role !== 'campus_admin') {
       return res.status(403).json({ message: "Not authorized to delete this thread" })
     }
     await thread.deleteOne()
@@ -234,7 +234,7 @@ export const toggleHideThread = async (req, res) => {
     const thread = await Forum.findById(req.params.id)
 
     if (!thread) return res.status(404).json({ message: "Thread not found" })
-    if (req.user.role !== "admin" && req.user.role !== "student_mod" && req.user.role !== "campus_admin") {
+    if (req.user.role !== "student_mod" && req.user.role !== "campus_admin") {
       return res.status(403).json({ message: "You do not have permission to moderate threads" })
     }
     
@@ -389,7 +389,7 @@ export const deleteThreadReply = async (req, res) => {
     if (!reply) return res.status(404).json({ message: "Reply not found" })
 
     const authorId = reply.author && (reply.author._id ? reply.author._id.toString() : reply.author.toString());
-    if (authorId !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'student_mod' && req.user.role !== 'campus_admin') {
+    if (authorId !== req.user._id.toString() && req.user.role !== 'student_mod' && req.user.role !== 'campus_admin') {
       return res.status(403).json({ message: "Only the original author can delete this reply" })
     }
 

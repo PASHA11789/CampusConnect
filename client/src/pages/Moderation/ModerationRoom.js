@@ -95,7 +95,7 @@ export default function ModerationRoom() {
         if (parsedUser.avatar) {
           setAvatar(parsedUser.avatar);
         }
-        if (parsedUser.role !== "admin" && parsedUser.role !== "student_mod" && parsedUser.role !== "campus_admin") {
+        if (parsedUser.role !== "student_mod" && parsedUser.role !== "campus_admin") {
           navigate("/dashboard");
           return;
         }
@@ -112,7 +112,7 @@ export default function ModerationRoom() {
         }
         sessionStorage.setItem("user", JSON.stringify(data));
 
-        if (data.role !== "admin" && data.role !== "student_mod" && data.role !== "campus_admin") {
+        if (data.role !== "student_mod" && data.role !== "campus_admin") {
           navigate("/dashboard");
         }
       } catch (error) {
@@ -127,7 +127,7 @@ export default function ModerationRoom() {
 
   // Fetch queue & set up websocket connections
   useEffect(() => {
-    if (user && (user.role === "admin" || user.role === "student_mod" || user.role === "campus_admin")) {
+    if (user && (user.role === "student_mod" || user.role === "campus_admin")) {
       fetchQueue();
 
       const socket = io(SOCKET_URL);

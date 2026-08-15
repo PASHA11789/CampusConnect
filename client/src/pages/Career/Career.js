@@ -443,7 +443,7 @@ export default function Career() {
     e.preventDefault();
     if (!newThreadTitle.trim() || !newThreadContent.trim()) return;
 
-    const isAlumni = user?.role === "alumni" || user?.role === "admin" || user?.role === "campus_admin";
+    const isAlumni = user?.role === "alumni" || user?.role === "campus_admin";
     if (category === "job_opportunity" && !isAlumni) {
       showToast("Only alumni and campus admins can post Job Opportunities.", "error");
       return;
@@ -575,7 +575,7 @@ export default function Career() {
     return matchesCategory && matchesSearch;
   });
 
-  const isAlumni = user?.role === "alumni" || user?.role === "admin" || user?.role === "campus_admin";
+  const isAlumni = user?.role === "alumni" || user?.role === "campus_admin";
 
   const getCategoryBadgeStyle = (cat) => {
     switch (cat) {

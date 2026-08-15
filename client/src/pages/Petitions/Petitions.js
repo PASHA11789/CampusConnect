@@ -114,7 +114,7 @@ export default function Petitions() {
   // Access check helper for client-side filtering
   const checkHasAccess = useCallback((p, currentUser) => {
     if (!currentUser || !p) return false;
-    if (currentUser.role === "admin" || currentUser.role === "campus_admin") return true;
+    if (currentUser.role === "campus_admin") return true;
     const creatorId = p.creator?._id || p.creator;
     if (creatorId && currentUser._id && creatorId.toString() === currentUser._id.toString()) return true;
     if (p.level === "Campus") return true;
@@ -571,7 +571,7 @@ export default function Petitions() {
     if (!user || !p) return false;
     const creatorId = p.creator?._id || p.creator;
     const isCreator = creatorId && user._id && creatorId.toString() === user._id.toString();
-    const isModOrAdmin = user.role === "admin" || user.role === "campus_admin" || user.role === "student_mod";
+    const isModOrAdmin = user.role === "campus_admin" || user.role === "student_mod";
     return isCreator || isModOrAdmin;
   };
 

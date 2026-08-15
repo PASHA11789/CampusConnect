@@ -206,7 +206,7 @@ io.on("connection", (socket) => {
     // Mods join via client passing their role; server verifies on API side
     // This is an extra layer — actual mod operations are behind protect + authorizeCampusRoles
     if (data && typeof data.role === "string" &&
-      ["admin", "campus_admin", "student_mod"].includes(data.role)) {
+      ["campus_admin", "student_mod"].includes(data.role)) {
       socket.join("mod_room");
       console.log(`Mod socket ${socket.id} joined mod_room (role: ${data.role})`);
     }

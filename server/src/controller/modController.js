@@ -12,7 +12,7 @@ const safeError = (error) =>
 
 export const getModerationQueue = async (req, res) => {
   try {
-    if (req.user.role !== "admin" && req.user.role !== "student_mod" && req.user.role !== "campus_admin") {
+    if (req.user.role !== "student_mod" && req.user.role !== "campus_admin") {
       return res.status(403).json({ message: "Access denied. Mod Room is restricted." });
     }
 
@@ -143,7 +143,7 @@ export const getModerationQueue = async (req, res) => {
 
 export const moderateItem = async (req, res) => {
   try {
-    if (req.user.role !== "admin" && req.user.role !== "student_mod" && req.user.role !== "campus_admin") {
+    if (req.user.role !== "student_mod" && req.user.role !== "campus_admin") {
       return res.status(403).json({ message: "Not authorized to moderate" });
     }
 

@@ -113,7 +113,7 @@ export const createCareerThread = async (req, res) => {
     } = req.body;
 
     const isAlumniOrAdmin =
-      req.user.role === "alumni" || req.user.role === "admin" || req.user.role === "campus_admin";
+      req.user.role === "alumni" || req.user.role === "campus_admin";
 
     if (category === "job_opportunity" && !isAlumniOrAdmin) {
       return res.status(403).json({ message: "Only Alumni and Campus Admins can post direct Job Opportunities." });
@@ -351,7 +351,7 @@ export const deleteCareerThread = async (req, res) => {
     if (!thread) return res.status(404).json({ message: "Thread not found" });
 
     const isAuthor = thread.author.toString() === req.user._id.toString();
-    const isModOrAdmin = req.user.role === "admin" || req.user.role === "student_mod" || req.user.role === "campus_admin";
+    const isModOrAdmin = req.user.role === "student_mod" || req.user.role === "campus_admin";
 
     if (!isAuthor && !isModOrAdmin) {
       return res.status(403).json({ message: "Not authorized to delete this thread" });
@@ -444,7 +444,7 @@ export const deleteCareerReply = async (req, res) => {
 
     const authorId = reply.author && (reply.author._id ? reply.author._id.toString() : reply.author.toString());
     const isAuthor = authorId === req.user._id.toString();
-    const isModOrAdmin = req.user.role === "admin" || req.user.role === "student_mod" || req.user.role === "campus_admin";
+    const isModOrAdmin = req.user.role === "student_mod" || req.user.role === "campus_admin";
 
     if (!isAuthor && !isModOrAdmin) {
       return res.status(403).json({ message: "Not authorized to delete this reply" });

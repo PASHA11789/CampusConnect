@@ -619,7 +619,7 @@ export default function LostFound() {
     );
   }
 
-  const isAdminOrMod = user?.role === "admin" || user?.role === "campus_admin" || user?.role === "student_mod";
+  const isAdminOrMod = user?.role === "campus_admin" || user?.role === "student_mod";
 
   return (
     <div className="flex h-screen w-full max-w-full overflow-hidden bg-[#FAF7F0] font-sans text-[#211A24] animate-fade-in relative selection:bg-[#00c2cb]/20 selection:text-[#071A35]">

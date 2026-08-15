@@ -24,17 +24,17 @@ router.route("/my").get(protect, getMyComplaints);
 
 router
   .route("/stats")
-  .get(protect, authorizeCampusRoles("admin", "campus_admin", "student_mod"), getComplaintStats);
+  .get(protect, authorizeCampusRoles("campus_admin", "student_mod"), getComplaintStats);
 
 router.route("/:id").get(protect, getComplaintById).delete(protect, deleteComplaint);
 
 router
   .route("/:id/status")
-  .put(protect, authorizeCampusRoles("admin", "campus_admin", "student_mod"), updateComplaintStatus);
+  .put(protect, authorizeCampusRoles("campus_admin", "student_mod"), updateComplaintStatus);
 
 router
   .route("/:id/ping-admin")
-  .post(protect, authorizeCampusRoles("admin", "campus_admin", "student_mod"), pingAdminsForComplaint);
+  .post(protect, authorizeCampusRoles("campus_admin", "student_mod"), pingAdminsForComplaint);
 
 router.route("/:id/upvote").post(protect, upvoteComplaint);
 

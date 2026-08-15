@@ -174,7 +174,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
           navState = { petitionId: notif.relatedItem };
         }
       } else if (message.includes('report') || message.includes('flagged') || message.includes('moderator') || message.includes('violated')) {
-        const isMod = user?.role === 'admin' || user?.role === 'student_mod';
+        const isMod = user?.role === 'campus_admin' || user?.role === 'student_mod';
         targetPath = isMod ? '/moderation' : '/dashboard';
       }
 
