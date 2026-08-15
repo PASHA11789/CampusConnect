@@ -152,10 +152,10 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/forums", forumRoutes);
-app.use("/api/notifications",notificationRoutes)
+app.use("/api/notifications", notificationRoutes)
 app.use("/api/petitions", petitionRoutes)
 app.use("/api/moderation", modRoutes)
-app.use('/api/lost-found',LostFoundRoutes)
+app.use('/api/lost-found', LostFoundRoutes)
 app.use("/api/canteen", canteenRoutes);
 app.use("/api/vendor", vendorRoutes);
 app.use("/api/vendor/auth", vendorAuthRoutes);
@@ -164,6 +164,18 @@ app.use("/api/users", userRoutes);
 app.use("/api/careers", careerRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/complaints", complaintRoutes);
+
+// ── Express HTTP 413 Payload Too Large Error Handler ────────────────────────
+app.use((err, _req, res, next) => {
+  if (err.type === "entity.too.large" || err.status === 413 || err.statusCode === 413) {
+    return res.status(413).json({
+      success: false,
+      error: "Payload Too Large",
+      message: "Uploaded file size exceeds the 50 MB server limit. Please select a smaller file."
+    });
+  }
+  next(err);
+});
 
 // ── Socket.IO — Hardened Connection Handling ───────────────────────────────
 // Only allow joining known/public rooms. Block mod_room from unauthorized users.

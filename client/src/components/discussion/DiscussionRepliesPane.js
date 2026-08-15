@@ -1,9 +1,15 @@
 import React from "react";
 import DiscussionReplyBubble from "./DiscussionReplyBubble";
 import { getInitials, getAvatarColor } from "../../utils/helpers";
+import { validateImageFileSize } from "../../utils/fileValidation";
 
 const processImageFile = (file, callback) => {
   if (!file) return;
+  const val = validateImageFileSize(file);
+  if (!val.valid) {
+    alert(val.message);
+    return;
+  }
   const reader = new FileReader();
   reader.onload = (evt) => {
     const img = new Image();
@@ -556,8 +562,8 @@ export default function DiscussionRepliesPane({
                           />
                           {children.length > 0 && (
                             <div className={`pl-4 flex flex-col gap-2 mt-1 mb-2 w-[85%] ${isParentOwner
-                                ? 'self-end ml-14 mr-2 border-l-2 border-[#1a5269]/40'
-                                : 'self-start ml-8 mr-14 border-l-2 border-slate-300'
+                              ? 'self-end ml-14 mr-2 border-l-2 border-[#1a5269]/40'
+                              : 'self-start ml-8 mr-14 border-l-2 border-slate-300'
                               }`}>
                               {children.map((child, idx) => (
                                 <DiscussionReplyBubble
@@ -723,8 +729,8 @@ export default function DiscussionRepliesPane({
                 type="button"
                 onClick={() => setShowImageInput(!showImageInput)}
                 className={`h-[42px] w-[42px] rounded-xl text-sm border border-slate-200/90 transition-all cursor-pointer shrink-0 flex items-center justify-center ${replyImage || showImageInput
-                    ? "bg-[#00c2cb]/10 text-[#00c2cb] border-[#00c2cb]/40 font-bold"
-                    : "bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                  ? "bg-[#00c2cb]/10 text-[#00c2cb] border-[#00c2cb]/40 font-bold"
+                  : "bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700"
                   }`}
                 title={t("Attach photo to reply")}
               >

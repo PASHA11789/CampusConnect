@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import { formatDate, SOCKET_URL } from "../../utils/helpers";
 import { io } from "socket.io-client";
+import { validateImageFileSize } from "../../utils/fileValidation";
 
 // Layout Components
 import Sidebar from "../../components/layout/Sidebar";
@@ -15,6 +16,11 @@ const t = (s) => s;
 
 const processImageFile = (file, callback) => {
   if (!file) return;
+  const val = validateImageFileSize(file);
+  if (!val.valid) {
+    alert(val.message);
+    return;
+  }
   const reader = new FileReader();
   reader.onload = (evt) => {
     const img = new Image();
@@ -803,317 +809,316 @@ export default function Petitions() {
             {/* ── MAIN CONTENT AREA (Full Width Layout) ── */}
             <div className="w-full flex flex-col gap-6">
 
-                {/* ── SEARCH & LEVEL FILTER SECTION (Forum Theme) ── */}
-                <div className="relative z-10 bg-white rounded-2xl sm:rounded-[1.5rem] border border-[#E8E1D5] p-3.5 sm:p-4 flex flex-col gap-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
-                  {/* Search Input */}
-                  <div className="relative flex items-center w-full">
-                    <i className="fa-solid fa-magnifying-glass absolute left-4 text-slate-400 text-sm" />
-                    <input
-                      type="text"
-                      placeholder={t("Search petitions, keywords, or level...")}
-                      className="bg-[#FAF7F0] border border-[#E8E1D5] rounded-full pl-10 pr-4 py-2.5 text-[12px] font-medium text-[#211A24] placeholder-[#211A24]/50 outline-none w-full shadow-inner focus:ring-2 focus:ring-[#071A35]/20 transition-all"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Level Selection Tabs */}
-                  <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none py-1 flex-nowrap">
-                    {levelTabs.map((lvl) => {
-                      const isActive = selectedLevel === lvl;
-                      return (
-                        <button
-                          key={lvl}
-                          type="button"
-                          onClick={() => setSelectedLevel(lvl)}
-                          className={`px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-[11.5px] font-extrabold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 border ${
-                            isActive
-                              ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
-                              : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
-                          }`}
-                        >
-                          {t(lvl)}
-                        </button>
-                      );
-                    })}
-                  </div>
+              {/* ── SEARCH & LEVEL FILTER SECTION (Forum Theme) ── */}
+              <div className="relative z-10 bg-white rounded-2xl sm:rounded-[1.5rem] border border-[#E8E1D5] p-3.5 sm:p-4 flex flex-col gap-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
+                {/* Search Input */}
+                <div className="relative flex items-center w-full">
+                  <i className="fa-solid fa-magnifying-glass absolute left-4 text-slate-400 text-sm" />
+                  <input
+                    type="text"
+                    placeholder={t("Search petitions, keywords, or level...")}
+                    className="bg-[#FAF7F0] border border-[#E8E1D5] rounded-full pl-10 pr-4 py-2.5 text-[12px] font-medium text-[#211A24] placeholder-[#211A24]/50 outline-none w-full shadow-inner focus:ring-2 focus:ring-[#071A35]/20 transition-all"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
 
-                {/* ── PETITIONS GRID LISTING ── */}
-                {petitionsLoaded ? (
-                  filteredPetitions.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
-                      {paginatedPetitions.map((petition) => {
-                        const sigsCount = petition.currentSignaturesCount !== undefined
-                          ? petition.currentSignaturesCount
-                          : (petition.signatures ? petition.signatures.filter(Boolean).length : 0);
-                        const targetMilestone = petition.milestone;
-                        const hasMilestone = targetMilestone !== null && targetMilestone !== undefined && targetMilestone > 0;
-                        const percentage = hasMilestone ? Math.min(Math.round((sigsCount / targetMilestone) * 100), 100) : 0;
-                        const isSignedByMe = isUserSigned(petition.signatures, user?._id);
+                {/* Level Selection Tabs */}
+                <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none py-1 flex-nowrap">
+                  {levelTabs.map((lvl) => {
+                    const isActive = selectedLevel === lvl;
+                    return (
+                      <button
+                        key={lvl}
+                        type="button"
+                        onClick={() => setSelectedLevel(lvl)}
+                        className={`px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-[11.5px] font-extrabold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 border ${isActive
+                            ? "bg-[#071A35] text-white border-[#071A35] shadow-sm"
+                            : "bg-[#FAF7F0] text-[#211A24]/70 border-[#E8E1D5] hover:bg-[#F3EEE4] hover:text-[#071A35]"
+                          }`}
+                      >
+                        {t(lvl)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-                        // Determine status colors
-                        let badgeBg = "bg-emerald-100 text-emerald-700";
-                        if (petition.status === "Pending Mod Approval") badgeBg = "bg-indigo-100 text-indigo-700";
-                        else if (petition.status === "Under Review") badgeBg = "bg-amber-100 text-amber-700";
-                        else if (petition.status === "Resolved") badgeBg = "bg-[#00c2cb]/12 text-[#00c2cb]";
-                        else if (petition.status === "Closed") badgeBg = "bg-rose-100 text-rose-700";
+              {/* ── PETITIONS GRID LISTING ── */}
+              {petitionsLoaded ? (
+                filteredPetitions.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
+                    {paginatedPetitions.map((petition) => {
+                      const sigsCount = petition.currentSignaturesCount !== undefined
+                        ? petition.currentSignaturesCount
+                        : (petition.signatures ? petition.signatures.filter(Boolean).length : 0);
+                      const targetMilestone = petition.milestone;
+                      const hasMilestone = targetMilestone !== null && targetMilestone !== undefined && targetMilestone > 0;
+                      const percentage = hasMilestone ? Math.min(Math.round((sigsCount / targetMilestone) * 100), 100) : 0;
+                      const isSignedByMe = isUserSigned(petition.signatures, user?._id);
 
-                        return (
-                          <div
-                            key={petition._id}
-                            id={`petition-card-${petition._id}`}
-                            onClick={() => handleCardClick(petition)}
-                            className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-6 flex flex-col gap-3.5 sm:gap-4 shadow-[0_8px_25px_rgba(7,26,53,0.04)] hover:shadow-xl hover:-translate-y-1 hover:border-[#071A35]/30 transition-all duration-300 relative group overflow-hidden cursor-pointer"
-                          >
-                            {/* Card Top: Category Icon, Scope Priority Tag & Status Badge */}
-                            <div className="flex flex-wrap sm:flex-nowrap justify-between items-center gap-2">
-                              <div className="flex items-center gap-2">
-                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center shrink-0">
-                                  {getPetitionIcon(petition.title, petition.level)}
-                                </div>
-                                {/* Scope Level Priority Tag with Hover Tooltip */}
-                                <div className="relative group/tag">
-                                  {petition.level === "Class" ? (
-                                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105">
-                                      <i className="fa-solid fa-star text-[9px]" /> CLASS • HIGH PRIORITY
-                                    </span>
-                                  ) : petition.level === "Department" ? (
-                                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105">
-                                      <i className="fa-solid fa-building text-[9px]" /> DEPT • MEDIUM PRIORITY
-                                    </span>
-                                  ) : (
-                                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105">
-                                      <i className="fa-solid fa-graduation-cap text-[9px]" /> CAMPUS
-                                    </span>
-                                  )}
-                                  {/* Tooltip on Hover */}
-                                  <div className="absolute left-0 bottom-full mb-1.5 hidden group-hover/tag:flex flex-col bg-[#071A35] text-white text-[10px] font-bold px-3 py-1.5 rounded-xl shadow-xl border border-white/20 whitespace-nowrap z-30 animate-fade-in pointer-events-none">
-                                    <span className="flex items-center gap-1">
-                                      {petition.level === "Class" ? (
-                                        <><i className="fa-solid fa-star text-[10px] text-[#00c2cb]" /> Class Level Petition (High Priority)</>
-                                      ) : petition.level === "Department" ? (
-                                        <><i className="fa-solid fa-building text-[10px] text-[#00c2cb]" /> Department Level Petition (Medium Priority)</>
-                                      ) : (
-                                        <><i className="fa-solid fa-graduation-cap text-[10px] text-[#00c2cb]" /> Campus Level Petition</>
-                                      )}
-                                    </span>
-                                    <span className="text-[8.5px] text-white/70 font-semibold">
-                                      {petition.level === "Class"
-                                        ? `Target: ${petition.targetGroup} (Your Class)`
-                                        : petition.level === "Department"
+                      // Determine status colors
+                      let badgeBg = "bg-emerald-100 text-emerald-700";
+                      if (petition.status === "Pending Mod Approval") badgeBg = "bg-indigo-100 text-indigo-700";
+                      else if (petition.status === "Under Review") badgeBg = "bg-amber-100 text-amber-700";
+                      else if (petition.status === "Resolved") badgeBg = "bg-[#00c2cb]/12 text-[#00c2cb]";
+                      else if (petition.status === "Closed") badgeBg = "bg-rose-100 text-rose-700";
+
+                      return (
+                        <div
+                          key={petition._id}
+                          id={`petition-card-${petition._id}`}
+                          onClick={() => handleCardClick(petition)}
+                          className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-6 flex flex-col gap-3.5 sm:gap-4 shadow-[0_8px_25px_rgba(7,26,53,0.04)] hover:shadow-xl hover:-translate-y-1 hover:border-[#071A35]/30 transition-all duration-300 relative group overflow-hidden cursor-pointer"
+                        >
+                          {/* Card Top: Category Icon, Scope Priority Tag & Status Badge */}
+                          <div className="flex flex-wrap sm:flex-nowrap justify-between items-center gap-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FAF7F0] border border-[#E8E1D5] flex items-center justify-center shrink-0">
+                                {getPetitionIcon(petition.title, petition.level)}
+                              </div>
+                              {/* Scope Level Priority Tag with Hover Tooltip */}
+                              <div className="relative group/tag">
+                                {petition.level === "Class" ? (
+                                  <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105">
+                                    <i className="fa-solid fa-star text-[9px]" /> CLASS • HIGH PRIORITY
+                                  </span>
+                                ) : petition.level === "Department" ? (
+                                  <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-[#00c2cb] text-[#071A35] shadow-xs flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105">
+                                    <i className="fa-solid fa-building text-[9px]" /> DEPT • MEDIUM PRIORITY
+                                  </span>
+                                ) : (
+                                  <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[9.5px] font-black tracking-wider uppercase bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105">
+                                    <i className="fa-solid fa-graduation-cap text-[9px]" /> CAMPUS
+                                  </span>
+                                )}
+                                {/* Tooltip on Hover */}
+                                <div className="absolute left-0 bottom-full mb-1.5 hidden group-hover/tag:flex flex-col bg-[#071A35] text-white text-[10px] font-bold px-3 py-1.5 rounded-xl shadow-xl border border-white/20 whitespace-nowrap z-30 animate-fade-in pointer-events-none">
+                                  <span className="flex items-center gap-1">
+                                    {petition.level === "Class" ? (
+                                      <><i className="fa-solid fa-star text-[10px] text-[#00c2cb]" /> Class Level Petition (High Priority)</>
+                                    ) : petition.level === "Department" ? (
+                                      <><i className="fa-solid fa-building text-[10px] text-[#00c2cb]" /> Department Level Petition (Medium Priority)</>
+                                    ) : (
+                                      <><i className="fa-solid fa-graduation-cap text-[10px] text-[#00c2cb]" /> Campus Level Petition</>
+                                    )}
+                                  </span>
+                                  <span className="text-[8.5px] text-white/70 font-semibold">
+                                    {petition.level === "Class"
+                                      ? `Target: ${petition.targetGroup} (Your Class)`
+                                      : petition.level === "Department"
                                         ? `Target: ${petition.targetGroup} Department`
                                         : "Target: Entire Campus"}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              <span className={`px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9.5px] sm:text-[10.5px] font-bold shrink-0 ${badgeBg}`}>
-                                {t(petition.status)}
-                              </span>
-                            </div>
-
-                            {/* Title & Description */}
-                            <div className="flex flex-col gap-1.5 sm:gap-2">
-                              <h3 className="text-sm sm:text-[16px] font-extrabold text-[#071A35] line-clamp-1 leading-tight group-hover:text-[#00c2cb] transition-colors break-words">
-                                {petition.title}
-                              </h3>
-                              {petition.image && (
-                                <div className="rounded-xl overflow-hidden max-h-[160px] sm:max-h-[180px] bg-slate-900/5 my-1 border border-[#E8E1D5] shadow-xs">
-                                  <img src={petition.image} alt={petition.title} className="w-full h-full object-cover max-h-[160px] sm:max-h-[180px]" onError={(e) => { e.target.style.display = 'none'; }} />
-                                </div>
-                              )}
-                              <p className="text-xs sm:text-[12.5px] text-[#211A24]/70 font-medium leading-relaxed line-clamp-3 break-words">
-                                {petition.description}
-                              </p>
-                            </div>
-
-                            {/* Creator Details */}
-                            <div
-                              className="flex items-center gap-2.5 sm:gap-3 py-1 border-t border-[#E8E1D5]/60 mt-1 sm:mt-2 cursor-pointer hover:bg-[#FAF7F0] rounded-lg p-1 transition-colors -ml-1 -mr-1"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openPublicProfile(petition.creator?._id || petition.creator);
-                              }}
-                            >
-                              <img
-                                src={getPersonalizedAvatar(petition.creator?.avatar)}
-                                alt={petition.creator?.registeration_number || "Creator"}
-                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border border-[#071A35]/10 shrink-0"
-                              />
-                              <div className="flex flex-col min-w-0">
-                                <span className="text-[11px] sm:text-[11.5px] font-bold text-[#071A35] group-hover:text-[#00c2cb] transition-colors truncate">
-                                  {t("Started by")} {petition.creator?.registeration_number || t("Anonymous")}
-                                </span>
-                                <span className="text-[9.5px] sm:text-[10px] text-[#211A24]/50 font-semibold truncate">
-                                  {formatDate(petition.createdAt)} • {t(petition.level)} ({petition.targetGroup})
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Progress Meter / No Limit Badge */}
-                            {!hasMilestone ? (
-                              <div className="flex items-center mt-1 sm:mt-2" onClick={(e) => e.stopPropagation()}>
-                                <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-[10.5px] sm:text-[11px] font-bold bg-[#071A35]/5 text-[#071A35] border border-[#071A35]/10">
-                                  {sigsCount} {sigsCount === 1 ? t("Signature") : t("Signatures")} ({t("No Limit")})
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="flex flex-col gap-1 sm:gap-1.5 mt-1 sm:mt-2" onClick={(e) => e.stopPropagation()}>
-                                <div className="flex justify-between text-[10.5px] sm:text-[11px] font-bold text-[#211A24]/50">
-                                  <span>
-                                    <strong className="text-[#071A35]">{sigsCount}</strong> / {targetMilestone} {t("signatures")}
                                   </span>
-                                  <span className="text-[#00c2cb] font-black">{percentage}%</span>
                                 </div>
-                                <div className="h-2 bg-[#E8E1D5]/60 rounded-full overflow-hidden">
-                                  <div
-                                    className="h-full bg-gradient-to-r from-[#071A35] to-[#00c2cb] rounded-full transition-all duration-500 ease-out"
-                                    style={{ width: `${percentage}%` }}
-                                  />
-                                </div>
+                              </div>
+                            </div>
+                            <span className={`px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9.5px] sm:text-[10.5px] font-bold shrink-0 ${badgeBg}`}>
+                              {t(petition.status)}
+                            </span>
+                          </div>
+
+                          {/* Title & Description */}
+                          <div className="flex flex-col gap-1.5 sm:gap-2">
+                            <h3 className="text-sm sm:text-[16px] font-extrabold text-[#071A35] line-clamp-1 leading-tight group-hover:text-[#00c2cb] transition-colors break-words">
+                              {petition.title}
+                            </h3>
+                            {petition.image && (
+                              <div className="rounded-xl overflow-hidden max-h-[160px] sm:max-h-[180px] bg-slate-900/5 my-1 border border-[#E8E1D5] shadow-xs">
+                                <img src={petition.image} alt={petition.title} className="w-full h-full object-cover max-h-[160px] sm:max-h-[180px]" onError={(e) => { e.target.style.display = 'none'; }} />
                               </div>
                             )}
+                            <p className="text-xs sm:text-[12.5px] text-[#211A24]/70 font-medium leading-relaxed line-clamp-3 break-words">
+                              {petition.description}
+                            </p>
+                          </div>
 
-                            {/* Card Footer Actions */}
-                            <div className="flex gap-2 items-center mt-2 sm:mt-3 pt-2.5 sm:pt-3 border-t border-[#E8E1D5]/60" onClick={(e) => e.stopPropagation()}>
-                              {petition.status === "Active" ? (
-                                isSignedByMe ? (
-                                  <button
-                                    disabled
-                                    className="flex-1 bg-emerald-50 text-emerald-600 border border-emerald-200 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold flex items-center justify-center gap-1.5 cursor-not-allowed"
-                                  >
-                                    <i className="fa-solid fa-check text-xs flex items-center justify-center" />
-                                    {t("Signed")}
-                                  </button>
-                                ) : (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleSignPetition(petition._id);
-                                    }}
-                                    disabled={signingIds.has(petition._id)}
-                                    className="flex-1 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-[11.5px] sm:text-[12.5px] font-black flex items-center justify-center gap-1.5 transition-all duration-300 shadow-md border-none active:scale-95 disabled:opacity-50 cursor-pointer"
-                                  >
-                                    {signingIds.has(petition._id) ? (
-                                      <div className="w-4 h-4 border-2 border-[#071A35]/30 border-t-[#071A35] rounded-full animate-spin" />
-                                    ) : (
-                                      t("Sign Petition")
-                                    )}
-                                  </button>
-                                )
-                              ) : petition.status === "Resolved" ? (
+                          {/* Creator Details */}
+                          <div
+                            className="flex items-center gap-2.5 sm:gap-3 py-1 border-t border-[#E8E1D5]/60 mt-1 sm:mt-2 cursor-pointer hover:bg-[#FAF7F0] rounded-lg p-1 transition-colors -ml-1 -mr-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openPublicProfile(petition.creator?._id || petition.creator);
+                            }}
+                          >
+                            <img
+                              src={getPersonalizedAvatar(petition.creator?.avatar)}
+                              alt={petition.creator?.registeration_number || "Creator"}
+                              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border border-[#071A35]/10 shrink-0"
+                            />
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-[11px] sm:text-[11.5px] font-bold text-[#071A35] group-hover:text-[#00c2cb] transition-colors truncate">
+                                {t("Started by")} {petition.creator?.registeration_number || t("Anonymous")}
+                              </span>
+                              <span className="text-[9.5px] sm:text-[10px] text-[#211A24]/50 font-semibold truncate">
+                                {formatDate(petition.createdAt)} • {t(petition.level)} ({petition.targetGroup})
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Progress Meter / No Limit Badge */}
+                          {!hasMilestone ? (
+                            <div className="flex items-center mt-1 sm:mt-2" onClick={(e) => e.stopPropagation()}>
+                              <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-[10.5px] sm:text-[11px] font-bold bg-[#071A35]/5 text-[#071A35] border border-[#071A35]/10">
+                                {sigsCount} {sigsCount === 1 ? t("Signature") : t("Signatures")} ({t("No Limit")})
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col gap-1 sm:gap-1.5 mt-1 sm:mt-2" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex justify-between text-[10.5px] sm:text-[11px] font-bold text-[#211A24]/50">
+                                <span>
+                                  <strong className="text-[#071A35]">{sigsCount}</strong> / {targetMilestone} {t("signatures")}
+                                </span>
+                                <span className="text-[#00c2cb] font-black">{percentage}%</span>
+                              </div>
+                              <div className="h-2 bg-[#E8E1D5]/60 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-[#071A35] to-[#00c2cb] rounded-full transition-all duration-500 ease-out"
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Card Footer Actions */}
+                          <div className="flex gap-2 items-center mt-2 sm:mt-3 pt-2.5 sm:pt-3 border-t border-[#E8E1D5]/60" onClick={(e) => e.stopPropagation()}>
+                            {petition.status === "Active" ? (
+                              isSignedByMe ? (
                                 <button
                                   disabled
-                                  className="flex-1 bg-[#FAF7F0] text-[#211A24]/60 border border-[#E8E1D5] py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold flex items-center justify-center gap-1.5"
+                                  className="flex-1 bg-emerald-50 text-emerald-600 border border-emerald-200 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold flex items-center justify-center gap-1.5 cursor-not-allowed"
                                 >
-                                  <i className="fa-solid fa-circle-check text-emerald-500 text-xs flex items-center justify-center" />
-                                  {t("Resolved")}
+                                  <i className="fa-solid fa-check text-xs flex items-center justify-center" />
+                                  {t("Signed")}
                                 </button>
                               ) : (
                                 <button
-                                  disabled
-                                  className="flex-1 bg-[#FAF7F0] text-[#211A24]/50 border border-[#E8E1D5] py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSignPetition(petition._id);
+                                  }}
+                                  disabled={signingIds.has(petition._id)}
+                                  className="flex-1 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-[11.5px] sm:text-[12.5px] font-black flex items-center justify-center gap-1.5 transition-all duration-300 shadow-md border-none active:scale-95 disabled:opacity-50 cursor-pointer"
                                 >
-                                  {t("Under Review")}
+                                  {signingIds.has(petition._id) ? (
+                                    <div className="w-4 h-4 border-2 border-[#071A35]/30 border-t-[#071A35] rounded-full animate-spin" />
+                                  ) : (
+                                    t("Sign Petition")
+                                  )}
                                 </button>
-                              )}
-
-                              {/* Share Petition / QR Code Button */}
+                              )
+                            ) : petition.status === "Resolved" ? (
                               <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSharePetition(petition);
-                                }}
-                                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#FAF7F0] hover:bg-[#F3EEE4] border border-[#E8E1D5] flex items-center justify-center text-[#211A24]/70 hover:text-[#00c2cb] transition-colors shrink-0 cursor-pointer"
-                                title={t("Share & QR Code")}
+                                disabled
+                                className="flex-1 bg-[#FAF7F0] text-[#211A24]/60 border border-[#E8E1D5] py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold flex items-center justify-center gap-1.5"
                               >
-                                <i className="fa-solid fa-share-nodes text-xs flex items-center justify-center" />
+                                <i className="fa-solid fa-circle-check text-emerald-500 text-xs flex items-center justify-center" />
+                                {t("Resolved")}
                               </button>
+                            ) : (
+                              <button
+                                disabled
+                                className="flex-1 bg-[#FAF7F0] text-[#211A24]/50 border border-[#E8E1D5] py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold"
+                              >
+                                {t("Under Review")}
+                              </button>
+                            )}
 
-                              {/* Report Button (For non-creators) */}
-                              {petition.creator?._id !== user?._id && petition.creator !== user?._id && (
-                                <button
-                                  onClick={(e) => openReportModal(petition, e)}
-                                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#FAF7F0] hover:bg-rose-50 border border-[#E8E1D5] hover:border-rose-200 flex items-center justify-center text-[#211A24]/60 hover:text-rose-600 transition-colors shrink-0 cursor-pointer"
-                                  title={t("Report Petition")}
-                                >
-                                  <i className="fa-solid fa-flag text-xs flex items-center justify-center" />
-                                </button>
-                              )}
+                            {/* Share Petition / QR Code Button */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSharePetition(petition);
+                              }}
+                              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#FAF7F0] hover:bg-[#F3EEE4] border border-[#E8E1D5] flex items-center justify-center text-[#211A24]/70 hover:text-[#00c2cb] transition-colors shrink-0 cursor-pointer"
+                              title={t("Share & QR Code")}
+                            >
+                              <i className="fa-solid fa-share-nodes text-xs flex items-center justify-center" />
+                            </button>
 
-                              {/* Delete Button (For Creator, Moderator, or Admin) */}
-                              {canDeletePetition(petition) && (
-                                <button
-                                  onClick={(e) => openDeleteModal(petition, e)}
-                                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#FAF7F0] hover:bg-red-50 border border-[#E8E1D5] hover:border-red-200 flex items-center justify-center text-[#211A24]/60 hover:text-red-600 transition-colors shrink-0 cursor-pointer"
-                                  title={t("Delete Petition")}
-                                >
-                                  <i className="fa-solid fa-trash-can text-xs flex items-center justify-center" />
-                                </button>
-                              )}
-                            </div>
+                            {/* Report Button (For non-creators) */}
+                            {petition.creator?._id !== user?._id && petition.creator !== user?._id && (
+                              <button
+                                onClick={(e) => openReportModal(petition, e)}
+                                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#FAF7F0] hover:bg-rose-50 border border-[#E8E1D5] hover:border-rose-200 flex items-center justify-center text-[#211A24]/60 hover:text-rose-600 transition-colors shrink-0 cursor-pointer"
+                                title={t("Report Petition")}
+                              >
+                                <i className="fa-solid fa-flag text-xs flex items-center justify-center" />
+                              </button>
+                            )}
+
+                            {/* Delete Button (For Creator, Moderator, or Admin) */}
+                            {canDeletePetition(petition) && (
+                              <button
+                                onClick={(e) => openDeleteModal(petition, e)}
+                                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#FAF7F0] hover:bg-red-50 border border-[#E8E1D5] hover:border-red-200 flex items-center justify-center text-[#211A24]/60 hover:text-red-600 transition-colors shrink-0 cursor-pointer"
+                                title={t("Delete Petition")}
+                              >
+                                <i className="fa-solid fa-trash-can text-xs flex items-center justify-center" />
+                              </button>
+                            )}
                           </div>
-                        );
-                      })}
-
-                      {/* Pagination Controls */}
-                      {totalPages > 1 && (
-                        <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-3.5 sm:p-4 shadow-[0_8px_25px_rgba(7,26,53,0.04)] mt-4 animate-fade-in">
-                          <button
-                            type="button"
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                            className="px-3.5 sm:px-4 py-2 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold border border-[#E8E1D5] text-[#211A24]/80 hover:text-[#071A35] hover:bg-[#FAF7F0] transition-all duration-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer w-full sm:w-auto justify-center"
-                          >
-                            <i className="fa-solid fa-chevron-left text-xs flex items-center justify-center" />
-                            {t("Previous")}
-                          </button>
-
-                          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center">
-                            {Array.from({ length: totalPages }).map((_, idx) => {
-                              const pageNum = idx + 1;
-                              return (
-                                <button
-                                  type="button"
-                                  key={pageNum}
-                                  onClick={() => setCurrentPage(pageNum)}
-                                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl text-[11.5px] sm:text-[12px] font-black transition-all duration-200 cursor-pointer ${currentPage === pageNum
-                                    ? "bg-[#071A35] text-white shadow-md scale-105"
-                                    : "text-[#211A24]/70 hover:bg-[#FAF7F0] hover:text-[#071A35]"
-                                    }`}
-                                >
-                                  {pageNum}
-                                </button>
-                              );
-                            })}
-                          </div>
-
-                          <button
-                            type="button"
-                            disabled={currentPage === totalPages}
-                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                            className="px-3.5 sm:px-4 py-2 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold border border-[#E8E1D5] text-[#211A24]/80 hover:text-[#071A35] hover:bg-[#FAF7F0] transition-all duration-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer w-full sm:w-auto justify-center"
-                          >
-                            {t("Next")}
-                            <i className="fa-solid fa-chevron-right text-xs flex items-center justify-center" />
-                          </button>
                         </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-12 text-center text-[#211A24]/50 font-semibold shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
-                      {t("No active petitions matching your search criteria.")}
-                    </div>
-                  )
-                ) : (
-                  <div className="flex items-center justify-center py-20 flex-col gap-3">
-                    <div className="w-6 h-6 border-2 border-[#E8E1D5] border-t-[#00c2cb] rounded-full animate-spin" />
-                    <p className="text-[12.5px] text-[#211A24]/50 font-semibold">{t("Loading petitions listing...")}</p>
-                  </div>
-                )}
+                      );
+                    })}
 
-              </div>
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                      <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-3.5 sm:p-4 shadow-[0_8px_25px_rgba(7,26,53,0.04)] mt-4 animate-fade-in">
+                        <button
+                          type="button"
+                          disabled={currentPage === 1}
+                          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                          className="px-3.5 sm:px-4 py-2 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold border border-[#E8E1D5] text-[#211A24]/80 hover:text-[#071A35] hover:bg-[#FAF7F0] transition-all duration-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer w-full sm:w-auto justify-center"
+                        >
+                          <i className="fa-solid fa-chevron-left text-xs flex items-center justify-center" />
+                          {t("Previous")}
+                        </button>
+
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center">
+                          {Array.from({ length: totalPages }).map((_, idx) => {
+                            const pageNum = idx + 1;
+                            return (
+                              <button
+                                type="button"
+                                key={pageNum}
+                                onClick={() => setCurrentPage(pageNum)}
+                                className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl text-[11.5px] sm:text-[12px] font-black transition-all duration-200 cursor-pointer ${currentPage === pageNum
+                                  ? "bg-[#071A35] text-white shadow-md scale-105"
+                                  : "text-[#211A24]/70 hover:bg-[#FAF7F0] hover:text-[#071A35]"
+                                  }`}
+                              >
+                                {pageNum}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        <button
+                          type="button"
+                          disabled={currentPage === totalPages}
+                          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                          className="px-3.5 sm:px-4 py-2 rounded-xl text-[11.5px] sm:text-[12.5px] font-bold border border-[#E8E1D5] text-[#211A24]/80 hover:text-[#071A35] hover:bg-[#FAF7F0] transition-all duration-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer w-full sm:w-auto justify-center"
+                        >
+                          {t("Next")}
+                          <i className="fa-solid fa-chevron-right text-xs flex items-center justify-center" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="bg-white border border-[#E8E1D5] rounded-[1.5rem] p-12 text-center text-[#211A24]/50 font-semibold shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
+                    {t("No active petitions matching your search criteria.")}
+                  </div>
+                )
+              ) : (
+                <div className="flex items-center justify-center py-20 flex-col gap-3">
+                  <div className="w-6 h-6 border-2 border-[#E8E1D5] border-t-[#00c2cb] rounded-full animate-spin" />
+                  <p className="text-[12.5px] text-[#211A24]/50 font-semibold">{t("Loading petitions listing...")}</p>
+                </div>
+              )}
+
+            </div>
 
             <footer className="mt-5 py-3 border-t border-[#E8E1D5] text-center">
               <p className="text-[12px] text-[#211A24]/50 font-medium tracking-wide">
@@ -1300,7 +1305,7 @@ export default function Petitions() {
                         <p className="text-xs sm:text-[12px] font-bold text-[#071A35] m-0 mb-0.5">
                           {t("Drag & Drop image here, or")} <span className="text-[#00c2cb] underline">{t("Browse Device")}</span>
                         </p>
-                        <span className="text-[9px] sm:text-[9.5px] text-[#211A24]/50 font-semibold">{t("Supports JPG, PNG, WEBP, GIF")}</span>
+                        <span className="text-[9px] sm:text-[9.5px] text-[#211A24]/50 font-semibold">{t("Supports JPG, PNG, WEBP, GIF (Max 50 MB)")}</span>
                       </div>
 
                       <input
@@ -1375,7 +1380,7 @@ export default function Petitions() {
                       selectedPetition.status === "Under Review" ? "bg-amber-500/20 text-amber-200 border-amber-400/30" :
                         selectedPetition.status === "Resolved" ? "bg-emerald-500/20 text-emerald-200 border-emerald-400/30" :
                           selectedPetition.status === "Closed" ? "bg-rose-500/20 text-rose-200 border-rose-400/30" : "bg-[#00c2cb]/20 text-[#00c2cb] border-[#00c2cb]/30"
-                    }`}>
+                      }`}>
                       {t(selectedPetition.status)}
                     </span>
                   </div>
@@ -1690,18 +1695,17 @@ export default function Petitions() {
                   <label
                     key={r}
                     onClick={() => setReportModal((prev) => ({ ...prev, reason: r }))}
-                    className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-[12px] font-bold cursor-pointer transition-all ${
-                      reportModal.reason === r
+                    className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-[12px] font-bold cursor-pointer transition-all ${reportModal.reason === r
                         ? "bg-[#071A35] text-white border-[#071A35]"
                         : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                    }`}
+                      }`}
                   >
                     <input
                       type="radio"
                       name="reportReason"
                       value={r}
                       checked={reportModal.reason === r}
-                      onChange={() => {}}
+                      onChange={() => { }}
                       className="accent-[#00c2cb]"
                     />
                     <span>{r}</span>

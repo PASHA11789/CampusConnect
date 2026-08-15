@@ -1,8 +1,14 @@
 import React, { useEffect } from "react";
 import AnimatedSelect from "../common/AnimatedSelect";
+import { validateImageFileSize } from "../../utils/fileValidation";
 
 const processImageFile = (file, callback) => {
   if (!file) return;
+  const val = validateImageFileSize(file);
+  if (!val.valid) {
+    alert(val.message);
+    return;
+  }
   const reader = new FileReader();
   reader.onload = (evt) => {
     const img = new Image();
@@ -130,15 +136,78 @@ export default function CreateDiscussionThreadModal({
                 />
               </div>
 
+              {/* Optional Image Attachment (Drag & Drop + Select from Device + URL) */}
               <div className="flex flex-col gap-2">
-                <label className="text-[11.5px] font-black text-[#071A35] uppercase tracking-wider ml-1">{t("Optional Image URL")}</label>
-                <input
-                  type="url"
-                  placeholder="https://example.com/image.png"
-                  className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-2xl px-4 py-3 text-[13px] font-semibold text-[#071A35] placeholder-[#071A35]/40 focus:outline-none focus:border-[#071A35] focus:bg-white focus:ring-4 focus:ring-[#071A35]/10 transition-all"
-                  value={postImage}
-                  onChange={(e) => setPostImage(e.target.value)}
-                />
+                <label className="text-[11.5px] font-black text-[#071A35] tracking-wider uppercase ml-1">
+                  {t('Optional Image Attachment')}
+                </label>
+
+                {postImage ? (
+                  <div className="relative rounded-2xl overflow-hidden border-2 border-[#00c2cb] bg-slate-900/10 max-h-[220px] flex items-center justify-center group shadow-md">
+                    <img
+                      src={postImage}
+                      alt="Preview"
+                      className="w-full h-full object-cover max-h-[220px]"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPostImage("")}
+                      className="absolute top-3 right-3 bg-red-500 hover:bg-red-600 text-white rounded-full px-3 py-1 text-[11px] font-bold shadow-lg border-none cursor-pointer flex items-center gap-1.5 transition-transform hover:scale-105"
+                    >
+                      <i className="fa-solid fa-xmark text-xs" />
+                      <span>{t("Remove Photo")}</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <div
+                      onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const file = e.dataTransfer?.files?.[0];
+                        if (file && file.type.startsWith("image/")) {
+                          processImageFile(file, setPostImage);
+                        }
+                      }}
+                      className="border-2 border-dashed border-[#E8E1D5] hover:border-[#00c2cb] bg-[#FAF7F0] rounded-2xl p-5 flex flex-col items-center justify-center text-center transition-all cursor-pointer group"
+                      onClick={() => {
+                        const input = document.getElementById("career-modal-file-input");
+                        if (input) input.click();
+                      }}
+                    >
+                      <input
+                        id="career-modal-file-input"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            processImageFile(file, setPostImage);
+                          }
+                        }}
+                      />
+                      <div className="w-10 h-10 rounded-full bg-[#00c2cb]/10 text-[#00c2cb] flex items-center justify-center text-base mb-2 group-hover:scale-110 transition-transform">
+                        <i className="fa-regular fa-image" />
+                      </div>
+                      <p className="text-[12.5px] font-bold text-[#071A35] m-0 mb-1">
+                        {t("Drag & Drop image here, or")} <span className="text-[#00c2cb] underline">{t("Browse Device")}</span>
+                      </p>
+                      <span className="text-[10px] text-[#211A24]/50 font-semibold">{t("Supports JPG, PNG, WEBP, GIF (Max 50 MB)")}</span>
+                    </div>
+
+                    {/* Fallback URL Input */}
+                    <input
+                      type="url"
+                      placeholder={t("Or paste image URL (https://...)...")}
+                      className="w-full px-4 py-2.5 bg-[#FAF7F0] border border-[#E8E1D5] rounded-xl text-[#071A35] font-semibold text-[11.5px] shadow-sm transition-all focus:outline-none focus:bg-white focus:border-[#00c2cb]"
+                      value={postImage}
+                      onChange={(e) => setPostImage(e.target.value)}
+                    />
+                  </div>
+                )}
               </div>
 
             </form>
@@ -161,7 +230,7 @@ export default function CreateDiscussionThreadModal({
               {isSubmitting ? (
                 <span className="w-4 h-4 border-2 border-[#071A35]/30 border-t-[#071A35] rounded-full animate-spin"></span>
               ) : (
-                t("Post Thread")
+                isEditing ? t("Save Changes") : t("Post Opportunity")
               )}
             </button>
           </div>
@@ -262,8 +331,8 @@ export default function CreateDiscussionThreadModal({
                           }
                         }}
                         className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${isSelected
-                            ? "bg-[#071A35] text-white border-[#071A35]"
-                            : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
+                          ? "bg-[#071A35] text-white border-[#071A35]"
+                          : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
                           }`}
                       >
                         #{tag}
@@ -288,8 +357,8 @@ export default function CreateDiscussionThreadModal({
                           }
                         }}
                         className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${isSelected
-                            ? "bg-[#071A35] text-white border-[#071A35]"
-                            : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
+                          ? "bg-[#071A35] text-white border-[#071A35]"
+                          : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
                           }`}
                       >
                         #{tag}
@@ -314,8 +383,8 @@ export default function CreateDiscussionThreadModal({
                           }
                         }}
                         className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${isSelected
-                            ? "bg-[#071A35] text-white border-[#071A35]"
-                            : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
+                          ? "bg-[#071A35] text-white border-[#071A35]"
+                          : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
                           }`}
                       >
                         #{tag}
@@ -340,8 +409,8 @@ export default function CreateDiscussionThreadModal({
                           }
                         }}
                         className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${isSelected
-                            ? "bg-[#071A35] text-white border-[#071A35]"
-                            : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
+                          ? "bg-[#071A35] text-white border-[#071A35]"
+                          : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
                           }`}
                       >
                         #{tag}
@@ -442,7 +511,7 @@ export default function CreateDiscussionThreadModal({
                     <p className="text-[12.5px] font-bold text-[#071A35] m-0 mb-1">
                       {t("Drag & Drop image here, or")} <span className="text-[#00c2cb] underline">{t("Browse Device")}</span>
                     </p>
-                    <span className="text-[10px] text-[#211A24]/50 font-semibold">{t("Supports JPG, PNG, WEBP, GIF")}</span>
+                    <span className="text-[10px] text-[#211A24]/50 font-semibold">{t("Supports JPG, PNG, WEBP, GIF (Max 50 MB)")}</span>
                   </div>
 
                   {/* Fallback URL Input */}

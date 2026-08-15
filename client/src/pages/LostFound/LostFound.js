@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import { formatDate, SOCKET_URL } from "../../utils/helpers";
 import { io } from "socket.io-client";
+import { validateImageFileSize } from "../../utils/fileValidation";
 
 // Layout Components
 import Sidebar from "../../components/layout/Sidebar";
@@ -385,6 +386,11 @@ export default function LostFound() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const val = validateImageFileSize(file);
+      if (!val.valid) {
+        showToast(val.message, "error");
+        return;
+      }
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
@@ -1333,7 +1339,7 @@ export default function LostFound() {
 
                   <div>
                     <label className="block text-[11px] font-black uppercase text-slate-500 tracking-wider mb-1.5">
-                      Photo Attachment (Optional)
+                      Photo Attachment (Optional - Max 50 MB)
                     </label>
                     <input
                       type="file"

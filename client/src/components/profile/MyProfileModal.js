@@ -163,10 +163,10 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
         {/* Modal Body */}
         <div className="p-3.5 sm:p-6 md:p-7 overflow-y-auto custom-scrollbar flex-1 bg-[#FAF7F0]/60 touch-pan-y">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
-            
+
             {/* Left Column: Avatar Profile & Academic Information (5 cols on lg) */}
             <div className="lg:col-span-5 flex flex-col gap-4 sm:gap-5">
-              
+
               {/* Profile Overview Card */}
               <div className="bg-white border border-[#E8E1D5] rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col items-center text-center relative overflow-hidden">
                 <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#00c2cb] to-[#071A35]" />
@@ -260,7 +260,7 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
 
             {/* Right Column: Profile Settings Form (7 cols on lg) */}
             <div className="lg:col-span-7 flex flex-col gap-4 sm:gap-5">
-              
+
               {/* Profile Edit Form Card */}
               <div className="bg-white border border-[#E8E1D5] rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col text-left h-full">
                 <div className="flex items-center gap-2.5 mb-4 sm:mb-5 pb-2.5 sm:pb-3 border-b border-slate-100">

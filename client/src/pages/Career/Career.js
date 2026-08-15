@@ -1113,7 +1113,7 @@ export default function Career() {
             {/* RIGHT COLUMN: SIDEBAR WIDGETS */}
             <div className="flex flex-col gap-5 lg:sticky lg:top-4">
               {/* YOUR PROFILE CARD */}
-              <div 
+              <div
                 className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-xs flex flex-col gap-4 text-left relative cursor-pointer hover:border-[#00c2cb] hover:shadow-md transition-all group"
                 onClick={() => setIsShowCareerProfileOpen(true)}
               >
@@ -1150,14 +1150,14 @@ export default function Career() {
               </div>
 
               {/* SKILLS CARD */}
-              <div 
+              <div
                 className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-xs flex flex-col gap-3 text-left cursor-pointer hover:border-[#00c2cb] hover:shadow-md transition-all group"
                 onClick={() => setIsShowCareerProfileOpen(true)}
               >
                 <div className="flex justify-between items-center">
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 group-hover:text-[#00c2cb] transition-colors">{t("Skills")}</h3>
-                  <button 
-                    className="text-xs font-bold text-[#071A35] hover:underline border-none bg-transparent cursor-pointer" 
+                  <button
+                    className="text-xs font-bold text-[#071A35] hover:underline border-none bg-transparent cursor-pointer"
                     onClick={(e) => { e.stopPropagation(); setIsEditCareerProfileOpen(true); }}
                   >
                     {t("Edit")}
