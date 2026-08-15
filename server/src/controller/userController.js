@@ -153,7 +153,7 @@ export const subscribePushNotification = async (req, res) => {
 // @access  Mod / Admin
 export const warnUser = async (req, res) => {
   try {
-    if (req.user.role !== 'admin' && req.user.role !== 'campus_admin' && req.user.role !== 'student_mod' && req.user.role !== 'super_admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'campus_admin' && req.user.role !== 'student_mod') {
       return res.status(403).json({ message: "Not authorized to issue warnings" });
     }
 

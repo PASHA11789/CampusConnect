@@ -1,4 +1,6 @@
 import User from "../models/User.js";
+import CareerThread from "../models/CareerThread.js";
+import Forum from "../models/Forum.js";
 
 /* ============================================================================
    Unified bookmarks.

@@ -15,7 +15,7 @@ import {
 const router = express.Router();
 
 router.use(protect);
-router.use(authorizeCampusRoles('campus_admin', 'super_admin'));
+router.use(authorizeCampusRoles('campus_admin', 'admin'));
 
 router.route('/users')
   .get(getAllUsers)
