@@ -455,13 +455,14 @@ export default function Home() {
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8 items-start">
           {/* Left: Brand & Social Links */}
           <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-            <div className="flex flex-row items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-              <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center p-1 border border-white/20 shadow-xs">
+            <div className="flex flex-row items-center gap-2.5 sm:gap-3 cursor-pointer" onClick={() => navigate('/')}>
+              <div className="w-10 h-10 sm:w-11 sm:h-11 bg-white rounded-full flex items-center justify-center p-1 border border-white/20 shadow-xs">
                 <img src={logo} alt="CampusConnect Logo" className="w-full h-full object-contain" />
               </div>
+              <div className="text-[20px] sm:text-[22px] font-black text-[#00c2cb] leading-none">X</div>
               <div className="flex flex-col items-start">
-                <h1 className="text-[15px] font-black leading-none tracking-tight text-white">CAMPUS<span className="text-[#00c2cb]">CONNECT</span></h1>
-                <span className="text-[8px] font-bold tracking-[0.35em] text-[#00c2cb] mt-0.5 uppercase">MINHAJ UNIVERSITY LAHORE</span>
+                <h1 className="text-[14px] sm:text-[16px] font-black leading-none tracking-tight text-white">CAMPUS<span className="text-[#00c2cb]">CONNECT</span></h1>
+                <span className="text-[7px] sm:text-[8px] font-bold tracking-[0.25em] sm:tracking-[0.3em] text-[#00c2cb] mt-0.5 uppercase">FOR MINHAJ UNIVERSITY STUDENTS</span>
               </div>
             </div>
             <p className="text-[13px] text-white/70 my-3 max-w-[280px]">
