@@ -39,6 +39,15 @@ const processImageFile = (file, callback) => {
   reader.readAsDataURL(file);
 };
 
+const isUserSigned = (signatures, userId) => {
+  if (!signatures || !userId) return false;
+  return signatures.some((sig) => {
+    if (!sig) return false;
+    const sigId = typeof sig === "object" ? sig._id || sig.id : sig;
+    return sigId && sigId.toString() === userId.toString();
+  });
+};
+
 export default function Petitions() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -323,24 +332,24 @@ export default function Petitions() {
 
       socket.on("petition_signed", (data) => {
         if (data && data.petitionId) {
-          setPetitions((prev) =>
-            prev.map((p) => {
-              if (p._id !== data.petitionId) return p;
-              const isSignedByMe = p.signatures && p.signatures.includes(user._id);
-              let newSignatures = p.signatures || [];
-              if (isSignedByMe) {
-                newSignatures = [user._id, ...new Array(Math.max(0, data.currentSignatures - 1)).fill(null)];
-              } else {
-                newSignatures = new Array(data.currentSignatures).fill(null);
-              }
-              return {
-                ...p,
-                signatures: newSignatures,
-                currentSignaturesCount: data.currentSignatures,
-                status: data.status,
-              };
-            })
-          );
+          const updatePetitionState = (p) => {
+            if (!p || p._id !== data.petitionId) return p;
+            const signedByMe = isUserSigned(p.signatures, user?._id);
+            const cleanSigs = (p.signatures || []).filter(Boolean);
+            let updatedSignatures = cleanSigs;
+            if (signedByMe && !isUserSigned(cleanSigs, user?._id)) {
+              updatedSignatures = [user?._id, ...cleanSigs];
+            }
+            return {
+              ...p,
+              signatures: updatedSignatures,
+              currentSignaturesCount: data.currentSignatures,
+              status: data.status || p.status,
+            };
+          };
+
+          setPetitions((prev) => prev.map(updatePetitionState));
+          setSelectedPetition((prev) => updatePetitionState(prev));
         }
       });
 
@@ -451,17 +460,21 @@ export default function Petitions() {
 
       showToast(data.message || "Petition signed successfully!", "success");
 
-      setPetitions((prev) =>
-        prev.map((p) =>
-          p._id === petitionId
-            ? {
-              ...p,
-              signatures: [...(p.signatures || []), user._id],
-              status: data.status,
-            }
-            : p
-        )
-      );
+      const updatePetitionOnSign = (p) => {
+        if (!p || p._id !== petitionId) return p;
+        const cleanSigs = (p.signatures || []).filter(Boolean);
+        const alreadySigned = isUserSigned(cleanSigs, user?._id);
+        const updatedSigs = alreadySigned ? cleanSigs : [...cleanSigs, user?._id];
+        return {
+          ...p,
+          signatures: updatedSigs,
+          currentSignaturesCount: data.currentSignatures || updatedSigs.length,
+          status: data.status || p.status,
+        };
+      };
+
+      setPetitions((prev) => prev.map(updatePetitionOnSign));
+      setSelectedPetition((prev) => updatePetitionOnSign(prev));
     } catch (error) {
       console.error("Error signing petition:", error);
       showToast(error.response?.data?.message || "Failed to sign petition.", "error");
@@ -831,11 +844,13 @@ export default function Petitions() {
                   filteredPetitions.length > 0 ? (
                     <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
                       {paginatedPetitions.map((petition) => {
-                        const sigsCount = petition.signatures ? petition.signatures.length : (petition.currentSignaturesCount || 0);
+                        const sigsCount = petition.currentSignaturesCount !== undefined
+                          ? petition.currentSignaturesCount
+                          : (petition.signatures ? petition.signatures.filter(Boolean).length : 0);
                         const targetMilestone = petition.milestone;
                         const hasMilestone = targetMilestone !== null && targetMilestone !== undefined && targetMilestone > 0;
                         const percentage = hasMilestone ? Math.min(Math.round((sigsCount / targetMilestone) * 100), 100) : 0;
-                        const isSignedByMe = petition.signatures && petition.signatures.includes(user._id);
+                        const isSignedByMe = isUserSigned(petition.signatures, user?._id);
 
                         // Determine status colors
                         let badgeBg = "bg-emerald-100 text-emerald-700";
@@ -1417,7 +1432,9 @@ export default function Petitions() {
 
               {/* Progress status */}
               {(() => {
-                const sigsCount = selectedPetition.signatures ? selectedPetition.signatures.length : (selectedPetition.currentSignaturesCount || 0);
+                const sigsCount = selectedPetition.currentSignaturesCount !== undefined
+                  ? selectedPetition.currentSignaturesCount
+                  : (selectedPetition.signatures ? selectedPetition.signatures.filter(Boolean).length : 0);
                 const targetMilestone = selectedPetition.milestone || 100;
                 const percentage = Math.min(Math.round((sigsCount / targetMilestone) * 100), 100);
                 return (
@@ -1469,7 +1486,7 @@ export default function Petitions() {
 
                 {selectedPetition.status === "Active" && (
                   (() => {
-                    const isSignedByMe = selectedPetition.signatures && selectedPetition.signatures.includes(user._id);
+                    const isSignedByMe = isUserSigned(selectedPetition.signatures, user?._id);
                     return isSignedByMe ? (
                       <button
                         disabled
@@ -1480,13 +1497,7 @@ export default function Petitions() {
                       </button>
                     ) : (
                       <button
-                        onClick={() => {
-                          handleSignPetition(selectedPetition._id);
-                          setSelectedPetition(prev => ({
-                            ...prev,
-                            signatures: [...(prev.signatures || []), user._id]
-                          }));
-                        }}
+                        onClick={() => handleSignPetition(selectedPetition._id)}
                         disabled={signingIds.has(selectedPetition._id)}
                         className="flex-1 bg-[#00c2cb] hover:bg-[#00a8b5] text-[#071A35] py-2.5 sm:py-3 rounded-xl text-xs sm:text-[13px] font-black transition-all duration-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-md border-none"
                       >

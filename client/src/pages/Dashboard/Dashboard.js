@@ -184,22 +184,20 @@ export default function Dashboard() {
         console.log("[Socket] Petition signature update received via socket:", data);
         if (data && data.petitionId) {
           setDashboardData((prevData) => {
-            // Remove if no longer active (e.g. Under Review)
             if (data.status && data.status !== "Active") {
               return {
                 ...prevData,
-                petitions: prevData.petitions.filter((p) => p._id !== data.petitionId)
+                petitions: (prevData.petitions || []).filter((p) => p._id !== data.petitionId)
               };
             }
 
             return {
               ...prevData,
-              petitions: prevData.petitions.map((p) => {
+              petitions: (prevData.petitions || []).map((p) => {
                 if (p._id === data.petitionId) {
-                  const updatedSignatures = new Array(data.currentSignatures).fill(null);
                   return {
                     ...p,
-                    signatures: updatedSignatures,
+                    currentSignaturesCount: data.currentSignatures,
                     status: data.status || p.status
                   };
                 }

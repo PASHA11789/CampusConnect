@@ -30,7 +30,9 @@ export const PetitionsWidget = ({ petitions = [] }) => {
             return new Date(b.createdAt) - new Date(a.createdAt);
           })
           .map((petition, i) => {
-          const sigsCount = petition.signatures ? petition.signatures.length : (petition.currentSignatures || 0);
+          const sigsCount = petition.currentSignaturesCount !== undefined
+            ? petition.currentSignaturesCount
+            : (petition.signatures ? petition.signatures.filter(Boolean).length : (petition.currentSignatures || 0));
           const target = petition.milestone;
           const hasMilestone = target !== null && target !== undefined && target > 0;
           const progress = hasMilestone ? Math.min((sigsCount / target) * 100, 100) : 0;
