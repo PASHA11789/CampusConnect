@@ -660,8 +660,24 @@ export default function VendorDashboard() {
 
   // --- WhatsApp Dialog Link ---
   const getWhatsAppLink = (phone, orderId, studentName) => {
-    const text = `Hi ${studentName}, this is ${selectedRestaurant}. Regarding your order ${orderId}, we are ready to proceed. Let's discuss details!`;
-    return `https://wa.me/${phone.replace(/[^0-9+]/g, "")}?text=${encodeURIComponent(text)}`;
+    // Sanitize the phone string by removing all spaces, dashes, brackets, and + signs
+    const sanitized = String(phone || "").replace(/[^0-9]/g, "");
+
+    // Crucial Formatting Logic:
+    // Check if the sanitized number starts with a 0 and is exactly 11 digits long (standard local Pakistani format).
+    // If it is, replace the leading 0 with 92. If it already starts with 92, leave it as is.
+    let formattedNumber = sanitized;
+    if (sanitized.startsWith("0") && sanitized.length === 11) {
+      formattedNumber = "92" + sanitized.slice(1);
+    }
+
+    const customer = studentName || "Customer";
+    const restaurant = selectedRestaurant || vendorUser?.name || "Restaurant";
+    const orderIdentifier = orderId || "";
+    const message = `Hi ${customer}, this is ${restaurant}. Regarding your order ${orderIdentifier}, we are ready to proceed. Let's discuss details!`;
+
+    // Modern universal link format with URL-encoded message
+    return `https://wa.me/${formattedNumber}?text=${encodeURIComponent(message)}`;
   };
 
   return (
@@ -1034,9 +1050,9 @@ export default function VendorDashboard() {
 
                               <div className="flex items-center gap-2">
                                 <a
-                                  href={getWhatsAppLink(order.phone, order.id, order.studentName)}
+                                  href={getWhatsAppLink(order.phone, order.orderId || order.id, order.studentName)}
                                   target="_blank"
-                                  rel="noreferrer"
+                                  rel="noopener noreferrer"
                                   title="Contact Customer on WhatsApp"
                                   className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors text-xs font-bold flex items-center gap-1"
                                 >
@@ -1502,9 +1518,9 @@ export default function VendorDashboard() {
                           {/* Right actions */}
                           <div className="flex flex-col gap-2 w-full max-w-[240px]">
                             <a
-                              href={getWhatsAppLink(order.phone, order.id, order.studentName)}
+                              href={getWhatsAppLink(order.phone, order.orderId || order.id, order.studentName)}
                               target="_blank"
-                              rel="noreferrer"
+                              rel="noopener noreferrer"
                               className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center justify-center gap-2 shadow-sm transition-colors"
                             >
                               💬 Contact Customer

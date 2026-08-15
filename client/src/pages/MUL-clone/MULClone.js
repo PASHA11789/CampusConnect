@@ -102,7 +102,7 @@ const MULClone = () => {
                   id="username"
                   type="text"
                   className="w-full px-2.5 py-1.5 text-xs text-[#333333] bg-white border border-[#d9d9d9] rounded-[3px] outline-none focus:border-[#66afff] focus:ring-1 focus:ring-[#66afff]/50 transition-all placeholder:text-[#aaaaaa] placeholder:text-xs"
-                  placeholder="e.g. 2022f-mulbscs-093"
+                  placeholder="Registration Number"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   autoComplete="username"
