@@ -66,7 +66,7 @@ const Login = () => {
                     {/* Text Content */}
                     <div className="relative h-full flex flex-col justify-center p-8 sm:p-12 lg:p-24 text-white z-10 animate-fade-in-delayed">
                         <div className="inline-flex items-center gap-2 bg-black/30 backdrop-blur-md px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl mb-6 sm:mb-8 w-max border border-white/20">
-                            <span className="text-lg sm:text-xl">🎓</span>
+                            <i className="fa-solid fa-graduation-cap text-teal-400 text-lg sm:text-xl" />
                             <span className="text-[10px] sm:text-xs font-bold tracking-widest uppercase">Minhaj University X CampusConnect</span>
                         </div>
                         <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-4 sm:mb-6 leading-tight tracking-tight drop-shadow-lg text-left">

@@ -275,7 +275,7 @@ export default function Home() {
             {/* Card 1: Admin & Moderator Login */}
             <div className="bg-white/5 border border-white/15 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-md hover:border-[#00c2cb]/60 transition-all duration-300 flex flex-col items-center text-center group">
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 text-[#00c2cb] flex items-center justify-center text-2xl sm:text-3xl mb-5 border border-white/10">
-                🛡️
+                <i className="fa-solid fa-user-shield text-[#00c2cb] text-2xl sm:text-3xl" />
               </div>
               <h3 className="text-[18px] sm:text-[22px] font-black text-white mb-2.5 sm:mb-3">Admin &amp; Moderator Portal</h3>
               <p className="text-[13.5px] sm:text-[14.5px] text-white/75 mb-6 sm:mb-8 font-medium leading-relaxed">
@@ -292,7 +292,7 @@ export default function Home() {
             {/* Card 2: Alumni Portal */}
             <div className="bg-white/5 border border-white/15 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-md hover:border-white/40 transition-all duration-300 flex flex-col items-center text-center group">
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl sm:text-3xl mb-5 border border-white/10">
-                🎓
+                <i className="fa-solid fa-user-graduate text-white text-2xl sm:text-3xl" />
               </div>
               <h3 className="text-[18px] sm:text-[22px] font-black text-white mb-2.5 sm:mb-3">Alumni Network Portal</h3>
               <p className="text-[13.5px] sm:text-[14.5px] text-white/75 mb-6 sm:mb-8 font-medium leading-relaxed">
@@ -487,9 +487,9 @@ export default function Home() {
           <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
             <h4 className="text-[15px] font-black text-white mb-3">Contact Us</h4>
             <ul className="list-none m-0 p-0 text-[13.5px] text-white/70 space-y-2 font-medium">
-              <li className="flex items-center gap-2"><span>✉</span> info@mul.edu.pk</li>
-              <li className="flex items-center gap-2"><span>📞</span> +92 42 35145621</li>
-              <li className="flex items-start gap-2 leading-snug"><span>📍</span> Minhaj University Lahore,<br />Near Hamdard Chowk, Lahore</li>
+              <li className="flex items-center gap-2"><i className="fa-solid fa-envelope text-[#00c2cb]" /> sagheerahmad5767@gmail.com</li>
+              <li className="flex items-center gap-2"><i className="fa-solid fa-envelope text-[#00c2cb]" /> shujaapasha11789@gmail.com</li>
+              <li className="flex items-center gap-2"><i className="fa-solid fa-phone text-[#00c2cb]" /> +92 42 35145621</li>
             </ul>
           </div>
         </div>
