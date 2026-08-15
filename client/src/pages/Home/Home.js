@@ -492,7 +492,7 @@ export default function Home() {
             <ul className="list-none m-0 p-0 text-[13.5px] text-white/70 space-y-2 font-medium">
               <li className="flex items-center gap-2"><i className="fa-solid fa-envelope text-[#00c2cb]" /> sagheerahmad5767@gmail.com</li>
               <li className="flex items-center gap-2"><i className="fa-solid fa-envelope text-[#00c2cb]" /> shujaapasha11789@gmail.com</li>
-              <li className="flex items-center gap-2"><i className="fa-solid fa-phone text-[#00c2cb]" /> +92 42 35145621</li>
+              <li className="flex items-center gap-2"><i className="fa-solid fa-phone text-[#00c2cb]" /> +92 324 4493817</li>
             </ul>
           </div>
         </div>
