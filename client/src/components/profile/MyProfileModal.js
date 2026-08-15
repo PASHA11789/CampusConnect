@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import axios from "axios";
+import { validateImageFileSize } from "../../utils/fileValidation";
 
 const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
   const [avatar, setAvatar] = useState(null);
@@ -27,6 +28,11 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    const val = validateImageFileSize(file);
+    if (!val.valid) {
+      return;
+    }
 
     const previewUrl = URL.createObjectURL(file);
     setAvatar(previewUrl);

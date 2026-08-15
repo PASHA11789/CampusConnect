@@ -21,6 +21,7 @@ import RestaurantsManager from './pages/Admin/RestaurantsManager';
 import MULClone from './pages/MUL-clone';
 import MULDashboard from './pages/MUL-clone/MULDashboard';
 import DisciplinaryWarningModal from './components/common/DisciplinaryWarningModal';
+import ToastNotifier from './components/common/ToastNotifier';
 import { setupPushNotifications } from './utils/pushNotificationSetup';
 
 
@@ -38,6 +39,7 @@ function App() {
   return (
     <Router>
       <DisciplinaryWarningModal />
+      <ToastNotifier />
       <div className="App w-full h-screen max-w-full overflow-hidden flex flex-col">
         <Routes>
           <Route path="/" element={<Home />} />

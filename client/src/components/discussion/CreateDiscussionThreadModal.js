@@ -6,7 +6,6 @@ const processImageFile = (file, callback) => {
   if (!file) return;
   const val = validateImageFileSize(file);
   if (!val.valid) {
-    alert(val.message);
     return;
   }
   const reader = new FileReader();
