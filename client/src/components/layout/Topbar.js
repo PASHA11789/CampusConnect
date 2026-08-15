@@ -16,8 +16,6 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
   const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
   const [filter, setFilter] = useState('all'); // 'all' or 'unread'
   const [subView, setSubView] = useState(null); // null, 'petitions', 'forums', 'others'
-  const [isOnline, setIsOnline] = useState(() => typeof navigator !== 'undefined' ? navigator.onLine : true);
-  const [showRestoredToast, setShowRestoredToast] = useState(false);
 
   const getCanteenNotifications = () => {
     return notifications.filter(notif => {
@@ -108,12 +106,7 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
       };
 
       socket.on("connect", () => {
-        setIsOnline(true);
         joinUser();
-      });
-
-      socket.on("disconnect", () => {
-        setIsOnline(false);
       });
 
       socket.on("new_notification", (notif) => {
@@ -128,29 +121,6 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
       };
     }
   }, [user]);
-
-  // Window Network Connection Listeners
-  useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-      setShowRestoredToast(true);
-      if (typeof fetchNotifications === 'function') fetchNotifications();
-      setTimeout(() => setShowRestoredToast(false), 4000);
-    };
-
-    const handleOffline = () => {
-      setIsOnline(false);
-      setShowRestoredToast(false);
-    };
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
 
   // Click outside to close dropdown
   useEffect(() => {
@@ -286,23 +256,6 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
 
   return (
     <>
-      {/* ── Network Connection Lost Floating Banner ── */}
-      {!isOnline && (
-        <div className="fixed top-0 left-0 right-0 z-[99999] bg-amber-500 text-slate-950 px-4 py-2 text-xs font-black text-center flex items-center justify-center gap-2 shadow-xl animate-pulse">
-          <i className="fa-solid fa-wifi-slash text-sm" />
-          <span>Connection Lost — Internet connection dropped. Live updates paused. Attempting to reconnect...</span>
-          <i className="fa-solid fa-rotate text-xs animate-spin" />
-        </div>
-      )}
-
-      {/* ── Connection Restored Toast Notice ── */}
-      {showRestoredToast && (
-        <div className="fixed top-4 right-4 sm:right-6 z-[99999] bg-emerald-600 text-white px-4 py-2.5 rounded-2xl shadow-2xl font-black text-xs border border-emerald-400 flex items-center gap-2.5 animate-slide-down">
-          <i className="fa-solid fa-circle-check text-sm text-emerald-200" />
-          <span>Connection Restored! Live updates are active.</span>
-        </div>
-      )}
-
       <header className="bg-white rounded-full border border-[#E8E1D5] shadow-[0_8px_30px_rgba(7,26,53,0.06)] px-3 sm:px-6 py-2 sm:py-2.5 mx-2 sm:mx-8 mt-2 sm:mt-5 mb-2 flex items-center justify-between sticky top-3 z-[100] animate-slide-down">
         {/* Mobile Menu Toggle */}
         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -321,8 +274,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
             {/* Sliding Sub-Bells (Four Balls: Orders, Petitions, Forums, Others) */}
             <div
               className={`absolute flex items-center gap-2 transition-all duration-300 ease-out z-[99] max-md:top-full max-md:left-1/2 max-md:mt-2.5 max-md:bg-white/95 max-md:backdrop-blur-md max-md:p-2 max-md:rounded-full max-md:shadow-xl max-md:border max-md:border-[#E8E1D5] md:right-full md:top-1/2 md:mr-2.5 ${isOpen
-                  ? "opacity-100 scale-100 max-md:-translate-x-1/2 max-md:translate-y-0 md:translate-x-0 md:-translate-y-1/2"
-                  : "opacity-0 scale-90 pointer-events-none max-md:-translate-x-1/2 max-md:-translate-y-2 md:translate-x-10 md:-translate-y-1/2"
+                ? "opacity-100 scale-100 max-md:-translate-x-1/2 max-md:translate-y-0 md:translate-x-0 md:-translate-y-1/2"
+                : "opacity-0 scale-90 pointer-events-none max-md:-translate-x-1/2 max-md:-translate-y-2 md:translate-x-10 md:-translate-y-1/2"
                 }`}
             >
               {/* Canteen / Food Orders Ball */}
@@ -331,8 +284,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
                   onClick={() => setSubView('canteen')}
                   title="Canteen Orders & Delivery Notifications"
                   className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'canteen'
-                      ? "bg-[#00c2cb] text-[#071A35] border-[#00c2cb] font-bold"
-                      : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
+                    ? "bg-[#00c2cb] text-[#071A35] border-[#00c2cb] font-bold"
+                    : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
                     }`}
                 >
                   <i className="fa-solid fa-burger text-xs group-hover:scale-110 transition-transform flex items-center justify-center" />
@@ -354,8 +307,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
                   onClick={() => setSubView('petitions')}
                   title="Petitions Notifications"
                   className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'petitions'
-                      ? "bg-[#2563EB] text-white border-[#2563EB]"
-                      : "bg-[#FAF7F0] text-[#2563EB] border-[#E8E1D5] hover:bg-[#F3EEE4]"
+                    ? "bg-[#2563EB] text-white border-[#2563EB]"
+                    : "bg-[#FAF7F0] text-[#2563EB] border-[#E8E1D5] hover:bg-[#F3EEE4]"
                     }`}
                 >
                   <i className="fa-solid fa-file-signature text-xs group-hover:scale-110 transition-transform flex items-center justify-center" />
@@ -377,8 +330,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
                   onClick={() => setSubView('forums')}
                   title="Forums Notifications"
                   className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'forums'
-                      ? "bg-[#DCD9F7] text-[#071A35] border-[#DCD9F7] font-bold"
-                      : "bg-[#FAF7F0] text-[#071A35] border-[#E8E1D5] hover:bg-[#F3EEE4]"
+                    ? "bg-[#DCD9F7] text-[#071A35] border-[#DCD9F7] font-bold"
+                    : "bg-[#FAF7F0] text-[#071A35] border-[#E8E1D5] hover:bg-[#F3EEE4]"
                     }`}
                 >
                   <i className="fa-solid fa-comments text-xs group-hover:scale-110 transition-transform flex items-center justify-center" />
@@ -400,8 +353,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
                   onClick={() => setSubView('others')}
                   title="Other Notifications"
                   className={`w-8 h-8 rounded-full flex items-center justify-center border hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${subView === 'others'
-                      ? "bg-[#00c2cb] text-[#071A35] border-[#00c2cb]"
-                      : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
+                    ? "bg-[#00c2cb] text-[#071A35] border-[#00c2cb]"
+                    : "bg-[#FAF7F0] text-[#211A24] border-[#E8E1D5] hover:bg-[#F3EEE4]"
                     }`}
                 >
                   <i className="fa-solid fa-bell text-xs group-hover:animate-bell-ring transition-transform flex items-center justify-center" />
@@ -425,8 +378,8 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
                 setSubView(null);
               }}
               className={`relative w-9 h-9 rounded-full transition-all duration-200 cursor-pointer border flex items-center justify-center ${isOpen
-                  ? "bg-[#2563EB]/15 border-[#2563EB] text-[#2563EB]"
-                  : "bg-white hover:bg-slate-50 border-[#E8E1D5] text-[#071A35]"
+                ? "bg-[#2563EB]/15 border-[#2563EB] text-[#2563EB]"
+                : "bg-white hover:bg-slate-50 border-[#E8E1D5] text-[#071A35]"
                 }`}
               title="Notifications"
             >

@@ -39,15 +39,15 @@ export default function CreateDiscussionThreadModal({
   isSubmitting,
   t = (s) => s,
   variant = "forum",
-  
+
   // Career variant props
   category = "general_discussion",
-  setCategory = () => {},
+  setCategory = () => { },
   isAlumni = false,
   postImage = "",
-  setPostImage = () => {},
+  setPostImage = () => { },
   tags = [],
-  setTags = () => {}
+  setTags = () => { }
 }) {
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -66,7 +66,7 @@ export default function CreateDiscussionThreadModal({
   if (variant === "career") {
     return (
       <div className="fixed inset-0 z-[2000] flex items-center justify-center p-3 sm:p-4 overflow-y-auto bg-[#071A35]/60 backdrop-blur-md animate-modal-fade-in" onClick={onCancel}>
-        <div 
+        <div
           className="bg-white rounded-2xl sm:rounded-[2rem] w-full max-w-[580px] shadow-[0_25px_60px_rgba(7,26,53,0.3)] overflow-hidden animate-modal-slide-in flex flex-col border border-[#E8E1D5] font-sans max-h-[90vh]"
           onClick={(e) => e.stopPropagation()}
         >
@@ -81,7 +81,7 @@ export default function CreateDiscussionThreadModal({
                 <p className="text-[10.5px] sm:text-[11.5px] text-white/70 font-semibold mt-0.5 m-0">{t("Share an opportunity, ask for advice, or start a discussion")}</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={onCancel}
               className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-all border-none cursor-pointer shrink-0 ml-2"
             >
@@ -91,11 +91,11 @@ export default function CreateDiscussionThreadModal({
 
           <div className="p-5 sm:p-7 overflow-y-auto flex-1">
             <form id="create-career-form" onSubmit={onSubmit} className="flex flex-col gap-4 sm:gap-5 text-left">
-              
+
               <div className="flex flex-col gap-2">
                 <label className="text-[11.5px] font-black text-[#071A35] uppercase tracking-wider ml-1">{t("Discussion Title")}</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder={t("E.g., Seeking advice for software engineering interviews")}
                   className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-2xl px-4 py-3 text-[13px] font-bold text-[#071A35] placeholder-[#071A35]/40 focus:outline-none focus:border-[#071A35] focus:bg-white focus:ring-4 focus:ring-[#071A35]/10 transition-all"
                   value={title}
@@ -121,7 +121,7 @@ export default function CreateDiscussionThreadModal({
 
               <div className="flex flex-col gap-2">
                 <label className="text-[11.5px] font-black text-[#071A35] uppercase tracking-wider ml-1">{t("Details / Story")}</label>
-                <textarea 
+                <textarea
                   placeholder={t("Provide context, application details, requirements, or what you hope to discuss...")}
                   className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-2xl px-4 py-3 text-[13px] font-semibold text-[#071A35] placeholder-[#071A35]/40 focus:outline-none focus:border-[#071A35] focus:bg-white focus:ring-4 focus:ring-[#071A35]/10 transition-all min-h-[130px] resize-none leading-relaxed"
                   value={content}
@@ -132,8 +132,8 @@ export default function CreateDiscussionThreadModal({
 
               <div className="flex flex-col gap-2">
                 <label className="text-[11.5px] font-black text-[#071A35] uppercase tracking-wider ml-1">{t("Optional Image URL")}</label>
-                <input 
-                  type="url" 
+                <input
+                  type="url"
                   placeholder="https://example.com/image.png"
                   className="w-full bg-[#FAF7F0] border border-[#E8E1D5] rounded-2xl px-4 py-3 text-[13px] font-semibold text-[#071A35] placeholder-[#071A35]/40 focus:outline-none focus:border-[#071A35] focus:bg-white focus:ring-4 focus:ring-[#071A35]/10 transition-all"
                   value={postImage}
@@ -145,15 +145,15 @@ export default function CreateDiscussionThreadModal({
           </div>
 
           <div className="px-7 py-4 border-t border-[#E8E1D5] bg-[#FAF7F0] flex justify-end gap-3 items-center">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={onCancel}
               className="px-6 py-2.5 rounded-full text-[12.5px] font-extrabold text-[#071A35] bg-white border border-[#E8E1D5] hover:bg-slate-100 transition-all cursor-pointer shadow-sm"
             >
               {t("Cancel")}
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               form="create-career-form"
               disabled={isSubmitting}
               className="px-7 py-2.5 rounded-full text-[12.5px] font-black text-[#071A35] bg-[#00c2cb] hover:bg-[#00a8b5] transition-all cursor-pointer shadow-md border-none flex items-center gap-2 disabled:opacity-50"
@@ -174,7 +174,7 @@ export default function CreateDiscussionThreadModal({
   // Default: forum variant
   return (
     <div className="fixed inset-0 bg-[#071A35]/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto z-[2000] animate-modal-fade-in" onClick={onCancel}>
-      <div 
+      <div
         className="w-full max-w-[580px] bg-white rounded-[1.5rem] sm:rounded-[2rem] shadow-[0_25px_60px_rgba(7,26,53,0.3)] flex flex-col overflow-hidden border border-[#E8E1D5] animate-modal-slide-in relative font-sans max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -193,17 +193,17 @@ export default function CreateDiscussionThreadModal({
               </p>
             </div>
           </div>
-          <button 
+          <button
             type="button"
-            className="bg-white/10 hover:bg-white/20 text-white/80 hover:text-white border-none w-8 h-8 rounded-full cursor-pointer flex items-center justify-center transition-all duration-200" 
+            className="bg-white/10 hover:bg-white/20 text-white/80 hover:text-white border-none w-8 h-8 rounded-full cursor-pointer flex items-center justify-center transition-all duration-200"
             onClick={onCancel}
           >
             <i className="fa-solid fa-xmark text-sm flex items-center justify-center" />
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="flex flex-col flex-1 text-left">
-          <div className="p-4 sm:p-7 overflow-y-auto max-h-[65vh] flex flex-col gap-4 sm:gap-5">
+        <form onSubmit={onSubmit} className="flex flex-col flex-1 text-left min-h-0 overflow-hidden">
+          <div className="p-4 sm:p-7 overflow-y-auto flex-1 flex flex-col gap-4 sm:gap-5 min-h-0">
             {/* Title input group */}
             <div className="flex flex-col gap-2">
               <label htmlFor="thread-title" className="text-[11.5px] font-black text-[#071A35] tracking-wider uppercase ml-1">
@@ -261,11 +261,10 @@ export default function CreateDiscussionThreadModal({
                             setTags([...(tags || []), tag]);
                           }
                         }}
-                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${
-                          isSelected
+                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${isSelected
                             ? "bg-[#071A35] text-white border-[#071A35]"
                             : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
-                        }`}
+                          }`}
                       >
                         #{tag}
                       </button>
@@ -288,11 +287,10 @@ export default function CreateDiscussionThreadModal({
                             setTags([...(tags || []), tag]);
                           }
                         }}
-                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${
-                          isSelected
+                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${isSelected
                             ? "bg-[#071A35] text-white border-[#071A35]"
                             : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
-                        }`}
+                          }`}
                       >
                         #{tag}
                       </button>
@@ -315,11 +313,10 @@ export default function CreateDiscussionThreadModal({
                             setTags([...(tags || []), tag]);
                           }
                         }}
-                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${
-                          isSelected
+                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${isSelected
                             ? "bg-[#071A35] text-white border-[#071A35]"
                             : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
-                        }`}
+                          }`}
                       >
                         #{tag}
                       </button>
@@ -342,11 +339,10 @@ export default function CreateDiscussionThreadModal({
                             setTags([...(tags || []), tag]);
                           }
                         }}
-                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${
-                          isSelected
+                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold cursor-pointer transition-all border ${isSelected
                             ? "bg-[#071A35] text-white border-[#071A35]"
                             : "bg-white text-slate-700 border-slate-200 hover:border-[#071A35]"
-                        }`}
+                          }`}
                       >
                         #{tag}
                       </button>
@@ -463,17 +459,17 @@ export default function CreateDiscussionThreadModal({
           </div>
 
           {/* Footer actions */}
-          <div className="flex justify-end items-center gap-3 px-7 py-4 border-t border-[#E8E1D5] bg-[#FAF7F0]">
-            <button 
-              type="button" 
-              className="bg-white border border-[#E8E1D5] text-[#071A35] py-2.5 px-6 rounded-full text-[12.5px] font-extrabold cursor-pointer transition-all duration-200 shadow-sm hover:bg-slate-100 active:scale-98" 
+          <div className="flex justify-end items-center gap-3 px-6 sm:px-7 pt-4 pb-6 sm:pb-7 border-t border-[#E8E1D5] bg-[#FAF7F0] shrink-0 mt-auto">
+            <button
+              type="button"
+              className="bg-white border border-[#E8E1D5] text-[#071A35] py-2.5 px-6 rounded-full text-[12.5px] font-extrabold cursor-pointer transition-all duration-200 shadow-sm hover:bg-slate-100 active:scale-98"
               onClick={onCancel}
             >
               {t('Cancel')}
             </button>
-            <button 
-              type="submit" 
-              className="bg-[#071A35] hover:bg-[#0A2246] text-white border-none py-2.5 px-7 rounded-full text-[12.5px] font-black cursor-pointer shadow-md transition-all duration-200 active:scale-98 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]" 
+            <button
+              type="submit"
+              className="bg-[#071A35] hover:bg-[#0A2246] text-white border-none py-2.5 px-7 rounded-full text-[12.5px] font-black cursor-pointer shadow-md transition-all duration-200 active:scale-98 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
