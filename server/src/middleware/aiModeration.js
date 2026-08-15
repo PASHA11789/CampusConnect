@@ -82,20 +82,20 @@ export const aiModeration = async (req, res, next) => {
                 console.warn("Groq with model llama-3.1-8b-instant failed. Error: ", groqErr.message);
                 
                 try {
-                    console.log("Attempting moderation with Groq using fallback model llama-3.3-70b-specdec...");
+                    console.log("Attempting moderation with Groq using fallback model llama-3.3-70b-versatile...");
                     const response = await groq.chat.completions.create({
                         messages: [
                             { role: "system", content: systemPrompt },
                             { role: "user", content: `Text to analyze: ${textToAnalyze}` }
                         ],
-                        model: "llama-3.3-70b-specdec",
+                        model: "llama-3.3-70b-versatile",
                         response_format: { type: "json_object" }
                     });
                     result = JSON.parse(response.choices[0].message.content);
                     success = true;
-                    console.log("Moderated successfully with Groq model llama-3.3-70b-specdec.");
+                    console.log("Moderated successfully with Groq model llama-3.3-70b-versatile.");
                 } catch (fallbackGroqErr) {
-                    console.error("Groq fallback model llama-3.3-70b-specdec also failed. Error: ", fallbackGroqErr.message);
+                    console.error("Groq fallback model llama-3.3-70b-versatile also failed. Error: ", fallbackGroqErr.message);
                 }
             }
         }
