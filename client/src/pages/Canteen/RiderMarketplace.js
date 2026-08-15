@@ -256,8 +256,13 @@ export default function RiderMarketplace() {
         const { data } = await axios.get(`${SOCKET_URL}/api/orders/marketplace/my-active`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (data && data.success && data.activeOrder) {
-          setActiveClaimedOrder(data.activeOrder);
+        if (data && data.success) {
+          if (data.activeOrder) {
+            setActiveClaimedOrder(data.activeOrder);
+          } else {
+            setActiveClaimedOrder(null);
+            localStorage.removeItem("active_claimed_order");
+          }
         }
       } catch (err) {
         console.error("Error loading active rider order:", err);
@@ -438,6 +443,11 @@ export default function RiderMarketplace() {
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to mark picked up";
       showToast(errMsg, "error");
+      if (errMsg.toLowerCase().includes("cancelled") || errMsg.toLowerCase().includes("not found")) {
+        setActiveClaimedOrder(null);
+        localStorage.removeItem("active_claimed_order");
+        fetchTickets();
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -461,6 +471,11 @@ export default function RiderMarketplace() {
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to mark arrival";
       showToast(errMsg, "error");
+      if (errMsg.toLowerCase().includes("cancelled") || errMsg.toLowerCase().includes("not found")) {
+        setActiveClaimedOrder(null);
+        localStorage.removeItem("active_claimed_order");
+        fetchTickets();
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -486,6 +501,11 @@ export default function RiderMarketplace() {
     } catch (err) {
       const errMsg = err.response?.data?.message || "Failed to complete delivery";
       showToast(errMsg, "error");
+      if (errMsg.toLowerCase().includes("cancelled") || errMsg.toLowerCase().includes("not found")) {
+        setActiveClaimedOrder(null);
+        localStorage.removeItem("active_claimed_order");
+        fetchTickets();
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -593,9 +613,25 @@ export default function RiderMarketplace() {
                 </div>
                 <div>
                   <span className="text-[9.5px] sm:text-[10px] font-black uppercase text-slate-400 tracking-wider">{t.orderId}</span>
-                  <h2 className={`text-base sm:text-xl font-black leading-tight ${isDark ? "text-white" : "text-[#0a2342]"}`}>
-                    Order #{activeClaimedOrder.orderId}
-                  </h2>
+                  <div className="flex items-center justify-between gap-2">
+                    <h2 className={`text-base sm:text-xl font-black leading-tight ${isDark ? "text-white" : "text-[#0a2342]"}`}>
+                      Order #{activeClaimedOrder.orderId}
+                    </h2>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveClaimedOrder(null);
+                        localStorage.removeItem("active_claimed_order");
+                        fetchTickets();
+                        showToast("Cleared active order card.", "info");
+                      }}
+                      className="text-[10px] font-black text-rose-500 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1 rounded-xl transition-all cursor-pointer"
+                      title="Clear stuck or cancelled order"
+                    >
+                      <i className="fa-solid fa-xmark text-xs mr-1" />
+                      Clear Card
+                    </button>
+                  </div>
                   <p className="text-[11px] sm:text-xs text-slate-400 font-bold mt-1">
                     {t.destination}: <span className="text-[#00c2cb] font-black">{activeClaimedOrder.deliveryLocation || "Campus Delivery Point"}</span>
                   </p>
@@ -653,15 +689,15 @@ export default function RiderMarketplace() {
                 {/* Step 1: Pick Up */}
                 <button
                   onClick={() => handleMarkPickedUp(activeClaimedOrder.orderId)}
-                  disabled={isProcessing || activeClaimedOrder.status !== "ready"}
-                  className={`w-full py-3 sm:py-3.5 rounded-2xl font-black text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ${activeClaimedOrder.status === "ready"
+                  disabled={isProcessing || !["accepted", "preparing", "ready"].includes(activeClaimedOrder.status)}
+                  className={`w-full py-3 sm:py-3.5 rounded-2xl font-black text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ${["accepted", "preparing", "ready"].includes(activeClaimedOrder.status)
                     ? "bg-[#00c2cb] hover:bg-[#00b0b8] text-slate-950 shadow-cyan-500/20"
                     : isDark ? "bg-slate-800 text-slate-600 border border-slate-700 cursor-not-allowed" : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
                     }`}
                 >
-                  {activeClaimedOrder.status === "ready" ? t.btnPickedUp :
-                    activeClaimedOrder.status === "accepted" || activeClaimedOrder.status === "preparing" ? t.btnWaitingReady :
-                      t.btnFoodPickedUp}
+                  {["accepted", "preparing", "ready"].includes(activeClaimedOrder.status)
+                    ? t.btnPickedUp
+                    : t.btnFoodPickedUp}
                 </button>
 
                 {/* Step 2: Mark Arrived */}

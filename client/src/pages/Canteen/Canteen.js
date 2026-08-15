@@ -125,6 +125,7 @@ export default function Canteen() {
   const [orderId, setOrderId] = useState("");
   const [isNotifyingRider, setIsNotifyingRider] = useState(false);
   const [isStudentComingNotified, setIsStudentComingNotified] = useState(false);
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
 
   // Trigger continuous un-muteable 5s bell ring / 8s pause loop when rider arrives
   useEffect(() => {
@@ -492,8 +493,20 @@ export default function Canteen() {
     return url;
   };
 
+  // Helper to check if a menu item is marked unavailable / out of stock
+  const isItemUnavailable = (item) => {
+    if (!item) return false;
+    if (item.isAvailable === false || item.isAvailable === "false" || item.isAvailable === 0) return true;
+    if (item.status === "Inactive" || item.status === "Unavailable" || item.status === "Out of Stock") return true;
+    return false;
+  };
+
   // ── Cart Helpers ──────────────────────────────────────────────────
   const handleAddToCart = (item) => {
+    if (isItemUnavailable(item)) {
+      showToast(`⚠️ Item Out of Stock: "${item.name}" is currently unavailable!`, "warning");
+      return;
+    }
     const itemId = item._id || item.id;
     setCart((prev) => {
       const ex = prev.find((ci) => ci.id === itemId);
@@ -503,6 +516,10 @@ export default function Canteen() {
   };
 
   const handleAddToCartClick = (item) => {
+    if (isItemUnavailable(item)) {
+      showToast(`⚠️ Item Out of Stock: "${item.name}" is currently unavailable!`, "warning");
+      return;
+    }
     const itemCategory = item.category || (item.name.toLowerCase().match(/(burger|sandwich|pizza|zinger|fries|roll)/) ? "Fast Food" : "Other");
     if (itemCategory === "Fast Food" || itemCategory === "Traditional") {
       setCustomizingItem(item);
@@ -514,6 +531,11 @@ export default function Canteen() {
 
   const handleConfirmCustomization = () => {
     if (!customizingItem) return;
+    if (isItemUnavailable(customizingItem)) {
+      showToast(`⚠️ Item Out of Stock: "${customizingItem.name}" is currently unavailable!`, "warning");
+      setCustomizingItem(null);
+      return;
+    }
     let extra = 0;
     const notes = [];
     const itemCategory = customizingItem.category || (customizingItem.name.toLowerCase().match(/(burger|sandwich|pizza|zinger|fries|roll)/) ? "Fast Food" : "Other");
@@ -533,6 +555,14 @@ export default function Canteen() {
   };
 
   const handleAdjustQty = (id, change) => {
+    if (change > 0) {
+      const cartItem = cart.find((ci) => ci.id === id || ci._id === id);
+      const menuItem = menuList.find((m) => (m._id || m.id) === id || m.name === cartItem?.name);
+      if (isItemUnavailable(cartItem) || isItemUnavailable(menuItem)) {
+        showToast(`⚠️ Item Out of Stock: "${cartItem?.name || menuItem?.name || 'Item'}" is currently unavailable!`, "warning");
+        return;
+      }
+    }
     setCart((prev) => prev.map((ci) => ci.id === id ? { ...ci, qty: ci.qty + change } : ci).filter((ci) => ci.qty > 0));
   };
 
@@ -590,7 +620,8 @@ export default function Canteen() {
 
   // ── Checkout (Live API call) ─────────────────────────────────────
   const handleCheckout = async () => {
-    if (cart.length === 0) return;
+    if (isSubmittingOrder || cart.length === 0) return;
+    setIsSubmittingOrder(true);
     const token = sessionStorage.getItem("token");
 
     const activeResName = restaurantsList.find(r => (r._id || r.id) === activeRestaurant)?.name || "Campus Canteen";
@@ -604,8 +635,8 @@ export default function Canteen() {
       createdAt: new Date().toISOString()
     };
 
-    if (token) {
-      try {
+    try {
+      if (token) {
         const orderPayload = {
           restaurantId: activeRestaurant,
           items: cart.map((item) => ({
@@ -628,21 +659,22 @@ export default function Canteen() {
           setActiveOrder(newOrderObj);
           setOrderId(newOrderObj._id);
         }
-      } catch (err) {
-        console.error("Error creating order:", err);
+      } else {
         setActiveOrder(newOrderObj);
         setOrderId(newOrderObj._id);
       }
-    } else {
-      setActiveOrder(newOrderObj);
-      setOrderId(newOrderObj._id);
-    }
 
-    setCart([]);
-    handleRemovePromo();
-    setActiveTab("track");
-    setIsTrackingOpen(false);
-    showToast("Order placed successfully! Delivery tracking is now live.", "success");
+      setCart([]);
+      handleRemovePromo();
+      setActiveTab("track");
+      setIsTrackingOpen(false);
+      showToast("Order placed successfully! Delivery tracking is now live.", "success");
+    } catch (err) {
+      console.error("Error creating order:", err);
+      showToast(err.response?.data?.message || "Failed to create order.", "error");
+    } finally {
+      setIsSubmittingOrder(false);
+    }
   };
 
   // ── Helper to determine food category dynamically ─────────────────
@@ -919,6 +951,7 @@ export default function Canteen() {
                       deliveryThreshold={deliveryThreshold}
                       studentPhone={studentPhone}
                       setStudentPhone={setStudentPhone}
+                      isSubmittingOrder={isSubmittingOrder}
                     />
                   </div>
                 </div>
@@ -1099,6 +1132,7 @@ export default function Canteen() {
                   deliveryThreshold={deliveryThreshold}
                   studentPhone={studentPhone}
                   setStudentPhone={setStudentPhone}
+                  isSubmittingOrder={isSubmittingOrder}
                 />
               </div>
             )}

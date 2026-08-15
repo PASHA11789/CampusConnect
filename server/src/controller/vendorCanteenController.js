@@ -51,7 +51,9 @@ export const updateMenuItem = async (req,res) =>{
         if(price !== undefined) item.price = Number(price);
         if(category !== undefined) item.category = category.trim();
         if(description !== undefined) item.description = description;
-        if (isAvailable !== undefined) item.isAvailable = Boolean(isAvailable); 
+        if (isAvailable !== undefined) {
+          item.isAvailable = isAvailable === true || isAvailable === "true" || isAvailable === 1 || isAvailable === "1";
+        }
         if (req.file && req.file.path) {
             item.image = req.file.path;
         } else if (image !== undefined) {

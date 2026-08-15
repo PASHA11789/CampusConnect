@@ -20,8 +20,7 @@ export const getRestaurantMenu = async (req, res) => {
     const restaurant = await Restaurant.findById(req.params.id).select('menu name isActive');
     if (!restaurant) return res.status(404).json({ message: "Restaurant not found" });
 
-    const availableMenu = restaurant.menu.filter(item => item.isAvailable);
-    res.status(200).json({ success: true, restaurantName: restaurant.name, menu: availableMenu });
+    res.status(200).json({ success: true, restaurantName: restaurant.name, menu: restaurant.menu || [] });
   } catch (error) {
     res.status(500).json({ message: "Failed to load menu", error: safeError(error) });
   }

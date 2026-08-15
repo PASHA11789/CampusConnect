@@ -118,10 +118,20 @@ export default function MenuBoard({
               // Check if in cart
               const cartItem = cart.find((ci) => ci._id === itemId || ci.id === itemId || ci.name === item.name);
 
+              const isUnavailable = item.isAvailable === false || item.isAvailable === "false" || item.isAvailable === 0 || item.status === "Inactive" || item.status === "Unavailable" || item.status === "Out of Stock";
+
               return (
                 <div
                   key={itemId}
-                  className="bg-white border border-slate-200/90 rounded-[20px] p-2.5 sm:p-3 flex flex-col gap-2.5 justify-between shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-[#071A35]/30 transition-all duration-300 group cursor-pointer"
+                  onClick={() => {
+                    if (isUnavailable) {
+                      handleAddToCartClick(item);
+                    }
+                  }}
+                  className={`bg-white border rounded-[20px] p-2.5 sm:p-3 flex flex-col gap-2.5 justify-between shadow-sm transition-all duration-300 group cursor-pointer ${isUnavailable
+                    ? "border-slate-200 opacity-80 bg-slate-50/50"
+                    : "border-slate-200/90 hover:shadow-lg hover:-translate-y-1 hover:border-[#071A35]/30"
+                    }`}
                 >
                   {/* Item Image */}
                   <div className="w-full h-24 sm:h-28 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 relative shadow-sm shrink-0">
@@ -130,13 +140,19 @@ export default function MenuBoard({
                       alt={item.name}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
-                    {cartItem && (
+                    {isUnavailable ? (
+                      <div className="absolute inset-0 bg-[#071A35]/70 backdrop-blur-[1px] flex items-center justify-center">
+                        <span className="bg-rose-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg uppercase tracking-wider flex items-center gap-1">
+                          <i className="fa-solid fa-ban text-[9px]" /> Out of Stock
+                        </span>
+                      </div>
+                    ) : cartItem ? (
                       <div className="absolute inset-0 bg-[#071A35]/60 backdrop-blur-[1px] flex items-center justify-center">
                         <span className="bg-[#00c2cb] text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-full shadow-lg">
                           {cartItem.qty} in cart
                         </span>
                       </div>
-                    )}
+                    ) : null}
                   </div>
 
                   {/* Details */}
@@ -164,7 +180,20 @@ export default function MenuBoard({
                       Rs. {item.price}
                     </span>
 
-                    {cartItem ? (
+                    {isUnavailable ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddToCartClick(item);
+                        }}
+                        className="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 py-1.5 px-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer flex items-center gap-1 shrink-0 transition-colors"
+                        title="Click to check item status"
+                      >
+                        <span>Unavailable</span>
+                        <i className="fa-solid fa-ban text-[9px] text-rose-500" />
+                      </button>
+                    ) : cartItem ? (
                       /* Quantity adjusters inline if item is already in cart */
                       <div className="flex items-center gap-1.5 bg-slate-100 border border-slate-200/80 p-1 rounded-xl shadow-inner">
                         <button

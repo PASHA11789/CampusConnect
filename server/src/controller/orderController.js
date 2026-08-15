@@ -64,6 +64,20 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Restaurant is currently closed" });
     }
 
+    // Check if any requested item is currently marked as unavailable
+    for (const reqItem of items) {
+      const menuItem = restaurant.menu.find(
+        (m) => m.name.toLowerCase().trim() === (reqItem.name || "").toLowerCase().trim() ||
+               (m._id && reqItem._id && m._id.toString() === reqItem._id.toString())
+      );
+      if (menuItem && menuItem.isAvailable === false) {
+        return res.status(400).json({
+          success: false,
+          message: `"${menuItem.name}" is currently unavailable / out of stock and cannot be ordered.`
+        });
+      }
+    }
+
     const finalContact = contactNumber || studentPhone || "N/A";
     const location = deliveryLocation || deliveryDestination || "University Main Gate";
     const customId = generateOrderId(restaurant.name);
@@ -243,9 +257,10 @@ export const pickupOrder = async (req, res) => {
       return res.status(403).json({ success: false, message: "Only the assigned rider can mark this order as picked up." });
     }
 
-    // Guard: Order must be in 'ready' state to pick up
-    if (order.status !== "ready") {
-      return res.status(400).json({ success: false, message: `Cannot pick up order in '${order.status}' state. Order must be 'ready'.` });
+    // Guard: Order must be in active state (accepted, preparing, or ready) to pick up
+    const allowedPickupStatuses = ["accepted", "preparing", "ready"];
+    if (!allowedPickupStatuses.includes(order.status)) {
+      return res.status(400).json({ success: false, message: `Cannot pick up order in '${order.status}' state.` });
     }
 
     order.status = "picked_up";

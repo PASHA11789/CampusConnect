@@ -20,6 +20,7 @@ export default function CheckoutCart({
   deliveryThreshold,
   studentPhone,
   setStudentPhone,
+  isSubmittingOrder = false,
 }) {
   return (
     <aside className="sticky top-28 h-fit flex flex-col gap-4 w-full max-lg:static">
@@ -219,15 +220,24 @@ export default function CheckoutCart({
         {/* Checkout Button */}
         <button
           onClick={handleCheckout}
-          disabled={cart.length === 0 || !studentPhone || !studentPhone.trim()}
-          className={`mt-4 w-full rounded-[18px] py-3.5 text-xs font-black tracking-widest uppercase text-white transition-all duration-300 shadow-md cursor-pointer focus:outline-none flex items-center justify-center gap-2 border-none ${cart.length > 0 && studentPhone && studentPhone.trim()
+          disabled={cart.length === 0 || !studentPhone || !studentPhone.trim() || isSubmittingOrder}
+          className={`mt-4 w-full rounded-[18px] py-3.5 text-xs font-black tracking-widest uppercase text-white transition-all duration-300 shadow-md cursor-pointer focus:outline-none flex items-center justify-center gap-2 border-none ${cart.length > 0 && studentPhone && studentPhone.trim() && !isSubmittingOrder
               ? "bg-gradient-to-r from-[#071A35] via-[#0a2342] to-[#0079c2] hover:from-[#0a2342] hover:to-[#00c2cb] shadow-[0_6px_20px_rgba(0,121,194,0.3)] scale-[1.01]"
               : "bg-[#0a2342] disabled:cursor-not-allowed disabled:opacity-50"
             }`}
         >
-          <i className="fa-solid fa-bolt text-amber-400 text-xs" />
-          <span>Place Order</span>
-          {cart.length > 0 && <span>(Rs. {cartTotal})</span>}
+          {isSubmittingOrder ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
+              <span>Placing Order...</span>
+            </>
+          ) : (
+            <>
+              <i className="fa-solid fa-bolt text-amber-400 text-xs" />
+              <span>Place Order</span>
+              {cart.length > 0 && <span>(Rs. {cartTotal})</span>}
+            </>
+          )}
         </button>
       </div>
 

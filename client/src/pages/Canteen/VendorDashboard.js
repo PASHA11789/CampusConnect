@@ -413,6 +413,26 @@ export default function VendorDashboard() {
     }
   };
 
+  // Toggle menu item availability quickly
+  const handleToggleItemAvailability = async (item) => {
+    const token = sessionStorage.getItem("vendorToken");
+    const newAvailable = item.status !== "Active";
+    try {
+      const formData = new FormData();
+      formData.append("isAvailable", newAvailable ? "true" : "false");
+      const { data } = await axios.put(`/api/vendor/menu/${item.id}`, formData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (data.success) {
+        setMenu(prev => prev.map(i => i.id === item.id ? { ...i, status: newAvailable ? "Active" : "Inactive", isAvailable: newAvailable } : i));
+        showToast(`"${item.name}" marked as ${newAvailable ? "Available (Active)" : "Unavailable (Inactive)"}.`, "success");
+      }
+    } catch (err) {
+      console.error("Failed to toggle availability:", err);
+      showToast("Failed to update item availability.", "error");
+    }
+  };
+
   // Handle avatar upload
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
@@ -1787,15 +1807,30 @@ export default function VendorDashboard() {
 
                     <div className="flex items-center gap-2 pt-3 px-1 border-t border-slate-100/80 mt-auto">
                       <button
+                        type="button"
+                        onClick={() => handleToggleItemAvailability(item)}
+                        className={`px-3 py-2.5 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer border ${item.status === "Active"
+                          ? "bg-amber-50 hover:bg-amber-100 border-amber-200/80 text-amber-700"
+                          : "bg-emerald-50 hover:bg-emerald-100 border-emerald-200/80 text-emerald-700"
+                          }`}
+                        title={item.status === "Active" ? "Mark Out of Stock / Unavailable" : "Mark Available"}
+                      >
+                        <i className={`fa-solid ${item.status === "Active" ? "fa-ban" : "fa-circle-check"} text-xs flex items-center justify-center`} />
+                        <span>{item.status === "Active" ? "Disable" : "Enable"}</span>
+                      </button>
+
+                      <button
+                        type="button"
                         onClick={() => handleEditItemClick(item)}
-                        className="flex-1 py-2.5 bg-slate-50 hover:bg-[#00c2cb] border border-slate-100 hover:border-[#00c2cb] rounded-xl text-[11px] font-extrabold text-slate-600 hover:text-white flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                        className="flex-1 py-2.5 bg-slate-50 hover:bg-[#00c2cb] border border-slate-100 hover:border-[#00c2cb] rounded-xl text-[11px] font-extrabold text-slate-600 hover:text-white flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
                       >
                         <i className="fa-solid fa-pen-to-square text-xs flex items-center justify-center" />
                         Edit Item
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleDeleteItem(item.id)}
-                        className="p-2.5 bg-white border border-rose-100 hover:bg-rose-50 hover:border-rose-200 text-rose-500 rounded-xl transition-all shadow-sm group/btn"
+                        className="p-2.5 bg-white border border-rose-100 hover:bg-rose-50 hover:border-rose-200 text-rose-500 rounded-xl transition-all shadow-sm group/btn cursor-pointer"
                         title="Delete"
                       >
                         <i className="fa-solid fa-trash-can text-sm group-hover/btn:scale-110 transition-transform flex items-center justify-center" />
