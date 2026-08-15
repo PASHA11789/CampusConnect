@@ -18,6 +18,7 @@ export default function RestaurantList({
   setSelectedCategory,
   selectedVisualIndex,
   setSelectedVisualIndex,
+  showToast,
 }) {
   const displayRestaurants = restaurants && restaurants.length > 0 ? restaurants : [];
 
@@ -42,6 +43,7 @@ export default function RestaurantList({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {displayRestaurants.map((res, index) => {
           const backendId = res._id || res.id;
+          const isClosed = res.isActive === false || getCanteenDisplayInfo(res).status === "Closed";
           const isSelected = activeRestaurant === backendId || (index === selectedVisualIndex && !activeRestaurant);
           const displayInfo = getCanteenDisplayInfo(res);
 
@@ -49,6 +51,12 @@ export default function RestaurantList({
             <button
               key={backendId}
               onClick={() => {
+                if (isClosed) {
+                  if (typeof showToast === "function") {
+                    showToast(`⚠️ "${res.name}" is currently closed and not accepting orders.`, "warning");
+                  }
+                  return;
+                }
                 setActiveRestaurant(backendId);
                 setSelectedVisualIndex(index);
                 setSelectedCategory("All");
@@ -57,11 +65,12 @@ export default function RestaurantList({
                   menuEl.scrollIntoView({ behavior: "smooth", block: "start" });
                 }
               }}
-              className={`group flex flex-col overflow-hidden rounded-3xl text-left transition-all duration-300 w-full relative cursor-pointer ${
-                isSelected
+              className={`group flex flex-col overflow-hidden rounded-3xl text-left transition-all duration-300 w-full relative cursor-pointer ${isClosed
+                ? "border border-rose-200/80 bg-rose-50/30 opacity-80 cursor-not-allowed"
+                : isSelected
                   ? "border-2 border-[#071A35] shadow-[0_14px_35px_rgba(7,26,53,0.15)] bg-white -translate-y-1"
                   : "border border-slate-200/90 bg-white shadow-xs hover:shadow-xl hover:-translate-y-1.5 hover:border-[#071A35]/30"
-              }`}
+                }`}
             >
               {/* Active Glow Ribbon */}
               {isSelected && (

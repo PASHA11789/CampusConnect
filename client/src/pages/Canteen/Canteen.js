@@ -408,9 +408,21 @@ export default function Canteen() {
       showOrderStatusNotification("completed", data.message);
     });
 
-    socket.on("restaurant_status_update", () => {
+    socket.on("restaurant_status_update", (data) => {
       fetchRestaurants();
-      if (activeRestaurant) fetchMenu();
+      if (data && data.restaurantId) {
+        const targetId = data.restaurantId.toString();
+        const activeId = activeRestaurant ? activeRestaurant.toString() : "";
+        if (activeId && targetId === activeId && data.isActive === false) {
+          showToast("⚠️ This restaurant has just closed and is no longer accepting orders.", "warning");
+          setMenuList([]);
+          setActiveRestaurant("");
+        } else if (activeRestaurant) {
+          fetchMenu();
+        }
+      } else if (activeRestaurant) {
+        fetchMenu();
+      }
     });
 
     socket.on("restaurant_menu_update", () => {
@@ -621,6 +633,11 @@ export default function Canteen() {
   // ── Checkout (Live API call) ─────────────────────────────────────
   const handleCheckout = async () => {
     if (isSubmittingOrder || cart.length === 0) return;
+    const activeResObj = restaurantsList.find(r => (r._id || r.id) === activeRestaurant || r.owner === activeRestaurant);
+    if (activeResObj && activeResObj.isActive === false) {
+      showToast(`⚠️ "${activeResObj.name || 'This restaurant'}" is currently closed and not accepting orders.`, "warning");
+      return;
+    }
     setIsSubmittingOrder(true);
     const token = sessionStorage.getItem("token");
 
@@ -835,6 +852,7 @@ export default function Canteen() {
                     setSelectedCategory={setSelectedCategory}
                     selectedVisualIndex={selectedVisualIndex}
                     setSelectedVisualIndex={setSelectedVisualIndex}
+                    showToast={showToast}
                   />
                 </div>
               ) : (

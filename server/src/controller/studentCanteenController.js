@@ -6,7 +6,7 @@ const safeError = (error) =>
 
 export const getActiveRestaurants = async (req, res) => {
   try {
-    const restaurants = await Restaurant.find({ isActive: true })
+    const restaurants = await Restaurant.find({})
       .select('name phone address coverImage deliveryRadiusKm isActive owner')
       .populate('owner', 'avatar name');
     res.status(200).json({ success: true, count: restaurants.length, restaurants });
