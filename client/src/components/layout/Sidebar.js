@@ -14,15 +14,13 @@ const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
 
   const handleLogout = () => {
-    // Check role before removing session data
-    const isStudent = user?.role === 'student';
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
-    
-    // Route to appropriate login page based on role
+    const isStudent = user?.role === 'student' || user?.role === 'student_mod';
     if (isStudent) {
-      navigate('/mul-login');
+      // Navigate student back to MUL Dashboard
+      navigate('/mul-dashboard');
     } else {
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
       navigate('/login');
     }
   };

@@ -136,6 +136,28 @@ const MULDashboard = () => {
     }
   }, [navigate]);
 
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const handleDocumentClick = (e) => {
+      if (!e.target.closest('.mul-profile-dropdown-container')) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+    if (isProfileDropdownOpen) {
+      document.addEventListener('click', handleDocumentClick);
+    }
+    return () => {
+      document.removeEventListener('click', handleDocumentClick);
+    };
+  }, [isProfileDropdownOpen]);
+
+  const handleMULLogout = () => {
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    navigate('/mul-login');
+  };
+
   return (
     <div className="flex h-screen w-full bg-[#f2f4f8] font-sans overflow-hidden relative">
 
@@ -149,7 +171,7 @@ const MULDashboard = () => {
 
       {/* ══════════════════ SIDEBAR (RESPONSIVE) ══════════════════ */}
       <aside
-        className={`fixed lg:static top-0 left-0 h-full w-60 min-w-[240px] bg-white border-r border-gray-200/80 flex flex-col overflow-y-auto shadow-md lg:shadow-xs z-50 transition-transform duration-300 ease-in-out flex-shrink-0
+        className={`fixed lg:static top-0 left-0 h-full w-60 min-w-[240px] bg-white border-r border-gray-200/80 flex flex-col overflow-y-auto scrollbar-none shadow-md lg:shadow-xs z-50 transition-transform duration-300 ease-in-out flex-shrink-0
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
         {/* Logo Top + Mobile Close Button */}
@@ -234,28 +256,66 @@ const MULDashboard = () => {
               <span className="sm:hidden">CC</span>
             </button>
 
-            {/* Icons Group */}
-            <div className="flex items-center gap-2 sm:gap-4 text-[#2c3e50]">
+            {/* Icons Group & Profile Dropdown Container */}
+            <div className="flex items-center gap-2 sm:gap-3 text-[#2c3e50] relative mul-profile-dropdown-container">
               <i className="fa-solid fa-comments text-lg hidden md:block cursor-default" />
               <i className="fa-solid fa-book-open text-lg hidden md:block cursor-default" />
               <i className="fa-solid fa-calendar-days text-lg hidden sm:block cursor-default" />
-              <i className="fa-solid fa-user text-lg hidden sm:block cursor-default" />
-              <div 
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-white shadow-xs cursor-default flex-shrink-0"
+
+              {/* Avatar Trigger */}
+              <button
+                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border-2 border-sky-400 shadow-xs cursor-pointer flex-shrink-0 transition-transform active:scale-95 border-none p-0 bg-transparent"
                 title={`${currentUser?.name || "Student"} (${currentUser?.registeration_number || ""})`}
               >
                 <img
-                  src={currentUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || "Student")}&background=random`}
+                  src={currentUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || "Student")}&background=0ea5e9&color=fff`}
                   alt={currentUser?.name || "User Profile"}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-full"
                 />
-              </div>
+              </button>
+
+              {/* Profile & Logout Dropdown Card matching exact screenshot */}
+              {isProfileDropdownOpen && (
+                <div className="absolute right-0 top-full mt-3 w-64 bg-white rounded-lg shadow-[0_10px_25px_rgba(0,0,0,0.15)] border border-gray-100 z-50 p-4 animate-fade-in text-left">
+                  {/* Top Row: Avatar + Name + Subtitle */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-[#00A8E8] shrink-0 p-0.5 border border-sky-200">
+                      <img
+                        src={currentUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || "Student")}&background=0ea5e9&color=fff`}
+                        alt="Profile Avatar"
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-[13px] font-extrabold text-[#222222] uppercase tracking-wide leading-tight truncate">
+                        {currentUser?.name || "SAGHEER AHMAD"}
+                      </span>
+                      <span className="text-[12px] text-[#666666] font-medium mt-0.5">
+                        Student
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Horizontal Divider */}
+                  <div className="border-t border-gray-200 my-3"></div>
+
+                  {/* Log Out Button */}
+                  <button
+                    onClick={handleMULLogout}
+                    className="w-full flex items-center gap-3 text-[#444444] hover:text-red-600 text-xs font-semibold py-1 transition-colors cursor-pointer text-left group border-none bg-transparent"
+                  >
+                    <i className="fa-solid fa-right-from-bracket text-sm text-[#555555] group-hover:text-red-600 transition-colors flex items-center justify-center" />
+                    <span className="text-[13px] font-medium text-[#444444] group-hover:text-red-600">Log Out</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>
 
         {/* ── CONTENT ROW (RESPONSIVE FLEX LAYOUT WITH SCROLL) ── */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto scrollbar-none">
           <div className="flex flex-col xl:flex-row min-h-full">
 
             {/* ── MAIN CONTENT AREA ── */}
@@ -362,7 +422,7 @@ const MULDashboard = () => {
             </div>
 
             {/* List Items */}
-            <div className="p-4 sm:p-5 flex flex-col gap-4 sm:gap-6 overflow-y-auto">
+            <div className="p-4 sm:p-5 flex flex-col gap-4 sm:gap-6 overflow-y-auto scrollbar-none">
               {(activeTab === 'news' ? NEWS : NOTICES).map((item) => (
                 <div key={item.id} className="flex gap-3 sm:gap-4 cursor-default group items-start">
                   {/* Event Thumbnail Photo */}
