@@ -501,18 +501,6 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
           )}
         </div>
 
-        {/* MUL Portal Quick Switch (For Students) */}
-        {(user?.role === 'student' || user?.role === 'student_mod') && (
-          <button
-            onClick={() => navigate('/mul-dashboard')}
-            className="hidden sm:flex items-center gap-1.5 bg-[#071A35] hover:bg-[#0f2a52] text-white text-[11px] font-bold px-3 py-1.5 rounded-full border border-slate-700 shadow-sm transition-all cursor-pointer hover:scale-105 active:scale-95"
-            title="Switch back to MUL Dashboard"
-          >
-            <span>🏛️</span>
-            <span>MUL Portal</span>
-          </button>
-        )}
-
         {/* Suggestion & Complaint Button */}
         <div className="group relative">
           <button
