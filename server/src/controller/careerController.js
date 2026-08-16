@@ -138,7 +138,8 @@ export const createCareerThread = async (req, res) => {
 
     const populatedThread = await CareerThread.findById(newThread._id)
       .populate("author", "name avatar role isNameHidden registeration_number department program")
-      .populate("replies.author", "name avatar role isNameHidden registeration_number department program");
+      .populate("replies.author", "name avatar role isNameHidden registeration_number department program")
+      .lean();
 
     res.status(201).json({
       success: true,
@@ -174,7 +175,8 @@ export const replyToThread = async (req, res) => {
 
     const updatedThread = await CareerThread.findById(thread._id)
       .populate("author", "name avatar role isNameHidden registeration_number department program")
-      .populate("replies.author", "name avatar role isNameHidden registeration_number department program");
+      .populate("replies.author", "name avatar role isNameHidden registeration_number department program")
+      .lean();
 
     const addedReply = updatedThread.replies[updatedThread.replies.length - 1];
 

@@ -118,7 +118,8 @@ export const createPetition = async (req, res) => {
     });
 
     const populatedPetition = await Petition.findById(newPetition._id)
-      .populate("creator", "name avatar registeration_number");
+      .populate("creator", "name avatar registeration_number")
+      .lean();
 
     const io = req.app.get("socketio");
 

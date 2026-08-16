@@ -53,6 +53,7 @@ export const reportItem = async (req, res) =>{
         })  
         const populatedItem = await LostFound.findById(newItem._id)
         .populate("reporter", "name avatar")
+        .lean();
 
         const io = req.app.get("socketio")
 

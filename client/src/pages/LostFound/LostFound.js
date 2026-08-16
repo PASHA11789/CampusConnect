@@ -4,6 +4,7 @@ import axios from "axios";
 import { formatDate, SOCKET_URL } from "../../utils/helpers";
 import { io } from "socket.io-client";
 import { validateImageFileSize } from "../../utils/fileValidation";
+import { compressImage } from "../../utils/imageCompressor";
 
 // Layout Components
 import Sidebar from "../../components/layout/Sidebar";
@@ -287,8 +288,9 @@ export default function LostFound() {
       return;
     }
 
+    const compressedAvatar = await compressImage(file, 500, 500, 0.8);
     const formData = new FormData();
-    formData.append("avatar", file);
+    formData.append("avatar", compressedAvatar);
 
     try {
       const config = {
@@ -429,7 +431,8 @@ export default function LostFound() {
         formData.append("surrenderedAt", surrenderedAt);
       }
       if (imageFile) {
-        formData.append("image", imageFile);
+        const compressedImg = await compressImage(imageFile, 1200, 1200, 0.75);
+        formData.append("image", compressedImg);
       }
 
       const { data } = await axios.post("/api/lost-found", formData, config);

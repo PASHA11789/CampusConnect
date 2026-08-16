@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import axios from "axios";
 import { validateImageFileSize } from "../../utils/fileValidation";
+import { compressImage } from "../../utils/imageCompressor";
 
 const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
   const [avatar, setAvatar] = useState(null);
@@ -44,8 +45,9 @@ const MyProfileModal = ({ isOpen, onClose, user, onUpdateUser }) => {
       return;
     }
 
+    const compressedAvatar = await compressImage(file, 500, 500, 0.8);
     const formData = new FormData();
-    formData.append("avatar", file);
+    formData.append("avatar", compressedAvatar);
 
     try {
       const config = {

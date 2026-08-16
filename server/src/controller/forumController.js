@@ -118,6 +118,7 @@ export const createForumThread = async (req, res) => {
     const populatedThread = await Forum.findById(newThread._id)
       .populate('author', 'registeration_number avatar name')
       .select("title content image tags repliesCount createdAt author")
+      .lean();
 
     const io = req.app.get("socketio")
 
@@ -291,7 +292,9 @@ export const addThreadReply = async (req, res) => {
     thread.repliesCount = thread.replies.length
     await thread.save()
 
-    const updatedThread = await Forum.findById(thread._id).populate("replies.author", "registeration_number avatar name")
+    const updatedThread = await Forum.findById(thread._id)
+      .populate("replies.author", "registeration_number avatar name")
+      .lean();
     const savedReply = updatedThread.replies.at(-1);
 
     const io = req.app.get("socketio")

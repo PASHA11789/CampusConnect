@@ -25,7 +25,7 @@ const VULGAR_PATTERNS = [
     /\b(loray?|loda|lode|laude?|lund?|luns?|chutiya?|chutiye|gand|gandu|harami|kanjar|gashti|randi|bhenchod|penchod|madarchod|bitch|fuck|asshole|dick|pussy|sexii?|sexxy|sexi|sxy)\b/i
 ];
 
-const withTimeout = (promise, ms = 3500) => {
+const withTimeout = (promise, ms = 1200) => {
     let timeoutId;
     const timeoutPromise = new Promise((_, reject) => {
         timeoutId = setTimeout(() => reject(new Error(`AI Moderation Timeout (${ms}ms)`)), ms);
