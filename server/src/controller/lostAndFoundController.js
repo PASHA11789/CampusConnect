@@ -19,6 +19,7 @@ export const getLostFoundItems = async (req, res)=>{
         .populate("reporter", "name avatar registeration_number")
         .populate("foundBy", "name avatar registeration_number")
         .sort({ createdAt: -1})
+        .lean()
 
         res.status(200).json({success: true, count: items.length, items})
     }catch(error){

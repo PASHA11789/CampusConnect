@@ -8,7 +8,8 @@ export const getActiveRestaurants = async (req, res) => {
   try {
     const restaurants = await Restaurant.find({})
       .select('name phone address coverImage deliveryRadiusKm isActive owner')
-      .populate('owner', 'avatar name');
+      .populate('owner', 'avatar name')
+      .lean();
     res.status(200).json({ success: true, count: restaurants.length, restaurants });
   } catch (error) {
     res.status(500).json({ message: "Failed to load restaurants", error: safeError(error) });
@@ -17,7 +18,9 @@ export const getActiveRestaurants = async (req, res) => {
 
 export const getRestaurantMenu = async (req, res) => {
   try {
-    const restaurant = await Restaurant.findById(req.params.id).select('menu name isActive');
+    const restaurant = await Restaurant.findById(req.params.id)
+      .select('menu name isActive')
+      .lean();
     if (!restaurant) return res.status(404).json({ message: "Restaurant not found" });
 
     res.status(200).json({ success: true, restaurantName: restaurant.name, menu: restaurant.menu || [] });
@@ -32,7 +35,8 @@ export const getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ student: req.user._id })
       .populate('restaurant', 'name phone coverImage')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
     res.status(200).json({ success: true, count: orders.length, orders });
   } catch (error) {
     res.status(500).json({ message: "Error fetching your orders", error: safeError(error) });

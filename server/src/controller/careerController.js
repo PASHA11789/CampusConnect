@@ -57,9 +57,10 @@ export const getCareerThreads = async (req, res) => {
     const threads = await CareerThread.find(query)
       .populate("author", "name avatar role isNameHidden registeration_number department program")
       .populate("replies.author", "name avatar role isNameHidden registeration_number department program")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
-    const currentUser = req.user ? await User.findById(req.user._id).select("savedCareerPosts") : null;
+    const currentUser = req.user ? await User.findById(req.user._id).select("savedCareerPosts").lean() : null;
     const savedPostIds = currentUser ? currentUser.savedCareerPosts || [] : [];
 
     const safeThreads = threads.map((t) => formatSafeThread(t, req.user?._id, savedPostIds));
@@ -79,7 +80,8 @@ export const getCareerThreadById = async (req, res) => {
       { new: true }
     )
       .populate("author", "name avatar role isNameHidden registeration_number department program")
-      .populate("replies.author", "name avatar role isNameHidden registeration_number department program");
+      .populate("replies.author", "name avatar role isNameHidden registeration_number department program")
+      .lean();
 
     if (!thread) {
       return res.status(404).json({ message: "Career thread not found" });

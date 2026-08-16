@@ -38,7 +38,8 @@ export const getPetitions = async (req, res) => {
     }
 
     const petitionsRaw = await Petition.find(queryObj)
-      .populate("creator", "name avatar registeration_number");
+      .populate("creator", "name avatar registeration_number")
+      .lean();
 
     const petitions = [...petitionsRaw].sort((a, b) => {
       const order = { Class: 1, Department: 2, Campus: 3 };
@@ -57,7 +58,8 @@ export const getPetitions = async (req, res) => {
 export const getPetitionById = async (req, res) => {
   try {
     const petition = await Petition.findById(req.params.id)
-      .populate("creator", "name avatar registeration_number");
+      .populate("creator", "name avatar registeration_number")
+      .lean();
 
     if (!petition) {
       return res.status(404).json({ success: false, message: "Petition not found" });
