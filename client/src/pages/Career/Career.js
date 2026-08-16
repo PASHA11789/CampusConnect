@@ -1111,7 +1111,7 @@ export default function Career() {
             </div>
 
             {/* RIGHT COLUMN: SIDEBAR WIDGETS */}
-            <div className="flex flex-col gap-5 lg:sticky lg:top-4">
+            <div className="flex flex-col gap-5 lg:sticky lg:top-24 h-fit">
               {/* YOUR PROFILE CARD */}
               <div
                 className="bg-white border border-[#E8E1D5] rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-xs flex flex-col gap-4 text-left relative cursor-pointer hover:border-[#00c2cb] hover:shadow-md transition-all group"
