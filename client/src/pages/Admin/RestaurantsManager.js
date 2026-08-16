@@ -112,7 +112,7 @@ const RestaurantsManager = () => {
         <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
           <Topbar time={time} user={currentUser} onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)} />
 
-          <div className="flex-1 px-8 py-7 flex flex-col gap-6 overflow-y-auto max-md:p-4">
+          <div className="flex-1 px-8 py-7 flex flex-col gap-6 max-md:p-4">
 
             {/* ── HERO BANNER ── */}
             <div className="bg-[#071A35] rounded-[1.5rem] p-5 sm:p-7 text-white border border-[#071A35] shadow-[0_12px_35px_rgba(7,26,53,0.2)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
@@ -143,21 +143,22 @@ const RestaurantsManager = () => {
               </div>
             )}
 
+            {/* ── RESTAURANTS TABLE CARD ── */}
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-[0_10px_25px_rgba(0,0,0,0.02)] overflow-hidden">
               {loading ? (
                 <div className="flex justify-center py-10">
                   <div className="w-8 h-8 border-3 border-slate-200 border-t-[#00c2cb] rounded-full animate-spin"></div>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-270px)] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                   <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-slate-100 text-[11px] font-black text-slate-400 uppercase tracking-wider">
-                        <th className="pb-3 px-4">Restaurant Name</th>
-                        <th className="pb-3 px-4">Vendor Email</th>
-                        <th className="pb-3 px-4">Phone</th>
-                        <th className="pb-3 px-4 text-center">Status</th>
-                        <th className="pb-3 px-4 text-right">Actions</th>
+                    <thead className="sticky top-0 bg-white z-10">
+                      <tr className="border-b border-slate-100 text-[11px] font-black text-slate-400 uppercase tracking-wider bg-white">
+                        <th className="pb-3 px-4 bg-white">Restaurant Name</th>
+                        <th className="pb-3 px-4 bg-white">Vendor Email</th>
+                        <th className="pb-3 px-4 bg-white">Phone</th>
+                        <th className="pb-3 px-4 text-center bg-white">Status</th>
+                        <th className="pb-3 px-4 text-right bg-white">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -181,14 +182,14 @@ const RestaurantsManager = () => {
                             <div className="flex items-center justify-end gap-2">
                               <button
                                 onClick={() => openEditModal(r)}
-                                className="p-1.5 rounded-lg bg-blue-50 text-blue-500 hover:bg-blue-100 transition-colors"
+                                className="p-1.5 rounded-lg bg-blue-50 text-blue-500 hover:bg-blue-100 transition-colors cursor-pointer border-none"
                                 title="Edit Restaurant Details"
                               >
                                 <i className="fa-solid fa-pen-to-square text-sm flex items-center justify-center" />
                               </button>
                               <button
                                 onClick={() => handleDeleteRestaurant(r._id)}
-                                className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
+                                className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors cursor-pointer border-none"
                                 title="Delete Restaurant"
                               >
                                 <i className="fa-solid fa-trash-can text-sm flex items-center justify-center" />
