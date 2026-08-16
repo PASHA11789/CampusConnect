@@ -149,6 +149,16 @@ app.get("/", (req, res) => {
   res.send("The CampusConnect API is working");
 });
 
+// Production Keep-Alive & Health Check Endpoint (Prevents Render Cold-Starts)
+app.get(["/health", "/api/health"], (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "CampusConnect API is alive & pre-warmed",
+    uptime: `${Math.floor(process.uptime())}s`,
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/forums", forumRoutes);

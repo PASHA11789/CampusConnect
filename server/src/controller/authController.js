@@ -31,15 +31,20 @@ export const loginUser = async (req, res) => {
       });
     }
 
+    const normalizedIdentifier = rawIdentifier.toLowerCase();
+
     // 1. Try fast exact indexed lookup first (< 2ms execution time)
     let user = await User.findOne({
       $or: [
         { registeration_number: rawIdentifier },
+        { registeration_number: normalizedIdentifier },
         { registration_number: rawIdentifier },
+        { registration_number: normalizedIdentifier },
         { registration_no: rawIdentifier },
+        { registration_no: normalizedIdentifier },
         { registrationNumber: rawIdentifier },
       ],
-    });
+    }).lean();
 
     // 2. Fall back to case-insensitive regex query if exact match is not found
     if (!user) {
@@ -50,7 +55,7 @@ export const loginUser = async (req, res) => {
         { registration_no: { $regex: new RegExp(`^${escaped}$`, "i") } },
         { registrationNumber: { $regex: new RegExp(`^${escaped}$`, "i") } },
       ];
-      user = await User.findOne({ $or: orConditions });
+      user = await User.findOne({ $or: orConditions }).lean();
     }
 
     if (user) {
