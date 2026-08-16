@@ -111,6 +111,10 @@ const Topbar = ({ time, user, avatar, handleAvatarChange, isUploading, setUser, 
 
       socket.on("new_notification", (notif) => {
         if (notif) {
+          if (notif.sentAt) {
+            const latencyMs = Date.now() - notif.sentAt;
+            console.log(`⚡ [Live Update Latency] Notification delivered to user in ${latencyMs} ms (< 2000ms target)`);
+          }
           setNotifications(prev => [notif, ...prev].slice(0, 20));
           setUnreadCount(prev => prev + 1);
         }

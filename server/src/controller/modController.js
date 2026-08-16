@@ -178,7 +178,9 @@ export const moderateItem = async (req, res) => {
         }
 
         const targetRoom = petition.level === "Campus" ? "Campus" : petition.targetGroup;
-        io.to(targetRoom).emit("new_petition_published", petition);
+        const petitionData = typeof petition.toObject === 'function' ? petition.toObject() : { ...petition };
+        petitionData.sentAt = Date.now();
+        io.to(targetRoom).emit("new_petition_published", petitionData);
 
         return res.status(200).json({ success: true, message: "Petition approved." });
       } else if (action === "Reject") {

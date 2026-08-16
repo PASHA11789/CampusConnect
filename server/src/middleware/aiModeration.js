@@ -25,7 +25,18 @@ const VULGAR_PATTERNS = [
     /\b(loray?|loda|lode|laude?|lund?|luns?|chutiya?|chutiye|gand|gandu|harami|kanjar|gashti|randi|bhenchod|penchod|madarchod|bitch|fuck|asshole|dick|pussy|sexii?|sexxy|sexi|sxy)\b/i
 ];
 
+const withTimeout = (promise, ms = 3500) => {
+    let timeoutId;
+    const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error(`AI Moderation Timeout (${ms}ms)`)), ms);
+    });
+    return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
+};
+
 export const aiModeration = async (req, res, next) => {
+    const startTime = process.hrtime.bigint();
+    req._contentCheckStart = startTime;
+
     try {
         initClients();
         const textToAnalyze = [req.body.title, req.body.content, req.body.description, req.body.itemName]
@@ -41,6 +52,8 @@ export const aiModeration = async (req, res, next) => {
         if (matchesVulgar) {
             req.body.isFlagged = true;
             req.body.flagReason = "Locally flagged: Contains high-risk vulgarity or offensive language.";
+            const durationMs = (Number(process.hrtime.bigint() - startTime) / 1e6).toFixed(1);
+            console.log(`⏱ [Content Check] Local regex check completed in ${durationMs} ms (< 5000ms target)`);
             return next();
         }
         
@@ -67,35 +80,41 @@ export const aiModeration = async (req, res, next) => {
         if (groq) {
             try {
                 console.log("Attempting moderation with Groq using llama-3.1-8b-instant...");
-                const response = await groq.chat.completions.create({
-                    messages: [
-                        { role: "system", content: systemPrompt },
-                        { role: "user", content: `Text to analyze: ${textToAnalyze}` }
-                    ],
-                    model: "llama-3.1-8b-instant", 
-                    response_format: { type: "json_object" } 
-                });
-                result = JSON.parse(response.choices[0].message.content);
-                success = true;
-                console.log("Moderated successfully with Groq model llama-3.1-8b-instant.");
-            } catch (groqErr) {
-                console.warn("Groq with model llama-3.1-8b-instant failed. Error: ", groqErr.message);
-                
-                try {
-                    console.log("Attempting moderation with Groq using fallback model llama-3.3-70b-versatile...");
-                    const response = await groq.chat.completions.create({
+                const response = await withTimeout(
+                    groq.chat.completions.create({
                         messages: [
                             { role: "system", content: systemPrompt },
                             { role: "user", content: `Text to analyze: ${textToAnalyze}` }
                         ],
-                        model: "llama-3.3-70b-versatile",
-                        response_format: { type: "json_object" }
-                    });
+                        model: "llama-3.1-8b-instant", 
+                        response_format: { type: "json_object" } 
+                    }),
+                    3500
+                );
+                result = JSON.parse(response.choices[0].message.content);
+                success = true;
+                console.log("Moderated successfully with Groq model llama-3.1-8b-instant.");
+            } catch (groqErr) {
+                console.warn("Groq with model llama-3.1-8b-instant failed/timed out. Error: ", groqErr.message);
+                
+                try {
+                    console.log("Attempting moderation with Groq using fallback model llama-3.3-70b-versatile...");
+                    const response = await withTimeout(
+                        groq.chat.completions.create({
+                            messages: [
+                                { role: "system", content: systemPrompt },
+                                { role: "user", content: `Text to analyze: ${textToAnalyze}` }
+                            ],
+                            model: "llama-3.3-70b-versatile",
+                            response_format: { type: "json_object" }
+                        }),
+                        3500
+                    );
                     result = JSON.parse(response.choices[0].message.content);
                     success = true;
                     console.log("Moderated successfully with Groq model llama-3.3-70b-versatile.");
                 } catch (fallbackGroqErr) {
-                    console.error("Groq fallback model llama-3.3-70b-versatile also failed. Error: ", fallbackGroqErr.message);
+                    console.error("Groq fallback model llama-3.3-70b-versatile also failed/timed out. Error: ", fallbackGroqErr.message);
                 }
             }
         }
@@ -103,20 +122,26 @@ export const aiModeration = async (req, res, next) => {
         if (!success && ai) {
             try {
                 console.log("Attempting moderation with Gemini using gemini-2.5-flash...");
-                const response = await ai.models.generateContent({
-                    model: "gemini-2.5-flash",
-                    contents: `System Prompt:\n${systemPrompt}\n\nUser Content:\nText to analyze: ${textToAnalyze}`,
-                    config: {
-                        responseMimeType: "application/json"
-                    }
-                });
+                const response = await withTimeout(
+                    ai.models.generateContent({
+                        model: "gemini-2.5-flash",
+                        contents: `System Prompt:\n${systemPrompt}\n\nUser Content:\nText to analyze: ${textToAnalyze}`,
+                        config: {
+                            responseMimeType: "application/json"
+                        }
+                    }),
+                    3500
+                );
                 result = JSON.parse(response.text.trim());
                 success = true;
                 console.log("Moderated successfully with Gemini.");
             } catch (geminiErr) {
-                console.error("Gemini moderation failed. Error: ", geminiErr.message);
+                console.error("Gemini moderation failed/timed out. Error: ", geminiErr.message);
             }
         }
+
+        const durationMs = (Number(process.hrtime.bigint() - startTime) / 1e6).toFixed(1);
+        console.log(`⏱ [Content Check] Outside AI check completed in ${durationMs} ms (< 5000ms requirement)`);
 
         if (success && result) {
             req.body.isFlagged = result.isObscene;

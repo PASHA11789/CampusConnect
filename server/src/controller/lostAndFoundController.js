@@ -74,7 +74,9 @@ export const reportItem = async (req, res) =>{
             })
         }
 
-        io.emit("new_lost_found_item", populatedItem)
+        const itemObj = typeof populatedItem.toObject === 'function' ? populatedItem.toObject() : { ...populatedItem };
+        itemObj.sentAt = Date.now();
+        io.emit("new_lost_found_item", itemObj);
 
         return res.status(201).json({
             success: true,

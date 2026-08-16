@@ -169,6 +169,10 @@ export default function LostFound() {
 
       socket.on("new_lost_found_item", (newItem) => {
         if (newItem) {
+          if (newItem.sentAt) {
+            const latencyMs = Date.now() - newItem.sentAt;
+            console.log(`⚡ [Live Update Latency] Lost & Found item reached user in ${latencyMs} ms (< 2000ms target)`);
+          }
           setItems((prev) => {
             const exists = prev.some((item) => item._id === newItem._id);
             if (exists) return prev;

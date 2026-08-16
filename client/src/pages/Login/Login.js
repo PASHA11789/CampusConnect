@@ -16,6 +16,7 @@ const Login = () => {
         e.preventDefault();
         setError('');
         setLoading(true);
+        const startTime = performance.now();
 
         try {
             const trimmedIdentifier = identifier.trim();
@@ -24,7 +25,11 @@ const Login = () => {
                 registeration_number: trimmedIdentifier,
                 identifier: trimmedIdentifier,
                 password,
-            });
+            }, { timeout: 8000 });
+
+            const totalDuration = (performance.now() - startTime).toFixed(1);
+            console.log(`⏱ [Client Performance] Sign-in request answered in ${totalDuration} ms (< 3000ms target)`);
+
             sessionStorage.setItem('token', response.data.token);
             sessionStorage.setItem('user', JSON.stringify(response.data));
             // Trigger push notification setup immediately after login

@@ -15,6 +15,7 @@ const getSavedForumIdSet = async (userId) => {
 };
 
 export const getForumSummary = async (req, res) => {
+  const startTime = process.hrtime.bigint();
   try {
     const threads = await Forum.find({ isHidden: false })
       .sort({ createdAt: -1 })
@@ -28,10 +29,15 @@ export const getForumSummary = async (req, res) => {
       isSaved: savedIds.has(thread._id.toString()),
     }));
 
+    const durationMs = (Number(process.hrtime.bigint() - startTime) / 1e6).toFixed(1);
+    res.setHeader("Server-Timing", `forum;dur=${durationMs};desc="Forum List Fetch"`);
+    console.log(`⏱ [Forum Performance] Forum list fetched in ${durationMs} ms (< 3000ms requirement)`);
+
     res.status(200).json({
       success: true,
       count: threadsWithSavedFlag.length,
       threads: threadsWithSavedFlag,
+      responseTimeMs: parseFloat(durationMs),
     })
   } catch (error) {
     res.status(500).json({
@@ -115,6 +121,12 @@ export const createForumThread = async (req, res) => {
 
     const io = req.app.get("socketio")
 
+    if (req._contentCheckStart) {
+      const durationMs = (Number(process.hrtime.bigint() - req._contentCheckStart) / 1e6).toFixed(1);
+      res.setHeader("Server-Timing", `content_check;dur=${durationMs};desc="Content Check and Save"`);
+      console.log(`⏱ [Content Check Performance] Post checked and saved in ${durationMs} ms (< 5000ms requirement)`);
+    }
+
     if (isFlagged) {
       const warningNotification = await Notification.create({
         recipient: req.user._id,
@@ -138,7 +150,8 @@ export const createForumThread = async (req, res) => {
 
     io.emit('new_forum_thread', {
       message: `${req.user.name} started a new topic!`,
-      thread: populatedThread
+      thread: populatedThread,
+      sentAt: Date.now(),
     });
 
     res.status(201).json({
@@ -308,7 +321,7 @@ export const addThreadReply = async (req, res) => {
       })
     }
 
-    io.emit("new_reply", { threadId: thread._id, reply: savedReply, repliesCount: thread.repliesCount })
+    io.emit("new_reply", { threadId: thread._id, reply: savedReply, repliesCount: thread.repliesCount, sentAt: Date.now() });
 
     if (thread.author.toString() !== req.user._id.toString()) {
       const replyNotification = await Notification.create({

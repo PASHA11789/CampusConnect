@@ -186,11 +186,14 @@ export default function Forum() {
   // Fetch forum threads and initialize socket connection
   useEffect(() => {
     const fetchForumThreads = async () => {
+      const startTime = performance.now();
       try {
         const token = sessionStorage.getItem("token");
         if (!token) return;
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const { data } = await axios.get("/api/forums", config);
+        const totalDuration = (performance.now() - startTime).toFixed(1);
+        console.log(`⏱ [Client Performance] Forum list load time: ${totalDuration} ms (< 3000ms target)`);
         const loadedThreads = data.threads || [];
         setThreads(loadedThreads);
 
@@ -219,6 +222,10 @@ export default function Forum() {
 
       socket.on("new_forum_thread", (data) => {
         if (data && data.thread) {
+          if (data.sentAt) {
+            const latencyMs = Date.now() - data.sentAt;
+            console.log(`⚡ [Live Update Latency] New discussion reached client in ${latencyMs} ms (< 2000ms target)`);
+          }
           setThreads((prevThreads) => {
             const exists = prevThreads.some((t) => t._id === data.thread._id);
             if (exists) return prevThreads;
@@ -229,6 +236,10 @@ export default function Forum() {
 
       socket.on("new_reply", (data) => {
         if (data && data.threadId) {
+          if (data.sentAt) {
+            const latencyMs = Date.now() - data.sentAt;
+            console.log(`⚡ [Live Update Latency] Reply reached client in ${latencyMs} ms (< 2000ms target)`);
+          }
           setActiveThread((prevActive) => {
             if (prevActive && prevActive._id === data.threadId) {
               const replyExists = prevActive.replies.some(

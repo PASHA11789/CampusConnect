@@ -8,6 +8,7 @@ const safeError = (error) =>
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const loginUser = async (req, res) => {
+  const startTime = process.hrtime.bigint();
   const rawIdentifier = (
     req.body.registrationNumber ||
     req.body.registeration_number ||
@@ -30,15 +31,27 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    const escaped = escapeRegex(rawIdentifier);
-    const orConditions = [
-      { registeration_number: { $regex: new RegExp(`^${escaped}$`, "i") } },
-      { registration_number: { $regex: new RegExp(`^${escaped}$`, "i") } },
-      { registration_no: { $regex: new RegExp(`^${escaped}$`, "i") } },
-      { registrationNumber: { $regex: new RegExp(`^${escaped}$`, "i") } },
-    ];
+    // 1. Try fast exact indexed lookup first (< 2ms execution time)
+    let user = await User.findOne({
+      $or: [
+        { registeration_number: rawIdentifier },
+        { registration_number: rawIdentifier },
+        { registration_no: rawIdentifier },
+        { registrationNumber: rawIdentifier },
+      ],
+    });
 
-    const user = await User.findOne({ $or: orConditions });
+    // 2. Fall back to case-insensitive regex query if exact match is not found
+    if (!user) {
+      const escaped = escapeRegex(rawIdentifier);
+      const orConditions = [
+        { registeration_number: { $regex: new RegExp(`^${escaped}$`, "i") } },
+        { registration_number: { $regex: new RegExp(`^${escaped}$`, "i") } },
+        { registration_no: { $regex: new RegExp(`^${escaped}$`, "i") } },
+        { registrationNumber: { $regex: new RegExp(`^${escaped}$`, "i") } },
+      ];
+      user = await User.findOne({ $or: orConditions });
+    }
 
     if (user) {
       const isMatch = await bcrypt.compare(password, user.password);
@@ -53,6 +66,10 @@ export const loginUser = async (req, res) => {
           }
         }
 
+        const durationMs = (Number(process.hrtime.bigint() - startTime) / 1e6).toFixed(1);
+        res.setHeader("Server-Timing", `auth;dur=${durationMs};desc="Sign-In Processing"`);
+        console.log(`⚡ [Auth Performance] Sign-in for ${user.registeration_number} completed in ${durationMs} ms (< 3000ms requirement)`);
+
         res.json({
           _id: user._id,
           name: user.name,
@@ -65,6 +82,7 @@ export const loginUser = async (req, res) => {
           section: user.section,
           avatar: user.avatar,
           token: generateToken(user._id),
+          responseTimeMs: parseFloat(durationMs),
         });
       } else {
         res.status(401).json({ message: "Invalid registration number or password" });

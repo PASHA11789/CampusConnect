@@ -15,7 +15,8 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "CampusConnect",
-    allowedFormats: ["jpg", "png", "jpeg"],
+    allowedFormats: ["jpg", "png", "jpeg", "webp"],
+    transformation: [{ width: 1920, height: 1080, crop: "limit", quality: "auto", fetch_format: "auto" }],
   },
 });
 

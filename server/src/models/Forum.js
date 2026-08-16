@@ -84,6 +84,7 @@ const forumSchema = new mongoose.Schema(
 forumSchema.index({ title: "text", content: "text", tags: "text" });
 forumSchema.index({ tags: 1 });
 forumSchema.index({ category: 1, isHidden: 1, createdAt: -1 });
+forumSchema.index({ isHidden: 1, createdAt: -1 });
 
 const Forum = mongoose.model('Forum', forumSchema);
 export default Forum;

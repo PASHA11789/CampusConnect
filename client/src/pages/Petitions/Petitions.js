@@ -306,6 +306,10 @@ export default function Petitions() {
 
       socket.on("new_petition_published", (newPetition) => {
         if (newPetition && checkHasAccess(newPetition, user)) {
+          if (newPetition.sentAt) {
+            const latencyMs = Date.now() - newPetition.sentAt;
+            console.log(`⚡ [Live Update Latency] New petition reached user in ${latencyMs} ms (< 2000ms target)`);
+          }
           setPetitions((prev) => {
             const existsIndex = prev.findIndex((p) => p._id === newPetition._id || (p._id?.startsWith("temp-") && p.title === newPetition.title));
             if (existsIndex !== -1) {
