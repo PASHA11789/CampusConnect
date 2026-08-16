@@ -548,36 +548,40 @@ export default function LostFound() {
     // Categories filter
     let matchesCategory = true;
     if (selectedCategory !== "All") {
-      if (item.category) {
-        matchesCategory = item.category === selectedCategory;
+      const itemCat = (item.category || "").trim().toLowerCase();
+      const targetCat = selectedCategory.trim().toLowerCase();
+
+      if (itemCat && itemCat === targetCat) {
+        matchesCategory = true;
       } else {
         const nameLower = (item.itemName || "").toLowerCase();
         const descLower = (item.description || "").toLowerCase();
-        if (selectedCategory === "Electronics") {
-          matchesCategory = ["phone", "laptop", "charger", "earbuds", "headphone", "calculator", "device", "mobile", "watch", "airpods", "ipad", "usb", "drive"].some(
+        if (targetCat === "electronics") {
+          matchesCategory = itemCat.includes("elect") || ["phone", "laptop", "charger", "earbuds", "headphone", "calculator", "device", "mobile", "watch", "airpods", "ipad", "usb", "drive"].some(
             (kw) => nameLower.includes(kw) || descLower.includes(kw)
           );
-        } else if (selectedCategory === "Books & Notes") {
-          matchesCategory = ["book", "notebook", "copy", "register", "syllabus", "page", "assignment", "diary"].some(
+        } else if (targetCat === "books & notes") {
+          matchesCategory = itemCat.includes("book") || ["book", "notebook", "copy", "register", "syllabus", "page", "assignment", "diary"].some(
             (kw) => nameLower.includes(kw) || descLower.includes(kw)
           );
-        } else if (selectedCategory === "Accessories") {
-          matchesCategory = ["glass", "glasses", "ring", "watch", "umbrella", "bottle", "key", "chain"].some(
+        } else if (targetCat === "accessories") {
+          matchesCategory = itemCat.includes("access") || ["glass", "glasses", "ring", "watch", "umbrella", "bottle", "key", "chain"].some(
             (kw) => nameLower.includes(kw) || descLower.includes(kw)
           );
-        } else if (selectedCategory === "Clothing") {
-          matchesCategory = ["coat", "jacket", "shirt", "muffler", "cap", "hoodie", "apparel"].some(
+        } else if (targetCat === "clothing") {
+          matchesCategory = itemCat.includes("cloth") || ["coat", "jacket", "shirt", "muffler", "cap", "hoodie", "apparel"].some(
             (kw) => nameLower.includes(kw) || descLower.includes(kw)
           );
-        } else if (selectedCategory === "Keys & Cards") {
-          matchesCategory = ["key", "card", "cnic", "id", "license", "file", "document", "slip", "atm", "wallet", "purse"].some(
+        } else if (targetCat === "keys & cards") {
+          matchesCategory = itemCat.includes("key") || itemCat.includes("card") || ["key", "card", "cnic", "id", "license", "file", "document", "slip", "atm", "wallet", "purse"].some(
             (kw) => nameLower.includes(kw) || descLower.includes(kw)
           );
-        } else if (selectedCategory === "Others") {
-          const matchesKnown = ["phone", "laptop", "charger", "earbuds", "headphone", "calculator", "device", "mobile", "card", "cnic", "id", "license", "file", "document", "booklet", "slip", "key", "book", "notebook", "copy", "register", "coat", "jacket", "shirt", "muffler", "glass", "cap", "ring", "watch", "apparel", "bag", "backpack", "wallet", "diary"].some(
+        } else if (targetCat === "others") {
+          matchesCategory = itemCat === "others" || !["phone", "laptop", "charger", "earbuds", "headphone", "calculator", "device", "mobile", "card", "cnic", "id", "license", "file", "document", "booklet", "slip", "key", "book", "notebook", "copy", "register", "coat", "jacket", "shirt", "muffler", "glass", "cap", "ring", "watch", "apparel", "bag", "backpack", "wallet", "diary"].some(
             (kw) => nameLower.includes(kw) || descLower.includes(kw)
           );
-          matchesCategory = !matchesKnown;
+        } else {
+          matchesCategory = itemCat.includes(targetCat);
         }
       }
     }
@@ -714,7 +718,7 @@ export default function LostFound() {
           </div>
 
           {/* ── SEARCH & FILTERS SECTION (Forum Theme) ── */}
-          <div className="relative z-10 bg-white rounded-[1.25rem] sm:rounded-[1.5rem] border border-[#E8E1D5] p-3 sm:p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)]">
+          <div className="relative z-30 bg-white rounded-[1.25rem] sm:rounded-[1.5rem] border border-[#E8E1D5] p-3 sm:p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-[0_8px_25px_rgba(7,26,53,0.04)] overflow-visible">
             
             {/* Search Input Bar */}
             <div className="relative flex-1 min-w-[260px]">
@@ -736,27 +740,28 @@ export default function LostFound() {
               )}
             </div>
 
-            {/* Filter Row — horizontally scrollable on mobile */}
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5 md:pb-0 md:justify-end">
-              <div className="w-[145px] shrink-0">
+            {/* Filter Row — visible popovers */}
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 md:justify-end overflow-visible">
+              <div className="w-[155px] shrink-0">
                 <AnimatedSelect
                   size="sm"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   options={[
-                    { value: "All", label: "All Categories" },
-                    { value: "Electronics", label: "Electronics" },
-                    { value: "Books & Notes", label: "Books & Notes" },
-                    { value: "Accessories", label: "Accessories" },
-                    { value: "Clothing", label: "Clothing" },
-                    { value: "Keys & Cards", label: "Keys & Cards" },
-                    { value: "Others", label: "Others" }
+                    { value: "All", label: "All Categories", iconClass: "fa-solid fa-list" },
+                    { value: "Electronics", label: "Electronics", iconClass: "fa-solid fa-laptop" },
+                    { value: "Books & Notes", label: "Books & Notes", iconClass: "fa-solid fa-book" },
+                    { value: "Accessories", label: "Accessories", iconClass: "fa-solid fa-glasses" },
+                    { value: "Clothing", label: "Clothing", iconClass: "fa-solid fa-shirt" },
+                    { value: "Keys & Cards", label: "Keys & Cards", iconClass: "fa-solid fa-key" },
+                    { value: "Others", label: "Others", iconClass: "fa-solid fa-box" }
                   ]}
                   buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[11px] sm:text-xs font-extrabold text-[#071A35] rounded-full py-1.5 px-3"
+                  dropdownClassName="min-w-[170px] z-[150]"
                 />
               </div>
 
-              <div className="w-[115px] shrink-0">
+              <div className="w-[125px] shrink-0">
                 <AnimatedSelect
                   size="sm"
                   value={filterStatus}
@@ -768,11 +773,12 @@ export default function LostFound() {
                     { value: "Claimed", label: "Claimed" }
                   ]}
                   buttonClassName="bg-[#FAF7F0] border-[#E8E1D5] text-[11px] sm:text-xs font-extrabold text-[#071A35] rounded-full py-1.5 px-3"
+                  dropdownClassName="min-w-[135px] z-[150]"
                 />
               </div>
 
               {/* Date Filter Dropdown */}
-              <div className="w-[140px] shrink-0">
+              <div className="w-[145px] shrink-0">
                 <AnimatedSelect
                   size="sm"
                   value={dateFilterMode}
@@ -789,6 +795,7 @@ export default function LostFound() {
                       ? "bg-[#071A35] text-white border-[#071A35]"
                       : "bg-[#FAF7F0] text-[#071A35] border-[#E8E1D5]"
                   }`}
+                  dropdownClassName="min-w-[160px] z-[150]"
                 />
               </div>
 
